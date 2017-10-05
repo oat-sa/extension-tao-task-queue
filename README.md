@@ -39,13 +39,22 @@ After processing the given task, the worker saves the generated report for the t
 To run a worker, use the following command. It will start a worker for running infinitely.
 
 ```bash
- $ sudo -u www-data php index.php 'oat\oatbox\TaskQueue\Action\RunWorker'
+ $ sudo -u www-data php index.php 'oat\taoTaskQueue\scripts\tools\RunWorker'
 ```
 
 If you want the worker running for a specified time/iteration, use this one:
 
 ```bash
- $ sudo -u www-data php index.php 'oat\oatbox\TaskQueue\Action\RunWorker' 5
+ $ sudo -u www-data php index.php 'oat\taoTaskQueue\scripts\tools\RunWorker' 5
+```
+
+#### Initializing the queue and the task log container
+
+You can run this script if you want to be sure that the required queue and the task log container are created.
+If they are already exist, no action will be taken.
+
+```bash
+ $ sudo -u www-data php index.php 'oat\taoTaskQueue\scripts\tools\InitializeQueue'
 ```
 
 ### Task Log component

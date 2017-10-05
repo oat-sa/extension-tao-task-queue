@@ -21,47 +21,44 @@
 namespace oat\taoTaskQueue\scripts\tools;
 
 use oat\oatbox\action\Action;
-use oat\taoTaskQueue\model\TaskLog;
-use oat\taoTaskQueue\model\Queue;
-use oat\taoTaskQueue\model\TaskLogInterface;
 use oat\taoTaskQueue\model\QueueInterface;
-use oat\taoTaskQueue\model\Worker;
+use oat\taoTaskQueue\model\TaskLogInterface;
 use Zend\ServiceManager\ServiceLocatorAwareInterface;
 use Zend\ServiceManager\ServiceLocatorAwareTrait;
 
 /**
- * Start a new worker.
+ * Initialize Queue:
+ * - create the queue if not set
+ * - create the task log container if not set
  *
  * ```
- * $ sudo -u www-data php index.php 'oat\taoTaskQueue\scripts\tools\RunWorker'
- * $ sudo -u www-data php index.php 'oat\taoTaskQueue\scripts\tools\RunWorker' 10
+ * $ sudo -u www-data php index.php 'oat\taoTaskQueue\scripts\tools\InitializeQueue'
  * ```
- *
- * @author Gyula Szucs <gyula@taotesting.com>
  */
-class RunWorker implements Action, ServiceLocatorAwareInterface
+class InitializeQueue implements Action, ServiceLocatorAwareInterface
 {
     use ServiceLocatorAwareTrait;
 
     public function __invoke($params)
     {
-        $limit = isset($params[0]) ? (int) $params[0] : 0;
+        try {
+            // Create the queue
+            /** @var QueueInterface $queue */
+            $queue = $this->getServiceLocator()->get(QueueInterface::SERVICE_ID);
 
-        /** @var QueueInterface $queue */
-        $queue = $this->getServiceLocator()->get(Queue::SERVICE_ID);
+            if (!$queue->isSync()) {
+                $queue->initialize();
+            }
 
-        if ($queue->isSync()) {
-            return \common_report_Report::createInfo('No worker needed because Sync Queue is used.');
+            // Create task log container
+            /** @var TaskLogInterface $taskLog */
+            $taskLog = $this->getServiceLocator()->get(TaskLogInterface::SERVICE_ID);
+            $taskLog->createContainer();
+
+            return \common_report_Report::createSuccess('Initialization successful');
+        } catch (\Exception $e) {
+            return \common_report_Report::createFailure($e->getMessage());
         }
-
-        /** @var TaskLogInterface $messageLogManager */
-        $messageLogManager = $this->getServiceLocator()->get(TaskLog::SERVICE_ID);
-
-        (new Worker($queue, $messageLogManager))
-            ->setMaxIterations($limit)
-            ->processQueue();
-
-        return \common_report_Report::createSuccess('Worker finished');
     }
 }
 
