@@ -1,0 +1,219 @@
+@startuml
+abstract class ConfigurableService
+
+package "Task" #DDDDDD {
+    together {
+        interface JsonSerializable
+        interface TaskInterface {
+            +__construct(id, owner)
+            +__toString()
+            +__invoke()
+            +getId()
+            +setCreatedAt(\DateTime dateTime)
+            +getCreatedAt()
+            +setOwner(owner)
+            +getOwner()
+            +setMetadata(spec, value = null)
+            +getMetadata(key, default = null)
+            +setParameter(spec, value = null)
+            +getParameter(key, default = null)
+            +getParameters()
+        }
+
+        abstract class AbstractTask {
+            -metadata array
+            -parameters array
+            +jsonSerialize()
+        }
+
+        interface CallbackTaskInterface {
+            +setCallable(callable)
+            +getCallable()
+            +markAsEnqueued()
+            +isEnqueued()
+        }
+
+        class CallbackTask {
+            -callable
+            -enqueued bool
+        }
+
+        AbstractTask <|- TaskInterface
+        CallbackTask <|- CallbackTaskInterface
+        CallbackTask <|-- AbstractTask
+        TaskInterface <|-- JsonSerializable
+    }
+
+    TaskInterface -[hidden]> JsonSerializable
+}
+
+package "Task Log" #DDDDDD {
+    together {
+        interface TaskLogInterface {
+            {static} SERVICE_ID
+            {static} OPTION_TASK_LOG_BROKER
+            {static} STATUS_ENQUEUED
+            {static} STATUS_DEQUEUED
+            {static} STATUS_RUNNING
+            {static} STATUS_COMPLETED
+            {static} STATUS_FAILED
+            {static} STATUS_ARCHIVED
+            {static} STATUS_UNKNOWN
+            +createContainer()
+            +add(TaskInterface task, status)
+            +setStatus(taskId, newStatus, prevStatus = null)
+            +getStatus(taskId)
+            +setReport(taskId, common_report_Report report, newStatus = null)
+            +getReport(taskId)
+        }
+        interface TaskLogBrokerInterface {
+            {static} SERVICE_ID
+            {static} OPTION_PERSISTENCE
+            {static} OPTION_CONTAINER_NAME
+            +createContainer()
+            +add(TaskInterface task, status)
+            +updateStatus(taskId, newStatus, prevStatus = null)
+            +getStatus(taskId)
+            +addReport(taskId, common_report_Report report, newStatus = null)
+            +getReport(taskId)
+        }
+
+        TaskLog <|- TaskLogInterface
+        TaskLog <|-- ConfigurableService
+
+        class TaskLog << SERVICE >> {
+            -getBroker()
+            -validateStatus()
+        }
+
+        RdsTaskLogBroker <|- TaskLogBrokerInterface
+        RdsTaskLogBroker <|-- ConfigurableService
+        class RdsTaskLogBroker << SERVICE >> {
+            #getPersistence()
+            #getTableName()
+        }
+
+        TaskLog ..> TaskLogBrokerInterface : Depends on a task log broker
+    }
+}
+
+package "Queue" #DDDDDD {
+    together {
+        interface Countable
+        QueueInterface <|-- Countable
+        interface QueueInterface {
+            {static} SERVICE_ID
+            {static} QUEUE_PREFIX
+            {static} OPTION_QUEUE_NAME
+            {static} OPTION_QUEUE_BROKER
+            {static} OPTION_TASK_LOG
+            +initialize()
+            +getName()
+            +createTask(action, parameters)
+            +enqueue(TaskInterface task)
+            +dequeue()
+            +acknowledge(TaskInterface task)
+            +isSync()
+            +getNumberOfTasksToReceive()
+        }
+
+        class Queue << SERVICE >> {
+            -getBroker()
+            -getTaskLog()
+            -runWorker()
+            +count()
+        }
+
+        Queue <|- QueueInterface
+        Queue <|-- ConfigurableService
+
+        Queue ..> TaskLogInterface : Depends on a task log
+    }
+
+    together {
+        QueueBrokerInterface <|-- Countable
+        interface QueueBrokerInterface {
+            {static} SERVICE_ID
+            {static} OPTION_NUMBER_OF_TASKS_TO_RECEIVE
+            +setQueueName(name)
+            +createQueue()
+            +push(TaskInterface task)
+            +pop()
+            +delete(TaskInterface task)
+            +getNumberOfTasksToReceive()
+        }
+
+        AbstractQueueBroker <|-- ConfigurableService
+        abstract class AbstractQueueBroker {
+            -queueName
+            -actionResolver
+            -preFetchedQueue
+            #getQueueName()
+            #getQueueNameWithPrefix()
+            #getActionResolver()
+            {abstract} doPop()
+            {abstract} doDelete()
+            #unserializeTask()
+            #pushPreFetchedMessage()
+            -popPreFetchedMessage()
+        }
+
+        class InMemoryQueueBroker << SERVICE >> {
+            -queue SplQueue
+        }
+        class RdsQueueBroker << SERVICE >> {
+            {static} OPTION_PERSISTENCE
+            #getPersistence()
+            #getTableName()
+        }
+        class SqsQueueBroker << SERVICE >> {
+            {static} OPTION_PROFILE
+            {static} OPTION_REGION
+            {static} OPTION_VERSION
+            {static} OPTION_CACHE
+            #sqsClient
+            #queueUrl
+            #getCache()
+        }
+
+        AbstractQueueBroker <|- QueueBrokerInterface
+        InMemoryQueueBroker <|- SyncQueueBrokerInterface
+        InMemoryQueueBroker <|-- AbstractQueueBroker
+        RdsQueueBroker <|-- AbstractQueueBroker
+        SqsQueueBroker <|-- AbstractQueueBroker
+
+        Queue ..> QueueBrokerInterface : Depends on a broker
+    }
+}
+
+package "Worker" #DDDDDD {
+    together {
+        interface WorkerInterface {
+            +__construct(QueueInterface queue, TaskLogInterface taskLog, handleSignals)
+            +processQueue()
+            +processTask(TaskInterface task)
+            +setMaxIterations(maxIterations)
+        }
+        class Worker {
+            -queue
+            -taskLog
+            -maxIterations
+            -shutdown
+            -paused
+            -iterations
+            -waitInterval
+            -processId
+        }
+
+        Worker <|- WorkerInterface
+        Worker ..> QueueInterface : Depends on a queue
+        Worker ..> TaskLogInterface : Depends on a task log
+    }
+}
+
+TaskInterface -[hidden]--> Queue
+Queue -[hidden]--> TaskLogInterface
+Worker -[hidden]> JsonSerializable
+ConfigurableService -[hidden]> TaskLogInterface
+
+@enduml

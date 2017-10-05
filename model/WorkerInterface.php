@@ -1,0 +1,61 @@
+<?php
+/**
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; under version 2
+ * of the License (non-upgradable).
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ *
+ * Copyright (c) 2017 (original work) Open Assessment Technologies SA (under the project TAO-PRODUCT);
+ *
+ */
+
+namespace oat\taoTaskQueue\model;
+
+use Psr\Log\LoggerAwareInterface;
+
+/**
+ * Interface WorkerInterface
+ *
+ * @author Gyula Szucs <gyula@taotesting.com>
+ */
+interface WorkerInterface extends LoggerAwareInterface
+{
+    /**
+     * @param QueueInterface   $queue
+     * @param TaskLogInterface $taskLog
+     * @param bool             $handleSignals
+     */
+    public function __construct(QueueInterface $queue, TaskLogInterface $taskLog, $handleSignals);
+
+    /**
+     * Start processing tasks from a given queue
+     *
+     * @return void
+     */
+    public function processQueue();
+
+    /**
+     * Process a task
+     *
+     * @param  TaskInterface $task
+     * @return string Status of the task after process
+     */
+    public function processTask(TaskInterface $task);
+
+    /**
+     * Set the maximum iterations for the worker. If nothing is set, the worker runs infinitely.
+     *
+     * @param int $maxIterations
+     * @return WorkerInterface
+     */
+    public function setMaxIterations($maxIterations);
+}

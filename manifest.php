@@ -19,13 +19,16 @@
  * 
  */
 
+use oat\taoTaskQueue\scripts\install\RegisterTaskLogService;
+use oat\taoTaskQueue\scripts\install\RegisterTaskQueueService;
+
 /**
  * Generated using taoDevTools 3.1.1
  */
 return array(
     'name' => 'taoTaskQueue',
-    'label' => 'TAO specific Task Queue with custom GUI',
-    'description' => '',
+    'label' => 'Task Queue',
+    'description' => 'TAO specific Task Queue with custom GUI',
     'license' => 'GPL-2.0',
     'version' => '0.1.0',
     'author' => 'Open Assessment Technologies SA',
@@ -38,6 +41,10 @@ return array(
         array('grant', 'http://www.tao.lu/Ontologies/generis.rdf#taoTaskQueueManager', array('ext'=>'taoTaskQueue')),
     ),
     'install' => array(
+        'php' => [
+            RegisterTaskLogService::class,
+            RegisterTaskQueueService::class
+        ]
     ),
     'uninstall' => array(
     ),
