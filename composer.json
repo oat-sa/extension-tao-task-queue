@@ -27,8 +27,7 @@
     "minimum-stability": "dev",
     "require": {
         "php" : ">=5.5",
-        "oat-sa/oatbox-extension-installer": "dev-master",
-        "oat-sa/lib-generis-aws": "dev-master"
+        "oat-sa/oatbox-extension-installer": "dev-master"
     },
     "autoload": {
         "psr-4": {
