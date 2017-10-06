@@ -129,9 +129,11 @@ abstract class AbstractQueueBroker extends ConfigurableService implements QueueB
 
             // if the body contains a valid class name, let's instantiate it
             if (class_exists($className) && is_subclass_of($className, TaskInterface::class)) {
+                $metaData = $basicData[TaskInterface::JSON_METADATA_KEY];
+
                 /** @var TaskInterface $task */
-                $task = new $className();
-                $task->setMetadata($basicData[TaskInterface::JSON_METADATA_KEY]);
+                $task = new $className($metaData[TaskInterface::JSON_METADATA_ID_KEY], $metaData[TaskInterface::JSON_METADATA_OWNER_KEY]);
+                $task->setMetadata($metaData);
                 $task->setParameter($basicData[TaskInterface::JSON_PARAMETERS_KEY]);
 
                 // if it's a CallbackTask and the callable it's a string (meaning it's an Action class name) than we need to restore that object as well.

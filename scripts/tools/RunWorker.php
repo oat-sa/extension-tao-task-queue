@@ -21,8 +21,6 @@
 namespace oat\taoTaskQueue\scripts\tools;
 
 use oat\oatbox\action\Action;
-use oat\taoTaskQueue\model\TaskLog;
-use oat\taoTaskQueue\model\Queue;
 use oat\taoTaskQueue\model\TaskLogInterface;
 use oat\taoTaskQueue\model\QueueInterface;
 use oat\taoTaskQueue\model\Worker;
@@ -48,16 +46,16 @@ class RunWorker implements Action, ServiceLocatorAwareInterface
         $limit = isset($params[0]) ? (int) $params[0] : 0;
 
         /** @var QueueInterface $queue */
-        $queue = $this->getServiceLocator()->get(Queue::SERVICE_ID);
+        $queue = $this->getServiceLocator()->get(QueueInterface::SERVICE_ID);
 
         if ($queue->isSync()) {
             return \common_report_Report::createInfo('No worker needed because Sync Queue is used.');
         }
 
-        /** @var TaskLogInterface $messageLogManager */
-        $messageLogManager = $this->getServiceLocator()->get(TaskLog::SERVICE_ID);
+        /** @var TaskLogInterface $taskLog */
+        $taskLog = $this->getServiceLocator()->get(TaskLogInterface::SERVICE_ID);
 
-        (new Worker($queue, $messageLogManager))
+        (new Worker($queue, $taskLog))
             ->setMaxIterations($limit)
             ->processQueue();
 

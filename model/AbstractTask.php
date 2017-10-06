@@ -35,7 +35,7 @@ abstract class AbstractTask implements TaskInterface
      */
     public function __construct($id, $owner)
     {
-        $this->setMetadata('__id__', $id);
+        $this->setMetadata(self::JSON_METADATA_ID_KEY, $id);
         $this->setCreatedAt(new \DateTime());
         $this->setOwner($owner);
     }
@@ -53,7 +53,7 @@ abstract class AbstractTask implements TaskInterface
      */
     public function getId()
     {
-        return $this->getMetadata('__id__');
+        return $this->getMetadata(self::JSON_METADATA_ID_KEY);
     }
 
     /**
@@ -193,7 +193,7 @@ abstract class AbstractTask implements TaskInterface
      */
     public function setOwner($owner)
     {
-        $this->setMetadata('__owner__', (string) $owner);
+        $this->setMetadata(self::JSON_METADATA_OWNER_KEY, (string) $owner);
 
         return $this;
     }
@@ -203,7 +203,7 @@ abstract class AbstractTask implements TaskInterface
      */
     public function getOwner()
     {
-        return $this->getMetadata('__owner__');
+        return $this->getMetadata(self::JSON_METADATA_OWNER_KEY);
     }
 
     /**

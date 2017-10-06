@@ -171,3 +171,11 @@ if ($task->isEnqueued() && $taskLog->getStatus($task->getId()) == TaskLogInterfa
 }
 ```
 
+Or we can just simply check if the current queue is a sync one than we have a report surely.
+
+```php
+if ($queue->isSync()) {
+    $report = $taskLog->getReport($task->getId());
+}
+```
+

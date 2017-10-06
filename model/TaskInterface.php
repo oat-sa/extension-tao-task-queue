@@ -30,6 +30,8 @@ interface TaskInterface extends \JsonSerializable
     // Fully Qualified Class Name
     const JSON_TASK_CLASS_NAME_KEY = 'taskFqcn';
     const JSON_METADATA_KEY = 'metadata';
+    const JSON_METADATA_ID_KEY = '__id__';
+    const JSON_METADATA_OWNER_KEY = '__owner__';
     const JSON_PARAMETERS_KEY = 'parameters';
 
     /**
