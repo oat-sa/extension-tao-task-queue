@@ -180,6 +180,8 @@ final class Worker implements WorkerInterface
      */
     private function isRunning()
     {
+        pcntl_signal_dispatch();
+
         if ($this->shutdown) {
             return false;
         }
