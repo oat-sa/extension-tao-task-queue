@@ -123,10 +123,11 @@ class Queue extends ConfigurableService implements QueueInterface
      * Creates a CallbackTask with any callable and enqueueing it straightaway.
      *
      * @param callable $callable
-     * @param array  $parameters
+     * @param array    $parameters
+     * @param null|string $label
      * @return CallbackTask
      */
-    public function createTask(callable $callable, array $parameters = [])
+    public function createTask(callable $callable, array $parameters = [], $label = null)
     {
         $id = \common_Utils::getNewUri();
         $owner = \common_session_SessionManager::getSession()->getUser()->getIdentifier();
@@ -135,7 +136,7 @@ class Queue extends ConfigurableService implements QueueInterface
         $callbackTask->setCallable($callable)
             ->setParameter($parameters);
 
-        if ($this->enqueue($callbackTask)) {
+        if ($this->enqueue($callbackTask, $label)) {
             $callbackTask->markAsEnqueued();
         }
 
@@ -145,14 +146,14 @@ class Queue extends ConfigurableService implements QueueInterface
     /**
      * @inheritdoc
      */
-    public function enqueue(TaskInterface $task)
+    public function enqueue(TaskInterface $task, $label = null)
     {
         try {
             $isEnqueued = $this->getBroker()->push($task);
 
             if ($isEnqueued) {
                 $this->getTaskLog()
-                    ->add($task, TaskLogInterface::STATUS_ENQUEUED);
+                    ->add($task, TaskLogInterface::STATUS_ENQUEUED, $label);
             }
 
             // if we need to run the task straightaway

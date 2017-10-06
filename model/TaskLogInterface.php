@@ -51,10 +51,11 @@ interface TaskLogInterface extends LoggerAwareInterface
      * Insert a new task with status into the container.
      *
      * @param TaskInterface $task
-     * @param string $status
+     * @param string        $status
+     * @param null|string   $label
      * @return TaskLogInterface
      */
-    public function add(TaskInterface $task, $status);
+    public function add(TaskInterface $task, $status, $label = null);
 
     /**
      * Set a status for a task.

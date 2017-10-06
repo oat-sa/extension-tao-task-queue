@@ -48,9 +48,10 @@ interface TaskLogBrokerInterface
      *
      * @param TaskInterface $task
      * @param string        $status
+     * @param null|string   $label
      * @return void
      */
-    public function add(TaskInterface $task, $status);
+    public function add(TaskInterface $task, $status, $label = null);
 
     /**
      * Update the status of a task.
@@ -60,7 +61,7 @@ interface TaskLogBrokerInterface
      * @param string $taskId
      * @param string $newStatus
      * @param string|null $prevStatus
-     * @return int
+     * @return int count of touched records
      */
     public function updateStatus($taskId, $newStatus, $prevStatus = null);
 

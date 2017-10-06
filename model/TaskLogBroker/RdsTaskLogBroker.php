@@ -101,6 +101,7 @@ class RdsTaskLogBroker extends ConfigurableService implements TaskLogBrokerInter
             $table->addOption('engine', 'InnoDB');
             $table->addColumn('id', 'string', ["notnull" => true, "length" => 255]);
             $table->addColumn('task_name', 'string', ["notnull" => true, "length" => 255]);
+            $table->addColumn('label', 'string', ["notnull" => false, "length" => 255]);
             $table->addColumn('status', 'string', ["notnull" => true, "length" => 50]);
             $table->addColumn('owner', 'string', ["notnull" => false, "length" => 255, "default" => null]);
             $table->addColumn('report', 'text', ["notnull" => false, "default" => null]);
@@ -118,15 +119,15 @@ class RdsTaskLogBroker extends ConfigurableService implements TaskLogBrokerInter
     }
 
     /**
-     * @param TaskInterface $task
-     * @param string $status
+     * @inheritdoc
      */
-    public function add(TaskInterface $task, $status)
+    public function add(TaskInterface $task, $status, $label = null)
     {
         $this->getPersistence()->insert($this->getTableName(), [
             'id'   => (string) $task->getId(),
             'task_name' => $task instanceof CallbackTaskInterface && is_object($task->getCallable()) ? get_class($task->getCallable()) : get_class($task),
-            'status' => $status,
+            'label' => (string) $label,
+            'status' => (string) $status,
             'owner' => (string) $task->getOwner(),
             'created_at' => $task->getCreatedAt()->format('Y-m-d H:i:s'),
             'updated_at' => $this->getPersistence()->getPlatForm()->getNowExpression()
@@ -134,42 +135,36 @@ class RdsTaskLogBroker extends ConfigurableService implements TaskLogBrokerInter
     }
 
     /**
-     * @param string $messageId
-     * @return bool|string
+     * @inheritdoc
      */
-    public function getStatus($messageId)
+    public function getStatus($taskId)
     {
         $qb = $this->getQueryBuilder()
             ->select('status')
             ->from($this->getTableName())
             ->andWhere('id = :id')
-            ->setParameter('id', $messageId);
+            ->setParameter('id', $taskId);
 
         return $qb->execute()->fetchColumn();
     }
 
     /**
-     * Updating the status.
-     * .
-     * @param string $messageId
-     * @param string $newStatus
-     * @param string $prevStatus
-     * @return int count of touched records
+     * @inheritdoc
      */
-    public function updateStatus($messageId, $newStatus, $prevStatus = null)
+    public function updateStatus($taskId, $newStatus, $prevStatus = null)
     {
         $qb = $this->getQueryBuilder()
             ->update($this->getTableName())
             ->set('status', ':status_new')
             ->set('updated_at', ':updated_at')
             ->where('id = :id')
-            ->setParameter('id', $messageId)
-            ->setParameter('status_new', $newStatus)
+            ->setParameter('id', (string) $taskId)
+            ->setParameter('status_new', (string) $newStatus)
             ->setParameter('updated_at', $this->getPersistence()->getPlatForm()->getNowExpression());
 
         if ($prevStatus) {
             $qb->andWhere('status = :status_prev')
-                ->setParameter('status_prev', $prevStatus);
+                ->setParameter('status_prev', (string) $prevStatus);
         }
 
         return $qb->execute();
@@ -186,25 +181,24 @@ class RdsTaskLogBroker extends ConfigurableService implements TaskLogBrokerInter
             ->set('status', ':status_new')
             ->set('updated_at', ':updated_at')
             ->andWhere('id = :id')
-            ->setParameter('id', $taskId)
+            ->setParameter('id', (string) $taskId)
             ->setParameter('report', json_encode($report))
-            ->setParameter('status_new', $newStatus)
+            ->setParameter('status_new', (string) $newStatus)
             ->setParameter('updated_at', $this->getPersistence()->getPlatForm()->getNowExpression());
 
         return $qb->execute();
     }
 
     /**
-     * @param string $messageId
-     * @return Report|null
+     * @inheritdoc
      */
-    public function getReport($messageId)
+    public function getReport($taskId)
     {
         $qb = $this->getQueryBuilder()
             ->select('report')
             ->from($this->getTableName())
             ->andWhere('id = :id')
-            ->setParameter('id', $messageId);
+            ->setParameter('id', (string) $taskId);
 
         if (($reportJson = $qb->execute()->fetchColumn())
             && ($reportData = json_decode($reportJson, true)) !== null

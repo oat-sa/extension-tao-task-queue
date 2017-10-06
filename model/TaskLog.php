@@ -80,12 +80,12 @@ class TaskLog extends ConfigurableService implements TaskLogInterface
     /**
      * @inheritdoc
      */
-    public function add(TaskInterface $task, $status)
+    public function add(TaskInterface $task, $status, $label = null)
     {
         try {
             $this->validateStatus($status);
 
-            $this->getBroker()->add($task, $status);
+            $this->getBroker()->add($task, $status, $label);
         } catch (\Exception $e) {
             $this->logError('Adding result for task '. $task->getId() .' failed with MSG: '. $e->getMessage());
         }

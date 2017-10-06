@@ -24,6 +24,10 @@ The communication with the different queues is done through the Message Brokers.
 - **RdsQueueBroker** which stores tasks in RDS.
 - **SqsQueueBroker** which is for using AWS SQS.
 
+_Note_: 
+> When SqsQueueBroker is used, plase make sure that "**oat-sa/lib-generis-aws**" is included in the main composer.json
+
+
 ### Worker component
 
 Its duty is to get a **Task** from the specified queue and execute it. **Multiple workers can be run at the same time.**
@@ -139,7 +143,7 @@ $myTask = new MyFirstTask();
 $myTask->setParameter(MyFirstTask::PARAM_TEST_URI, 'http://taotesting.com/tao.rdf#i1496838551505670');
 $myTask->setDeliveryUri('http://taotesting.com/tao.rdf#i1496838551505110');
 
-if ($queue->enqueue($myTask)) {
+if ($queue->enqueue($myTask, 'Label for the task')) {
     echo "Successfully published";
 }
 ```
@@ -147,7 +151,7 @@ if ($queue->enqueue($myTask)) {
 - **Second option**: Using Command/Action objects which implement \oat\oatbox\action\Action. This is the usual old way and more preferable because we can run those actions from CLI if needed.
 
 ```php
-$task = $queue->createTask(new RegeneratePayload(), array($delivery->getUri()));
+$task = $queue->createTask(new RegeneratePayload(), array($delivery->getUri()), 'Fancy Label');
 if ($task->isEnqueued()) {
     echo "Successfully published";
 }

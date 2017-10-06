@@ -56,17 +56,19 @@ interface QueueInterface extends \Countable, LoggerAwareInterface
      *
      * @param callable $callable
      * @param array $parameters
+     * @param null|string $label Label for the task
      * @return CallbackTask
      */
-    public function createTask(callable $callable, array $parameters = []);
+    public function createTask(callable $callable, array $parameters = [], $label = null);
 
     /**
      * Publish a task to the queue.
      *
      * @param TaskInterface $task
+     * @param null|string $label Label for the task
      * @return bool Is the task successfully enqueued?
      */
-    public function enqueue(TaskInterface $task);
+    public function enqueue(TaskInterface $task, $label = null);
 
     /**
      * Receive a task from the queue.
