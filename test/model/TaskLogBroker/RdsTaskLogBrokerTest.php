@@ -29,7 +29,7 @@ use oat\taoTaskQueue\model\TaskLogBroker\RdsTaskLogBroker;
  */
 class RdsTaskLogBrokerTest extends \PHPUnit_Framework_TestCase
 {
-    public function testServiceShouldThrowExceptionWhenPersistenceOptionIsNotSet()
+    public function testTaskLogBrokerServiceShouldThrowExceptionWhenPersistenceOptionIsNotSet()
     {
         $this->expectException(\InvalidArgumentException::class);
         new RdsTaskLogBroker([]);

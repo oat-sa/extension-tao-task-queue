@@ -133,7 +133,7 @@ class CallbackTaskTest extends \PHPUnit_Framework_TestCase
 
     public function testGetCallableShouldReturnStringAfterJsonDecode()
     {
-        $json = '{"taskFqcn":"oat\\\oatbox\\\TaskQueue\\\CallbackTask","metadata":{"__callable__":"oat\\\generis\\\test\\\oatbox\\\TaskQueue\\\Asset\\\CallableFixture"},"parameters":{"key1":"value1"}}';
+        $json = '{"taskFqcn":"oat\\\oatbox\\\TaskQueue\\\CallbackTask","metadata":{"__callable__":"oat\\\taoTaskQueue\\\test\\\model\\\Asset\\\CallableFixture"},"parameters":{"key1":"value1"}}';
         $data = json_decode($json, true);
 
         $this->task->setMetadata($data['metadata']);

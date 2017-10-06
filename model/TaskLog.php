@@ -32,7 +32,7 @@ use oat\oatbox\log\LoggerAwareTrait;
  *
  * @author Gyula Szucs <gyula@taotesting.com>
  */
-final class TaskLog extends ConfigurableService implements TaskLogInterface
+class TaskLog extends ConfigurableService implements TaskLogInterface
 {
     use LoggerAwareTrait;
 
