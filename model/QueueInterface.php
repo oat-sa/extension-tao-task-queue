@@ -29,7 +29,7 @@ use Psr\Log\LoggerAwareInterface;
  */
 interface QueueInterface extends \Countable, LoggerAwareInterface
 {
-    const SERVICE_ID = 'generis/taskqueue'; //intentionally using the name of the old queue service
+    const SERVICE_ID = 'taoTaskQueue/taskQueue';
 
     const QUEUE_PREFIX = 'TQ';
 

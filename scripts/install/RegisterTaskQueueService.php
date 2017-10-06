@@ -25,7 +25,6 @@ use oat\taoTaskQueue\model\Queue;
 use oat\taoTaskQueue\model\QueueBroker\InMemoryQueueBroker;
 use oat\taoTaskQueue\model\QueueBroker\QueueBrokerInterface;
 use oat\taoTaskQueue\model\QueueInterface;
-use oat\taoTaskQueue\model\TaskLog;
 use oat\taoTaskQueue\model\TaskLogInterface;
 
 /**
