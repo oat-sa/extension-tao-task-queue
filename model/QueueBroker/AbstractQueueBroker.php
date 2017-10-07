@@ -24,9 +24,9 @@ use oat\oatbox\service\ConfigurableService;
 use oat\oatbox\action\ActionService;
 use oat\oatbox\action\ResolutionException;
 use oat\oatbox\log\LoggerAwareTrait;
-use oat\taoTaskQueue\model\CallbackTaskInterface;
+use oat\taoTaskQueue\model\Task\CallbackTaskInterface;
 use oat\taoTaskQueue\model\QueueInterface;
-use oat\taoTaskQueue\model\TaskInterface;
+use oat\taoTaskQueue\model\Task\TaskInterface;
 use Zend\ServiceManager\ServiceLocatorAwareInterface;
 
 /**

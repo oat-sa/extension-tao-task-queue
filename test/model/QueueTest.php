@@ -22,8 +22,8 @@ namespace oat\taoTaskQueue\test\model;
 
 use oat\taoTaskQueue\test\model\Asset\CallableFixture;
 use oat\oatbox\service\ServiceManager;
-use oat\taoTaskQueue\model\AbstractTask;
-use oat\taoTaskQueue\model\CallbackTaskInterface;
+use oat\taoTaskQueue\model\Task\AbstractTask;
+use oat\taoTaskQueue\model\Task\CallbackTaskInterface;
 use oat\taoTaskQueue\model\QueueBroker\QueueBrokerInterface;
 use oat\taoTaskQueue\model\Queue;
 use oat\taoTaskQueue\model\TaskLogInterface;

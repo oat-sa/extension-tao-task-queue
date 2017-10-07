@@ -20,7 +20,7 @@
 
 namespace oat\taoTaskQueue\model\QueueBroker;
 
-use oat\taoTaskQueue\model\TaskInterface;
+use oat\taoTaskQueue\model\Task\TaskInterface;
 
 /**
  * Stores tasks in memory. It accomplishes Sync Queue mechanism.

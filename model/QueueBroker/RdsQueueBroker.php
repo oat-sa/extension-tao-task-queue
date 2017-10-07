@@ -21,7 +21,7 @@
 namespace oat\taoTaskQueue\model\QueueBroker;
 
 use Doctrine\DBAL\Query\QueryBuilder;
-use oat\taoTaskQueue\model\TaskInterface;
+use oat\taoTaskQueue\model\Task\TaskInterface;
 
 /**
  * Storing messages/tasks in DB.

@@ -21,6 +21,7 @@
 namespace oat\taoTaskQueue\model;
 
 use common_report_Report as Report;
+use oat\taoTaskQueue\model\Task\TaskInterface;
 use Psr\Log\LoggerAwareInterface;
 
 /**

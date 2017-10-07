@@ -18,7 +18,7 @@
  *
  */
 
-namespace oat\taoTaskQueue\model;
+namespace oat\taoTaskQueue\model\Task;
 
 /**
  * Wrapper class to store callables (even Action instances) in task queue for later execution

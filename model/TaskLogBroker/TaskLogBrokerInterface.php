@@ -21,7 +21,7 @@
 namespace oat\taoTaskQueue\model\TaskLogBroker;
 
 use common_report_Report as Report;
-use oat\taoTaskQueue\model\TaskInterface;
+use oat\taoTaskQueue\model\Task\TaskInterface;
 
 /**
  * Interface TaskLogBrokerInterface

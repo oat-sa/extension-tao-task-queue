@@ -18,10 +18,10 @@
  *
  */
 
-namespace oat\taoTaskQueue\test\model;
+namespace oat\taoTaskQueue\test\model\Task;
 
-use oat\taoTaskQueue\model\AbstractTask;
-use oat\taoTaskQueue\model\TaskInterface;
+use oat\taoTaskQueue\model\Task\AbstractTask;
+use oat\taoTaskQueue\model\Task\TaskInterface;
 
 /**
  * @backupGlobals disabled

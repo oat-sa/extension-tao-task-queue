@@ -23,9 +23,9 @@ namespace oat\taoTaskQueue\model\TaskLogBroker;
 use oat\oatbox\service\ConfigurableService;
 use common_report_Report as Report;
 use Doctrine\DBAL\Query\QueryBuilder;
-use oat\taoTaskQueue\model\CallbackTaskInterface;
+use oat\taoTaskQueue\model\Task\CallbackTaskInterface;
 use oat\taoTaskQueue\model\QueueInterface;
-use oat\taoTaskQueue\model\TaskInterface;
+use oat\taoTaskQueue\model\Task\TaskInterface;
 
 /**
  * Storing message logs in RDS.

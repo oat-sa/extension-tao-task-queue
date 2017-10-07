@@ -21,7 +21,7 @@
 namespace oat\taoTaskQueue\test\model;
 
 use oat\oatbox\service\ServiceManager;
-use oat\taoTaskQueue\model\AbstractTask;
+use oat\taoTaskQueue\model\Task\AbstractTask;
 use oat\taoTaskQueue\model\TaskLog;
 use oat\taoTaskQueue\model\TaskLogBroker\TaskLogBrokerInterface;
 

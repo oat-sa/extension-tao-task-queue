@@ -22,6 +22,7 @@ namespace oat\taoTaskQueue\model;
 
 use common_report_Report as Report;
 use oat\oatbox\service\ConfigurableService;
+use oat\taoTaskQueue\model\Task\TaskInterface;
 use oat\taoTaskQueue\model\TaskLogBroker\TaskLogBrokerInterface;
 use oat\oatbox\log\LoggerAwareTrait;
 

@@ -24,6 +24,8 @@ use oat\oatbox\service\ConfigurableService;
 use oat\taoTaskQueue\model\QueueBroker\QueueBrokerInterface;
 use oat\oatbox\log\LoggerAwareTrait;
 use oat\taoTaskQueue\model\QueueBroker\SyncQueueBrokerInterface;
+use oat\taoTaskQueue\model\Task\CallbackTask;
+use oat\taoTaskQueue\model\Task\TaskInterface;
 
 /**
  * Queue Service

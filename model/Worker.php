@@ -22,6 +22,7 @@ namespace oat\taoTaskQueue\model;
 
 use oat\oatbox\log\LoggerAwareTrait;
 use common_report_Report as Report;
+use oat\taoTaskQueue\model\Task\TaskInterface;
 
 /**
  * Processes tasks from the queue.

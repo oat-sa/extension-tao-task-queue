@@ -18,7 +18,7 @@
  *
  */
 
-namespace oat\taoTaskQueue\model;
+namespace oat\taoTaskQueue\model\Task;
 
 /**
  * Class AbstractTask

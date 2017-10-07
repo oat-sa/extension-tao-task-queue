@@ -18,12 +18,12 @@
  *
  */
 
-namespace oat\taoTaskQueue\test\model;
+namespace oat\taoTaskQueue\test\model\Task;
 
 use oat\taoTaskQueue\test\model\Asset\CallableFixture;
-use oat\taoTaskQueue\model\CallbackTask;
-use oat\taoTaskQueue\model\CallbackTaskInterface;
-use oat\taoTaskQueue\model\TaskInterface;
+use oat\taoTaskQueue\model\Task\CallbackTask;
+use oat\taoTaskQueue\model\Task\CallbackTaskInterface;
+use oat\taoTaskQueue\model\Task\TaskInterface;
 
 /**
  * @backupGlobals disabled

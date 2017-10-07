@@ -23,7 +23,7 @@ namespace oat\taoTaskQueue\model\QueueBroker;
 use Aws\Exception\AwsException;
 use Aws\Sqs\SqsClient;
 use oat\awsTools\AwsClient;
-use oat\taoTaskQueue\model\TaskInterface;
+use oat\taoTaskQueue\model\Task\TaskInterface;
 
 /**
  * Storing messages/tasks on AWS SQS.

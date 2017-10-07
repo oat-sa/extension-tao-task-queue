@@ -20,7 +20,7 @@
 
 namespace oat\taoTaskQueue\model\QueueBroker;
 
-use oat\taoTaskQueue\model\TaskInterface;
+use oat\taoTaskQueue\model\Task\TaskInterface;
 use Psr\Log\LoggerAwareInterface;
 
 /**

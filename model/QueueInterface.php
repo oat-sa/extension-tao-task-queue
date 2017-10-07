@@ -20,6 +20,8 @@
 
 namespace oat\taoTaskQueue\model;
 
+use oat\taoTaskQueue\model\Task\CallbackTask;
+use oat\taoTaskQueue\model\Task\TaskInterface;
 use Psr\Log\LoggerAwareInterface;
 
 /**
