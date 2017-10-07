@@ -60,7 +60,7 @@ package "Task Log" #DDDDDD {
             {static} STATUS_ARCHIVED
             {static} STATUS_UNKNOWN
             +createContainer()
-            +add(TaskInterface task, status)
+            +add(TaskInterface task, status, label)
             +setStatus(taskId, newStatus, prevStatus = null)
             +getStatus(taskId)
             +setReport(taskId, common_report_Report report, newStatus = null)
@@ -71,7 +71,7 @@ package "Task Log" #DDDDDD {
             {static} OPTION_PERSISTENCE
             {static} OPTION_CONTAINER_NAME
             +createContainer()
-            +add(TaskInterface task, status)
+            +add(TaskInterface task, status, label)
             +updateStatus(taskId, newStatus, prevStatus = null)
             +getStatus(taskId)
             +addReport(taskId, common_report_Report report, newStatus = null)
@@ -109,8 +109,8 @@ package "Queue" #DDDDDD {
             {static} OPTION_TASK_LOG
             +initialize()
             +getName()
-            +createTask(action, parameters)
-            +enqueue(TaskInterface task)
+            +createTask(action, parameters, label)
+            +enqueue(TaskInterface task, label)
             +dequeue()
             +acknowledge(TaskInterface task)
             +isSync()
