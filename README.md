@@ -175,7 +175,7 @@ if ($task->isEnqueued() && $taskLog->getStatus($task->getId()) == TaskLogInterfa
 }
 ```
 
-Or we can just simply check if the current queue is a sync one than we have a report surely.
+Or we can just simply check if the current queue is a sync one so we have a report surely.
 
 ```php
 if ($queue->isSync()) {
@@ -232,7 +232,7 @@ try {
 }
 ```
 
-###RDS Queue settings
+### RDS Queue settings
 ```php
 $rdsBroker = new RdsQueueBroker([
     QueueBrokerInterface::OPTION_NUMBER_OF_TASKS_TO_RECEIVE => 15,
@@ -244,7 +244,7 @@ $this->getServiceManager()->register(QueueBrokerInterface::SERVICE_ID, $rdsBroke
 _Note_: 
 > Queue is already set up above, we just had to change the broker here.
 
-###SQS Queue settings
+### SQS Queue settings
 ```php
 $sqsBroker = new SqsQueueBroker([
     QueueBrokerInterface::OPTION_NUMBER_OF_TASKS_TO_RECEIVE => 10,
