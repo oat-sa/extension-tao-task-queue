@@ -183,3 +183,77 @@ if ($queue->isSync()) {
 }
 ```
 
+## Service examples
+
+### Sync Queue settings
+```php
+use oat\taoTaskQueue\model\Queue;
+use oat\taoTaskQueue\model\QueueBroker\InMemoryQueueBroker;
+
+$brokerService = new InMemoryQueueBroker([]);
+$this->getServiceManager()->register(QueueBrokerInterface::SERVICE_ID, $brokerService);
+
+$queueService = new Queue([
+    QueueInterface::OPTION_QUEUE_NAME => 'queue',
+    QueueInterface::OPTION_QUEUE_BROKER => QueueBrokerInterface::SERVICE_ID,
+    QueueInterface::OPTION_TASK_LOG => TaskLogInterface::SERVICE_ID
+]);
+$this->getServiceManager()->register(QueueInterface::SERVICE_ID, $queueService);
+```
+
+If the queue has not been initialized, meaning the required queue container has not been created yet:
+```php
+try {
+    $queueService->initialize();
+} catch (\Exception $e) {
+    return \common_report_Report::createFailure('Initializing queue failed');
+}
+```
+
+### Task Log settings
+```php
+$brokerService = new RdsTaskLogBroker([
+    TaskLogBrokerInterface::OPTION_PERSISTENCE => 'default'
+]);
+$this->getServiceManager()->register(TaskLogBrokerInterface::SERVICE_ID, $brokerService);
+
+$taskLogService = new TaskLog([
+    TaskLogInterface::OPTION_TASK_LOG_BROKER => TaskLogBrokerInterface::SERVICE_ID
+]);
+$this->getServiceManager()->register(TaskLogInterface::SERVICE_ID, $taskLogService);
+```
+
+If the task log container has not been created yet:
+```php
+try {
+    $taskLogService->createContainer();
+} catch (\Exception $e) {
+    return \common_report_Report::createFailure('Creating task log container failed');
+}
+```
+
+###RDS Queue settings
+```php
+$rdsBroker = new RdsQueueBroker([
+    QueueBrokerInterface::OPTION_NUMBER_OF_TASKS_TO_RECEIVE => 15,
+    RdsQueueBroker::OPTION_PERSISTENCE => 'default'
+]);
+
+$this->getServiceManager()->register(QueueBrokerInterface::SERVICE_ID, $rdsBroker);
+```
+_Note_: 
+> Queue is already set up above, we just had to change the broker here.
+
+###SQS Queue settings
+```php
+$sqsBroker = new SqsQueueBroker([
+    QueueBrokerInterface::OPTION_NUMBER_OF_TASKS_TO_RECEIVE => 10,
+    SqsQueueBroker::OPTION_PROFILE => 'default',
+    SqsQueueBroker::OPTION_CACHE => 'generis/cache'
+]);
+
+$this->getServiceManager()->register(QueueBrokerInterface::SERVICE_ID, $sqsBroker);
+```
+_Note_: 
+> Queue is already set up above, we just had to change the broker here.
+
