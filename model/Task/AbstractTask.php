@@ -180,11 +180,7 @@ abstract class AbstractTask implements TaskInterface
      */
     public function getCreatedAt()
     {
-        if (($date = $this->getMetadata('__created_at__')) && is_string($date)) {
-            $date = (new \DateTime($date));
-        }
-
-        return $date;
+        return $this->getMetadata('__created_at__');
     }
 
     /**
