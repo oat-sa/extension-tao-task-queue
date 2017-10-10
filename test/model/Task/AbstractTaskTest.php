@@ -241,12 +241,12 @@ class AbstractTaskTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(json_encode($jsonArray), json_encode($this->abstractTaskMock));
     }
 
-    public function testGetCreatedAtWhenJsonIsLoadedThenItShouldGiveADateTimeObject()
+    public function testGetCreatedAtWhenJsonEncodeIsLoadedThenItShouldStillGiveADateTimeObject()
     {
-        $json = '{"metadata":{"__created_at__":"2017-10-01T12:15:00+00:00","__owner__":"FakeOwner"},"parameters":{"key1":"value1"}}';
-        $data = json_decode($json, true);
+        $date = new \DateTime('yesterday 12:15:00');
+        $this->abstractTaskMock->setCreatedAt($date);
 
-        $this->abstractTaskMock->setMetadata($data['metadata']);
+        $json = json_encode($this->abstractTaskMock);
 
         $this->assertInstanceOf(\DateTime::class, $this->abstractTaskMock->getCreatedAt());
     }

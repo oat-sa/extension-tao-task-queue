@@ -170,7 +170,7 @@ abstract class AbstractTask implements TaskInterface
      */
     public function setCreatedAt(\DateTime $dateTime)
     {
-        $this->setMetadata('__created_at__', $dateTime);
+        $this->setMetadata(self::JSON_METADATA_CREATED_AT_KEY, $dateTime);
 
         return $this;
     }
@@ -180,7 +180,7 @@ abstract class AbstractTask implements TaskInterface
      */
     public function getCreatedAt()
     {
-        return $this->getMetadata('__created_at__');
+        return $this->getMetadata(self::JSON_METADATA_CREATED_AT_KEY);
     }
 
     /**
@@ -207,12 +207,14 @@ abstract class AbstractTask implements TaskInterface
      */
     public function jsonSerialize()
     {
+        $cloneMetadata = $this->metadata;
+
         // use ISO 8601 format for serializing date
-        $this->setMetadata('__created_at__', $this->getCreatedAt()->format('c'));
+        $cloneMetadata[self::JSON_METADATA_CREATED_AT_KEY] = $this->getCreatedAt()->format('c');
 
         return [
             self::JSON_TASK_CLASS_NAME_KEY => get_called_class(),
-            self::JSON_METADATA_KEY => $this->metadata,
+            self::JSON_METADATA_KEY => $cloneMetadata,
             self::JSON_PARAMETERS_KEY => $this->getParameters()
         ];
     }
