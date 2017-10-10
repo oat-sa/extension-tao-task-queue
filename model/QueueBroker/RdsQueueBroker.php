@@ -88,7 +88,7 @@ class RdsQueueBroker extends AbstractQueueBroker
             $table->addOption('engine', 'InnoDB');
             $table->addColumn('id', 'integer', ["autoincrement" => true, "notnull" => true, "unsigned" => true]);
             $table->addColumn('message', 'text', ["notnull" => true]);
-            $table->addColumn('visible', 'boolean', ["default" => true]);
+            $table->addColumn('visible', 'boolean', ["default" => 1]);
             $table->addColumn('created_at', 'datetime', ['notnull' => true]);
             $table->setPrimaryKey(['id']);
             $table->addIndex(['created_at', 'visible'], 'IDX_created_at_visible');
@@ -140,14 +140,16 @@ class RdsQueueBroker extends AbstractQueueBroker
              */
             $sql = $qb->getSQL() .' '. $this->getPersistence()->getPlatForm()->getWriteLockSQL();
 
-            if ($dbResult = $this->getPersistence()->query($sql, ['visible' => true])->fetchAll(\PDO::FETCH_ASSOC)) {
+            if ($dbResult = $this->getPersistence()->query($sql, ['visible' => 1])->fetchAll(\PDO::FETCH_ASSOC)) {
 
                 // set the received messages to invisible for other workers
                 $qb = $this->getQueryBuilder()
                     ->update($this->getTableName())
                     ->set('visible', ':visible')
                     ->where('id IN ('. implode(',', array_column($dbResult, 'id')) .')')
-                    ->setParameter('visible', false, \PDO::PARAM_BOOL);
+                    ->setParameter('visible', 0);
+
+                //var_dump($qb->getSQL(), $qb->getParameters());die;
 
                 $qb->execute();
 
@@ -194,7 +196,7 @@ class RdsQueueBroker extends AbstractQueueBroker
                 ->where('id = :id')
                 ->andWhere('visible = :visible')
                 ->setParameter('id', (int) $id)
-                ->setParameter('visible', false, \PDO::PARAM_BOOL)
+                ->setParameter('visible', 0)
                 ->execute();
         } catch (\Exception $e) {
             $this->logError('Deleting task failed with MSG: '. $e->getMessage(), $logContext);
@@ -211,7 +213,7 @@ class RdsQueueBroker extends AbstractQueueBroker
                 ->select('COUNT(id)')
                 ->from($this->getTableName())
                 ->andWhere('visible = :visible')
-                ->setParameter('visible', true, \PDO::PARAM_BOOL);
+                ->setParameter('visible', 1);
 
             return (int) $qb->execute()->fetchColumn();
         } catch (\Exception $e) {
