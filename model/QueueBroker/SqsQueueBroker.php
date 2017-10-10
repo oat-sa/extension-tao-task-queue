@@ -305,7 +305,7 @@ class SqsQueueBroker extends AbstractQueueBroker
             }
 
             if ($this->queueUrl !== null) {
-                $this->getCache()->put($this->getUrlCacheKey(), $this->queueUrl);
+                $this->getCache()->put($this->queueUrl, $this->getUrlCacheKey());
                 $this->logDebug('Queue url '. $this->queueUrl .' fetched and cached');
                 return true;
             }
