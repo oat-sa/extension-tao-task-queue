@@ -31,11 +31,11 @@ use Psr\Log\LoggerAwareInterface;
 interface WorkerInterface extends LoggerAwareInterface
 {
     /**
-     * @param QueueInterface   $queue
-     * @param TaskLogInterface $taskLog
-     * @param bool             $handleSignals
+     * @param QueueDispatcherInterface $queueService
+     * @param TaskLogInterface         $taskLog
+     * @param bool                     $handleSignals
      */
-    public function __construct(QueueInterface $queue, TaskLogInterface $taskLog, $handleSignals);
+    public function __construct(QueueDispatcherInterface $queueService, TaskLogInterface $taskLog, $handleSignals);
 
     /**
      * Start processing tasks from a given queue
@@ -59,4 +59,12 @@ interface WorkerInterface extends LoggerAwareInterface
      * @return WorkerInterface
      */
     public function setMaxIterations($maxIterations);
+
+    /**
+     * Sets a queue on which the worker operates exclusively.
+     *
+     * @param string $queueName
+     * @return WorkerInterface
+     */
+    public function setDedicatedQueue($queueName);
 }

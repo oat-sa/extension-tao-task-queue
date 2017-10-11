@@ -97,19 +97,15 @@ package "Task Log" #DDDDDD {
     }
 }
 
+
 package "Queue" #DDDDDD {
     together {
         interface Countable
         QueueInterface <|-- Countable
         interface QueueInterface {
-            {static} SERVICE_ID
-            {static} QUEUE_PREFIX
-            {static} OPTION_QUEUE_NAME
-            {static} OPTION_QUEUE_BROKER
-            {static} OPTION_TASK_LOG
+            +__construct(name, QueueBrokerInterface broker, TaskLogInterface taskLog)
             +initialize()
             +getName()
-            +createTask(action, parameters, label)
             +enqueue(TaskInterface task, label)
             +dequeue()
             +acknowledge(TaskInterface task)
@@ -117,10 +113,33 @@ package "Queue" #DDDDDD {
             +getNumberOfTasksToReceive()
         }
 
-        class Queue << SERVICE >> {
+        interface QueueDispatcherInterface {
+            {static} SERVICE_ID
+            {static} QUEUE_PREFIX
+            {static} OPTION_QUEUES
+            {static} OPTION_QUEUE_BROKER
+            {static} OPTION_TASK_LOG
+            +initialize()
+            +getQueue(queueName)
+            +getDefaultQueue()
+            +createTask(action, parameters, label)
+            +enqueue(TaskInterface task, label)
+            +dequeue(queueName = null)
+            +acknowledge(TaskInterface task)
+        }
+
+        class QueueDispatcher << SERVICE >> {
             -getBroker()
             -getTaskLog()
+            -getQueueForTask()
             -runWorker()
+            -assertValidQueueName()
+            -normalizeQueuesOption()
+        }
+
+        QueueDispatcher <|- QueueDispatcherInterface
+
+        class Queue {
             +count()
         }
 
@@ -189,10 +208,11 @@ package "Queue" #DDDDDD {
 package "Worker" #DDDDDD {
     together {
         interface WorkerInterface {
-            +__construct(QueueInterface queue, TaskLogInterface taskLog, handleSignals)
+            +__construct(QueueDispatcherInterface queueDispatcher, TaskLogInterface taskLog, handleSignals)
             +processQueue()
             +processTask(TaskInterface task)
             +setMaxIterations(maxIterations)
+            +setDedicatedQueue(queueName)
         }
         class Worker {
             -queue

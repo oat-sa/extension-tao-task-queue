@@ -20,11 +20,9 @@
 
 namespace oat\taoTaskQueue\model;
 
-use oat\oatbox\service\ConfigurableService;
 use oat\taoTaskQueue\model\QueueBroker\QueueBrokerInterface;
 use oat\oatbox\log\LoggerAwareTrait;
 use oat\taoTaskQueue\model\QueueBroker\SyncQueueBrokerInterface;
-use oat\taoTaskQueue\model\Task\CallbackTask;
 use oat\taoTaskQueue\model\Task\TaskInterface;
 
 /**
@@ -32,9 +30,11 @@ use oat\taoTaskQueue\model\Task\TaskInterface;
  *
  * @author Gyula Szucs <gyula@taotesting.com>
  */
-class Queue extends ConfigurableService implements QueueInterface
+class Queue implements QueueInterface
 {
     use LoggerAwareTrait;
+
+    private $name;
 
     /**
      * @var QueueBrokerInterface
@@ -49,18 +49,20 @@ class Queue extends ConfigurableService implements QueueInterface
     /**
      * Queue constructor.
      *
-     * @param array $options
+     * @param string $name
+     * @param QueueBrokerInterface $broker
+     * @param TaskLogInterface     $taskLog
      */
-    public function __construct(array $options)
+    public function __construct($name, QueueBrokerInterface $broker, TaskLogInterface $taskLog)
     {
-        parent::__construct($options);
+        $this->name = $name;
+        $this->broker = $broker;
+        $this->taskLog = $taskLog;
 
-        if (!$this->hasOption(self::OPTION_QUEUE_NAME) || empty($this->getOption(self::OPTION_QUEUE_NAME))) {
-            throw new \InvalidArgumentException("Queue name needs to be set.");
-        }
+        $this->getBroker()->setQueueName($this->getName());
 
-        if (!$this->hasOption(self::OPTION_QUEUE_BROKER) || empty($this->getOption(self::OPTION_QUEUE_BROKER))) {
-            throw new \InvalidArgumentException("Queue Broker service needs to be set.");
+        if ($this->isSync()) {
+            $this->initialize();
         }
     }
 
@@ -77,7 +79,7 @@ class Queue extends ConfigurableService implements QueueInterface
      */
     public function getName()
     {
-        return $this->getOption(self::OPTION_QUEUE_NAME);
+        return $this->name;
     }
 
     /**
@@ -87,15 +89,6 @@ class Queue extends ConfigurableService implements QueueInterface
      */
     protected function getBroker()
     {
-        if (is_null($this->broker)) {
-            $this->broker = $this->getServiceManager()->get($this->getOption(self::OPTION_QUEUE_BROKER));
-            $this->broker->setQueueName($this->getName());
-
-            if ($this->isSync()) {
-                $this->initialize();
-            }
-        }
-
         return $this->broker;
     }
 
@@ -104,45 +97,7 @@ class Queue extends ConfigurableService implements QueueInterface
      */
     protected function getTaskLog()
     {
-        if (is_null($this->taskLog)) {
-            $this->taskLog = $this->getServiceManager()->get($this->getOption(self::OPTION_TASK_LOG));
-        }
-
         return $this->taskLog;
-    }
-
-    /**
-     * Run worker on-the-fly for one run.
-     */
-    protected function runWorker()
-    {
-        (new Worker($this, $this->getTaskLog(), false))
-            ->setMaxIterations(1)
-            ->processQueue();
-    }
-
-    /**
-     * Creates a CallbackTask with any callable and enqueueing it straightaway.
-     *
-     * @param callable $callable
-     * @param array    $parameters
-     * @param null|string $label
-     * @return CallbackTask
-     */
-    public function createTask(callable $callable, array $parameters = [], $label = null)
-    {
-        $id = \common_Utils::getNewUri();
-        $owner = \common_session_SessionManager::getSession()->getUser()->getIdentifier();
-
-        $callbackTask = new CallbackTask($id, $owner);
-        $callbackTask->setCallable($callable)
-            ->setParameter($parameters);
-
-        if ($this->enqueue($callbackTask, $label)) {
-            $callbackTask->markAsEnqueued();
-        }
-
-        return $callbackTask;
     }
 
     /**
@@ -156,11 +111,6 @@ class Queue extends ConfigurableService implements QueueInterface
             if ($isEnqueued) {
                 $this->getTaskLog()
                     ->add($task, TaskLogInterface::STATUS_ENQUEUED, $label);
-            }
-
-            // if we need to run the task straightaway
-            if ($isEnqueued && $this->isSync()) {
-                $this->runWorker();
             }
 
             return $isEnqueued;

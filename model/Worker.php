@@ -33,7 +33,8 @@ final class Worker implements WorkerInterface
 {
     use LoggerAwareTrait;
 
-    private $queue;
+    private $queueService;
+    private $dedicatedQueue;
     private $maxIterations = 0; //0 means infinite iteration
     private $iterations;
     private $shutdown;
@@ -44,19 +45,18 @@ final class Worker implements WorkerInterface
     private $taskLog;
 
     /**
-     * @param QueueInterface   $queue
-     * @param TaskLogInterface $taskLog
-     * @param bool             $handleSignals
+     * @param QueueDispatcherInterface $queueService
+     * @param TaskLogInterface         $taskLog
+     * @param bool                     $handleSignals
      */
-    public function __construct(QueueInterface $queue, TaskLogInterface $taskLog, $handleSignals = true)
+    public function __construct(QueueDispatcherInterface $queueService, TaskLogInterface $taskLog, $handleSignals = true)
     {
-        $this->queue = $queue;
+        $this->queueService = $queueService;
         $this->taskLog = $taskLog;
         $this->processId = getmypid();
 
         $this->logContext = [
-            'QueueName' => $this->queue->getName(),
-            'PID'       => $this->processId
+            'PID' => $this->processId
         ];
 
         if ($handleSignals) {
@@ -90,7 +90,7 @@ final class Worker implements WorkerInterface
             try{
                 $this->logDebug('Fetching tasks from queue ', $this->logContext);
 
-                $task = $this->queue->dequeue();
+                $task = $this->queueService->dequeue($this->dedicatedQueue);
 
                 // if no task to process, sleep for the specified time and continue.
                 if (!$task) {
@@ -161,7 +161,7 @@ final class Worker implements WorkerInterface
         unset($report);
 
         // delete message from queue
-        $this->queue->acknowledge($task);
+        $this->queueService->acknowledge($task);
 
         return $status;
     }
@@ -171,7 +171,19 @@ final class Worker implements WorkerInterface
      */
     public function setMaxIterations($maxIterations)
     {
-        $this->maxIterations = (int) $maxIterations * $this->queue->getNumberOfTasksToReceive();
+        $this->maxIterations = (int) $maxIterations * $this->queueService->getNumberOfTasksToReceive();
+
+        return $this;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setDedicatedQueue($queueName)
+    {
+        $this->dedicatedQueue = $queueName;
+
+        $this->logContext['QueueName'] = $queueName;
 
         return $this;
     }

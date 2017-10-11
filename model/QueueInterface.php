@@ -20,7 +20,6 @@
 
 namespace oat\taoTaskQueue\model;
 
-use oat\taoTaskQueue\model\Task\CallbackTask;
 use oat\taoTaskQueue\model\Task\TaskInterface;
 use Psr\Log\LoggerAwareInterface;
 
@@ -31,14 +30,6 @@ use Psr\Log\LoggerAwareInterface;
  */
 interface QueueInterface extends \Countable, LoggerAwareInterface
 {
-    const SERVICE_ID = 'taoTaskQueue/taskQueue';
-
-    const QUEUE_PREFIX = 'TQ';
-
-    const OPTION_QUEUE_NAME = 'queue_name';
-    const OPTION_QUEUE_BROKER = 'queue_broker';
-    const OPTION_TASK_LOG = 'task_log';
-
     /**
      * Initialize queue.
      *
@@ -52,16 +43,6 @@ interface QueueInterface extends \Countable, LoggerAwareInterface
      * @return string
      */
     public function getName();
-
-    /**
-     * Create a task to be managed by the queue from any callable
-     *
-     * @param callable $callable
-     * @param array $parameters
-     * @param null|string $label Label for the task
-     * @return CallbackTask
-     */
-    public function createTask(callable $callable, array $parameters = [], $label = null);
 
     /**
      * Publish a task to the queue.

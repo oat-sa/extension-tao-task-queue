@@ -23,8 +23,8 @@ namespace oat\taoTaskQueue\model\TaskLogBroker;
 use oat\oatbox\service\ConfigurableService;
 use common_report_Report as Report;
 use Doctrine\DBAL\Query\QueryBuilder;
+use oat\taoTaskQueue\model\QueueDispatcherInterface;
 use oat\taoTaskQueue\model\Task\CallbackTaskInterface;
-use oat\taoTaskQueue\model\QueueInterface;
 use oat\taoTaskQueue\model\Task\TaskInterface;
 
 /**
@@ -78,7 +78,7 @@ class RdsTaskLogBroker extends ConfigurableService implements TaskLogBrokerInter
      */
     protected function getTableName()
     {
-        return strtolower(QueueInterface::QUEUE_PREFIX .'_'. $this->getOption(self::OPTION_CONTAINER_NAME));
+        return strtolower(QueueDispatcherInterface::QUEUE_PREFIX .'_'. $this->getOption(self::OPTION_CONTAINER_NAME));
     }
 
     /**
