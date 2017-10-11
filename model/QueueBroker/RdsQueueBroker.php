@@ -149,8 +149,6 @@ class RdsQueueBroker extends AbstractQueueBroker
                     ->where('id IN ('. implode(',', array_column($dbResult, 'id')) .')')
                     ->setParameter('visible', 0);
 
-                //var_dump($qb->getSQL(), $qb->getParameters());die;
-
                 $qb->execute();
 
                 foreach ($dbResult as $row) {

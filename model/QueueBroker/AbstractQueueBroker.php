@@ -26,6 +26,7 @@ use oat\oatbox\action\ResolutionException;
 use oat\oatbox\log\LoggerAwareTrait;
 use oat\taoTaskQueue\model\Task\CallbackTaskInterface;
 use oat\taoTaskQueue\model\QueueInterface;
+use oat\taoTaskQueue\model\Task\TaskFactory;
 use oat\taoTaskQueue\model\Task\TaskInterface;
 use Zend\ServiceManager\ServiceLocatorAwareInterface;
 
@@ -120,54 +121,61 @@ abstract class AbstractQueueBroker extends ConfigurableService implements QueueB
      */
     protected function unserializeTask($taskJSON, $idForDeletion, array $logContext = [])
     {
-        // if it's a valid task JSON, let's work with it
-        if (($basicData = json_decode($taskJSON, true)) !== null
-            && json_last_error() === JSON_ERROR_NONE
-            && isset($basicData[TaskInterface::JSON_TASK_CLASS_NAME_KEY])
-        ) {
-            $className = $basicData[TaskInterface::JSON_TASK_CLASS_NAME_KEY];
+        try {
+            $basicData = json_decode($taskJSON, true);
+            $this->assertValidJson($basicData);
 
-            // if the body contains a valid class name, let's instantiate it
-            if (class_exists($className) && is_subclass_of($className, TaskInterface::class)) {
-                $metaData = $basicData[TaskInterface::JSON_METADATA_KEY];
+            $task = TaskFactory::build($basicData);
 
-                /** @var TaskInterface $task */
-                $task = new $className($metaData[TaskInterface::JSON_METADATA_ID_KEY], $metaData[TaskInterface::JSON_METADATA_OWNER_KEY]);
-                $task->setMetadata($metaData);
-                $task->setParameter($basicData[TaskInterface::JSON_PARAMETERS_KEY]);
-
-                // unserialize created_at
-                if (isset($metaData[TaskInterface::JSON_METADATA_CREATED_AT_KEY])) {
-                    $task->setCreatedAt(new \DateTime($metaData[TaskInterface::JSON_METADATA_CREATED_AT_KEY]));
-                }
-
-                // if it's a CallbackTask and the callable it's a string (meaning it's an Action class name) than we need to restore that object as well.
-                if ($task instanceof CallbackTaskInterface && is_string($task->getCallable())) {
-                    try {
-                        $callable = $this->getActionResolver()->resolve($task->getCallable());
-
-                        if ($callable instanceof ServiceLocatorAwareInterface) {
-                            $callable->setServiceLocator($this->getServiceLocator());
-                        }
-
-                        $task->setCallable($callable);
-                    } catch (ResolutionException $e) {
-                        $this->logError('Callable/Action class ' . $task->getCallable() . ' does not exist', $logContext);
-
-                        return null;
-                    }
-                }
-
-                return $task;
+            if ($task instanceof CallbackTaskInterface && is_string($task->getCallable())) {
+                $this->handleCallbackTask($task, $logContext);
             }
+
+            return $task;
+
+        } catch (\Exception $e) {
+
+            $this->doDelete($idForDeletion, $logContext);
+
+            return null;
         }
+    }
 
-        // if we have an invalid task message:
-        // - the given string is not json-decode-able, it's just an arbitrary string
-        // - it's a valid json but not containing the 'body' key
-        $this->doDelete($idForDeletion, $logContext);
+    /**
+     * @param $basicData
+     * @throws \Exception
+     */
+    protected function assertValidJson($basicData)
+    {
+        if ( ($basicData !== null
+            && json_last_error() === JSON_ERROR_NONE
+            && isset($basicData[TaskInterface::JSON_TASK_CLASS_NAME_KEY])) === false
+        ) {
+            throw new \Exception();
+        }
+    }
 
-        return null;
+    /**
+     * @param TaskInterface $task
+     * @param array $logContext
+     * @throws \Exception
+     */
+    protected function handleCallbackTask($task, $logContext)
+    {
+        try {
+            $callable = $this->getActionResolver()->resolve($task->getCallable());
+
+            if ($callable instanceof ServiceLocatorAwareInterface) {
+                $callable->setServiceLocator($this->getServiceLocator());
+            }
+
+            $task->setCallable($callable);
+        } catch (ResolutionException $e) {
+
+            $this->logError('Callable/Action class ' . $task->getCallable() . ' does not exist', $logContext);
+
+            throw new \Exception;
+        }
     }
 
     /**
