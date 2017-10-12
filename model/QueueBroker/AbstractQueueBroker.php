@@ -20,6 +20,7 @@
 
 namespace oat\taoTaskQueue\model\QueueBroker;
 
+use oat\oatbox\PhpSerializable;
 use oat\oatbox\service\ConfigurableService;
 use oat\oatbox\action\ActionService;
 use oat\oatbox\action\ResolutionException;
@@ -29,28 +30,36 @@ use oat\taoTaskQueue\model\QueueInterface;
 use oat\taoTaskQueue\model\Task\TaskFactory;
 use oat\taoTaskQueue\model\Task\TaskInterface;
 use Zend\ServiceManager\ServiceLocatorAwareInterface;
+use Zend\ServiceManager\ServiceLocatorAwareTrait;
 
 /**
  * Class AbstractQueueBroker
  *
  * @author Gyula Szucs <gyula@taotesting.com>
  */
-abstract class AbstractQueueBroker extends ConfigurableService implements QueueBrokerInterface
+abstract class AbstractQueueBroker implements QueueBrokerInterface, PhpSerializable, ServiceLocatorAwareInterface
 {
     use LoggerAwareTrait;
+    use ServiceLocatorAwareTrait;
 
+    private $numberOfTasksToReceive;
     private $queueName;
     private $preFetchedQueue;
 
     /**
      * AbstractMessageBroker constructor.
      *
-     * @param array  $options
+     * @param int $receiveTasks Maximum amount of tasks that can be received when polling the queue; Default is 1.
      */
-    public function __construct($options = []) {
-        parent::__construct($options);
-
+    public function __construct($receiveTasks = 1)
+    {
+        $this->numberOfTasksToReceive = $receiveTasks;
         $this->preFetchedQueue = new \SplQueue();
+    }
+
+    public function __toPhpCode()
+    {
+        return 'new '. get_called_class() .'('. \common_Utils::toHumanReadablePhpString($this->numberOfTasksToReceive) .')';
     }
 
     /**
@@ -179,11 +188,11 @@ abstract class AbstractQueueBroker extends ConfigurableService implements QueueB
     }
 
     /**
-     * @return ActionService|ConfigurableService
+     * @return ActionService|ConfigurableService|object
      */
     protected function getActionResolver()
     {
-        return $this->getServiceManager()->get(ActionService::SERVICE_ID);
+        return $this->getServiceLocator()->get(ActionService::SERVICE_ID);
     }
 
     /**
@@ -218,10 +227,6 @@ abstract class AbstractQueueBroker extends ConfigurableService implements QueueB
      */
     public function getNumberOfTasksToReceive()
     {
-        if($this->hasOption(self::OPTION_NUMBER_OF_TASKS_TO_RECEIVE)) {
-            return abs((int) $this->getOption(self::OPTION_NUMBER_OF_TASKS_TO_RECEIVE));
-        }
-
-        return 1;
+        return abs((int) $this->numberOfTasksToReceive);
     }
 }

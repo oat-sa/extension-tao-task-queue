@@ -36,12 +36,9 @@ class RegisterTaskQueueService extends InstallAction
 {
     public function __invoke($params)
     {
-        $brokerService = new InMemoryQueueBroker([]);
-        $this->registerService(QueueBrokerInterface::SERVICE_ID, $brokerService);
-
         $queueService = new Queue([
             QueueInterface::OPTION_QUEUE_NAME => 'queue',
-            QueueInterface::OPTION_QUEUE_BROKER => QueueBrokerInterface::SERVICE_ID,
+            QueueInterface::OPTION_QUEUE_BROKER => new InMemoryQueueBroker(),
             QueueInterface::OPTION_TASK_LOG => TaskLogInterface::SERVICE_ID
         ]);
         $this->registerService(QueueInterface::SERVICE_ID, $queueService);

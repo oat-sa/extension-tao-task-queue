@@ -29,10 +29,10 @@ use oat\taoTaskQueue\model\TaskLogBroker\RdsTaskLogBroker;
  */
 class RdsTaskLogBrokerTest extends \PHPUnit_Framework_TestCase
 {
-    public function testTaskLogBrokerServiceShouldThrowExceptionWhenPersistenceOptionIsNotSet()
+    public function testTaskLogBrokerServiceShouldThrowExceptionWhenPersistenceOptionIsEmpty()
     {
         $this->expectException(\InvalidArgumentException::class);
-        new RdsTaskLogBroker([]);
+        new RdsTaskLogBroker('');
     }
 
     public function testGetPersistenceWhenInstantiatingANewOneThenItReturnsOneWithTheRequiredInterface()
@@ -55,11 +55,11 @@ class RdsTaskLogBrokerTest extends \PHPUnit_Framework_TestCase
 
         $rdsLogBrokerMock = $this->getMockBuilder(RdsTaskLogBroker::class)
             ->disableOriginalConstructor()
-            ->setMethods(['getServiceManager'])
+            ->setMethods(['getServiceLocator'])
             ->getMock();
 
         $rdsLogBrokerMock->expects($this->once())
-            ->method('getServiceManager')
+            ->method('getServiceLocator')
             ->willReturn($serviceManagerMock);
 
         $persistenceCaller = function () {
@@ -78,10 +78,7 @@ class RdsTaskLogBrokerTest extends \PHPUnit_Framework_TestCase
         $prefix = 'tq';
         $containerName = 'example_container_name';
 
-        $broker = new RdsTaskLogBroker([
-            'persistence' => 'fake',
-            'container_name' => $containerName
-        ]);
+        $broker = new RdsTaskLogBroker('fakePersistence', $containerName);
 
         $tableNameCaller = function () {
             return $this->getTableName();
@@ -97,9 +94,7 @@ class RdsTaskLogBrokerTest extends \PHPUnit_Framework_TestCase
         $prefix = 'tq';
         $defaultName = 'task_log';
 
-        $broker = new RdsTaskLogBroker([
-            'persistence' => 'fake'
-        ]);
+        $broker = new RdsTaskLogBroker('fakePersistence');
 
         $tableNameCaller = function () {
             return $this->getTableName();

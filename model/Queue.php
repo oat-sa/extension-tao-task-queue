@@ -59,8 +59,12 @@ class Queue extends ConfigurableService implements QueueInterface
             throw new \InvalidArgumentException("Queue name needs to be set.");
         }
 
-        if (!$this->hasOption(self::OPTION_QUEUE_BROKER) || empty($this->getOption(self::OPTION_QUEUE_BROKER))) {
+        if (!$this->hasOption(self::OPTION_QUEUE_BROKER) || !$this->getOption(self::OPTION_QUEUE_BROKER) instanceof QueueBrokerInterface) {
             throw new \InvalidArgumentException("Queue Broker service needs to be set.");
+        }
+
+        if (!$this->hasOption(self::OPTION_TASK_LOG) || empty($this->getOption(self::OPTION_TASK_LOG))) {
+            throw new \InvalidArgumentException("Task Log service needs to be set.");
         }
     }
 
@@ -88,7 +92,8 @@ class Queue extends ConfigurableService implements QueueInterface
     protected function getBroker()
     {
         if (is_null($this->broker)) {
-            $this->broker = $this->getServiceManager()->get($this->getOption(self::OPTION_QUEUE_BROKER));
+            $this->broker = $this->getOption(self::OPTION_QUEUE_BROKER);
+            $this->broker->setServiceLocator($this->getServiceLocator());
             $this->broker->setQueueName($this->getName());
 
             if ($this->isSync()) {

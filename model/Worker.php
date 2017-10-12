@@ -42,6 +42,10 @@ final class Worker implements WorkerInterface
     private $processId;
     private $logContext;
     private $taskLog;
+    /**
+     * @var bool
+     */
+    private $handleSignals;
 
     /**
      * @param QueueInterface   $queue
@@ -52,6 +56,7 @@ final class Worker implements WorkerInterface
     {
         $this->queue = $queue;
         $this->taskLog = $taskLog;
+        $this->handleSignals = $handleSignals;
         $this->processId = getmypid();
 
         $this->logContext = [
@@ -181,7 +186,9 @@ final class Worker implements WorkerInterface
      */
     private function isRunning()
     {
-        pcntl_signal_dispatch();
+        if ($this->handleSignals) {
+            pcntl_signal_dispatch();
+        }
 
         if ($this->shutdown) {
             return false;

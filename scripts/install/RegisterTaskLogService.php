@@ -35,13 +35,8 @@ class RegisterTaskLogService extends InstallAction
 {
     public function __invoke($params)
     {
-        $brokerService = new RdsTaskLogBroker([
-            TaskLogBrokerInterface::OPTION_PERSISTENCE => 'default'
-        ]);
-        $this->registerService(TaskLogBrokerInterface::SERVICE_ID, $brokerService);
-
         $taskLogService = new TaskLog([
-            TaskLogInterface::OPTION_TASK_LOG_BROKER => TaskLogBrokerInterface::SERVICE_ID
+            TaskLogInterface::OPTION_TASK_LOG_BROKER => new RdsTaskLogBroker('default')
         ]);
         $this->registerService(TaskLogInterface::SERVICE_ID, $taskLogService);
 

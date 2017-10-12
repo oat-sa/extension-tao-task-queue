@@ -30,20 +30,37 @@ use oat\taoTaskQueue\model\Task\TaskInterface;
  */
 class RdsQueueBroker extends AbstractQueueBroker
 {
-    const OPTION_PERSISTENCE = 'persistence';
+    private $persistenceId;
 
     /**
      * @var \common_persistence_SqlPersistence
      */
     protected $persistence;
 
-    public function __construct(array $options)
+    /**
+     * RdsQueueBroker constructor.
+     *
+     * @param string $persistenceId
+     * @param int $receiveTasks
+     */
+    public function __construct($persistenceId, $receiveTasks = 1)
     {
-        parent::__construct($options);
+        parent::__construct($receiveTasks);
 
-        if (!$this->hasOption(self::OPTION_PERSISTENCE) || empty($this->getOption(self::OPTION_PERSISTENCE))) {
+        if (empty($persistenceId)) {
             throw new \InvalidArgumentException("Persistence id needs to be set for ". __CLASS__);
         }
+
+        $this->persistenceId = $persistenceId;
+    }
+
+    public function __toPhpCode()
+    {
+        return 'new '. get_called_class() .'('
+            . \common_Utils::toHumanReadablePhpString($this->persistenceId)
+            . ', '
+            . \common_Utils::toHumanReadablePhpString($this->getNumberOfTasksToReceive())
+            .')';
     }
 
     /**
@@ -52,9 +69,9 @@ class RdsQueueBroker extends AbstractQueueBroker
     protected function getPersistence()
     {
         if (is_null($this->persistence)) {
-            $this->persistence = $this->getServiceManager()
+            $this->persistence = $this->getServiceLocator()
                 ->get(\common_persistence_Manager::SERVICE_ID)
-                ->getPersistenceById($this->getOption(self::OPTION_PERSISTENCE));
+                ->getPersistenceById($this->persistenceId);
         }
 
         return $this->persistence;

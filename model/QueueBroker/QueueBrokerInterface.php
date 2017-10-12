@@ -30,11 +30,6 @@ use Psr\Log\LoggerAwareInterface;
  */
 interface QueueBrokerInterface extends \Countable, LoggerAwareInterface
 {
-    const SERVICE_ID = 'taoTaskQueue/taskQueueBroker';
-
-    // Maximum amount of tasks that can be received when polling the queue; Default is 1.
-    const OPTION_NUMBER_OF_TASKS_TO_RECEIVE = 'number_of_tasks_to_receive';
-
     /**
      * Set queue name
      *

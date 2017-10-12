@@ -39,29 +39,25 @@ class TaskLogTest extends \PHPUnit_Framework_TestCase
 
     public function testGetBrokerInstantiatingTheTaskLogBrokerAndReturningItWithTheRequiredInterface()
     {
-        $logBrokerMock = $this->createMock(TaskLogBrokerInterface::class);
-
-        $serviceManagerMock = $this->getMockBuilder(ServiceManager::class)
+        $logBrokerMock = $this->getMockBuilder(TaskLogBrokerInterface::class)
             ->disableOriginalConstructor()
-            ->setMethods(['get'])
-            ->getMock();
+            ->setMethods(['setServiceLocator'])
+            ->getMockForAbstractClass();
 
-        $serviceManagerMock->expects($this->once())
-            ->method('get')
-            ->willReturn($logBrokerMock);
+        $logBrokerMock->expects($this->once())
+            ->method('setServiceLocator');
 
         $taskLogMock = $this->getMockBuilder(TaskLog::class)
             ->disableOriginalConstructor()
-            ->setMethods(['getServiceManager', 'getOption'])
+            ->setMethods(['getOption', 'getServiceLocator'])
             ->getMock();
 
         $taskLogMock->expects($this->once())
-            ->method('getServiceManager')
-            ->willReturn($serviceManagerMock);
+            ->method('getOption')
+            ->willReturn($logBrokerMock);
 
         $taskLogMock->expects($this->once())
-            ->method('getOption')
-            ->willReturn('fake/service');
+            ->method('getServiceLocator');
 
         $brokerCaller = function () {
             return $this->getBroker();

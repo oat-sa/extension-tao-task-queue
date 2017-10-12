@@ -64,7 +64,8 @@ class TaskLog extends ConfigurableService implements TaskLogInterface
     protected function getBroker()
     {
         if (is_null($this->broker)) {
-            $this->broker = $this->getServiceManager()->get($this->getOption(self::OPTION_TASK_LOG_BROKER));
+            $this->broker = $this->getOption(self::OPTION_TASK_LOG_BROKER);
+            $this->broker->setServiceLocator($this->getServiceLocator());
         }
 
         return $this->broker;

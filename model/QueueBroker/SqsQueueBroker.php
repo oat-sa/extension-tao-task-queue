@@ -32,9 +32,10 @@ use oat\taoTaskQueue\model\Task\TaskInterface;
  */
 class SqsQueueBroker extends AbstractQueueBroker
 {
-    const OPTION_PROFILE = 'profile';
-    const OPTION_CACHE = 'cache';
     const DEFAULT_AWS_CLIENT_KEY = 'generis/awsClient';
+
+    private $awsProfile;
+    private $cacheId;
 
     /**
      * @var SqsClient
@@ -47,17 +48,38 @@ class SqsQueueBroker extends AbstractQueueBroker
      */
     private $cache;
 
-    public function __construct(array $options)
+    /**
+     * SqsQueueBroker constructor.
+     *
+     * @param string $awsProfile AWS profile
+     * @param string $cacheServiceId
+     * @param int $receiveTasks
+     */
+    public function __construct($awsProfile, $cacheServiceId, $receiveTasks = 1)
     {
-        parent::__construct($options);
+        parent::__construct($receiveTasks);
 
-        if (!$this->hasOption(self::OPTION_PROFILE) || empty($this->getOption(self::OPTION_PROFILE))) {
-            throw new \InvalidArgumentException("AWS profile needs to be set.");
+        if (empty($awsProfile)) {
+            throw new \InvalidArgumentException("AWS profile needs to be set for ". __CLASS__);
         }
 
-        if (!$this->hasOption(self::OPTION_CACHE) || empty($this->getOption(self::OPTION_CACHE))) {
-            throw new \InvalidArgumentException("Cache needs to be set.");
+        if (empty($cacheServiceId)) {
+            throw new \InvalidArgumentException("Cache Service needs to be set for ". __CLASS__);
         }
+
+        $this->awsProfile = $awsProfile;
+        $this->cacheId = $cacheServiceId;
+    }
+
+    public function __toPhpCode()
+    {
+        return 'new '. get_called_class() .'('
+            . \common_Utils::toHumanReadablePhpString($this->awsProfile)
+            . ', '
+            . \common_Utils::toHumanReadablePhpString($this->cacheId)
+            . ', '
+            . \common_Utils::toHumanReadablePhpString($this->getNumberOfTasksToReceive())
+            .')';
     }
 
     /**
@@ -66,15 +88,15 @@ class SqsQueueBroker extends AbstractQueueBroker
     protected function getClient()
     {
         if (is_null($this->client)) {
-            if (!$this->getServiceManager()->has(self::DEFAULT_AWS_CLIENT_KEY)) {
+            if (!$this->getServiceLocator()->has(self::DEFAULT_AWS_CLIENT_KEY)) {
                 throw new \RuntimeException('Unable to load driver for '. __CLASS__ .', most likely generis/awsClient.conf.php does not exist.');
             }
 
             /** @var AwsClient $awsClient */
-            $awsClient = $this->getServiceManager()->get('generis/awsClient');
+            $awsClient = $this->getServiceLocator()->get(self::DEFAULT_AWS_CLIENT_KEY);
 
             $this->client = $awsClient->getSqsClient([
-                self::OPTION_PROFILE => $this->getOption(self::OPTION_PROFILE)
+                'profile' => $this->awsProfile
             ]);
         }
 
@@ -87,7 +109,7 @@ class SqsQueueBroker extends AbstractQueueBroker
     protected function getCache()
     {
         if (is_null($this->cache)) {
-            $this->cache = $this->getServiceManager()->get($this->getOption(self::OPTION_CACHE));
+            $this->cache = $this->getServiceLocator()->get($this->cacheId);
         }
 
         return $this->cache;
