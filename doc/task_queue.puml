@@ -67,9 +67,7 @@ package "Task Log" #DDDDDD {
             +getReport(taskId)
         }
         interface TaskLogBrokerInterface {
-            {static} SERVICE_ID
-            {static} OPTION_PERSISTENCE
-            {static} OPTION_CONTAINER_NAME
+            {static} DEFAULT_CONTAINER_NAME
             +createContainer()
             +add(TaskInterface task, status, label)
             +updateStatus(taskId, newStatus, prevStatus = null)
@@ -87,8 +85,7 @@ package "Task Log" #DDDDDD {
         }
 
         RdsTaskLogBroker <|- TaskLogBrokerInterface
-        RdsTaskLogBroker <|-- ConfigurableService
-        class RdsTaskLogBroker << SERVICE >> {
+        class RdsTaskLogBroker {
             #getPersistence()
             #getTableName()
         }
@@ -152,8 +149,6 @@ package "Queue" #DDDDDD {
     together {
         QueueBrokerInterface <|-- Countable
         interface QueueBrokerInterface {
-            {static} SERVICE_ID
-            {static} OPTION_NUMBER_OF_TASKS_TO_RECEIVE
             +setQueueName(name)
             +createQueue()
             +push(TaskInterface task)
@@ -162,7 +157,6 @@ package "Queue" #DDDDDD {
             +getNumberOfTasksToReceive()
         }
 
-        AbstractQueueBroker <|-- ConfigurableService
         abstract class AbstractQueueBroker {
             -queueName
             -actionResolver
@@ -177,24 +171,24 @@ package "Queue" #DDDDDD {
             -popPreFetchedMessage()
         }
 
-        class InMemoryQueueBroker << SERVICE >> {
+        class InMemoryQueueBroker {
             -queue SplQueue
         }
-        class RdsQueueBroker << SERVICE >> {
-            {static} OPTION_PERSISTENCE
+        class RdsQueueBroker {
+            -persistenceId
             #getPersistence()
             #getTableName()
         }
-        class SqsQueueBroker << SERVICE >> {
-            {static} OPTION_PROFILE
-            {static} OPTION_REGION
-            {static} OPTION_VERSION
-            {static} OPTION_CACHE
+        class SqsQueueBroker {
+            -awsProfile
+            -cacheId
             #sqsClient
             #queueUrl
             #getCache()
         }
 
+        AbstractQueueBroker <|- PhpSerializable
+        AbstractQueueBroker <|- ServiceLocatorAwareInterface
         AbstractQueueBroker <|- QueueBrokerInterface
         InMemoryQueueBroker <|- SyncQueueBrokerInterface
         InMemoryQueueBroker <|-- AbstractQueueBroker

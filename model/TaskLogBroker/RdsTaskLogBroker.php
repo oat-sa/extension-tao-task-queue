@@ -20,43 +20,56 @@
 
 namespace oat\taoTaskQueue\model\TaskLogBroker;
 
-use oat\oatbox\service\ConfigurableService;
+use oat\oatbox\PhpSerializable;
 use common_report_Report as Report;
 use Doctrine\DBAL\Query\QueryBuilder;
 use oat\taoTaskQueue\model\QueueDispatcherInterface;
 use oat\taoTaskQueue\model\Task\CallbackTaskInterface;
 use oat\taoTaskQueue\model\Task\TaskInterface;
+use Zend\ServiceManager\ServiceLocatorAwareInterface;
+use Zend\ServiceManager\ServiceLocatorAwareTrait;
 
 /**
  * Storing message logs in RDS.
  *
  * @author Gyula Szucs <gyula@taotesting.com>
  */
-class RdsTaskLogBroker extends ConfigurableService implements TaskLogBrokerInterface
+class RdsTaskLogBroker implements TaskLogBrokerInterface, PhpSerializable, ServiceLocatorAwareInterface
 {
-    const CONFIG_PERSISTENCE = 'persistence';
+    use ServiceLocatorAwareTrait;
+
+    private $persistenceId;
 
     /**
      * @var \common_persistence_SqlPersistence
      */
     protected $persistence;
 
+    private $containerName;
+
     /**
      * RdsTaskLogBroker constructor.
      *
-     * @param array $options
+     * @param string $persistenceId
+     * @param null $containerName
      */
-    public function __construct(array $options)
+    public function __construct($persistenceId, $containerName = null)
     {
-        parent::__construct($options);
-
-        if (!$this->hasOption(self::OPTION_PERSISTENCE) || empty($this->getOption(self::OPTION_PERSISTENCE))) {
+        if (empty($persistenceId)) {
             throw new \InvalidArgumentException("Persistence id needs to be set for ". __CLASS__);
         }
 
-        if (!$this->hasOption(self::OPTION_CONTAINER_NAME) || empty($this->getOption(self::OPTION_CONTAINER_NAME))) {
-            $this->setOption(self::OPTION_CONTAINER_NAME, self::DEFAULT_CONTAINER_NAME);
-        }
+        $this->persistenceId = $persistenceId;
+        $this->containerName = empty($containerName) ? self::DEFAULT_CONTAINER_NAME : $containerName;
+    }
+
+    public function __toPhpCode()
+    {
+        return 'new '. get_called_class() .'('
+            . \common_Utils::toHumanReadablePhpString($this->persistenceId)
+            . ', '
+            . \common_Utils::toHumanReadablePhpString($this->containerName)
+            .')';
     }
 
     /**
@@ -65,9 +78,9 @@ class RdsTaskLogBroker extends ConfigurableService implements TaskLogBrokerInter
     protected function getPersistence()
     {
         if (is_null($this->persistence)) {
-            $this->persistence = $this->getServiceManager()
+            $this->persistence = $this->getServiceLocator()
                 ->get(\common_persistence_Manager::SERVICE_ID)
-                ->getPersistenceById($this->getOption(self::OPTION_PERSISTENCE));
+                ->getPersistenceById($this->persistenceId);
         }
 
         return $this->persistence;
@@ -78,7 +91,7 @@ class RdsTaskLogBroker extends ConfigurableService implements TaskLogBrokerInter
      */
     protected function getTableName()
     {
-        return strtolower(QueueDispatcherInterface::QUEUE_PREFIX .'_'. $this->getOption(self::OPTION_CONTAINER_NAME));
+        return strtolower(QueueInterface::QUEUE_PREFIX .'_'. $this->containerName);
     }
 
     /**

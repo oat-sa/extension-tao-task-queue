@@ -20,36 +20,46 @@
 
 namespace oat\taoTaskQueue\model\QueueBroker;
 
+use oat\oatbox\PhpSerializable;
 use oat\oatbox\service\ConfigurableService;
 use oat\oatbox\action\ActionService;
 use oat\oatbox\action\ResolutionException;
 use oat\oatbox\log\LoggerAwareTrait;
 use oat\taoTaskQueue\model\QueueDispatcher;
 use oat\taoTaskQueue\model\Task\CallbackTaskInterface;
+use oat\taoTaskQueue\model\Task\TaskFactory;
 use oat\taoTaskQueue\model\Task\TaskInterface;
 use Zend\ServiceManager\ServiceLocatorAwareInterface;
+use Zend\ServiceManager\ServiceLocatorAwareTrait;
 
 /**
  * Class AbstractQueueBroker
  *
  * @author Gyula Szucs <gyula@taotesting.com>
  */
-abstract class AbstractQueueBroker extends ConfigurableService implements QueueBrokerInterface
+abstract class AbstractQueueBroker implements QueueBrokerInterface, PhpSerializable, ServiceLocatorAwareInterface
 {
     use LoggerAwareTrait;
+    use ServiceLocatorAwareTrait;
 
+    private $numberOfTasksToReceive;
     private $queueName;
     private $preFetchedQueue;
 
     /**
      * AbstractMessageBroker constructor.
      *
-     * @param array  $options
+     * @param int $receiveTasks Maximum amount of tasks that can be received when polling the queue; Default is 1.
      */
-    public function __construct($options = []) {
-        parent::__construct($options);
-
+    public function __construct($receiveTasks = 1)
+    {
+        $this->numberOfTasksToReceive = $receiveTasks;
         $this->preFetchedQueue = new \SplQueue();
+    }
+
+    public function __toPhpCode()
+    {
+        return 'new '. get_called_class() .'('. \common_Utils::toHumanReadablePhpString($this->numberOfTasksToReceive) .')';
     }
 
     /**
@@ -120,62 +130,69 @@ abstract class AbstractQueueBroker extends ConfigurableService implements QueueB
      */
     protected function unserializeTask($taskJSON, $idForDeletion, array $logContext = [])
     {
-        // if it's a valid task JSON, let's work with it
-        if (($basicData = json_decode($taskJSON, true)) !== null
-            && json_last_error() === JSON_ERROR_NONE
-            && isset($basicData[TaskInterface::JSON_TASK_CLASS_NAME_KEY])
-        ) {
-            $className = $basicData[TaskInterface::JSON_TASK_CLASS_NAME_KEY];
+        try {
+            $basicData = json_decode($taskJSON, true);
+            $this->assertValidJson($basicData);
 
-            // if the body contains a valid class name, let's instantiate it
-            if (class_exists($className) && is_subclass_of($className, TaskInterface::class)) {
-                $metaData = $basicData[TaskInterface::JSON_METADATA_KEY];
+            $task = TaskFactory::build($basicData);
 
-                /** @var TaskInterface $task */
-                $task = new $className($metaData[TaskInterface::JSON_METADATA_ID_KEY], $metaData[TaskInterface::JSON_METADATA_OWNER_KEY]);
-                $task->setMetadata($metaData);
-                $task->setParameter($basicData[TaskInterface::JSON_PARAMETERS_KEY]);
-
-                // unserialize created_at
-                if (isset($metaData[TaskInterface::JSON_METADATA_CREATED_AT_KEY])) {
-                    $task->setCreatedAt(new \DateTime($metaData[TaskInterface::JSON_METADATA_CREATED_AT_KEY]));
-                }
-
-                // if it's a CallbackTask and the callable it's a string (meaning it's an Action class name) than we need to restore that object as well.
-                if ($task instanceof CallbackTaskInterface && is_string($task->getCallable())) {
-                    try {
-                        $callable = $this->getActionResolver()->resolve($task->getCallable());
-
-                        if ($callable instanceof ServiceLocatorAwareInterface) {
-                            $callable->setServiceLocator($this->getServiceLocator());
-                        }
-
-                        $task->setCallable($callable);
-                    } catch (ResolutionException $e) {
-                        $this->logError('Callable/Action class ' . $task->getCallable() . ' does not exist', $logContext);
-
-                        return null;
-                    }
-                }
-
-                return $task;
+            if ($task instanceof CallbackTaskInterface && is_string($task->getCallable())) {
+                $this->handleCallbackTask($task, $logContext);
             }
+
+            return $task;
+
+        } catch (\Exception $e) {
+
+            $this->doDelete($idForDeletion, $logContext);
+
+            return null;
         }
-
-        // if we have an invalid task message:
-        // - the given string is not json-decode-able, it's just an arbitrary string
-        // - it's a valid json but not containing the 'body' key
-        $this->doDelete($idForDeletion, $logContext);
-
-        return null;
     }
 
     /**
-     * @return ActionService|ConfigurableService
+     * @param $basicData
+     * @throws \Exception
+     */
+    protected function assertValidJson($basicData)
+    {
+        if ( ($basicData !== null
+            && json_last_error() === JSON_ERROR_NONE
+            && isset($basicData[TaskInterface::JSON_TASK_CLASS_NAME_KEY])) === false
+        ) {
+            throw new \Exception();
+        }
+    }
+
+    /**
+     * @param TaskInterface $task
+     * @param array $logContext
+     * @throws \Exception
+     */
+    protected function handleCallbackTask($task, $logContext)
+    {
+        try {
+            $callable = $this->getActionResolver()->resolve($task->getCallable());
+
+            if ($callable instanceof ServiceLocatorAwareInterface) {
+                $callable->setServiceLocator($this->getServiceLocator());
+            }
+
+            $task->setCallable($callable);
+        } catch (ResolutionException $e) {
+
+            $this->logError('Callable/Action class ' . $task->getCallable() . ' does not exist', $logContext);
+
+            throw new \Exception;
+        }
+    }
+
+    /**
+     * @return ActionService|ConfigurableService|object
      */
     protected function getActionResolver()
     {
-        return $this->getServiceManager()->get(ActionService::SERVICE_ID);
+        return $this->getServiceLocator()->get(ActionService::SERVICE_ID);
     }
 
     /**
@@ -210,10 +227,6 @@ abstract class AbstractQueueBroker extends ConfigurableService implements QueueB
      */
     public function getNumberOfTasksToReceive()
     {
-        if($this->hasOption(self::OPTION_NUMBER_OF_TASKS_TO_RECEIVE)) {
-            return abs((int) $this->getOption(self::OPTION_NUMBER_OF_TASKS_TO_RECEIVE));
-        }
-
-        return 1;
+        return abs((int) $this->numberOfTasksToReceive);
     }
 }

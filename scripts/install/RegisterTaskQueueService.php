@@ -22,7 +22,6 @@ namespace oat\taoTaskQueue\scripts\install;
 
 use oat\oatbox\extension\InstallAction;
 use oat\taoTaskQueue\model\QueueBroker\InMemoryQueueBroker;
-use oat\taoTaskQueue\model\QueueBroker\QueueBrokerInterface;
 use oat\taoTaskQueue\model\QueueDispatcher;
 use oat\taoTaskQueue\model\QueueDispatcherInterface;
 use oat\taoTaskQueue\model\TaskLogInterface;
@@ -36,12 +35,9 @@ class RegisterTaskQueueService extends InstallAction
 {
     public function __invoke($params)
     {
-        $brokerService = new InMemoryQueueBroker([]);
-        $this->registerService(QueueBrokerInterface::SERVICE_ID, $brokerService);
-
         $queueService = new QueueDispatcher([
             QueueDispatcherInterface::OPTION_QUEUES => ['queue'],
-            QueueDispatcherInterface::OPTION_QUEUE_BROKER => QueueBrokerInterface::SERVICE_ID,
+            QueueDispatcherInterface::OPTION_QUEUE_BROKER => new InMemoryQueueBroker(),
             QueueDispatcherInterface::OPTION_TASK_LOG => TaskLogInterface::SERVICE_ID
         ]);
         $this->registerService(QueueDispatcherInterface::SERVICE_ID, $queueService);

@@ -55,6 +55,10 @@ class Queue implements QueueInterface
      */
     public function __construct($name, QueueBrokerInterface $broker, TaskLogInterface $taskLog)
     {
+        if (empty($name)) {
+            throw new \InvalidArgumentException("Queue name needs to be set.");
+        }
+
         $this->name = $name;
         $this->broker = $broker;
         $this->taskLog = $taskLog;
@@ -63,6 +67,10 @@ class Queue implements QueueInterface
 
         if ($this->isSync()) {
             $this->initialize();
+        }
+
+        if (!$this->hasOption(self::OPTION_TASK_LOG) || empty($this->getOption(self::OPTION_TASK_LOG))) {
+            throw new \InvalidArgumentException("Task Log service needs to be set.");
         }
     }
 

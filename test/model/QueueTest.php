@@ -58,36 +58,36 @@ class QueueTest extends \PHPUnit_Framework_TestCase
     {
         $queue = new Queue([
             'queue_name' => 'fakeQueue',
-            'queue_broker' => 'fakeBroker'
+            'queue_broker' => $this->createMock(QueueBrokerInterface::class),
+            'task_log' => 'fake/taskLog'
         ]);
         $this->assertEquals('fakeQueue', $queue->getName());
     }
 
     public function testGetBrokerInstantiatingTheBrokerAndReturningItWithTheRequiredInterface()
     {
-        $queueBrokerMock = $this->createMock(QueueBrokerInterface::class);
-
-        $serviceManagerMock = $this->getMockBuilder(ServiceManager::class)
+        $queueBrokerMock = $this->getMockBuilder(QueueBrokerInterface::class)
             ->disableOriginalConstructor()
-            ->setMethods(['get'])
-            ->getMock();
+            ->setMethods(['setServiceLocator', 'setQueueName'])
+            ->getMockForAbstractClass();
 
-        $serviceManagerMock->expects($this->once())
-            ->method('get')
-            ->willReturn($queueBrokerMock);
+        $queueBrokerMock->expects($this->once())
+            ->method('setServiceLocator');
+
+        $queueBrokerMock->expects($this->once())
+            ->method('setQueueName');
 
         $queueMock = $this->getMockBuilder(Queue::class)
             ->disableOriginalConstructor()
-            ->setMethods(['getServiceManager', 'getOption', 'getName'])
+            ->setMethods(['getServiceLocator', 'getOption', 'getName'])
             ->getMock();
 
         $queueMock->expects($this->once())
-            ->method('getServiceManager')
-            ->willReturn($serviceManagerMock);
+            ->method('getServiceLocator');
 
         $queueMock->expects($this->once())
             ->method('getOption')
-            ->willReturn('broker/serviceName');
+            ->willReturn($queueBrokerMock);
 
         $queueMock->expects($this->once())
             ->method('getName')

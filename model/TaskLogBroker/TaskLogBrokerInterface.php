@@ -30,11 +30,6 @@ use oat\taoTaskQueue\model\Task\TaskInterface;
  */
 interface TaskLogBrokerInterface
 {
-    const SERVICE_ID = 'taoTaskQueue/taskLogBroker';
-
-    const OPTION_PERSISTENCE = 'persistence';
-    const OPTION_CONTAINER_NAME = 'container_name';
-
     const DEFAULT_CONTAINER_NAME = 'task_log';
 
     /**
