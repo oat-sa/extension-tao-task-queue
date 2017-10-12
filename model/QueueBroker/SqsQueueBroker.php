@@ -121,6 +121,10 @@ class SqsQueueBroker extends AbstractQueueBroker
             }
         } catch (AwsException $e) {
             $this->logError('Creating queue '. $this->getQueueNameWithPrefix() .' failed with MSG: '. $e->getAwsErrorMessage());
+
+            if(PHP_SAPI == 'cli'){
+                throw $e;
+            }
         }
     }
 

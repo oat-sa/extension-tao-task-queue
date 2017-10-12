@@ -20,6 +20,7 @@
 
 namespace oat\taoTaskQueue\scripts\tools;
 
+use Aws\Exception\AwsException;
 use oat\oatbox\action\Action;
 use oat\taoTaskQueue\model\QueueInterface;
 use oat\taoTaskQueue\model\TaskLogInterface;
@@ -56,6 +57,8 @@ class InitializeQueue implements Action, ServiceLocatorAwareInterface
             $taskLog->createContainer();
 
             return \common_report_Report::createSuccess('Initialization successful');
+        } catch (AwsException $e) {
+            return \common_report_Report::createFailure($e->getAwsErrorMessage());
         } catch (\Exception $e) {
             return \common_report_Report::createFailure($e->getMessage());
         }
