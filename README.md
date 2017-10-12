@@ -190,12 +190,9 @@ if ($queue->isSync()) {
 use oat\taoTaskQueue\model\Queue;
 use oat\taoTaskQueue\model\QueueBroker\InMemoryQueueBroker;
 
-$brokerService = new InMemoryQueueBroker([]);
-$this->getServiceManager()->register(QueueBrokerInterface::SERVICE_ID, $brokerService);
-
 $queueService = new Queue([
     QueueInterface::OPTION_QUEUE_NAME => 'queue',
-    QueueInterface::OPTION_QUEUE_BROKER => QueueBrokerInterface::SERVICE_ID,
+    QueueInterface::OPTION_QUEUE_BROKER => new InMemoryQueueBroker(),
     QueueInterface::OPTION_TASK_LOG => TaskLogInterface::SERVICE_ID
 ]);
 $this->getServiceManager()->register(QueueInterface::SERVICE_ID, $queueService);
@@ -212,13 +209,10 @@ try {
 
 ### Task Log settings
 ```php
-$brokerService = new RdsTaskLogBroker([
-    TaskLogBrokerInterface::OPTION_PERSISTENCE => 'default'
-]);
-$this->getServiceManager()->register(TaskLogBrokerInterface::SERVICE_ID, $brokerService);
+use oat\taoTaskQueue\model\TaskLogBroker\RdsTaskLogBroker;
 
 $taskLogService = new TaskLog([
-    TaskLogInterface::OPTION_TASK_LOG_BROKER => TaskLogBrokerInterface::SERVICE_ID
+    TaskLogInterface::OPTION_TASK_LOG_BROKER => new RdsTaskLogBroker('default', 'task_log')
 ]);
 $this->getServiceManager()->register(TaskLogInterface::SERVICE_ID, $taskLogService);
 ```
@@ -234,26 +228,29 @@ try {
 
 ### RDS Queue settings
 ```php
-$rdsBroker = new RdsQueueBroker([
-    QueueBrokerInterface::OPTION_NUMBER_OF_TASKS_TO_RECEIVE => 15,
-    RdsQueueBroker::OPTION_PERSISTENCE => 'default'
-]);
+use oat\taoTaskQueue\model\QueueBroker\RdsQueueBroker;
 
-$this->getServiceManager()->register(QueueBrokerInterface::SERVICE_ID, $rdsBroker);
+$queueService = new Queue([
+    QueueInterface::OPTION_QUEUE_NAME => 'queue',
+    QueueInterface::OPTION_QUEUE_BROKER => new RdsQueueBroker('default', 5),
+    QueueInterface::OPTION_TASK_LOG => TaskLogInterface::SERVICE_ID
+]);
+$this->getServiceManager()->register(QueueInterface::SERVICE_ID, $queueService);
 ```
 _Note_: 
-> Queue is already set up above, we just had to change the broker here.
+> If the Queue Service is already set up, just change the broker option as usual.
 
 ### SQS Queue settings
 ```php
-$sqsBroker = new SqsQueueBroker([
-    QueueBrokerInterface::OPTION_NUMBER_OF_TASKS_TO_RECEIVE => 10,
-    SqsQueueBroker::OPTION_PROFILE => 'default',
-    SqsQueueBroker::OPTION_CACHE => 'generis/cache'
-]);
+use oat\taoTaskQueue\model\QueueBroker\SqsQueueBroker;
 
-$this->getServiceManager()->register(QueueBrokerInterface::SERVICE_ID, $sqsBroker);
+$queueService = new Queue([
+    QueueInterface::OPTION_QUEUE_NAME => 'queue',
+    QueueInterface::OPTION_QUEUE_BROKER =>  new SqsQueueBroker('default', 'generis/cache', 10),
+    QueueInterface::OPTION_TASK_LOG => TaskLogInterface::SERVICE_ID
+]);
+$this->getServiceManager()->register(QueueInterface::SERVICE_ID, $queueService);
 ```
 _Note_: 
-> Queue is already set up above, we just had to change the broker here.
+> If the Queue Service is already set up, just change the broker option as usual.
 
