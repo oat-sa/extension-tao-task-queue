@@ -114,6 +114,8 @@ class RdsQueueBroker extends AbstractQueueBroker
             foreach ($queries as $query) {
                 $this->getPersistence()->exec($query);
             }
+
+            $this->logDebug('Queue '. $this->getTableName() .' created in RDS.');
         }
     }
 

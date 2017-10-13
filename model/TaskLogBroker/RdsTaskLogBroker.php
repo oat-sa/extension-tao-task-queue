@@ -91,7 +91,7 @@ class RdsTaskLogBroker implements TaskLogBrokerInterface, PhpSerializable, Servi
      */
     protected function getTableName()
     {
-        return strtolower(QueueInterface::QUEUE_PREFIX .'_'. $this->containerName);
+        return strtolower(QueueDispatcherInterface::QUEUE_PREFIX .'_'. $this->containerName);
     }
 
     /**

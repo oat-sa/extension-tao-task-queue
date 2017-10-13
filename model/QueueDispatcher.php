@@ -21,7 +21,6 @@
 namespace oat\taoTaskQueue\model;
 
 use oat\oatbox\service\ConfigurableService;
-use oat\taoTaskQueue\model\QueueBroker\QueueBrokerInterface;
 use oat\oatbox\log\LoggerAwareTrait;
 use oat\taoTaskQueue\model\Task\CallbackTask;
 use oat\taoTaskQueue\model\Task\CallbackTaskInterface;
@@ -32,33 +31,22 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
     use LoggerAwareTrait;
 
     /**
-     * @var QueueInterface[]
-     */
-    private $queues = [];
-
-    /**
-     * @var QueueBrokerInterface
-     */
-    private $broker;
-
-    /**
      * @var TaskLogInterface
      */
     private $taskLog;
 
+    /**
+     * QueueDispatcher constructor.
+     *
+     * @param array $options
+     */
     public function __construct(array $options)
     {
         parent::__construct($options);
 
-        if (!$this->hasOption(self::OPTION_QUEUES) || empty($this->getOption(self::OPTION_QUEUES))) {
-            throw new \InvalidArgumentException("Queues needs to be set.");
-        }
+        $this->assertQueues();
 
-        $this->normalizeQueuesOption();
-
-        if (!$this->hasOption(self::OPTION_QUEUE_BROKER) || empty($this->getOption(self::OPTION_QUEUE_BROKER))) {
-            throw new \InvalidArgumentException("Queue Broker service needs to be set.");
-        }
+        $this->assertTasks();
 
         if (!$this->hasOption(self::OPTION_TASK_LOG) || empty($this->getOption(self::OPTION_TASK_LOG))) {
             throw new \InvalidArgumentException("Task Log service needs to be set.");
@@ -66,31 +54,117 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
     }
 
     /**
-     * @param $queueName
+     * @param TaskInterface $task
      * @return QueueInterface
+     */
+    protected function getQueueForTask(TaskInterface $task)
+    {
+        $className = $task instanceof CallbackTaskInterface && is_object($task->getCallable()) ? get_class($task->getCallable()) : get_class($task);
+
+        if (array_key_exists($className, $this->getTasks())) {
+            $queueName = $this->getTasks()[$className];
+
+            return $this->getQueue($queueName);
+        }
+
+        return $this->getDefaultQueue();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getQueueNames()
+    {
+        return array_map(function(QueueInterface $queue) {
+            return $queue->getName();
+        }, $this->getQueues());
+    }
+
+    /**
+     * @inheritdoc
+     * @throws \LogicException
+     */
+    public function addQueue(QueueInterface $queue)
+    {
+        if ($this->hasQueue($queue->getName())) {
+            throw new \LogicException('Queue "'. $queue .'" is already registered.');
+        }
+
+        $queues = $this->getQueues();
+        $queues[] = $queue;
+
+        $this->setOption(self::OPTION_QUEUES, $queues);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function hasQueue($queueName)
+    {
+        return in_array($queueName, $this->getQueueNames());
+    }
+
+    /**
+     * @inheritdoc
      */
     public function getQueue($queueName)
     {
-        $this->assertValidQueueName($queueName);
+        $foundQueue = array_filter($this->getQueues(), function(QueueInterface $queue) use ($queueName){
+            return $queue->getName() === $queueName;
+        });
 
-        if (!array_key_exists($queueName, $this->queues)) {
-            $this->queues[$queueName] = new Queue($queueName, $this->getBroker(), $this->getTaskLog());
+        if (count($foundQueue) === 1) {
+            /** @var Queue $queue */
+            $queue = reset($foundQueue);
+            $queue->setServiceLocator($this->getServiceLocator());
+
+            return $queue;
         }
 
-        return $this->queues[$queueName];
+        throw new \InvalidArgumentException('Queue "'. $queueName .'" does not exist.');
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getQueues()
+    {
+        return (array) $this->getOption(self::OPTION_QUEUES);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getTasks()
+    {
+        return (array) $this->getOption(self::OPTION_TASKS);
     }
 
     /**
      * Return the first queue as a default one.
+     * Maybe, later we need other logic the determine the default queue.
      *
      * @return QueueInterface
      */
     public function getDefaultQueue()
     {
-        $queues = $this->getOption(self::OPTION_QUEUES);
-        reset($queues);
+        return $this->getFirstQueue();
+    }
 
-        return $this->getQueue(key($queues));
+    /**
+     * Return the first queue from the array.
+     *
+     * @return QueueInterface
+     */
+    protected function getFirstQueue()
+    {
+        $queues = $this->getQueues();
+
+        /** @var Queue $queue */
+        $queue = reset($queues);
+        $queue->setServiceLocator($this->getServiceLocator());
+
+        return $queue;
     }
 
     /**
@@ -106,19 +180,21 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
      */
     public function getQueueByWeight()
     {
-        $finalName = '';
+        $weights = array_map(function(QueueInterface $queue) {
+            return $queue->getWeight();
+        }, $this->getQueues());
 
-        $rand = mt_rand(1, (int) array_sum($this->getOption(self::OPTION_QUEUES)));
+        $rand = mt_rand(1, array_sum($weights));
 
-        foreach ($this->getOption(self::OPTION_QUEUES) as $queueName => $weight) {
-            $rand -= $weight;
+        /** @var Queue $queue */
+        foreach ($this->getQueues() as $queue) {
+            $rand -= $queue->getWeight();
             if ($rand <= 0) {
-                $finalName = $queueName;
-                break;
+                $queue->setServiceLocator($this->getServiceLocator());
+
+                return $queue;
             }
         }
-
-        return $this->getQueue($finalName);
     }
 
     /**
@@ -128,7 +204,10 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
      */
     public function initialize()
     {
-        // TODO
+        foreach ($this->getQueues() as $queue) {
+            $queue->setServiceLocator($this->getServiceLocator());
+            $queue->initialize();
+        }
     }
 
     /**
@@ -178,14 +257,17 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
         }
 
         // if there is only one queue defined, let's use that
-        if(count($this->getOption(self::OPTION_QUEUES)) === 1) {
-            return $this->getQueue(key($this->getOption(self::OPTION_QUEUES)))->dequeue();
+        if(count($this->getQueues()) === 1) {
+            return $this->getFirstQueue()->dequeue();
         }
 
         // default option getting a queue by weights
         return $this->getQueueByWeight()->dequeue();
     }
 
+    /**
+     * @inheritdoc
+     */
     public function acknowledge(TaskInterface $task)
     {
         $this->getQueueForTask($task)->acknowledge($task);
@@ -198,54 +280,28 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
      */
     public function count()
     {
-        // TODO
-    }
+        $counts = array_map(function(QueueInterface $queue) {
+            $queue->setServiceLocator($this->getServiceLocator());
+            return $queue->count();
+        }, $this->getQueues());
 
-    /**
-     * @return bool
-     */
-    public function isSync()
-    {
-        return $this->getDefaultQueue()->isSync();
+        return array_sum($counts);
     }
 
     /**
      * @inheritdoc
      */
-    public function getNumberOfTasksToReceive()
+    public function isSync()
     {
-        return $this->getDefaultQueue()->getNumberOfTasksToReceive();
-    }
-
-    /**
-     * @param TaskInterface $task
-     * @return QueueInterface
-     */
-    private function getQueueForTask(TaskInterface $task)
-    {
-        $className = $task instanceof CallbackTaskInterface && is_object($task->getCallable()) ? get_class($task->getCallable()) : get_class($task);
-
-        if (array_key_exists($className, (array) $this->getOptions(self::OPTION_TASKS))) {
-            $queueName = $this->getOptions(self::OPTION_TASKS)[$className];
-
-            return $this->getQueue($queueName);
+        $isAllSync = true;
+        foreach ($this->getQueues() as $queue) {
+            if (!$queue->isSync()) {
+                $isAllSync = false;
+                break;
+            }
         }
 
-        return $this->getDefaultQueue();
-    }
-
-    /**
-     * Returns the queue broker service.
-     *
-     * @return QueueBrokerInterface
-     */
-    protected function getBroker()
-    {
-        if (is_null($this->broker)) {
-            $this->broker = $this->getServiceManager()->get($this->getOption(self::OPTION_QUEUE_BROKER));
-        }
-
-        return $this->broker;
+        return $isAllSync;
     }
 
     /**
@@ -269,41 +325,42 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
     {
         (new Worker($this, $this->getTaskLog(), false))
             ->setMaxIterations(1)
-            ->setDedicatedQueue($queue->getName())
-            ->processQueue();
+            ->setDedicatedQueue($queue)
+            ->run();
     }
 
     /**
-     * @param $queueName
      * @throws \InvalidArgumentException
      */
-    private function assertValidQueueName($queueName)
+    private function assertQueues()
     {
-        if (array_key_exists($queueName, $this->getOption(self::OPTION_QUEUES))) {
+        if (!$this->hasOption(self::OPTION_QUEUES) || empty($this->getOption(self::OPTION_QUEUES))) {
+            throw new \InvalidArgumentException("Queues needs to be set.");
+        }
+
+        if (count($this->getQueues()) === 1) {
             return;
         }
 
-        throw new \InvalidArgumentException('Queue "'. $queueName .'" does not exist.');
+        if (count($this->getQueues()) != count(array_unique($this->getQueues()))) {
+            throw new \InvalidArgumentException('There are duplicated Queue names. Please check the values of "'. self::OPTION_QUEUES .'" in your queue dispatcher settings.');
+        }
     }
 
     /**
-     * If we have queues defined like "only_one_queue" or ['queue_alone'] or ['queueA', 'queueB', 'queueC'] or ['queueA' => 4, 'queueB']
-     * than it tries to normalize it.
+     * @throws \InvalidArgumentException
      */
-    private function normalizeQueuesOption()
+    private function assertTasks()
     {
-        $queues = [];
-
-        foreach ((array) $this->getOption(self::OPTION_QUEUES) as $queueName => $weight) {
-            if (!is_string($queueName)) {
-                $queueName = $weight;
-                $weight = 1;
-            }
-
-            $queues[$queueName] = abs($weight);
+        if (empty($this->getTasks())) {
+            return;
         }
 
-        $this->setOption(self::OPTION_QUEUES, $queues);
-    }
+        // check if every task is linked to a registered queue
+        $notRegisteredQueues = array_diff(array_values($this->getTasks()), $this->getQueueNames());
 
+        if (count($notRegisteredQueues)) {
+            throw new \LogicException('Found not registered queue(s) linked to task(s): "'. implode('", "', $notRegisteredQueues) .'". Please check the values of "'. self::OPTION_TASKS .'" in your queue dispatcher settings.');
+        }
+    }
 }

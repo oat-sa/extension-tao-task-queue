@@ -37,16 +37,43 @@ interface QueueDispatcherInterface extends \Countable, LoggerAwareInterface
      * An array of tasks names with the specified queue where the tasks needs to be published to.
      */
     const OPTION_TASKS = 'tasks_by_queues';
-    const OPTION_QUEUE_BROKER = 'queue_broker';
     const OPTION_TASK_LOG = 'task_log';
 
     const QUEUE_PREFIX = 'TQ';
+
+    /**
+     * Add new Queue.
+     *
+     * @param QueueInterface $queue
+     * @return QueueDispatcherInterface
+     */
+    public function addQueue(QueueInterface $queue);
 
     /**
      * @param string $queueName
      * @return QueueInterface
      */
     public function getQueue($queueName);
+
+    /**
+     * @return QueueInterface[]
+     */
+    public function getQueues();
+
+    /**
+     * Get the names of the registered queues.
+     *
+     * @return array
+     */
+    public function getQueueNames();
+
+    /**
+     * Has the given queue/queue name already been set?
+     *
+     * @param string $queueName
+     * @return bool
+     */
+    public function hasQueue($queueName);
 
     /**
      * @return QueueInterface
@@ -95,18 +122,9 @@ interface QueueDispatcherInterface extends \Countable, LoggerAwareInterface
     public function acknowledge(TaskInterface $task);
 
     /**
-     * Is the default queue a sync queue?
-     * As there can be only one type of QueueBroker service at once we can use the default queue for this.
+     * Are all queues a sync one?
      *
      * @return bool
      */
     public function isSync();
-
-    /**
-     * The amount of tasks that can be received in one pop by the default queue.
-     * As there can be only one type of QueueBroker service at once we can use the default queue for this.
-     *
-     * @return int
-     */
-    public function getNumberOfTasksToReceive();
 }

@@ -20,16 +20,33 @@
 
 namespace oat\taoTaskQueue\model;
 
+use oat\oatbox\PhpSerializable;
+use oat\taoTaskQueue\model\QueueBroker\QueueBrokerInterface;
 use oat\taoTaskQueue\model\Task\TaskInterface;
 use Psr\Log\LoggerAwareInterface;
+use Zend\ServiceManager\ServiceLocatorAwareInterface;
 
 /**
  * Interface QueueInterface
  *
  * @author Gyula Szucs <gyula@taotesting.com>
  */
-interface QueueInterface extends \Countable, LoggerAwareInterface
+interface QueueInterface extends \Countable, LoggerAwareInterface, PhpSerializable, ServiceLocatorAwareInterface
 {
+    /**
+     * QueueInterface constructor.
+     *
+     * @param string               $name
+     * @param QueueBrokerInterface $broker
+     * @param int                  $weight
+     */
+    public function __construct($name, QueueBrokerInterface $broker, $weight = 1);
+
+    /**
+     * @return string
+     */
+    public function __toString();
+
     /**
      * Initialize queue.
      *
@@ -43,6 +60,13 @@ interface QueueInterface extends \Countable, LoggerAwareInterface
      * @return string
      */
     public function getName();
+
+    /**
+     * Returns queue weight.
+     *
+     * @return int
+     */
+    public function getWeight();
 
     /**
      * Publish a task to the queue.

@@ -20,40 +20,45 @@
 
 namespace oat\taoTaskQueue\model;
 
+
 use oat\taoTaskQueue\model\QueueBroker\QueueBrokerInterface;
 use oat\oatbox\log\LoggerAwareTrait;
 use oat\taoTaskQueue\model\QueueBroker\SyncQueueBrokerInterface;
 use oat\taoTaskQueue\model\Task\TaskInterface;
+use Zend\ServiceManager\ServiceLocatorAwareInterface;
+use Zend\ServiceManager\ServiceLocatorAwareTrait;
 
 /**
  * Queue Service
  *
  * @author Gyula Szucs <gyula@taotesting.com>
  */
-class Queue implements QueueInterface
+class Queue implements QueueInterface,  TaskLogAwareInterface
 {
     use LoggerAwareTrait;
+    use ServiceLocatorAwareTrait;
+    use TaskLogAwareTrait;
 
     private $name;
 
     /**
-     * @var QueueBrokerInterface
+     * @var QueueBrokerInterface|ServiceLocatorAwareInterface
      */
     private $broker;
 
     /**
-     * @var TaskLogInterface
+     * @var int
      */
-    private $taskLog;
+    private $weight;
 
     /**
      * Queue constructor.
      *
-     * @param string $name
+     * @param string               $name
      * @param QueueBrokerInterface $broker
-     * @param TaskLogInterface     $taskLog
+     * @param int $weight
      */
-    public function __construct($name, QueueBrokerInterface $broker, TaskLogInterface $taskLog)
+    public function __construct($name, QueueBrokerInterface $broker, $weight = 1)
     {
         if (empty($name)) {
             throw new \InvalidArgumentException("Queue name needs to be set.");
@@ -61,17 +66,35 @@ class Queue implements QueueInterface
 
         $this->name = $name;
         $this->broker = $broker;
-        $this->taskLog = $taskLog;
+        $this->weight = abs($weight);
 
-        $this->getBroker()->setQueueName($this->getName());
+        $this->broker->setQueueName($this->getName());
 
         if ($this->isSync()) {
-            $this->initialize();
+            $this->broker->createQueue();
         }
+    }
 
-        if (!$this->hasOption(self::OPTION_TASK_LOG) || empty($this->getOption(self::OPTION_TASK_LOG))) {
-            throw new \InvalidArgumentException("Task Log service needs to be set.");
-        }
+    /**
+     * @inheritdoc
+     */
+    public function __toString()
+    {
+        return $this->getName();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function __toPhpCode()
+    {
+        return 'new '. get_called_class() .'('
+            . \common_Utils::toHumanReadablePhpString($this->getName())
+            .', '
+            . \common_Utils::toHumanReadablePhpString($this->getBroker())
+            .', '
+            . \common_Utils::toHumanReadablePhpString($this->getWeight())
+            .')';
     }
 
     /**
@@ -83,11 +106,19 @@ class Queue implements QueueInterface
     }
 
     /**
-     * @return string
+     * @inheritdoc
      */
     public function getName()
     {
         return $this->name;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getWeight()
+    {
+        return $this->weight;
     }
 
     /**
@@ -97,15 +128,9 @@ class Queue implements QueueInterface
      */
     protected function getBroker()
     {
-        return $this->broker;
-    }
+        $this->broker->setServiceLocator($this->getServiceLocator());
 
-    /**
-     * @return TaskLogInterface
-     */
-    protected function getTaskLog()
-    {
-        return $this->taskLog;
+        return $this->broker;
     }
 
     /**
@@ -167,7 +192,7 @@ class Queue implements QueueInterface
      */
     public function isSync()
     {
-        return $this->getBroker() instanceof SyncQueueBrokerInterface;
+        return $this->broker instanceof SyncQueueBrokerInterface;
     }
 
     /**

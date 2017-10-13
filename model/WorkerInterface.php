@@ -42,7 +42,7 @@ interface WorkerInterface extends LoggerAwareInterface
      *
      * @return void
      */
-    public function processQueue();
+    public function run();
 
     /**
      * Process a task
@@ -63,8 +63,8 @@ interface WorkerInterface extends LoggerAwareInterface
     /**
      * Sets a queue on which the worker operates exclusively.
      *
-     * @param string $queueName
+     * @param QueueInterface $queue
      * @return WorkerInterface
      */
-    public function setDedicatedQueue($queueName);
+    public function setDedicatedQueue(QueueInterface $queue);
 }

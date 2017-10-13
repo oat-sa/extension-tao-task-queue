@@ -33,8 +33,16 @@ final class Worker implements WorkerInterface
 {
     use LoggerAwareTrait;
 
+    /**
+     * @var QueueDispatcherInterface
+     */
     private $queueService;
+
+    /**
+     * @var QueueInterface
+     */
     private $dedicatedQueue;
+
     private $maxIterations = 0; //0 means infinite iteration
     private $iterations;
     private $shutdown;
@@ -70,9 +78,9 @@ final class Worker implements WorkerInterface
     }
 
     /**
-     * Start processing tasks from the queue.
+     * @inheritdoc
      */
-    public function processQueue()
+    public function run()
     {
         $this->logInfo('Starting worker.', $this->logContext);
 
@@ -95,7 +103,11 @@ final class Worker implements WorkerInterface
             try{
                 $this->logDebug('Fetching tasks from queue ', $this->logContext);
 
-                $task = $this->queueService->dequeue($this->dedicatedQueue);
+                // if there is a dedicated queue set, let's do dequeue on that one
+                // otherwise using the built-in strategy to get a new task from any registered queue
+                $task = $this->dedicatedQueue instanceof QueueInterface
+                    ? $this->dedicatedQueue->dequeue()
+                    : $this->queueService->dequeue();
 
                 // if no task to process, sleep for the specified time and continue.
                 if (!$task) {
@@ -122,10 +134,7 @@ final class Worker implements WorkerInterface
     }
 
     /**
-     * Process a task.
-     *
-     * @param TaskInterface $task
-     * @return string
+     * @inheritdoc
      */
     public function processTask(TaskInterface $task)
     {
@@ -172,11 +181,15 @@ final class Worker implements WorkerInterface
     }
 
     /**
+     * Only set-able if there is a dedicated queue set.
+     *
      * @inheritdoc
      */
     public function setMaxIterations($maxIterations)
     {
-        $this->maxIterations = (int) $maxIterations * $this->queueService->getNumberOfTasksToReceive();
+        if ($this->dedicatedQueue instanceof QueueInterface) {
+            $this->maxIterations = (int) $maxIterations * $this->dedicatedQueue->getNumberOfTasksToReceive();
+        }
 
         return $this;
     }
@@ -184,11 +197,11 @@ final class Worker implements WorkerInterface
     /**
      * @inheritdoc
      */
-    public function setDedicatedQueue($queueName)
+    public function setDedicatedQueue(QueueInterface $queue)
     {
-        $this->dedicatedQueue = $queueName;
+        $this->dedicatedQueue = $queue;
 
-        $this->logContext['QueueName'] = $queueName;
+        $this->logContext['QueueName'] = $queue->getName();
 
         return $this;
     }

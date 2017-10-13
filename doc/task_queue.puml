@@ -114,7 +114,6 @@ package "Queue" #DDDDDD {
             {static} SERVICE_ID
             {static} QUEUE_PREFIX
             {static} OPTION_QUEUES
-            {static} OPTION_QUEUE_BROKER
             {static} OPTION_TASK_LOG
             +initialize()
             +getQueue(queueName)
@@ -126,7 +125,6 @@ package "Queue" #DDDDDD {
         }
 
         class QueueDispatcher << SERVICE >> {
-            -getBroker()
             -getTaskLog()
             -getQueueForTask()
             -runWorker()

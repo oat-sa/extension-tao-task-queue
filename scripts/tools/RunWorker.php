@@ -30,10 +30,18 @@ use Zend\ServiceManager\ServiceLocatorAwareTrait;
 /**
  * Start a new worker.
  *
+ * - Working on all registered queue based on weights
  * ```
  * $ sudo -u www-data php index.php 'oat\taoTaskQueue\scripts\tools\RunWorker'
+ * ```
+ *
+ * - Working on a dedicated queue
+ * ```
  * $ sudo -u www-data php index.php 'oat\taoTaskQueue\scripts\tools\RunWorker' --queue=Queue1
- * $ sudo -u www-data php index.php 'oat\taoTaskQueue\scripts\tools\RunWorker' --limit=10
+ * ```
+ *
+ * - Working on a queue until the given iteration is reached
+ * ```
  * $ sudo -u www-data php index.php 'oat\taoTaskQueue\scripts\tools\RunWorker' --queue=Queue2 --limit=5
  * ```
  *
@@ -48,12 +56,19 @@ class RunWorker implements Action, ServiceLocatorAwareInterface
         $queue = null;
         $limit = 0;
 
+        /** @var QueueDispatcherInterface $queueService */
+        $queueService = $this->getServiceLocator()->get(QueueDispatcherInterface::SERVICE_ID);
+
+        if ($queueService->isSync()) {
+            return \common_report_Report::createInfo('No worker is needed because all registered queue is a Sync Queue.');
+        }
+
         foreach ($params as $param) {
             list($option, $value) = explode('=', $param);
 
             switch ($option) {
                 case '--queue':
-                    $queue = $value;
+                    $queue = $queueService->getQueue($value);
                     break;
 
                 case '--limit':
@@ -62,20 +77,21 @@ class RunWorker implements Action, ServiceLocatorAwareInterface
             }
         }
 
-        /** @var QueueDispatcherInterface $queueService */
-        $queueService = $this->getServiceLocator()->get(QueueDispatcherInterface::SERVICE_ID);
-
-        if ($queueService->isSync()) {
-            return \common_report_Report::createInfo('No worker needed because Sync Queue is used.');
+        if ($limit > 0 && is_null($queue)) {
+            return \common_report_Report::createFailure('Limit can be used only if a dedicated queue is set.');
         }
 
         /** @var TaskLogInterface $taskLog */
         $taskLog = $this->getServiceLocator()->get(TaskLogInterface::SERVICE_ID);
 
-        (new Worker($queueService, $taskLog))
-            ->setMaxIterations($limit)
-            ->setDedicatedQueue($queue)
-            ->processQueue();
+        $worker = new Worker($queueService, $taskLog);
+
+        if ($queue) {
+            $worker->setDedicatedQueue($queue)
+                ->setMaxIterations($limit);
+        }
+
+        $worker->run();
 
         return \common_report_Report::createSuccess('Worker finished');
     }
