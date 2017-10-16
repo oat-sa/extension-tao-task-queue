@@ -20,6 +20,7 @@
 
 namespace oat\taoTaskQueue\model;
 
+use oat\taoTaskQueue\model\QueueBroker\QueueBrokerInterface;
 use oat\taoTaskQueue\model\Task\CallbackTask;
 use oat\taoTaskQueue\model\Task\TaskInterface;
 use Psr\Log\LoggerAwareInterface;
@@ -52,6 +53,14 @@ interface QueueInterface extends \Countable, LoggerAwareInterface
      * @return string
      */
     public function getName();
+
+    /**
+     * Set new broker.
+     *
+     * @param QueueBrokerInterface $broker
+     * @return QueueInterface
+     */
+    public function setBroker(QueueBrokerInterface $broker);
 
     /**
      * Create a task to be managed by the queue from any callable

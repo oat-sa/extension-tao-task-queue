@@ -85,6 +85,20 @@ class Queue extends ConfigurableService implements QueueInterface
     }
 
     /**
+     * @inheritdoc
+     */
+    public function setBroker(QueueBrokerInterface $broker)
+    {
+        // removes current broker instance
+        $this->broker = null;
+
+        // add broker through option
+        $this->setOption(self::OPTION_QUEUE_BROKER, $broker);
+
+        return $this;
+    }
+
+    /**
      * Returns the queue broker service.
      *
      * @return QueueBrokerInterface
