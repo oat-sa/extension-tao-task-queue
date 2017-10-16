@@ -22,6 +22,7 @@ namespace oat\taoTaskQueue\model;
 
 use oat\oatbox\PhpSerializable;
 use oat\taoTaskQueue\model\QueueBroker\QueueBrokerInterface;
+use oat\taoTaskQueue\model\Task\CallbackTask;
 use oat\taoTaskQueue\model\Task\TaskInterface;
 use Psr\Log\LoggerAwareInterface;
 use Zend\ServiceManager\ServiceLocatorAwareInterface;
