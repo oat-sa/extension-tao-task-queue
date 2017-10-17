@@ -40,7 +40,7 @@ use Zend\ServiceManager\ServiceLocatorAwareTrait;
  * $ sudo -u www-data php index.php 'oat\taoTaskQueue\scripts\tools\RunWorker' --queue=Queue1
  * ```
  *
- * - Working on a queue until the given iteration is reached
+ * - Working on a dedicated queue until the given iteration is reached
  * ```
  * $ sudo -u www-data php index.php 'oat\taoTaskQueue\scripts\tools\RunWorker' --queue=Queue2 --limit=5
  * ```

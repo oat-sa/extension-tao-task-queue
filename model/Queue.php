@@ -33,7 +33,7 @@ use Zend\ServiceManager\ServiceLocatorAwareTrait;
  *
  * @author Gyula Szucs <gyula@taotesting.com>
  */
-class Queue implements QueueInterface,  TaskLogAwareInterface
+class Queue implements QueueInterface, TaskLogAwareInterface
 {
     use LoggerAwareTrait;
     use ServiceLocatorAwareTrait;
@@ -54,12 +54,28 @@ class Queue implements QueueInterface,  TaskLogAwareInterface
     /**
      * Queue constructor.
      *
-     * @param string               $name
-     * @param QueueBrokerInterface $broker
+     * @param string              $name
+     * @param QueueBrokerInterface|null $broker Null option will be removed in version 1.0.0
      * @param int $weight
      */
-    public function __construct($name, QueueBrokerInterface $broker, $weight = 1)
+    public function __construct($name, QueueBrokerInterface $broker = null, $weight = 1)
     {
+        /**
+         * this "if case" is because of backwards compatibility, will be removed in version 1.0.0
+         *
+         * @deprecated
+         */
+        if (is_array($name)) {
+            $oldConfig = $name;
+            $name = $oldConfig['queue_name'];
+            $broker = $oldConfig['queue_broker'];
+
+            if (!$broker instanceof QueueBrokerInterface) {
+                throw new \InvalidArgumentException("Queue Broker needs to be an instance of QueueBrokerInterface.");
+            }
+        }
+
+
         if (empty($name)) {
             throw new \InvalidArgumentException("Queue name needs to be set.");
         }

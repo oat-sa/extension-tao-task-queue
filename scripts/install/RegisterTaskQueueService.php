@@ -21,6 +21,7 @@
 namespace oat\taoTaskQueue\scripts\install;
 
 use oat\oatbox\extension\InstallAction;
+use oat\taoTaskQueue\model\Queue;
 use oat\taoTaskQueue\model\QueueBroker\InMemoryQueueBroker;
 use oat\taoTaskQueue\model\QueueDispatcher;
 use oat\taoTaskQueue\model\QueueDispatcherInterface;
@@ -36,17 +37,13 @@ class RegisterTaskQueueService extends InstallAction
     public function __invoke($params)
     {
         $queueService = new QueueDispatcher([
-            QueueDispatcherInterface::OPTION_QUEUES => ['queue'],
-            QueueDispatcherInterface::OPTION_QUEUE_BROKER => new InMemoryQueueBroker(),
-            QueueDispatcherInterface::OPTION_TASK_LOG => TaskLogInterface::SERVICE_ID
+            QueueDispatcherInterface::OPTION_QUEUES => [
+                new Queue('queue', new InMemoryQueueBroker())
+            ],
+            QueueDispatcherInterface::OPTION_TASK_LOG => TaskLogInterface::SERVICE_ID,
+            QueueDispatcherInterface::OPTION_TASKS => []
         ]);
         $this->registerService(QueueDispatcherInterface::SERVICE_ID, $queueService);
-
-        try {
-            $queueService->initialize();
-        } catch (\Exception $e) {
-            return \common_report_Report::createFailure('Initializing queue(s) failed');
-        }
 
         return \common_report_Report::createSuccess('Task Queue service successfully registered.');
     }

@@ -35,6 +35,16 @@ use Zend\ServiceManager\ServiceLocatorAwareInterface;
 interface QueueInterface extends \Countable, LoggerAwareInterface, PhpSerializable, ServiceLocatorAwareInterface
 {
     /**
+     * @deprecated It will be removed in version 1.0.0. Use QueueDispatcherInterface::SERVICE_ID instead
+     */
+    const SERVICE_ID = 'taoTaskQueue/taskQueue';
+
+    /**
+     * @deprecated It will be removed in version 1.0.0
+     */
+    const OPTION_QUEUE_BROKER = 'queue_broker';
+
+    /**
      * QueueInterface constructor.
      *
      * @param string               $name

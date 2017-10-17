@@ -24,6 +24,11 @@ use oat\taoTaskQueue\model\Task\CallbackTaskInterface;
 use oat\taoTaskQueue\model\Task\TaskInterface;
 use Psr\Log\LoggerAwareInterface;
 
+/**
+ * Interface QueueDispatcherInterface
+ *
+ * @author Gyula Szucs <gyula@taotesting.com>
+ */
 interface QueueDispatcherInterface extends \Countable, LoggerAwareInterface
 {
     const SERVICE_ID = 'taoTaskQueue/taskQueue';
@@ -79,6 +84,13 @@ interface QueueDispatcherInterface extends \Countable, LoggerAwareInterface
      * @return QueueInterface
      */
     public function getDefaultQueue();
+
+    /**
+     * @param string|object $taskName
+     * @param string $queueName
+     * @return QueueDispatcherInterface
+     */
+    public function addTask($taskName, $queueName);
 
     /**
      * Initialize queues.

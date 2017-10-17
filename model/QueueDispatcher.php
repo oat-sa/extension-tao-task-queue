@@ -26,6 +26,11 @@ use oat\taoTaskQueue\model\Task\CallbackTask;
 use oat\taoTaskQueue\model\Task\CallbackTaskInterface;
 use oat\taoTaskQueue\model\Task\TaskInterface;
 
+/**
+ * Class QueueDispatcher
+ *
+ * @author Gyula Szucs <gyula@taotesting.com>
+ */
 class QueueDispatcher extends ConfigurableService implements QueueDispatcherInterface
 {
     use LoggerAwareTrait;
@@ -54,19 +59,39 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
     }
 
     /**
+     * @inheritdoc
+     */
+    public function __toPhpCode()
+    {
+        foreach ($this->getQueues() as $queue) {
+            $queue->setServiceLocator($this->getServiceLocator());
+        }
+
+        return parent::__toPhpCode();
+    }
+
+    /**
      * @param TaskInterface $task
      * @return QueueInterface
      */
     protected function getQueueForTask(TaskInterface $task)
     {
-        $className = $task instanceof CallbackTaskInterface && is_object($task->getCallable()) ? get_class($task->getCallable()) : get_class($task);
+        $action = $task instanceof CallbackTaskInterface && is_object($task->getCallable()) ? $task->getCallable() : $task;
 
+        // getting queue name using the implemented getter function
+        if ($action instanceof QueueNameGetterInterface && ($queueName = $action->getQueueName($task->getParameters()))) {
+            return $this->getQueue($queueName);
+        }
+
+        // getting the queue name based on the configuration
+        $className = get_class($action);
         if (array_key_exists($className, $this->getTasks())) {
             $queueName = $this->getTasks()[$className];
 
             return $this->getQueue($queueName);
         }
 
+        // if we still don't have a queue, let's use the default one
         return $this->getDefaultQueue();
     }
 
@@ -135,6 +160,25 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
     /**
      * @inheritdoc
      */
+    public function addTask($taskName, $queueName)
+    {
+        if (is_object($taskName)) {
+            $taskName = get_class($taskName);
+        }
+
+        if (!$this->hasQueue($queueName)) {
+            throw new \LogicException('Task "'. $taskName .'" cannot be added to "'. $queueName .'". Queue is not registered.');
+        }
+
+        $tasks = $this->getTasks();
+        $tasks[] = (string) $taskName;
+
+        $this->setOption(self::OPTION_TASKS, $tasks);
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function getTasks()
     {
         return (array) $this->getOption(self::OPTION_TASKS);
@@ -168,13 +212,11 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
     }
 
     /**
-     * Gets random ques based on weighting.
+     * Gets random queue based on weight.
      *
-     * Example array, such as array('A'=>5, 'B'=>45, 'C'=>50) means that "A" has a 5% chance of being selected, "B" 45%, and "C" 50%.
-     * The return value is the array key, A, B, or C in this case.
+     * For example, an array like ['A'=>5, 'B'=>45, 'C'=>50] means that "A" has a 5% chance of being selected, "B" 45%, and "C" 50%.
      * The values are simply relative to each other. If one value weight was 2, and the other weight of 1,
      * the value with the weight of 2 has about a 66% chance of being selected.
-     * Also note that weights should be integers.
      *
      * @return QueueInterface
      */
