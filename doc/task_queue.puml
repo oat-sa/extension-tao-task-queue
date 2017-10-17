@@ -116,20 +116,29 @@ package "Queue" #DDDDDD {
             {static} OPTION_QUEUES
             {static} OPTION_TASK_LOG
             +initialize()
+            +addQueue(QueueInterface queue)
             +getQueue(queueName)
+            +getQueues()
+            +getQueueNames()
+            +hasQueue(queueName)
             +getDefaultQueue()
+            +getQueueByWeight()
+            +linkTaskToQueue(taskName, queueName)
+            +getLinkedTasks()
             +createTask(action, parameters, label)
             +enqueue(TaskInterface task, label)
             +dequeue(queueName = null)
             +acknowledge(TaskInterface task)
+            +isSync()
         }
 
         class QueueDispatcher << SERVICE >> {
             -getTaskLog()
+            -getFirstQueue()
             -getQueueForTask()
             -runWorker()
-            -assertValidQueueName()
-            -normalizeQueuesOption()
+            -assertQueues()
+            -assertTasks()
         }
 
         QueueDispatcher <|- QueueDispatcherInterface

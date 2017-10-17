@@ -65,6 +65,9 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
     {
         foreach ($this->getQueues() as $queue) {
             $queue->setServiceLocator($this->getServiceLocator());
+            if ($queue instanceof TaskLogAwareInterface) {
+                $queue->setTaskLog($this->getTaskLog());
+            }
         }
 
         return parent::__toPhpCode();
@@ -83,10 +86,10 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
             return $this->getQueue($queueName);
         }
 
-        // getting the queue name based on the configuration
+        // getting the queue name based on the linked tasks configuration
         $className = get_class($action);
-        if (array_key_exists($className, $this->getTasks())) {
-            $queueName = $this->getTasks()[$className];
+        if (array_key_exists($className, $this->getLinkedTasks())) {
+            $queueName = $this->getLinkedTasks()[$className];
 
             return $this->getQueue($queueName);
         }
@@ -142,6 +145,9 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
             /** @var Queue $queue */
             $queue = reset($foundQueue);
             $queue->setServiceLocator($this->getServiceLocator());
+            if ($queue instanceof TaskLogAwareInterface) {
+                $queue->setTaskLog($this->getTaskLog());
+            }
 
             return $queue;
         }
@@ -160,7 +166,7 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
     /**
      * @inheritdoc
      */
-    public function addTask($taskName, $queueName)
+    public function linkTaskToQueue($taskName, $queueName)
     {
         if (is_object($taskName)) {
             $taskName = get_class($taskName);
@@ -170,18 +176,18 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
             throw new \LogicException('Task "'. $taskName .'" cannot be added to "'. $queueName .'". Queue is not registered.');
         }
 
-        $tasks = $this->getTasks();
+        $tasks = $this->getLinkedTasks();
         $tasks[] = (string) $taskName;
 
-        $this->setOption(self::OPTION_TASKS, $tasks);
+        $this->setOption(self::OPTION_LINKED_TASKS, $tasks);
     }
 
     /**
      * @inheritdoc
      */
-    public function getTasks()
+    public function getLinkedTasks()
     {
-        return (array) $this->getOption(self::OPTION_TASKS);
+        return (array) $this->getOption(self::OPTION_LINKED_TASKS);
     }
 
     /**
@@ -192,7 +198,9 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
      */
     public function getDefaultQueue()
     {
-        return $this->getFirstQueue();
+        return $this->hasOption(self::OPTION_DEFAULT_QUEUE) && $this->getOption(self::OPTION_DEFAULT_QUEUE)
+            ? $this->getQueue($this->getOption(self::OPTION_DEFAULT_QUEUE))
+            : $this->getFirstQueue();
     }
 
     /**
@@ -207,6 +215,9 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
         /** @var Queue $queue */
         $queue = reset($queues);
         $queue->setServiceLocator($this->getServiceLocator());
+        if ($queue instanceof TaskLogAwareInterface) {
+            $queue->setTaskLog($this->getTaskLog());
+        }
 
         return $queue;
     }
@@ -233,6 +244,11 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
             $rand -= $queue->getWeight();
             if ($rand <= 0) {
                 $queue->setServiceLocator($this->getServiceLocator());
+                if ($queue instanceof TaskLogAwareInterface) {
+                    $queue->setTaskLog($this->getTaskLog());
+                }
+
+                $this->logDebug('Queue "'. strtoupper($queue->getName()) .'" selected by weight.');
 
                 return $queue;
             }
@@ -248,6 +264,9 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
     {
         foreach ($this->getQueues() as $queue) {
             $queue->setServiceLocator($this->getServiceLocator());
+            if ($queue instanceof TaskLogAwareInterface) {
+                $queue->setTaskLog($this->getTaskLog());
+            }
             $queue->initialize();
         }
     }
@@ -324,6 +343,9 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
     {
         $counts = array_map(function(QueueInterface $queue) {
             $queue->setServiceLocator($this->getServiceLocator());
+            if ($queue instanceof TaskLogAwareInterface) {
+                $queue->setTaskLog($this->getTaskLog());
+            }
             return $queue->count();
         }, $this->getQueues());
 
@@ -394,15 +416,15 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
      */
     private function assertTasks()
     {
-        if (empty($this->getTasks())) {
+        if (empty($this->getLinkedTasks())) {
             return;
         }
 
         // check if every task is linked to a registered queue
-        $notRegisteredQueues = array_diff(array_values($this->getTasks()), $this->getQueueNames());
+        $notRegisteredQueues = array_diff(array_values($this->getLinkedTasks()), $this->getQueueNames());
 
         if (count($notRegisteredQueues)) {
-            throw new \LogicException('Found not registered queue(s) linked to task(s): "'. implode('", "', $notRegisteredQueues) .'". Please check the values of "'. self::OPTION_TASKS .'" in your queue dispatcher settings.');
+            throw new \LogicException('Found not registered queue(s) linked to task(s): "'. implode('", "', $notRegisteredQueues) .'". Please check the values of "'. self::OPTION_LINKED_TASKS .'" in your queue dispatcher settings.');
         }
     }
 }

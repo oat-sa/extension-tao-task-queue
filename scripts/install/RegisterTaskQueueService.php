@@ -37,11 +37,11 @@ class RegisterTaskQueueService extends InstallAction
     public function __invoke($params)
     {
         $queueService = new QueueDispatcher([
-            QueueDispatcherInterface::OPTION_QUEUES => [
+            QueueDispatcherInterface::OPTION_QUEUES       => [
                 new Queue('queue', new InMemoryQueueBroker())
             ],
-            QueueDispatcherInterface::OPTION_TASK_LOG => TaskLogInterface::SERVICE_ID,
-            QueueDispatcherInterface::OPTION_TASKS => []
+            QueueDispatcherInterface::OPTION_TASK_LOG     => TaskLogInterface::SERVICE_ID,
+            QueueDispatcherInterface::OPTION_LINKED_TASKS => []
         ]);
         $this->registerService(QueueDispatcherInterface::SERVICE_ID, $queueService);
 

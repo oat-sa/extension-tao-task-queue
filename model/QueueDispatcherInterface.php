@@ -34,14 +34,19 @@ interface QueueDispatcherInterface extends \Countable, LoggerAwareInterface
     const SERVICE_ID = 'taoTaskQueue/taskQueue';
 
     /**
-     * An array of queues like ['queueA'=>5, 'queueB'=>45, 'queueC'=>50]
+     * Array of queues
      */
     const OPTION_QUEUES = 'queues';
 
     /**
+     * Name of the default queue. Task without specified queue will be published here.
+     */
+    const OPTION_DEFAULT_QUEUE = 'default_queue';
+
+    /**
      * An array of tasks names with the specified queue where the tasks needs to be published to.
      */
-    const OPTION_TASKS = 'tasks_by_queues';
+    const OPTION_LINKED_TASKS = 'linked_tasks';
     const OPTION_TASK_LOG = 'task_log';
 
     const QUEUE_PREFIX = 'TQ';
@@ -81,16 +86,34 @@ interface QueueDispatcherInterface extends \Countable, LoggerAwareInterface
     public function hasQueue($queueName);
 
     /**
+     * Get the default queue.
+     *
      * @return QueueInterface
      */
     public function getDefaultQueue();
 
     /**
+     * Get a queue randomly using weight.
+     *
+     * @return QueueInterface
+     */
+    public function getQueueByWeight();
+
+    /**
+     * Link a task to a queue.
+     *
      * @param string|object $taskName
      * @param string $queueName
      * @return QueueDispatcherInterface
      */
-    public function addTask($taskName, $queueName);
+    public function linkTaskToQueue($taskName, $queueName);
+
+    /**
+     * Get the linked tasks.
+     *
+     * @return array
+     */
+    public function getLinkedTasks();
 
     /**
      * Initialize queues.

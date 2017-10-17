@@ -69,15 +69,14 @@ class Queue implements QueueInterface, TaskLogAwareInterface
             $oldConfig = $name;
             $name = $oldConfig['queue_name'];
             $broker = $oldConfig['queue_broker'];
-
-            if (!$broker instanceof QueueBrokerInterface) {
-                throw new \InvalidArgumentException("Queue Broker needs to be an instance of QueueBrokerInterface.");
-            }
         }
-
 
         if (empty($name)) {
             throw new \InvalidArgumentException("Queue name needs to be set.");
+        }
+
+        if (!$broker instanceof QueueBrokerInterface) {
+            throw new \InvalidArgumentException("Queue Broker needs to be an instance of QueueBrokerInterface.");
         }
 
         $this->name = $name;
