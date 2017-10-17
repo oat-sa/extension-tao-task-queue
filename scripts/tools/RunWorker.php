@@ -55,7 +55,14 @@ class RunWorker implements Action, ServiceLocatorAwareInterface
         /** @var TaskLogInterface $taskLog */
         $taskLog = $this->getServiceLocator()->get(TaskLogInterface::SERVICE_ID);
 
-        (new Worker($queue, $taskLog))
+        $handleSignals = true;
+
+        // if it is install on windows do not use the signals pcntl (specific for ubuntu).
+        if (stripos(PHP_OS, 'win') === 0) {
+            $handleSignals = false;
+        }
+
+        (new Worker($queue, $taskLog, $handleSignals))
             ->setMaxIterations($limit)
             ->processQueue();
 
