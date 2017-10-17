@@ -185,17 +185,20 @@ if ($queue->isSync()) {
 
 ## Service examples
 
+### Register Queue in Service Manager
+```php
+$this->getServiceManager()->register(QueueInterface::SERVICE_ID, $queueService);
+```
+
 ### Sync Queue settings
 ```php
-use oat\taoTaskQueue\model\Queue;
-use oat\taoTaskQueue\model\QueueBroker\InMemoryQueueBroker;
 
-$queueService = new Queue([
-    QueueInterface::OPTION_QUEUE_NAME => 'queue',
-    QueueInterface::OPTION_QUEUE_BROKER => new InMemoryQueueBroker(),
-    QueueInterface::OPTION_TASK_LOG => TaskLogInterface::SERVICE_ID
+return new \oat\taoTaskQueue\model\Queue([
+    \oat\taoTaskQueue\model\QueueInterface::OPTION_QUEUE_NAME => 'queue',
+    \oat\taoTaskQueue\model\QueueInterface::OPTION_QUEUE_BROKER => new \oat\taoTaskQueue\model\QueueBroker\InMemoryQueueBroker(),
+    \oat\taoTaskQueue\model\QueueInterface::OPTION_TASK_LOG => \oat\taoTaskQueue\model\TaskLogInterface::SERVICE_ID
 ]);
-$this->getServiceManager()->register(QueueInterface::SERVICE_ID, $queueService);
+
 ```
 
 If the queue has not been initialized, meaning the required queue container has not been created yet:
@@ -209,12 +212,11 @@ try {
 
 ### Task Log settings
 ```php
-use oat\taoTaskQueue\model\TaskLogBroker\RdsTaskLogBroker;
 
-$taskLogService = new TaskLog([
-    TaskLogInterface::OPTION_TASK_LOG_BROKER => new RdsTaskLogBroker('default', 'task_log')
+return new \oat\taoTaskQueue\model\TaskLog([
+    \oat\taoTaskQueue\model\TaskLogInterface::OPTION_TASK_LOG_BROKER  => new \oat\taoTaskQueue\model\TaskLogBroker\RdsTaskLogBroker('default', 'task_log')
 ]);
-$this->getServiceManager()->register(TaskLogInterface::SERVICE_ID, $taskLogService);
+
 ```
 
 If the task log container has not been created yet:
@@ -228,28 +230,25 @@ try {
 
 ### RDS Queue settings
 ```php
-use oat\taoTaskQueue\model\QueueBroker\RdsQueueBroker;
 
-$queueService = new Queue([
-    QueueInterface::OPTION_QUEUE_NAME => 'queue',
-    QueueInterface::OPTION_QUEUE_BROKER => new RdsQueueBroker('default', 5),
-    QueueInterface::OPTION_TASK_LOG => TaskLogInterface::SERVICE_ID
+return new \oat\taoTaskQueue\model\Queue([
+    \oat\taoTaskQueue\model\QueueInterface::OPTION_QUEUE_NAME => 'queue',
+    \oat\taoTaskQueue\model\QueueInterface::OPTION_QUEUE_BROKER => new \oat\taoTaskQueue\model\QueueBroker\RdsQueueBroker('default', 5),
+    \oat\taoTaskQueue\model\QueueInterface::OPTION_TASK_LOG => \oat\taoTaskQueue\model\TaskLogInterface::SERVICE_ID
 ]);
-$this->getServiceManager()->register(QueueInterface::SERVICE_ID, $queueService);
+
 ```
 _Note_: 
 > If the Queue Service is already set up, just change the broker option as usual.
 
 ### SQS Queue settings
 ```php
-use oat\taoTaskQueue\model\QueueBroker\SqsQueueBroker;
 
-$queueService = new Queue([
-    QueueInterface::OPTION_QUEUE_NAME => 'queue',
-    QueueInterface::OPTION_QUEUE_BROKER =>  new SqsQueueBroker('default', 'generis/cache', 10),
-    QueueInterface::OPTION_TASK_LOG => TaskLogInterface::SERVICE_ID
+return new \oat\taoTaskQueue\model\Queue([
+    \oat\taoTaskQueue\model\QueueInterface::OPTION_QUEUE_NAME => 'queue',
+    \oat\taoTaskQueue\model\QueueInterface::OPTION_QUEUE_BROKER => new \oat\taoTaskQueue\model\QueueBroker\SqsQueueBroker('default', 'generis/cache', 10),
+    \oat\taoTaskQueue\model\QueueInterface::OPTION_TASK_LOG => \oat\taoTaskQueue\model\TaskLogInterface::SERVICE_ID
 ]);
-$this->getServiceManager()->register(QueueInterface::SERVICE_ID, $queueService);
 ```
 _Note_: 
 > If the Queue Service is already set up, just change the broker option as usual.
