@@ -336,7 +336,7 @@ class SqsQueueBroker extends AbstractQueueBroker
                 return true;
             }
         } catch (AwsException $e) {
-            $this->logError('Fetching queue url for '. $this->getQueueNameWithPrefix() .' failed. MSG: '. $e->getAwsErrorMessage());
+            $this->logWarning('Fetching queue url for '. $this->getQueueNameWithPrefix() .' failed. MSG: '. $e->getAwsErrorMessage());
         }
 
         return false;

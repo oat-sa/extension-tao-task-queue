@@ -23,8 +23,8 @@ namespace oat\taoTaskQueue\model\TaskLogBroker;
 use oat\oatbox\PhpSerializable;
 use common_report_Report as Report;
 use Doctrine\DBAL\Query\QueryBuilder;
+use oat\taoTaskQueue\model\QueueDispatcherInterface;
 use oat\taoTaskQueue\model\Task\CallbackTaskInterface;
-use oat\taoTaskQueue\model\QueueInterface;
 use oat\taoTaskQueue\model\Task\TaskInterface;
 use Zend\ServiceManager\ServiceLocatorAwareInterface;
 use Zend\ServiceManager\ServiceLocatorAwareTrait;
@@ -91,7 +91,7 @@ class RdsTaskLogBroker implements TaskLogBrokerInterface, PhpSerializable, Servi
      */
     protected function getTableName()
     {
-        return strtolower(QueueInterface::QUEUE_PREFIX .'_'. $this->containerName);
+        return strtolower(QueueDispatcherInterface::QUEUE_PREFIX .'_'. $this->containerName);
     }
 
     /**

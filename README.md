@@ -1,6 +1,6 @@
-# Task Queue
+# Distributed Task Queue
 
-> This article describes the functioning of the new Task Queue.
+> This article describes the functioning of the new distributed Task Queue.
 
 ## Install
 
@@ -12,21 +12,39 @@ You can add the Task Queue as a standard TAO extension to your current TAO insta
 
 ## Components
 
-The task queue system is built on three main components.
+The task queue system is built on the following components.
+
+### Queue Dispatcher component
+
+The Dispatcher can hold multiple Queue instances to achieve the priority mechanism. Each Queue is associated to a certain priority level.
+There is an option for setting the default Queue. If it is not set, the first queue will be used as default.
+
+This is the _**main service**_ to be used for interacting with the queue system.
+
+Tasks can be linked to a specific Queue, meaning they will always be published into that Queue. This can be achieved by two ways:
+- adding the task full name and the queue to OPTION_TASK_TO_QUEUE_ASSOCIATIONS
+- using \oat\taoTaskQueue\model\QueueNameGetterInterface in your Action. You will have the freedom inside of your action in runtime 
+to decide which queue you want your task to be published to. The parameters used by your action are passed to that method.
+
+_Note_: 
+>The second option overwrites the first one. If none of those ways is used than the task will be published into the default Queue.
+
+There can be set only one Queue as well. In that case every task will be published into that one.
 
 ### Queue component
 
-It is responsible for handling different types of queue brokers and mainly for publishing and receiving of tasks.
-This is the _**main service**_ to be used for interacting with the queue system.
-
-The communication with the different queues is done through the Message Brokers. There are three type of message brokers currently:
+Queue can work with different types of queue brokers. There are three type of message brokers for the time being:
 - **InMemoryQueueBroker** which accomplishes the Sync Queue mechanism. Tasks will be executing straightaway after adding them into the queue.
 - **RdsQueueBroker** which stores tasks in RDS.
 - **SqsQueueBroker** which is for using AWS SQS.
 
 _Note_: 
-> When SqsQueueBroker is used, plase make sure that "**oat-sa/lib-generis-aws**" is included in the main composer.json
+> When SqsQueueBroker is used, please make sure that "**oat-sa/lib-generis-aws**" is included in the main composer.json and you have 
+> generis/awsClient.conf.php properly configured.
 
+#### Weight
+A Queue can have a weight. If multiple Queues are in use, this weight will be used for randomly select a Queue to be consumed. 
+For example, if QueueA has weight of 1 and QueueB has weight of 2, then QueueB has about a 66% chance of being selected.
 
 ### Worker component
 
@@ -38,45 +56,141 @@ It has built-in signal handling for the following actions:
  
 After processing the given task, the worker saves the generated report for the task through the Task Log.
 
-#### Running a worker
+### Task Log component
+It's responsible for managing the lifecycle of Tasks. Can be accessed as a service. 
+It stores the statuses, the generated report and some other useful metadata of the tasks.
+Its main duty is preventing of running the same task by multiple workers at the same time. 
 
-To run a worker, use the following command. It will start a worker for running infinitely.
+It can also have multiple brokers extending TaskLogBrokerInterface to store the data in different type of storage system. 
+Currently we have **RdsTaskLogBroker** which uses RDS.
+
+Usually, you won't have to interact with this service directly except if you are using InMemoryQueueBroker 
+and want to get the report of the given task in the same request.
+
+## Service setup examples
+
+### Sync Queue settings
+
+Basic solution with only one Queue which uses InMemoryQueueBroker.
+
+```php
+use oat\taoTaskQueue\model\QueueDispatcher;
+use oat\taoTaskQueue\model\QueueDispatcherInterface;
+use oat\taoTaskQueue\model\Queue;
+use oat\taoTaskQueue\model\TaskLogInterface;
+use oat\taoTaskQueue\model\QueueBroker\InMemoryQueueBroker;
+
+$queueService = new QueueDispatcher(array(
+    QueueDispatcherInterface::OPTION_QUEUES => [
+        new Queue('queue', new InMemoryQueueBroker()),
+    ],
+    QueueDispatcherInterface::OPTION_TASK_LOG     => TaskLogInterface::SERVICE_ID,
+    QueueDispatcherInterface::OPTION_TASK_TO_QUEUE_ASSOCIATIONS => []
+));
+
+$this->getServiceManager()->register(QueueDispatcherInterface::SERVICE_ID, $queueService);
+```
+
+### Multiple Queues settings
+
+In this case we have 3 Queues registered: one of them is using SQS broker, the other two RDS. 
+Every Queue has its own weight (like 90, 30, 10) which will be used at selecting the next queue to be consumed.
+
+And we have two tasks linked to different queues, furthermore the default queue is specified ('background')
+what will be used for every other tasks not defined in OPTION_TASK_TO_QUEUE_ASSOCIATIONS.
+
+```php
+use oat\taoTaskQueue\model\QueueDispatcher;
+use oat\taoTaskQueue\model\Queue;
+use oat\taoTaskQueue\model\QueueBroker\RdsQueueBroker;
+use oat\taoTaskQueue\model\QueueBroker\SqsQueueBroker;
+use oat\taoTaskQueue\model\TaskLogInterface;
+use oat\taoTaskQueue\model\QueueDispatcherInterface;
+
+$queueService = new QueueDispatcher(array(
+    QueueDispatcherInterface::OPTION_QUEUES => [
+        new Queue('priority', new SqsQueueBroker('default', \common_cache_Cache::SERVICE_ID, 10), 90),
+        new Queue('standard', new RdsQueueBroker('default', 5), 30),
+        new Queue('background', new RdsQueueBroker('default', 5), 10)
+    ],
+    QueueDispatcherInterface::OPTION_TASK_LOG     => TaskLogInterface::SERVICE_ID,
+    QueueDispatcherInterface::OPTION_TASK_TO_QUEUE_ASSOCIATIONS => [
+        SomeImportantAction::class => 'priority',
+        SomeLessImportantTask::class => 'standard'
+    ]
+));
+
+$queueService->setOption(QueueDispatcherInterface::OPTION_DEFAULT_QUEUE, 'background');
+
+$this->getServiceManager()->register(QueueDispatcherInterface::SERVICE_ID, $queueService);
+```
+
+If the queue has not been initialized, meaning the required queue container has not been created yet:
+```php
+try {
+    $queueService->initialize();
+} catch (\Exception $e) {
+    return \common_report_Report::createFailure('Initializing queues failed');
+}
+```
+
+### Task Log settings
+```php
+use oat\taoTaskQueue\model\TaskLog;
+use oat\taoTaskQueue\model\TaskLogInterface;
+use oat\taoTaskQueue\model\TaskLogBroker\RdsTaskLogBroker;
+
+$taskLogService = new TaskLog([
+    TaskLogInterface::OPTION_TASK_LOG_BROKER => new RdsTaskLogBroker('default', 'task_log')
+]);
+$this->getServiceManager()->register(TaskLogInterface::SERVICE_ID, $taskLogService);
+```
+
+If the task log container has not been created yet:
+```php
+try {
+    $taskLogService->createContainer();
+} catch (\Exception $e) {
+    return \common_report_Report::createFailure('Creating task log container failed');
+}
+```
+
+### Running a worker
+
+To run a worker, use the following command. It will start a worker for running infinitely and iterating over every registered Queues based in their weights.
 
 ```bash
  $ sudo -u www-data php index.php 'oat\taoTaskQueue\scripts\tools\RunWorker'
 ```
 
-If you want the worker running for a specified time/iteration, use this one:
+If you want the worker running for a dedicated Queue, pass the name of the queue to the command like this:
 
 ```bash
- $ sudo -u www-data php index.php 'oat\taoTaskQueue\scripts\tools\RunWorker' 5
+ $ sudo -u www-data php index.php 'oat\taoTaskQueue\scripts\tools\RunWorker' --queue=priority
 ```
 
-#### Initializing the queue and the task log container
+You can limit the iteration of the worker. It can be used only on a dedicated queue.
 
-You can run this script if you want to be sure that the required queue and the task log container are created.
+```bash
+ $ sudo -u www-data php index.php 'oat\taoTaskQueue\scripts\tools\RunWorker' --queue=standard --limit=5
+```
+
+### Initializing the queue and the task log container
+
+You can run this script if you want to be sure that the required queues and the task log container are created.
 If they are already exist, no action will be taken.
 
 ```bash
  $ sudo -u www-data php index.php 'oat\taoTaskQueue\scripts\tools\InitializeQueue'
 ```
 
-### Task Log component
-It is responsible for managing the lifecycle of Tasks, can be accessed as a service. It stores the statuses, 
-the generated report and some other useful metadata. 
-Its main duty is preventing of running the same task by multiple workers at the same time. 
-
-It can also have multiple brokers extending TaskLogBrokerInterface to store the data in different type of storage system. 
-Currently we have **RdsTaskLogBroker** which uses RDS.
-
-Usually, you won't have to interact with this service directly except if you are using InMemoryQueueBroker and want to get the report of the given task in the same request.
 
 ## Usage examples
 
 - Getting the queue service as usual:
 
 ```php
-$queue = $this->getServiceManager()->get(\oat\taoTaskQueue\model\QueueInterface::SERVICE_ID);
+$queueService = $this->getServiceManager()->get(\oat\taoTaskQueue\model\QueueDispatcherInterface::SERVICE_ID);
 ```
 
 ### Working with Task
@@ -178,78 +292,11 @@ if ($task->isEnqueued() && $taskLog->getStatus($task->getId()) == TaskLogInterfa
 Or we can just simply check if the current queue is a sync one so we have a report surely.
 
 ```php
-if ($queue->isSync()) {
+if ($queueService->isSync()) {
     $report = $taskLog->getReport($task->getId());
 }
 ```
 
-## Service examples
+## Class Diagram
 
-### Register Queue in Service Manager
-```php
-$this->getServiceManager()->register(QueueInterface::SERVICE_ID, $queueService);
-```
-
-### Sync Queue settings
-```php
-
-return new \oat\taoTaskQueue\model\Queue([
-    \oat\taoTaskQueue\model\QueueInterface::OPTION_QUEUE_NAME => 'queue',
-    \oat\taoTaskQueue\model\QueueInterface::OPTION_QUEUE_BROKER => new \oat\taoTaskQueue\model\QueueBroker\InMemoryQueueBroker(),
-    \oat\taoTaskQueue\model\QueueInterface::OPTION_TASK_LOG => \oat\taoTaskQueue\model\TaskLogInterface::SERVICE_ID
-]);
-
-```
-
-If the queue has not been initialized, meaning the required queue container has not been created yet:
-```php
-try {
-    $queueService->initialize();
-} catch (\Exception $e) {
-    return \common_report_Report::createFailure('Initializing queue failed');
-}
-```
-
-### Task Log settings
-```php
-
-return new \oat\taoTaskQueue\model\TaskLog([
-    \oat\taoTaskQueue\model\TaskLogInterface::OPTION_TASK_LOG_BROKER  => new \oat\taoTaskQueue\model\TaskLogBroker\RdsTaskLogBroker('default', 'task_log')
-]);
-
-```
-
-If the task log container has not been created yet:
-```php
-try {
-    $taskLogService->createContainer();
-} catch (\Exception $e) {
-    return \common_report_Report::createFailure('Creating task log container failed');
-}
-```
-
-### RDS Queue settings
-```php
-
-return new \oat\taoTaskQueue\model\Queue([
-    \oat\taoTaskQueue\model\QueueInterface::OPTION_QUEUE_NAME => 'queue',
-    \oat\taoTaskQueue\model\QueueInterface::OPTION_QUEUE_BROKER => new \oat\taoTaskQueue\model\QueueBroker\RdsQueueBroker('default', 5),
-    \oat\taoTaskQueue\model\QueueInterface::OPTION_TASK_LOG => \oat\taoTaskQueue\model\TaskLogInterface::SERVICE_ID
-]);
-
-```
-_Note_: 
-> If the Queue Service is already set up, just change the broker option as usual.
-
-### SQS Queue settings
-```php
-
-return new \oat\taoTaskQueue\model\Queue([
-    \oat\taoTaskQueue\model\QueueInterface::OPTION_QUEUE_NAME => 'queue',
-    \oat\taoTaskQueue\model\QueueInterface::OPTION_QUEUE_BROKER => new \oat\taoTaskQueue\model\QueueBroker\SqsQueueBroker('default', 'generis/cache', 10),
-    \oat\taoTaskQueue\model\QueueInterface::OPTION_TASK_LOG => \oat\taoTaskQueue\model\TaskLogInterface::SERVICE_ID
-]);
-```
-_Note_: 
-> If the Queue Service is already set up, just change the broker option as usual.
-
+![Class Diagram](doc/task_queue.png "Task Queue Class Diagram")

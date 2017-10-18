@@ -94,19 +94,15 @@ package "Task Log" #DDDDDD {
     }
 }
 
-package "Queue" #DDDDDD {
+
+package "QueueDispatcher and Queues" #DDDDDD {
     together {
         interface Countable
         QueueInterface <|-- Countable
         interface QueueInterface {
-            {static} SERVICE_ID
-            {static} QUEUE_PREFIX
-            {static} OPTION_QUEUE_NAME
-            {static} OPTION_QUEUE_BROKER
-            {static} OPTION_TASK_LOG
+            +__construct(name, QueueBrokerInterface broker, TaskLogInterface taskLog)
             +initialize()
             +getName()
-            +createTask(action, parameters, label)
             +enqueue(TaskInterface task, label)
             +dequeue()
             +acknowledge(TaskInterface task)
@@ -114,10 +110,43 @@ package "Queue" #DDDDDD {
             +getNumberOfTasksToReceive()
         }
 
-        class Queue << SERVICE >> {
-            -getBroker()
+        interface QueueDispatcherInterface {
+            {static} SERVICE_ID
+            {static} QUEUE_PREFIX
+            {static} OPTION_QUEUES
+            {static} OPTION_TASK_LOG
+            +initialize()
+            +addQueue(QueueInterface queue)
+            +getQueue(queueName)
+            +getQueues()
+            +getQueueNames()
+            +hasQueue(queueName)
+            +getDefaultQueue()
+            +getQueueByWeight()
+            +linkTaskToQueue(taskName, queueName)
+            +getLinkedTasks()
+            +createTask(action, parameters, label)
+            +enqueue(TaskInterface task, label)
+            +dequeue(queueName = null)
+            +acknowledge(TaskInterface task)
+            +isSync()
+        }
+
+        class QueueDispatcher << SERVICE >> {
             -getTaskLog()
+            -getFirstQueue()
+            -getQueueForTask()
             -runWorker()
+            -assertQueues()
+            -assertTasks()
+            -propagateServices()
+        }
+
+        QueueDispatcher <|- QueueDispatcherInterface
+
+        QueueDispatcher ..> Queue : Depends on queues
+
+        class Queue {
             +count()
         }
 
@@ -183,10 +212,11 @@ package "Queue" #DDDDDD {
 package "Worker" #DDDDDD {
     together {
         interface WorkerInterface {
-            +__construct(QueueInterface queue, TaskLogInterface taskLog, handleSignals)
+            +__construct(QueueDispatcherInterface queueDispatcher, TaskLogInterface taskLog, handleSignals)
             +processQueue()
             +processTask(TaskInterface task)
             +setMaxIterations(maxIterations)
+            +setDedicatedQueue(queueName)
         }
         class Worker {
             -queue
@@ -200,14 +230,11 @@ package "Worker" #DDDDDD {
         }
 
         Worker <|- WorkerInterface
-        Worker ..> QueueInterface : Depends on a queue
-        Worker ..> TaskLogInterface : Depends on a task log
+        Worker ..> QueueDispatcher : Depends on the dispatcher
+        Worker ..> TaskLogInterface : Depends on the task log
     }
 }
 
 TaskInterface -[hidden]--> Queue
-Queue -[hidden]--> TaskLogInterface
-Worker -[hidden]> JsonSerializable
-ConfigurableService -[hidden]> TaskLogInterface
 
 @enduml
