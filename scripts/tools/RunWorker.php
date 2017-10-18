@@ -84,7 +84,10 @@ class RunWorker implements Action, ServiceLocatorAwareInterface
         /** @var TaskLogInterface $taskLog */
         $taskLog = $this->getServiceLocator()->get(TaskLogInterface::SERVICE_ID);
 
-        $worker = new Worker($queueService, $taskLog);
+        // if it is install on windows do not use the signals pcntl (specific for ubuntu).
+        $handleSignals = stripos(PHP_OS, 'win') === 0 ? false : true;
+
+        $worker = new Worker($queueService, $taskLog, $handleSignals);
 
         if ($queue) {
             $worker->setDedicatedQueue($queue)

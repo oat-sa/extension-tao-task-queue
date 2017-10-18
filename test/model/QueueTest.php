@@ -31,6 +31,13 @@ use oat\taoTaskQueue\model\TaskLogInterface;
  */
 class QueueTest extends \PHPUnit_Framework_TestCase
 {
+    public function setUp()
+    {
+        parent::setUp();
+
+        require_once __DIR__ .'/../../../tao/includes/raw_start.php';
+    }
+
     public function testWhenQueueNameIsEmptyThenThrowException()
     {
         $this->expectException(\InvalidArgumentException::class);

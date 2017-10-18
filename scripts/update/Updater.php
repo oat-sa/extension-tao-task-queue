@@ -37,9 +37,9 @@ class Updater extends common_ext_ExtensionUpdater
 {
     public function update($initialVersion)
     {
-        $this->skip('0.1.0', '0.1.1');
+        $this->skip('0.1.0', '0.1.2');
 
-        if ($this->isVersion('0.1.1')) {
+        if ($this->isVersion('0.1.2')) {
 
             $queueService = new QueueDispatcher([
                 QueueDispatcherInterface::OPTION_QUEUES       => [

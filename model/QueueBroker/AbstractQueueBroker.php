@@ -151,6 +151,15 @@ abstract class AbstractQueueBroker implements QueueBrokerInterface, PhpSerializa
     }
 
     /**
+     * @param TaskInterface $task
+     * @return mixed
+     */
+    protected function serializeTask(TaskInterface $task)
+    {
+        return json_encode($task);
+    }
+
+    /**
      * @param $basicData
      * @throws \Exception
      */
@@ -165,11 +174,11 @@ abstract class AbstractQueueBroker implements QueueBrokerInterface, PhpSerializa
     }
 
     /**
-     * @param TaskInterface $task
+     * @param CallbackTaskInterface $task
      * @param array $logContext
      * @throws \Exception
      */
-    protected function handleCallbackTask($task, $logContext)
+    protected function handleCallbackTask(CallbackTaskInterface $task, array $logContext)
     {
         try {
             $callable = $this->getActionResolver()->resolve($task->getCallable());
