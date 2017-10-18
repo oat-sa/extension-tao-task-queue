@@ -20,52 +20,96 @@
 
 namespace oat\taoTaskQueue\model;
 
-use oat\oatbox\service\ConfigurableService;
+
 use oat\taoTaskQueue\model\QueueBroker\QueueBrokerInterface;
 use oat\oatbox\log\LoggerAwareTrait;
 use oat\taoTaskQueue\model\QueueBroker\SyncQueueBrokerInterface;
-use oat\taoTaskQueue\model\Task\CallbackTask;
 use oat\taoTaskQueue\model\Task\TaskInterface;
+use Zend\ServiceManager\ServiceLocatorAwareInterface;
+use Zend\ServiceManager\ServiceLocatorAwareTrait;
 
 /**
  * Queue Service
  *
  * @author Gyula Szucs <gyula@taotesting.com>
  */
-class Queue extends ConfigurableService implements QueueInterface
+class Queue implements QueueInterface, TaskLogAwareInterface
 {
     use LoggerAwareTrait;
+    use ServiceLocatorAwareTrait;
+    use TaskLogAwareTrait;
+
+    private $name;
 
     /**
-     * @var QueueBrokerInterface
+     * @var QueueBrokerInterface|ServiceLocatorAwareInterface
      */
     private $broker;
 
     /**
-     * @var TaskLogInterface
+     * @var int
      */
-    private $taskLog;
+    private $weight;
 
     /**
      * Queue constructor.
      *
-     * @param array $options
+     * @param string              $name
+     * @param QueueBrokerInterface|null $broker Null option will be removed in version 1.0.0
+     * @param int $weight
      */
-    public function __construct(array $options)
+    public function __construct($name, QueueBrokerInterface $broker = null, $weight = 1)
     {
-        parent::__construct($options);
+        /**
+         * this "if case" is because of backwards compatibility, will be removed in version 1.0.0
+         *
+         * @deprecated
+         */
+        if (is_array($name)) {
+            $oldConfig = $name;
+            $name = $oldConfig['queue_name'];
+            $broker = $oldConfig['queue_broker'];
+        }
 
-        if (!$this->hasOption(self::OPTION_QUEUE_NAME) || empty($this->getOption(self::OPTION_QUEUE_NAME))) {
+        if (empty($name)) {
             throw new \InvalidArgumentException("Queue name needs to be set.");
         }
 
-        if (!$this->hasOption(self::OPTION_QUEUE_BROKER) || !$this->getOption(self::OPTION_QUEUE_BROKER) instanceof QueueBrokerInterface) {
-            throw new \InvalidArgumentException("Queue Broker service needs to be set.");
+        if (!$broker instanceof QueueBrokerInterface) {
+            throw new \InvalidArgumentException("Queue Broker needs to be an instance of QueueBrokerInterface.");
         }
 
-        if (!$this->hasOption(self::OPTION_TASK_LOG) || empty($this->getOption(self::OPTION_TASK_LOG))) {
-            throw new \InvalidArgumentException("Task Log service needs to be set.");
+        $this->name = $name;
+        $this->broker = $broker;
+        $this->weight = abs($weight);
+
+        $this->broker->setQueueName($this->getName());
+
+        if ($this->isSync()) {
+            $this->broker->createQueue();
         }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function __toString()
+    {
+        return $this->getName();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function __toPhpCode()
+    {
+        return 'new '. get_called_class() .'('
+            . \common_Utils::toHumanReadablePhpString($this->getName())
+            .', '
+            . \common_Utils::toHumanReadablePhpString($this->getBroker())
+            .', '
+            . \common_Utils::toHumanReadablePhpString($this->getWeight())
+            .')';
     }
 
     /**
@@ -77,25 +121,19 @@ class Queue extends ConfigurableService implements QueueInterface
     }
 
     /**
-     * @return string
+     * @inheritdoc
      */
     public function getName()
     {
-        return $this->getOption(self::OPTION_QUEUE_NAME);
+        return $this->name;
     }
 
     /**
      * @inheritdoc
      */
-    public function setBroker(QueueBrokerInterface $broker)
+    public function getWeight()
     {
-        // removes current broker instance
-        $this->broker = null;
-
-        // add broker through option
-        $this->setOption(self::OPTION_QUEUE_BROKER, $broker);
-
-        return $this;
+        return $this->weight;
     }
 
     /**
@@ -105,63 +143,9 @@ class Queue extends ConfigurableService implements QueueInterface
      */
     protected function getBroker()
     {
-        if (is_null($this->broker)) {
-            $this->broker = $this->getOption(self::OPTION_QUEUE_BROKER);
-            $this->broker->setServiceLocator($this->getServiceLocator());
-            $this->broker->setQueueName($this->getName());
-
-            if ($this->isSync()) {
-                $this->initialize();
-            }
-        }
+        $this->broker->setServiceLocator($this->getServiceLocator());
 
         return $this->broker;
-    }
-
-    /**
-     * @return TaskLogInterface
-     */
-    protected function getTaskLog()
-    {
-        if (is_null($this->taskLog)) {
-            $this->taskLog = $this->getServiceManager()->get($this->getOption(self::OPTION_TASK_LOG));
-        }
-
-        return $this->taskLog;
-    }
-
-    /**
-     * Run worker on-the-fly for one run.
-     */
-    protected function runWorker()
-    {
-        (new Worker($this, $this->getTaskLog(), false))
-            ->setMaxIterations(1)
-            ->processQueue();
-    }
-
-    /**
-     * Creates a CallbackTask with any callable and enqueueing it straightaway.
-     *
-     * @param callable $callable
-     * @param array    $parameters
-     * @param null|string $label
-     * @return CallbackTask
-     */
-    public function createTask(callable $callable, array $parameters = [], $label = null)
-    {
-        $id = \common_Utils::getNewUri();
-        $owner = \common_session_SessionManager::getSession()->getUser()->getIdentifier();
-
-        $callbackTask = new CallbackTask($id, $owner);
-        $callbackTask->setCallable($callable)
-            ->setParameter($parameters);
-
-        if ($this->enqueue($callbackTask, $label)) {
-            $callbackTask->markAsEnqueued();
-        }
-
-        return $callbackTask;
     }
 
     /**
@@ -175,11 +159,6 @@ class Queue extends ConfigurableService implements QueueInterface
             if ($isEnqueued) {
                 $this->getTaskLog()
                     ->add($task, TaskLogInterface::STATUS_ENQUEUED, $label);
-            }
-
-            // if we need to run the task straightaway
-            if ($isEnqueued && $this->isSync()) {
-                $this->runWorker();
             }
 
             return $isEnqueued;
@@ -228,7 +207,7 @@ class Queue extends ConfigurableService implements QueueInterface
      */
     public function isSync()
     {
-        return $this->getBroker() instanceof SyncQueueBrokerInterface;
+        return $this->broker instanceof SyncQueueBrokerInterface;
     }
 
     /**

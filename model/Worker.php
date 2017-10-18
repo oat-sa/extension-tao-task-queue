@@ -33,7 +33,16 @@ final class Worker implements WorkerInterface
 {
     use LoggerAwareTrait;
 
-    private $queue;
+    /**
+     * @var QueueDispatcherInterface
+     */
+    private $queueService;
+
+    /**
+     * @var QueueInterface
+     */
+    private $dedicatedQueue;
+
     private $maxIterations = 0; //0 means infinite iteration
     private $iterations;
     private $shutdown;
@@ -48,20 +57,19 @@ final class Worker implements WorkerInterface
     private $handleSignals;
 
     /**
-     * @param QueueInterface   $queue
-     * @param TaskLogInterface $taskLog
-     * @param bool             $handleSignals
+     * @param QueueDispatcherInterface $queueService
+     * @param TaskLogInterface         $taskLog
+     * @param bool                     $handleSignals
      */
-    public function __construct(QueueInterface $queue, TaskLogInterface $taskLog, $handleSignals = true)
+    public function __construct(QueueDispatcherInterface $queueService, TaskLogInterface $taskLog, $handleSignals = true)
     {
-        $this->queue = $queue;
+        $this->queueService = $queueService;
         $this->taskLog = $taskLog;
         $this->handleSignals = $handleSignals;
         $this->processId = getmypid();
 
         $this->logContext = [
-            'QueueName' => $this->queue->getName(),
-            'PID'       => $this->processId
+            'PID' => $this->processId
         ];
 
         if ($handleSignals) {
@@ -70,9 +78,9 @@ final class Worker implements WorkerInterface
     }
 
     /**
-     * Start processing tasks from the queue.
+     * @inheritdoc
      */
-    public function processQueue()
+    public function run()
     {
         $this->logInfo('Starting worker.', $this->logContext);
 
@@ -95,7 +103,11 @@ final class Worker implements WorkerInterface
             try{
                 $this->logDebug('Fetching tasks from queue ', $this->logContext);
 
-                $task = $this->queue->dequeue();
+                // if there is a dedicated queue set, let's do dequeue on that one
+                // otherwise using the built-in strategy to get a new task from any registered queue
+                $task = $this->dedicatedQueue instanceof QueueInterface
+                    ? $this->dedicatedQueue->dequeue()
+                    : $this->queueService->dequeue();
 
                 // if no task to process, sleep for the specified time and continue.
                 if (!$task) {
@@ -122,10 +134,7 @@ final class Worker implements WorkerInterface
     }
 
     /**
-     * Process a task.
-     *
-     * @param TaskInterface $task
-     * @return string
+     * @inheritdoc
      */
     public function processTask(TaskInterface $task)
     {
@@ -166,17 +175,33 @@ final class Worker implements WorkerInterface
         unset($report);
 
         // delete message from queue
-        $this->queue->acknowledge($task);
+        $this->queueService->acknowledge($task);
 
         return $status;
     }
 
     /**
+     * Only set-able if there is a dedicated queue set.
+     * @deprecated
+     *
      * @inheritdoc
      */
     public function setMaxIterations($maxIterations)
     {
-        $this->maxIterations = (int) $maxIterations * $this->queue->getNumberOfTasksToReceive();
+        $this->maxIterations = $maxIterations;
+
+        return $this;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setDedicatedQueue(QueueInterface $queue, $maxIterations = 0)
+    {
+        $this->dedicatedQueue = $queue;
+        $this->maxIterations  = (int) $maxIterations * $this->dedicatedQueue->getNumberOfTasksToReceive();
+
+        $this->logContext['QueueName'] = $queue->getName();
 
         return $this;
     }

@@ -25,8 +25,8 @@ use oat\oatbox\service\ConfigurableService;
 use oat\oatbox\action\ActionService;
 use oat\oatbox\action\ResolutionException;
 use oat\oatbox\log\LoggerAwareTrait;
+use oat\taoTaskQueue\model\QueueDispatcher;
 use oat\taoTaskQueue\model\Task\CallbackTaskInterface;
-use oat\taoTaskQueue\model\QueueInterface;
 use oat\taoTaskQueue\model\Task\TaskFactory;
 use oat\taoTaskQueue\model\Task\TaskInterface;
 use Zend\ServiceManager\ServiceLocatorAwareInterface;
@@ -151,6 +151,15 @@ abstract class AbstractQueueBroker implements QueueBrokerInterface, PhpSerializa
     }
 
     /**
+     * @param TaskInterface $task
+     * @return mixed
+     */
+    protected function serializeTask(TaskInterface $task)
+    {
+        return json_encode($task);
+    }
+
+    /**
      * @param $basicData
      * @throws \Exception
      */
@@ -165,11 +174,11 @@ abstract class AbstractQueueBroker implements QueueBrokerInterface, PhpSerializa
     }
 
     /**
-     * @param TaskInterface $task
+     * @param CallbackTaskInterface $task
      * @param array $logContext
      * @throws \Exception
      */
-    protected function handleCallbackTask($task, $logContext)
+    protected function handleCallbackTask(CallbackTaskInterface $task, array $logContext)
     {
         try {
             $callable = $this->getActionResolver()->resolve($task->getCallable());
@@ -219,7 +228,7 @@ abstract class AbstractQueueBroker implements QueueBrokerInterface, PhpSerializa
      */
     protected function getQueueNameWithPrefix()
     {
-        return sprintf("%s_%s", QueueInterface::QUEUE_PREFIX, $this->getQueueName());
+        return sprintf("%s_%s", QueueDispatcher::QUEUE_PREFIX, $this->getQueueName());
     }
 
     /**

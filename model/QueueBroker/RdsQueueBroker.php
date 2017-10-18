@@ -86,9 +86,34 @@ class RdsQueueBroker extends AbstractQueueBroker
     }
 
     /**
-     * Create queue table if it does not exist
+     * @inheritdoc
      */
     public function createQueue()
+    {
+        $this->createQueueIfNotExists();
+    }
+
+    /**
+     * Insert a new task into the queue table.
+     *
+     * @param TaskInterface $task
+     * @return bool
+     */
+    public function push(TaskInterface $task)
+    {
+        $this->createQueueIfNotExists();
+
+        return (bool) $this->getPersistence()->insert($this->getTableName(), [
+            'message' => $this->serializeTask($task),
+            'created_at' => $this->getPersistence()->getPlatForm()->getNowExpression()
+        ]);
+    }
+
+
+    /**
+     * @return bool
+     */
+    protected function queueExists()
     {
         /** @var \common_persistence_sql_pdo_mysql_SchemaManager $schemaManager */
         $schemaManager = $this->getPersistence()->getSchemaManager();
@@ -96,8 +121,18 @@ class RdsQueueBroker extends AbstractQueueBroker
         /** @var \Doctrine\DBAL\Schema\MySqlSchemaManager $sm */
         $sm = $schemaManager->getSchemaManager();
 
-        // if our table does not exist, let's create it
-        if(false === $sm->tablesExist([$this->getTableName()])) {
+        return $sm->tablesExist([$this->getTableName()]);
+    }
+
+    /**
+     * Create queue table if it does not exist.
+     */
+    protected function createQueueIfNotExists()
+    {
+        if(!$this->queueExists()) {
+            /** @var \common_persistence_sql_pdo_mysql_SchemaManager $schemaManager */
+            $schemaManager = $this->getPersistence()->getSchemaManager();
+
             $fromSchema = $schemaManager->createSchema();
             $toSchema = clone $fromSchema;
 
@@ -114,21 +149,9 @@ class RdsQueueBroker extends AbstractQueueBroker
             foreach ($queries as $query) {
                 $this->getPersistence()->exec($query);
             }
-        }
-    }
 
-    /**
-     * Insert a new task into the queue table.
-     *
-     * @param TaskInterface $task
-     * @return bool
-     */
-    public function push(TaskInterface $task)
-    {
-        return (bool) $this->getPersistence()->insert($this->getTableName(), [
-            'message' => json_encode($task),
-            'created_at' => $this->getPersistence()->getPlatForm()->getNowExpression()
-        ]);
+            $this->logDebug('Queue '. $this->getTableName() .' created in RDS.');
+        }
     }
 
     /**

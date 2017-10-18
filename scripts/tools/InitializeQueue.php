@@ -22,7 +22,7 @@ namespace oat\taoTaskQueue\scripts\tools;
 
 use Aws\Exception\AwsException;
 use oat\oatbox\action\Action;
-use oat\taoTaskQueue\model\QueueInterface;
+use oat\taoTaskQueue\model\QueueDispatcherInterface;
 use oat\taoTaskQueue\model\TaskLogInterface;
 use Zend\ServiceManager\ServiceLocatorAwareInterface;
 use Zend\ServiceManager\ServiceLocatorAwareTrait;
@@ -43,12 +43,12 @@ class InitializeQueue implements Action, ServiceLocatorAwareInterface
     public function __invoke($params)
     {
         try {
-            // Create the queue
-            /** @var QueueInterface $queue */
-            $queue = $this->getServiceLocator()->get(QueueInterface::SERVICE_ID);
+            // Create the queues
+            /** @var QueueDispatcherInterface $queueService */
+            $queueService = $this->getServiceLocator()->get(QueueDispatcherInterface::SERVICE_ID);
 
-            if (!$queue->isSync()) {
-                $queue->initialize();
+            if (!$queueService->isSync()) {
+                $queueService->initialize();
             }
 
             // Create task log container

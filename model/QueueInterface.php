@@ -20,25 +20,43 @@
 
 namespace oat\taoTaskQueue\model;
 
+use oat\oatbox\PhpSerializable;
 use oat\taoTaskQueue\model\QueueBroker\QueueBrokerInterface;
 use oat\taoTaskQueue\model\Task\CallbackTask;
 use oat\taoTaskQueue\model\Task\TaskInterface;
 use Psr\Log\LoggerAwareInterface;
+use Zend\ServiceManager\ServiceLocatorAwareInterface;
 
 /**
  * Interface QueueInterface
  *
  * @author Gyula Szucs <gyula@taotesting.com>
  */
-interface QueueInterface extends \Countable, LoggerAwareInterface
+interface QueueInterface extends \Countable, LoggerAwareInterface, PhpSerializable, ServiceLocatorAwareInterface
 {
+    /**
+     * @deprecated It will be removed in version 1.0.0. Use QueueDispatcherInterface::SERVICE_ID instead
+     */
     const SERVICE_ID = 'taoTaskQueue/taskQueue';
 
-    const QUEUE_PREFIX = 'TQ';
-
-    const OPTION_QUEUE_NAME = 'queue_name';
+    /**
+     * @deprecated It will be removed in version 1.0.0
+     */
     const OPTION_QUEUE_BROKER = 'queue_broker';
-    const OPTION_TASK_LOG = 'task_log';
+
+    /**
+     * QueueInterface constructor.
+     *
+     * @param string               $name
+     * @param QueueBrokerInterface $broker
+     * @param int                  $weight
+     */
+    public function __construct($name, QueueBrokerInterface $broker, $weight = 1);
+
+    /**
+     * @return string
+     */
+    public function __toString();
 
     /**
      * Initialize queue.
@@ -55,22 +73,11 @@ interface QueueInterface extends \Countable, LoggerAwareInterface
     public function getName();
 
     /**
-     * Set new broker.
+     * Returns queue weight.
      *
-     * @param QueueBrokerInterface $broker
-     * @return QueueInterface
+     * @return int
      */
-    public function setBroker(QueueBrokerInterface $broker);
-
-    /**
-     * Create a task to be managed by the queue from any callable
-     *
-     * @param callable $callable
-     * @param array $parameters
-     * @param null|string $label Label for the task
-     * @return CallbackTask
-     */
-    public function createTask(callable $callable, array $parameters = [], $label = null);
+    public function getWeight();
 
     /**
      * Publish a task to the queue.

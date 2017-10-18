@@ -21,8 +21,8 @@
 namespace oat\taoTaskQueue\scripts\tools;
 
 use oat\oatbox\action\Action;
+use oat\taoTaskQueue\model\QueueDispatcherInterface;
 use oat\taoTaskQueue\model\TaskLogInterface;
-use oat\taoTaskQueue\model\QueueInterface;
 use oat\taoTaskQueue\model\Worker;
 use Zend\ServiceManager\ServiceLocatorAwareInterface;
 use Zend\ServiceManager\ServiceLocatorAwareTrait;
@@ -30,9 +30,19 @@ use Zend\ServiceManager\ServiceLocatorAwareTrait;
 /**
  * Start a new worker.
  *
+ * - Working on all registered queue based on weights
  * ```
  * $ sudo -u www-data php index.php 'oat\taoTaskQueue\scripts\tools\RunWorker'
- * $ sudo -u www-data php index.php 'oat\taoTaskQueue\scripts\tools\RunWorker' 10
+ * ```
+ *
+ * - Working on a dedicated queue
+ * ```
+ * $ sudo -u www-data php index.php 'oat\taoTaskQueue\scripts\tools\RunWorker' --queue=Queue1
+ * ```
+ *
+ * - Working on a dedicated queue until the given iteration is reached
+ * ```
+ * $ sudo -u www-data php index.php 'oat\taoTaskQueue\scripts\tools\RunWorker' --queue=Queue2 --limit=5
  * ```
  *
  * @author Gyula Szucs <gyula@taotesting.com>
@@ -43,21 +53,47 @@ class RunWorker implements Action, ServiceLocatorAwareInterface
 
     public function __invoke($params)
     {
-        $limit = isset($params[0]) ? (int) $params[0] : 0;
+        $queue = null;
+        $limit = 0;
 
-        /** @var QueueInterface $queue */
-        $queue = $this->getServiceLocator()->get(QueueInterface::SERVICE_ID);
+        /** @var QueueDispatcherInterface $queueService */
+        $queueService = $this->getServiceLocator()->get(QueueDispatcherInterface::SERVICE_ID);
 
-        if ($queue->isSync()) {
-            return \common_report_Report::createInfo('No worker needed because Sync Queue is used.');
+        if ($queueService->isSync()) {
+            return \common_report_Report::createInfo('No worker is needed because all registered queue is a Sync Queue.');
+        }
+
+        foreach ($params as $param) {
+            list($option, $value) = explode('=', $param);
+
+            switch ($option) {
+                case '--queue':
+                    $queue = $queueService->getQueue($value);
+                    break;
+
+                case '--limit':
+                    $limit = (int) $value;
+                    break;
+            }
+        }
+
+        if ($limit > 0 && is_null($queue)) {
+            return \common_report_Report::createFailure('Limit can be used only if a dedicated queue is set.');
         }
 
         /** @var TaskLogInterface $taskLog */
         $taskLog = $this->getServiceLocator()->get(TaskLogInterface::SERVICE_ID);
 
-        (new Worker($queue, $taskLog))
-            ->setMaxIterations($limit)
-            ->processQueue();
+        // if it is install on windows do not use the signals pcntl (specific for ubuntu).
+        $handleSignals = stripos(PHP_OS, 'win') === 0 ? false : true;
+
+        $worker = new Worker($queueService, $taskLog, $handleSignals);
+
+        if ($queue) {
+            $worker->setDedicatedQueue($queue, $limit);
+        }
+
+        $worker->run();
 
         return \common_report_Report::createSuccess('Worker finished');
     }

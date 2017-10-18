@@ -169,7 +169,7 @@ class SqsQueueBroker extends AbstractQueueBroker
         try {
             $result = $this->getClient()->sendMessage([
                 'MessageAttributes' => [],
-                'MessageBody' => json_encode($task),
+                'MessageBody' => $this->serializeTask($task),
                 'QueueUrl' => $this->queueUrl
             ]);
 
@@ -306,7 +306,7 @@ class SqsQueueBroker extends AbstractQueueBroker
      *
      * @return bool
      */
-    private function queueExists()
+    protected function queueExists()
     {
         if (isset($this->queueUrl)) {
             return true;
@@ -336,7 +336,7 @@ class SqsQueueBroker extends AbstractQueueBroker
                 return true;
             }
         } catch (AwsException $e) {
-            $this->logError('Fetching queue url for '. $this->getQueueNameWithPrefix() .' failed. MSG: '. $e->getAwsErrorMessage());
+            $this->logWarning('Fetching queue url for '. $this->getQueueNameWithPrefix() .' failed. MSG: '. $e->getAwsErrorMessage());
         }
 
         return false;

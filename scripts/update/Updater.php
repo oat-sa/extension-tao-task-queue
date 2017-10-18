@@ -22,6 +22,11 @@
 namespace oat\taoTaskQueue\scripts\update;
 
 use common_ext_ExtensionUpdater;
+use oat\taoTaskQueue\model\Queue;
+use oat\taoTaskQueue\model\QueueBroker\InMemoryQueueBroker;
+use oat\taoTaskQueue\model\QueueDispatcher;
+use oat\taoTaskQueue\model\QueueDispatcherInterface;
+use oat\taoTaskQueue\model\TaskLogInterface;
 
 /**
  * Class Updater
@@ -32,6 +37,23 @@ class Updater extends common_ext_ExtensionUpdater
 {
     public function update($initialVersion)
     {
-        $this->skip('0.1.0', '0.1.1');
+        $this->skip('0.1.0', '0.1.2');
+
+        if ($this->isVersion('0.1.2')) {
+
+            $queueService = new QueueDispatcher([
+                QueueDispatcherInterface::OPTION_QUEUES       => [
+                    new Queue('queue', new InMemoryQueueBroker())
+                ],
+                QueueDispatcherInterface::OPTION_TASK_TO_QUEUE_ASSOCIATIONS => [],
+                QueueDispatcherInterface::OPTION_TASK_LOG     => TaskLogInterface::SERVICE_ID
+            ]);
+
+            $this->getServiceManager()->propagate($queueService);
+
+            $this->getServiceManager()->register(QueueDispatcherInterface::SERVICE_ID, $queueService);
+
+            $this->setVersion('0.2.0');
+        }
     }
 }
