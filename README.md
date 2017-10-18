@@ -22,7 +22,7 @@ There is an option for setting the default Queue. If it is not set, the first qu
 This is the _**main service**_ to be used for interacting with the queue system.
 
 Tasks can be linked to a specific Queue, meaning they will always be published into that Queue. This can be achieved by two ways:
-- adding the task full name and the queue to OPTION_LINKED_TASKS
+- adding the task full name and the queue to OPTION_TASK_TO_QUEUE_ASSOCIATIONS
 - using \oat\taoTaskQueue\model\QueueNameGetterInterface in your Action. You will have the freedom inside of your action in runtime 
 to decide which queue you want your task to be published to. The parameters used by your action are passed to that method.
 
@@ -85,7 +85,7 @@ $queueService = new QueueDispatcher(array(
         new Queue('queue', new InMemoryQueueBroker()),
     ],
     QueueDispatcherInterface::OPTION_TASK_LOG     => TaskLogInterface::SERVICE_ID,
-    QueueDispatcherInterface::OPTION_LINKED_TASKS => []
+    QueueDispatcherInterface::OPTION_TASK_TO_QUEUE_ASSOCIATIONS => []
 ));
 
 $this->getServiceManager()->register(QueueDispatcherInterface::SERVICE_ID, $queueService);
@@ -97,7 +97,7 @@ In this case we have 3 Queues registered: one of them is using SQS broker, the o
 Every Queue has its own weight (like 90, 30, 10) which will be used at selecting the next queue to be consumed.
 
 And we have two tasks linked to different queues, furthermore the default queue is specified ('background')
-what will be used for every other tasks not defined in OPTION_LINKED_TASKS.
+what will be used for every other tasks not defined in OPTION_TASK_TO_QUEUE_ASSOCIATIONS.
 
 ```php
 use oat\taoTaskQueue\model\QueueDispatcher;
@@ -114,7 +114,7 @@ $queueService = new QueueDispatcher(array(
         new Queue('background', new RdsQueueBroker('default', 5), 10)
     ],
     QueueDispatcherInterface::OPTION_TASK_LOG     => TaskLogInterface::SERVICE_ID,
-    QueueDispatcherInterface::OPTION_LINKED_TASKS => [
+    QueueDispatcherInterface::OPTION_TASK_TO_QUEUE_ASSOCIATIONS => [
         SomeImportantAction::class => 'priority',
         SomeLessImportantTask::class => 'standard'
     ]

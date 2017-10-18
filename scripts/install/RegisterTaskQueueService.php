@@ -41,7 +41,7 @@ class RegisterTaskQueueService extends InstallAction
                 new Queue('queue', new InMemoryQueueBroker())
             ],
             QueueDispatcherInterface::OPTION_TASK_LOG     => TaskLogInterface::SERVICE_ID,
-            QueueDispatcherInterface::OPTION_LINKED_TASKS => []
+            QueueDispatcherInterface::OPTION_TASK_TO_QUEUE_ASSOCIATIONS => []
         ]);
         $this->registerService(QueueDispatcherInterface::SERVICE_ID, $queueService);
 

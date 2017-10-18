@@ -79,7 +79,7 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
         $action = $task instanceof CallbackTaskInterface && is_object($task->getCallable()) ? $task->getCallable() : $task;
 
         // getting queue name using the implemented getter function
-        if ($action instanceof QueueNameGetterInterface && ($queueName = $action->getQueueName($task->getParameters()))) {
+        if ($action instanceof QueueAssociableInterface && ($queueName = $action->getQueueName($task->getParameters()))) {
             return $this->getQueue($queueName);
         }
 
@@ -171,7 +171,7 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
         $tasks = $this->getLinkedTasks();
         $tasks[] = (string) $taskName;
 
-        $this->setOption(self::OPTION_LINKED_TASKS, $tasks);
+        $this->setOption(self::OPTION_TASK_TO_QUEUE_ASSOCIATIONS, $tasks);
     }
 
     /**
@@ -179,7 +179,7 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
      */
     public function getLinkedTasks()
     {
-        return (array) $this->getOption(self::OPTION_LINKED_TASKS);
+        return (array) $this->getOption(self::OPTION_TASK_TO_QUEUE_ASSOCIATIONS);
     }
 
     /**
@@ -411,7 +411,7 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
         $notRegisteredQueues = array_diff(array_values($this->getLinkedTasks()), $this->getQueueNames());
 
         if (count($notRegisteredQueues)) {
-            throw new \LogicException('Found not registered queue(s) linked to task(s): "'. implode('", "', $notRegisteredQueues) .'". Please check the values of "'. self::OPTION_LINKED_TASKS .'" in your queue dispatcher settings.');
+            throw new \LogicException('Found not registered queue(s) linked to task(s): "'. implode('", "', $notRegisteredQueues) .'". Please check the values of "'. self::OPTION_TASK_TO_QUEUE_ASSOCIATIONS .'" in your queue dispatcher settings.');
         }
     }
 }

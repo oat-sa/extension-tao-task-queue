@@ -25,7 +25,7 @@ namespace oat\taoTaskQueue\model;
  *
  * @author Gyula Szucs <gyula@taotesting.com>
  */
-interface QueueNameGetterInterface
+interface QueueAssociableInterface
 {
     /**
      * Get the name of the queue where the task should be published to.

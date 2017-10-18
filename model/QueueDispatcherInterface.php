@@ -46,7 +46,8 @@ interface QueueDispatcherInterface extends \Countable, LoggerAwareInterface
     /**
      * An array of tasks names with the specified queue where the tasks needs to be published to.
      */
-    const OPTION_LINKED_TASKS = 'linked_tasks';
+    const OPTION_TASK_TO_QUEUE_ASSOCIATIONS = 'task_to_queue_associations';
+
     const OPTION_TASK_LOG = 'task_log';
 
     const QUEUE_PREFIX = 'TQ';
