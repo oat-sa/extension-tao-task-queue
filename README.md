@@ -296,3 +296,7 @@ if ($queueService->isSync()) {
     $report = $taskLog->getReport($task->getId());
 }
 ```
+
+## Class Diagram
+
+![Class Diagram](doc/task_queue.png "Task Queue Class Diagram")

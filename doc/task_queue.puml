@@ -144,6 +144,8 @@ package "QueueDispatcher and Queues" #DDDDDD {
 
         QueueDispatcher <|- QueueDispatcherInterface
 
+        QueueDispatcher ..> Queue : Depends on queues
+
         class Queue {
             +count()
         }
@@ -228,14 +230,11 @@ package "Worker" #DDDDDD {
         }
 
         Worker <|- WorkerInterface
-        Worker ..> QueueInterface : Depends on a queue
-        Worker ..> TaskLogInterface : Depends on a task log
+        Worker ..> QueueDispatcher : Depends on the dispatcher
+        Worker ..> TaskLogInterface : Depends on the task log
     }
 }
 
 TaskInterface -[hidden]--> Queue
-Queue -[hidden]--> TaskLogInterface
-Worker -[hidden]> JsonSerializable
-ConfigurableService -[hidden]> TaskLogInterface
 
 @enduml
