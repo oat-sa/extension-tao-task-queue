@@ -34,6 +34,13 @@ use oat\taoTaskQueue\model\TaskLogInterface;
  */
 class QueueTest extends \PHPUnit_Framework_TestCase
 {
+    public function setUp()
+    {
+        parent::setUp();
+
+        require_once __DIR__ .'/../../../tao/includes/raw_start.php';
+    }
+
     /**
      * @dataProvider provideServiceOptions
      */
@@ -152,7 +159,7 @@ class QueueTest extends \PHPUnit_Framework_TestCase
             ->method('enqueue')
             ->willReturn($this->returnValue(true));
 
-        $this->assertInstanceOf(CallbackTaskInterface::class, $queueMock->createTask($taskMock, []) );
+        $this->assertInstanceOf(CallbackTaskInterface::class, $queueMock->createTask($taskMock, []));
     }
 
     public function testCreateTaskWhenUsingStaticClassMethodCallShouldReturnCallbackTask()
@@ -166,7 +173,7 @@ class QueueTest extends \PHPUnit_Framework_TestCase
             ->method('enqueue')
             ->willReturn($this->returnValue(true));
 
-        $this->assertInstanceOf(CallbackTaskInterface::class, $queueMock->createTask([CallableFixture::class, 'exampleStatic'], []) );
+        $this->assertInstanceOf(CallbackTaskInterface::class, $queueMock->createTask([CallableFixture::class, 'exampleStatic'], []));
     }
 
     /**

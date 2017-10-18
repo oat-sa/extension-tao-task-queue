@@ -57,7 +57,8 @@ class InMemoryQueueBroker extends AbstractQueueBroker implements SyncQueueBroker
      */
     public function push(TaskInterface $task)
     {
-        $this->queue->enqueue($task);
+        $this->queue->enqueue($this->serializeTask($task));
+
         return true;
     }
 
@@ -72,7 +73,9 @@ class InMemoryQueueBroker extends AbstractQueueBroker implements SyncQueueBroker
             return null;
         }
 
-        return $this->queue->dequeue();
+        $task = $this->queue->dequeue();
+
+        return $this->unserializeTask($task, '');
     }
 
     /**
