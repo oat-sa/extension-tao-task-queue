@@ -64,10 +64,7 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
     public function __toPhpCode()
     {
         foreach ($this->getQueues() as $queue) {
-            $queue->setServiceLocator($this->getServiceLocator());
-            if ($queue instanceof TaskLogAwareInterface) {
-                $queue->setTaskLog($this->getTaskLog());
-            }
+            $this->propagateServices($queue);
         }
 
         return parent::__toPhpCode();
@@ -144,12 +141,7 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
         if (count($foundQueue) === 1) {
             /** @var Queue $queue */
             $queue = reset($foundQueue);
-            $queue->setServiceLocator($this->getServiceLocator());
-            if ($queue instanceof TaskLogAwareInterface) {
-                $queue->setTaskLog($this->getTaskLog());
-            }
-
-            return $queue;
+            return $this->propagateServices($queue);
         }
 
         throw new \InvalidArgumentException('Queue "'. $queueName .'" does not exist.');
@@ -214,12 +206,7 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
 
         /** @var Queue $queue */
         $queue = reset($queues);
-        $queue->setServiceLocator($this->getServiceLocator());
-        if ($queue instanceof TaskLogAwareInterface) {
-            $queue->setTaskLog($this->getTaskLog());
-        }
-
-        return $queue;
+        return $this->propagateServices($queue);
     }
 
     /**
@@ -243,14 +230,8 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
         foreach ($this->getQueues() as $queue) {
             $rand -= $queue->getWeight();
             if ($rand <= 0) {
-                $queue->setServiceLocator($this->getServiceLocator());
-                if ($queue instanceof TaskLogAwareInterface) {
-                    $queue->setTaskLog($this->getTaskLog());
-                }
-
                 $this->logDebug('Queue "'. strtoupper($queue->getName()) .'" selected by weight.');
-
-                return $queue;
+                return $this->propagateServices($queue);
             }
         }
     }
@@ -263,11 +244,8 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
     public function initialize()
     {
         foreach ($this->getQueues() as $queue) {
-            $queue->setServiceLocator($this->getServiceLocator());
-            if ($queue instanceof TaskLogAwareInterface) {
-                $queue->setTaskLog($this->getTaskLog());
-            }
-            $queue->initialize();
+            $this->propagateServices($queue)
+                ->initialize();
         }
     }
 
@@ -342,11 +320,8 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
     public function count()
     {
         $counts = array_map(function(QueueInterface $queue) {
-            $queue->setServiceLocator($this->getServiceLocator());
-            if ($queue instanceof TaskLogAwareInterface) {
-                $queue->setTaskLog($this->getTaskLog());
-            }
-            return $queue->count();
+            return $this->propagateServices($queue)
+                ->count();
         }, $this->getQueues());
 
         return array_sum($counts);
@@ -357,15 +332,13 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
      */
     public function isSync()
     {
-        $isAllSync = true;
         foreach ($this->getQueues() as $queue) {
             if (!$queue->isSync()) {
-                $isAllSync = false;
-                break;
+                return false;
             }
         }
 
-        return $isAllSync;
+        return true;
     }
 
     /**
@@ -391,6 +364,21 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
             ->setMaxIterations(1)
             ->setDedicatedQueue($queue)
             ->run();
+    }
+
+    /**
+     * @param QueueInterface $queue
+     * @return QueueInterface
+     */
+    protected function propagateServices(QueueInterface $queue)
+    {
+        $this->getServiceManager()->propagate($queue);
+
+        if ($queue instanceof TaskLogAwareInterface) {
+            $queue->setTaskLog($this->getTaskLog());
+        }
+
+        return $queue;
     }
 
     /**

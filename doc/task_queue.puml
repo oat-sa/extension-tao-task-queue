@@ -95,7 +95,7 @@ package "Task Log" #DDDDDD {
 }
 
 
-package "Queue" #DDDDDD {
+package "QueueDispatcher and Queues" #DDDDDD {
     together {
         interface Countable
         QueueInterface <|-- Countable
@@ -139,6 +139,7 @@ package "Queue" #DDDDDD {
             -runWorker()
             -assertQueues()
             -assertTasks()
+            -propagateServices()
         }
 
         QueueDispatcher <|- QueueDispatcherInterface

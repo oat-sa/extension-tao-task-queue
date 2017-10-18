@@ -42,6 +42,9 @@ _Note_:
 > When SqsQueueBroker is used, please make sure that "**oat-sa/lib-generis-aws**" is included in the main composer.json and you have 
 > generis/awsClient.conf.php properly configured.
 
+#### Weight
+A Queue can have a weight. If multiple Queues are in use, this weight will be used for randomly select a Queue to be consumed. 
+For example, if QueueA has weight of 1 and QueueB has weight of 2, then QueueB has about a 66% chance of being selected.
 
 ### Worker component
 
