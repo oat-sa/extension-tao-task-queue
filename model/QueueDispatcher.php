@@ -361,8 +361,7 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
     protected function runWorker(QueueInterface $queue)
     {
         (new Worker($this, $this->getTaskLog(), false))
-            ->setMaxIterations(1)
-            ->setDedicatedQueue($queue)
+            ->setDedicatedQueue($queue, 1)
             ->run();
     }
 

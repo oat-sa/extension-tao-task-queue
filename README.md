@@ -105,7 +105,7 @@ use oat\taoTaskQueue\model\Queue;
 use oat\taoTaskQueue\model\QueueBroker\RdsQueueBroker;
 use oat\taoTaskQueue\model\QueueBroker\SqsQueueBroker;
 use oat\taoTaskQueue\model\TaskLogInterface;
-use oat\taoTaskQueue\model\QueueBroker\InMemoryQueueBroker;
+use oat\taoTaskQueue\model\QueueDispatcherInterface;
 
 $queueService = new QueueDispatcher(array(
     QueueDispatcherInterface::OPTION_QUEUES => [

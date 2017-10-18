@@ -90,8 +90,7 @@ class RunWorker implements Action, ServiceLocatorAwareInterface
         $worker = new Worker($queueService, $taskLog, $handleSignals);
 
         if ($queue) {
-            $worker->setDedicatedQueue($queue)
-                ->setMaxIterations($limit);
+            $worker->setDedicatedQueue($queue, $limit);
         }
 
         $worker->run();

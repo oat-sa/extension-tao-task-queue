@@ -182,14 +182,13 @@ final class Worker implements WorkerInterface
 
     /**
      * Only set-able if there is a dedicated queue set.
+     * @deprecated
      *
      * @inheritdoc
      */
     public function setMaxIterations($maxIterations)
     {
-        if ($this->dedicatedQueue instanceof QueueInterface) {
-            $this->maxIterations = (int) $maxIterations * $this->dedicatedQueue->getNumberOfTasksToReceive();
-        }
+        $this->maxIterations = $maxIterations;
 
         return $this;
     }
@@ -197,9 +196,10 @@ final class Worker implements WorkerInterface
     /**
      * @inheritdoc
      */
-    public function setDedicatedQueue(QueueInterface $queue)
+    public function setDedicatedQueue(QueueInterface $queue, $maxIterations = 0)
     {
         $this->dedicatedQueue = $queue;
+        $this->maxIterations  = (int) $maxIterations * $this->dedicatedQueue->getNumberOfTasksToReceive();
 
         $this->logContext['QueueName'] = $queue->getName();
 

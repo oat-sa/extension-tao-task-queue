@@ -54,6 +54,7 @@ interface WorkerInterface extends LoggerAwareInterface
 
     /**
      * Set the maximum iterations for the worker. If nothing is set, the worker runs infinitely.
+     * @deprecated
      *
      * @param int $maxIterations
      * @return WorkerInterface
@@ -64,7 +65,9 @@ interface WorkerInterface extends LoggerAwareInterface
      * Sets a queue on which the worker operates exclusively.
      *
      * @param QueueInterface $queue
+     * @param int $maxIterations
+     *
      * @return WorkerInterface
      */
-    public function setDedicatedQueue(QueueInterface $queue);
+    public function setDedicatedQueue(QueueInterface $queue, $maxIterations = 0);
 }
