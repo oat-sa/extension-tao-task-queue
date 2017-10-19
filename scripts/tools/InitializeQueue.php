@@ -78,6 +78,8 @@ class InitializeQueue extends InstallAction
             /** @var QueueDispatcher $queueService */
             $queueService = $this->getServiceLocator()->get(QueueDispatcherInterface::SERVICE_ID);
 
+            $reRegister = false;
+
             // if any new change is wanted on queues
             if (count($params) > 0) {
                 $broker = null;
@@ -88,9 +90,6 @@ class InitializeQueue extends InstallAction
                         break;
 
                     case self::BROKER_RDS:
-                        // try to load persistence; an exception will be thrown if it does not exist
-                        \common_persistence_Manager::getPersistence($this->persistenceId);
-
                         $broker = new RdsQueueBroker($this->persistenceId, $this->receive ?: 1);
                         break;
 
@@ -103,12 +102,16 @@ class InitializeQueue extends InstallAction
                     $queue->setBroker(clone $broker);
                 }
 
-                $this->registerService(QueueDispatcherInterface::SERVICE_ID, $queueService);
+                $reRegister = true;
             }
 
             // Create queues
             if (!$queueService->isSync()) {
                 $queueService->initialize();
+            }
+
+            if ($reRegister) {
+                $this->registerService(QueueDispatcherInterface::SERVICE_ID, $queueService);
             }
 
             // Create task log container
