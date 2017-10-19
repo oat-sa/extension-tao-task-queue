@@ -89,48 +89,11 @@ class RdsQueueBroker extends AbstractQueueBroker
     }
 
     /**
+     * Note: this method can be run multiple times because only the migrate queries (result of getMigrateSchemaSql) will be run.
+     *
      * @inheritdoc
      */
     public function createQueue()
-    {
-        $this->createQueueIfNotExists();
-    }
-
-    /**
-     * Insert a new task into the queue table.
-     *
-     * @param TaskInterface $task
-     * @return bool
-     */
-    public function push(TaskInterface $task)
-    {
-        $this->createQueueIfNotExists();
-
-        return (bool) $this->getPersistence()->insert($this->getTableName(), [
-            'message' => $this->serializeTask($task),
-            'created_at' => $this->getPersistence()->getPlatForm()->getNowExpression()
-        ]);
-    }
-
-
-    /**
-     * @return bool
-     */
-    protected function queueExists()
-    {
-        /** @var \common_persistence_sql_pdo_mysql_SchemaManager $schemaManager */
-        $schemaManager = $this->getPersistence()->getSchemaManager();
-
-        /** @var \Doctrine\DBAL\Schema\MySqlSchemaManager $sm */
-        $sm = $schemaManager->getSchemaManager();
-
-        return $sm->tablesExist([$this->getTableName()]);
-    }
-
-    /**
-     * Create queue table if it does not exist.
-     */
-    protected function createQueueIfNotExists()
     {
         $persistence = $this->getPersistence();
         /** @var AbstractSchemaManager $schemaManager */
@@ -150,18 +113,35 @@ class RdsQueueBroker extends AbstractQueueBroker
             $table->addColumn('visible', 'boolean', ["default" => 1]);
             $table->addColumn('created_at', 'datetime', ['notnull' => true]);
             $table->setPrimaryKey(['id']);
-            $table->addIndex(['created_at', 'visible'], 'IDX_created_at_visible_'.$this->getQueueName());
+            $table->addIndex(['created_at', 'visible'], 'IDX_created_at_visible_'. $this->getQueueName());
 
         } catch (SchemaException $e) {
-            \common_Logger::i('Schema of '.$this->getTableName().' table already up to date.');
+            $this->logInfo('Schema of '. $this->getTableName() .' table already up to date.');
         }
 
         $queries = $persistence->getPlatForm()->getMigrateSchemaSql($fromSchema, $schema);
+
         foreach ($queries as $query) {
             $persistence->exec($query);
         }
 
-        $this->logDebug('Queue '. $this->getTableName() .' created in RDS.');
+        if ($queries) {
+            $this->logDebug('Queue '. $this->getTableName() .' created/updated in RDS.');
+        }
+    }
+
+    /**
+     * Insert a new task into the queue table.
+     *
+     * @param TaskInterface $task
+     * @return bool
+     */
+    public function push(TaskInterface $task)
+    {
+        return (bool) $this->getPersistence()->insert($this->getTableName(), [
+            'message' => $this->serializeTask($task),
+            'created_at' => $this->getPersistence()->getPlatForm()->getNowExpression()
+        ]);
     }
 
     /**
