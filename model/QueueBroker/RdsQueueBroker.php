@@ -153,7 +153,7 @@ class RdsQueueBroker extends AbstractQueueBroker
             $table->addIndex(['created_at', 'visible'], 'IDX_created_at_visible_'.$this->getQueueName());
 
         } catch (SchemaException $e) {
-            \common_Logger::i('Database Schema of LtiResultIdStorage service already up to date.');
+            \common_Logger::i('Schema of '.$this->getTableName().' table already up to date.');
         }
 
         $queries = $persistence->getPlatForm()->getMigrateSchemaSql($fromSchema, $schema);
