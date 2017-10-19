@@ -115,4 +115,12 @@ interface QueueInterface extends \Countable, LoggerAwareInterface, PhpSerializab
      * @return int
      */
     public function getNumberOfTasksToReceive();
+
+    /**
+     * Set new broker.
+     *
+     * @param QueueBrokerInterface $broker
+     * @return QueueInterface
+     */
+    public function setBroker(QueueBrokerInterface $broker);
 }

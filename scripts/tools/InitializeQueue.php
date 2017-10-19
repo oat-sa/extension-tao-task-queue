@@ -20,33 +20,93 @@
 
 namespace oat\taoTaskQueue\scripts\tools;
 
+use oat\oatbox\extension\InstallAction;
 use Aws\Exception\AwsException;
-use oat\oatbox\action\Action;
+use oat\taoTaskQueue\model\QueueBroker\InMemoryQueueBroker;
+use oat\taoTaskQueue\model\QueueBroker\RdsQueueBroker;
+use oat\taoTaskQueue\model\QueueBroker\SqsQueueBroker;
+use oat\taoTaskQueue\model\QueueDispatcher;
 use oat\taoTaskQueue\model\QueueDispatcherInterface;
 use oat\taoTaskQueue\model\TaskLogInterface;
-use Zend\ServiceManager\ServiceLocatorAwareInterface;
 use Zend\ServiceManager\ServiceLocatorAwareTrait;
 
 /**
- * Initialize Queue:
- * - create the queue if not set
- * - create the task log container if not set
- *
+ * - Without any parameter, it uses the current settings for initialization:
+ *   - creates the queues
+ *   - creates the task log container
  * ```
  * $ sudo -u www-data php index.php 'oat\taoTaskQueue\scripts\tools\InitializeQueue'
  * ```
+ *
+ * - Using Sync Queues. Every existing queue will be changed to use InMemoryQueueBroker.
+ * ```
+ * $ sudo -u www-data php index.php 'oat\taoTaskQueue\scripts\tools\InitializeQueue' --broker=memory
+ * ```
+ *
+ * - Using RDS Queues. Every existing queue will be changed to use RdsQueueBroker. You can set the following parameters:
+ *  - persistence: Required
+ *  - receive: Optional (Maximum amount of tasks that can be received when polling the queue)
+ * ```
+ * $ sudo -u www-data php index.php 'oat\taoTaskQueue\scripts\tools\InitializeQueue' --broker=rds --persistence=default --receive=10
+ * ```
+ *
+ * - Using SQS Queues. Every existing queue will be changed to use SqsQueueBroker. You can set the following parameters:
+ *  - aws-profile: Required
+ *  - receive: Optional (Maximum amount of tasks that can be received when polling the queue)
+ * ```
+ * $ sudo -u www-data php index.php 'oat\taoTaskQueue\scripts\tools\InitializeQueue' --broker=sqs --aws-profile=default --receive=10
+ * ```
  */
-class InitializeQueue implements Action, ServiceLocatorAwareInterface
+class InitializeQueue extends InstallAction
 {
     use ServiceLocatorAwareTrait;
+
+    const BROKER_MEMORY = 'memory';
+    const BROKER_RDS = 'rds';
+    const BROKER_SQS = 'sqs';
+
+    private $wantedBroker;
+    private $persistenceId;
+    private $awsProfile;
+    private $receive;
 
     public function __invoke($params)
     {
         try {
-            // Create the queues
-            /** @var QueueDispatcherInterface $queueService */
+            $this->checkParams($params);
+
+            /** @var QueueDispatcher $queueService */
             $queueService = $this->getServiceLocator()->get(QueueDispatcherInterface::SERVICE_ID);
 
+            // if any new change is wanted on queues
+            if (count($params) > 0) {
+                $broker = null;
+
+                switch ($this->wantedBroker) {
+                    case self::BROKER_MEMORY:
+                        $broker = new InMemoryQueueBroker();
+                        break;
+
+                    case self::BROKER_RDS:
+                        // try to load persistence; an exception will be thrown if it does not exist
+                        \common_persistence_Manager::getPersistence($this->persistenceId);
+
+                        $broker = new RdsQueueBroker($this->persistenceId, $this->receive ?: 1);
+                        break;
+
+                    case self::BROKER_SQS:
+                        $broker = new SqsQueueBroker($this->awsProfile, \common_cache_Cache::SERVICE_ID, $this->receive ?: 1);
+                        break;
+                }
+
+                foreach ($queueService->getQueues() as $queue) {
+                    $queue->setBroker(clone $broker);
+                }
+
+                $this->registerService(QueueDispatcherInterface::SERVICE_ID, $queueService);
+            }
+
+            // Create queues
             if (!$queueService->isSync()) {
                 $queueService->initialize();
             }
@@ -61,6 +121,46 @@ class InitializeQueue implements Action, ServiceLocatorAwareInterface
             return \common_report_Report::createFailure($e->getAwsErrorMessage());
         } catch (\Exception $e) {
             return \common_report_Report::createFailure($e->getMessage());
+        }
+    }
+
+    /**
+     * @param array $params
+     */
+    private function checkParams(array $params)
+    {
+        foreach ($params as $param) {
+            list($option, $value) = explode('=', $param);
+
+            switch ($option) {
+                case '--broker':
+                    if (!in_array($value, [self::BROKER_MEMORY, self::BROKER_RDS, self::BROKER_SQS])) {
+                        throw new \InvalidArgumentException('Broker "'. $value .'" is not a valid broker option. Valid options: '. implode(', ', [self::BROKER_MEMORY, self::BROKER_RDS, self::BROKER_SQS]));
+                    }
+
+                    $this->wantedBroker = $value;
+                    break;
+
+                case '--persistence':
+                    $this->persistenceId = $value;
+                    break;
+
+                case '--aws-profile':
+                    $this->awsProfile = $value;
+                    break;
+
+                case '--receive':
+                    $this->receive = abs((int) $value);
+                    break;
+            }
+        }
+
+        if ($this->wantedBroker == self::BROKER_RDS && !$this->persistenceId) {
+            throw new \InvalidArgumentException('Persistence id (--persistence=...) needs to be set for RDS.');
+        }
+
+        if ($this->wantedBroker == self::BROKER_SQS && !$this->awsProfile) {
+            throw new \InvalidArgumentException('AWS profile (--aws-profile=...) needs to be set for SQS.');
         }
     }
 }
