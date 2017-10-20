@@ -20,9 +20,6 @@
 
 namespace oat\taoTaskQueue\model\TaskLogBroker;
 
-use common_session_SessionManager;
-use oat\generis\model\kernel\persistence\smoothsql\search\filter\Filter;
-use oat\generis\model\kernel\persistence\smoothsql\search\filter\FilterOperator;
 use oat\oatbox\PhpSerializable;
 use common_report_Report as Report;
 use Doctrine\DBAL\Query\QueryBuilder;
@@ -255,7 +252,6 @@ class RdsTaskLogBroker implements TaskLogBrokerInterface, PhpSerializable, Servi
                 ->select('*')
                 ->from($this->getTableName());
 
-            /** @var Filter $filter */
             foreach ($filters as $filter) {
                 $qb->andWhere($filter['column'] . $filter['operator'] . $filter['columnSqlTranslate'])
                     ->setParameter($filter['column'], $filter['value'])

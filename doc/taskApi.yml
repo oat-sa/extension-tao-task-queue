@@ -104,7 +104,7 @@ paths:
           schema:
             $ref: '#/definitions/errorModel'
   /taoTaskQueue/RestTask/archive:
-    put:
+    post:
       tags:
         - Archive Task
       summary: Archive Task

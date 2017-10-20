@@ -21,7 +21,6 @@
 namespace oat\taoTaskQueue\model;
 
 use common_report_Report as Report;
-use oat\generis\model\kernel\persistence\smoothsql\search\filter\Filter;
 use oat\taoTaskQueue\model\Entity\TaskLogEntity;
 use oat\taoTaskQueue\model\Task\TaskInterface;
 use oat\taoTaskQueue\model\TaskLogBroker\TaskLogCollection;
@@ -116,7 +115,7 @@ interface TaskLogInterface extends LoggerAwareInterface
      * @param TaskLogEntity $entity
      * @return bool
      *
-     * throws \Exception
+     * @throws \Exception
      */
     public function archive(TaskLogEntity $entity);
 }

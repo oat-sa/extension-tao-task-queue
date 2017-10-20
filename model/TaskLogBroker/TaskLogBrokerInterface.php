@@ -21,7 +21,6 @@
 namespace oat\taoTaskQueue\model\TaskLogBroker;
 
 use common_report_Report as Report;
-use oat\generis\model\kernel\persistence\smoothsql\search\filter\Filter;
 use oat\taoTaskQueue\model\Entity\TaskLogEntity;
 use oat\taoTaskQueue\model\Task\TaskInterface;
 
