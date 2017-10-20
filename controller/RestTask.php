@@ -90,6 +90,8 @@ class RestTask extends tao_actions_RestController
     public function archive()
     {
         try{
+            $this->assertTaskIdExists();
+
             $this->returnSuccess(
                 $this->restTaskModel->archive(
                     $this->getRequestParameter(self::PARAMETER_TASK_ID),
