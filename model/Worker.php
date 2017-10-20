@@ -290,8 +290,6 @@ final class Worker implements WorkerInterface
 
         $maxWait = $this->dedicatedQueue instanceof QueueInterface ? self::MAX_SLEEPING_TIME_FOR_DEDICATED_QUEUE : self::MAX_SLEEPING_TIME;
 
-        $waitTime = min($waitTime, $maxWait);
-
-        return $waitTime;
+        return min($waitTime, $maxWait);
     }
 }
