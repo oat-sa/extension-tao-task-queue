@@ -155,6 +155,33 @@ try {
 }
 ```
 
+### Initializing the queues and the task log container
+
+You can run this script if you want to be sure that the required queues and the task log container are created.
+
+```bash
+ $ sudo -u www-data php index.php 'oat\taoTaskQueue\scripts\tools\InitializeQueue'
+```
+
+_Note_:
+> This script also can be used to change the current queues to use a different queue broker.
+
+- Changing every existing queue to use InMemoryQueueBroker. (Sync Queue)
+```bash
+ $ sudo -u www-data php index.php 'oat\taoTaskQueue\scripts\tools\InitializeQueue' --broker=memory
+```
+
+- Changing every existing queue to use RdsQueueBroker. 
+Option "persistence" is required, "receive" (Maximum amount of tasks that can be received when polling the queue) is optional.
+```bash
+ $ sudo -u www-data php index.php 'oat\taoTaskQueue\scripts\tools\InitializeQueue' --broker=rds --persistence=default --receive=10
+```
+
+- Changing every existing queue to use SqsQueueBroker. Option "aws-profile" is required, "receive" is optional.
+```bash
+ $ sudo -u www-data php index.php 'oat\taoTaskQueue\scripts\tools\InitializeQueue' --broker=sqs --aws-profile=default --receive=10
+```
+
 ### Running a worker
 
 To run a worker, use the following command. It will start a worker for running infinitely and iterating over every registered Queues based in their weights.
@@ -174,16 +201,6 @@ You can limit the iteration of the worker. It can be used only on a dedicated qu
 ```bash
  $ sudo -u www-data php index.php 'oat\taoTaskQueue\scripts\tools\RunWorker' --queue=standard --limit=5
 ```
-
-### Initializing the queue and the task log container
-
-You can run this script if you want to be sure that the required queues and the task log container are created.
-If they are already exist, no action will be taken.
-
-```bash
- $ sudo -u www-data php index.php 'oat\taoTaskQueue\scripts\tools\InitializeQueue'
-```
-
 
 ## Usage examples
 
