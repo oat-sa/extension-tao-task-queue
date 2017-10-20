@@ -21,6 +21,8 @@
 namespace oat\taoTaskQueue\model\TaskLogBroker;
 
 use common_report_Report as Report;
+use oat\generis\model\kernel\persistence\smoothsql\search\filter\Filter;
+use oat\taoTaskQueue\model\Entity\TaskLogEntity;
 use oat\taoTaskQueue\model\Task\TaskInterface;
 
 /**
@@ -85,4 +87,30 @@ interface TaskLogBrokerInterface
      * @return Report|null
      */
     public function getReport($taskId);
+
+    /**
+     * @param string $userId
+     * @return TaskLogCollection
+     */
+    public function findAvailableByUser($userId);
+
+    /**
+     * @param string $taskId
+     * @param $userId
+     *
+     *
+     * @return TaskLogEntity
+     *
+     * @throws \common_exception_NotFound
+     */
+    public function getByIdAndUser($taskId, $userId);
+
+    /**
+     * @param TaskLogEntity $entity
+     *
+     * @return bool
+     *
+     * @throws \Exception
+     */
+    public function archive(TaskLogEntity $entity);
 }

@@ -20,12 +20,18 @@
 
 namespace oat\taoTaskQueue\model\TaskLogBroker;
 
+use common_session_SessionManager;
+use oat\generis\model\kernel\persistence\smoothsql\search\filter\Filter;
+use oat\generis\model\kernel\persistence\smoothsql\search\filter\FilterOperator;
 use oat\oatbox\PhpSerializable;
 use common_report_Report as Report;
 use Doctrine\DBAL\Query\QueryBuilder;
+use oat\taoTaskQueue\model\Entity\TaskLogEntity;
 use oat\taoTaskQueue\model\QueueDispatcherInterface;
 use oat\taoTaskQueue\model\Task\CallbackTaskInterface;
 use oat\taoTaskQueue\model\Task\TaskInterface;
+use oat\taoTaskQueue\model\TaskLogInterface;
+use oat\taoTaskQueue\model\ValueObjects\TaskLogStatus;
 use Zend\ServiceManager\ServiceLocatorAwareInterface;
 use Zend\ServiceManager\ServiceLocatorAwareTrait;
 
@@ -222,6 +228,110 @@ class RdsTaskLogBroker implements TaskLogBrokerInterface, PhpSerializable, Servi
         }
 
         return null;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function findAvailableByUser($userId)
+    {
+        try {
+            $filters = [
+                [
+                    'column' => 'status',
+                    'columnSqlTranslate' => ':status',
+                    'operator' => '!=',
+                    'value' => TaskLogInterface::STATUS_ARCHIVED
+                ],
+                [
+                    'column' => 'owner',
+                    'columnSqlTranslate' => ':owner',
+                    'operator' => '=',
+                    'value' => $userId
+                ],
+            ];
+
+            $qb = $this->getQueryBuilder()
+                ->select('*')
+                ->from($this->getTableName());
+
+            /** @var Filter $filter */
+            foreach ($filters as $filter) {
+                $qb->andWhere($filter['column'] . $filter['operator'] . $filter['columnSqlTranslate'])
+                    ->setParameter($filter['column'], $filter['value'])
+                ;
+            }
+
+            $rows = $qb->execute()->fetchAll();
+            $collection = TaskLogCollection::createFromArray($rows);
+
+        } catch (\Exception $exception) {
+            \common_Logger::w('Something went wrong getting task logs ' . $exception->getMessage());
+
+            $collection = TaskLogCollection::createEmptyCollection();
+        }
+
+        return $collection;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getByIdAndUser($taskId, $userId)
+    {
+        $qb = $this->getQueryBuilder()
+            ->select('*')
+            ->from($this->getTableName())
+            ->andWhere('id = :id')
+            ->setParameter('id', (string) $taskId)
+            ->andWhere('status != :status')
+            ->setParameter('status', (string) TaskLogInterface::STATUS_ARCHIVED)
+            ->andWhere('owner = :owner')
+            ->setParameter('owner', (string) $userId)
+        ;
+
+        $row = $qb->execute()->fetch();
+
+        if ($row === false) {
+            throw new \common_exception_NotFound('Entity not found');
+        }
+
+        return TaskLogEntity::createFromArray($row);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function archive(TaskLogEntity $entity)
+    {
+        $runningStatus = TaskLogStatus::running();
+
+        if ($entity->getStatus()->equals($runningStatus)) {
+            throw new \Exception('Task cannot archive because it is running');
+        }
+
+        $this->getPersistence()->getPlatform()->beginTransaction();
+
+        try {
+            $qb = $this->getQueryBuilder()
+                ->update($this->getTableName())
+                ->set('status', ':status_new')
+                ->set('updated_at', ':updated_at')
+                ->where('id = :id')
+                ->setParameter('id', (string) $entity->getId())
+                ->setParameter('status_new', (string) TaskLogInterface::STATUS_ARCHIVED)
+                ->setParameter('updated_at', $this->getPersistence()->getPlatForm()->getNowExpression());
+
+            $qb->execute();
+            $this->getPersistence()->getPlatform()->commit();
+
+        } catch (\Exception $e) {
+            $this->getPersistence()->getPlatform()->rollBack();
+
+            return false;
+        }
+
+        return true;
     }
 
     /**

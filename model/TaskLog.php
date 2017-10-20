@@ -21,7 +21,9 @@
 namespace oat\taoTaskQueue\model;
 
 use common_report_Report as Report;
+use oat\generis\model\kernel\persistence\smoothsql\search\filter\Filter;
 use oat\oatbox\service\ConfigurableService;
+use oat\taoTaskQueue\model\Entity\TaskLogEntity;
 use oat\taoTaskQueue\model\Task\TaskInterface;
 use oat\taoTaskQueue\model\TaskLogBroker\TaskLogBrokerInterface;
 use oat\oatbox\log\LoggerAwareTrait;
@@ -160,6 +162,31 @@ class TaskLog extends ConfigurableService implements TaskLogInterface
 
         return null;
     }
+
+    /**
+     * @inheritdoc
+     */
+    public function getByIdAndUser($taskId, $userId)
+    {
+        return $this->getBroker()->getByIdAndUser($taskId, $userId);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function findAvailableByUser($userId)
+    {
+        return $this->getBroker()->findAvailableByUser($userId);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function archive(TaskLogEntity $entity)
+    {
+        return $this->getBroker()->archive($entity);
+    }
+
 
     /**
      * @param string $status
