@@ -22,7 +22,6 @@ namespace oat\taoTaskQueue\model\TaskLogBroker;
 
 use JsonSerializable;
 use oat\taoTaskQueue\model\Entity\TaskLogEntity;
-use oat\taoTaskQueue\model\Entity\TasksLogsStats;
 use oat\taoTaskQueue\model\ValueObjects\TaskLogStatus;
 
 class TaskLogCollection implements JsonSerializable

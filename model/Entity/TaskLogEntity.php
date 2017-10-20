@@ -58,7 +58,7 @@ class TaskLogEntity implements JsonSerializable
      * @param string $id
      * @param string $name
      * @param string $label
-     * @param TasksLogsStats $status
+     * @param TaskLogStatus $status
      * @param string $owner
      * @param Report $report
      * @param DateTimeInterface $createdAt
