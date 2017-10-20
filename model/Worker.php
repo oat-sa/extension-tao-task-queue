@@ -33,8 +33,9 @@ final class Worker implements WorkerInterface
 {
     use LoggerAwareTrait;
 
-    const WAIT_INTERVAL = 2; // sec
-    const MAX_SLEEPING_TIME = 60; //sec
+    const WAIT_INTERVAL = 1; // sec
+    const MAX_SLEEPING_TIME = 10; //default sleeping time in sec
+    const MAX_SLEEPING_TIME_FOR_DEDICATED_QUEUE = 30; //working on only one queue, there can be higher sleeping time
 
     /**
      * @var QueueDispatcherInterface
@@ -287,9 +288,9 @@ final class Worker implements WorkerInterface
     {
         $waitTime = $this->iterationsWithOutTask * self::WAIT_INTERVAL;
 
-        if ($waitTime > static::MAX_SLEEPING_TIME) {
-            $waitTime = static::MAX_SLEEPING_TIME;
-        }
+        $maxWait = $this->dedicatedQueue instanceof QueueInterface ? self::MAX_SLEEPING_TIME_FOR_DEDICATED_QUEUE : self::MAX_SLEEPING_TIME;
+
+        $waitTime = min($waitTime, $maxWait);
 
         return $waitTime;
     }
