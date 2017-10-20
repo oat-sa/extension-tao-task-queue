@@ -41,6 +41,8 @@ paths:
           description: Bad request if you send invalid parameters.
         '401':
           description: Unauthorized
+          schema:
+            $ref: '#/definitions/errorModel'
   /taoTaskQueue/RestTask/getAll:
     get:
       tags:
@@ -69,6 +71,8 @@ paths:
           description: Bad request if you send invalid parameters.
         '401':
           description: Unauthorized
+          schema:
+            $ref: '#/definitions/errorModel'
   /taoTaskQueue/RestTask/status:
     get:
       tags:
@@ -95,20 +99,26 @@ paths:
                type: string
         '400':
           description: Invalid input
-  /taoTaskQueue/RestTask/delete:
-    delete:
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errorModel'
+  /taoTaskQueue/RestTask/archive:
+    put:
       tags:
-        - Delete Task
-      summary: Delete Task
-      description: Delete Task
-      operationId: DeleteTask
+        - Archive Task
+      summary: Archive Task
+      description: Archive Task
+      operationId: ArchiveTask
       parameters:
         - name: taskId
-          in: query
+          in: formData
           description: Task id to delete
           required: true
           type: string
           format: int64
+      consumes:
+        - application/x-www-form-urlencoded
       produces:
         - application/json
       responses:
@@ -128,6 +138,8 @@ paths:
           description: Task not found
         '401':
           description: Unauthorized
+          schema:
+            $ref: '#/definitions/errorModel'
 definitions:
   data:
       type: array
@@ -140,9 +152,17 @@ definitions:
   TaskStatus:
     type: object
     required:
-      - numberOfTasksDone
+      - numberOfTasksCompleted
+      - numberOfTasksFailed
+      - numberOfTasksInProgress
     properties:
-      numberOfTasksDone:
+      numberOfTasksCompleted:
+        type: integer
+        example: 10
+      numberOfTasksFailed:
+        type: integer
+        example: 10
+      numberOfTasksInProgress:
         type: integer
         example: 10
   TaskLog:

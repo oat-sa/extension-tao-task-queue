@@ -59,31 +59,31 @@ class TaskLogModelTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf(TasksLogsStats::class, $model->getStats('userId'));
     }
 
-    public function testDelete()
+    public function testArchive()
     {
         $model = $this->getModelMocked();
 
-        $this->assertTrue($model->delete('taskId' ,'userId'));
+        $this->assertTrue($model->archive('taskId' ,'userId'));
     }
 
     /**
      * @expectedException  \common_exception_NotFound
      */
-    public function testDeleteTaskNotFound()
+    public function testArchiveTaskNotFound()
     {
         $model = $this->getModelMocked(true);
 
-        $this->assertTrue($model->delete('taskId' ,'userId'));
+        $this->assertTrue($model->archive('taskId' ,'userId'));
     }
 
     /**
      * @expectedException  \Exception
      */
-    public function testDeleteNotPossibleTaskIsRunning()
+    public function testArchiveNotPossibleTaskIsRunning()
     {
         $model = $this->getModelMocked(false, false, true);
 
-        $this->assertTrue($model->delete('taskId' ,'userId'));
+        $this->assertTrue($model->archive('taskId' ,'userId'));
     }
 
     protected function getModelMocked($notFound = false, $shouldArchive = true, $taskRunning = false)

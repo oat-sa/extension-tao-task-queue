@@ -81,7 +81,7 @@ class TaskLogModel
      * @throws \common_exception_NotFound
      * @throws \Exception
      */
-    public function delete($taskId, $userId)
+    public function archive($taskId, $userId)
     {
         $taskLog = $this->getByIdAndUser($taskId, $userId);
 

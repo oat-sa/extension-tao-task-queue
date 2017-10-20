@@ -87,12 +87,11 @@ class RestTask extends tao_actions_RestController
     /**
      * @throws \common_exception_NotImplemented
      */
-    public function delete()
+    public function archive()
     {
         try{
-            $this->assertTaskIdExists();
             $this->returnSuccess(
-                $this->restTaskModel->delete(
+                $this->restTaskModel->archive(
                     $this->getRequestParameter(self::PARAMETER_TASK_ID),
                     $this->userId
                 )
