@@ -21,10 +21,9 @@
 namespace oat\taoTaskQueue\model\ValueObjects;
 
 use Exception;
-use oat\oatbox\task\Task;
 use oat\taoTaskQueue\model\TaskLogInterface;
 
-final class TaskLogStatus
+class TaskLogStatus
 {
     const STATUS_RUNNING = 'running';
     const STATUS_COMPLETED = 'completed';
@@ -36,7 +35,7 @@ final class TaskLogStatus
     /**
      * @param $status
      */
-    public function __construct($status)
+    protected function __construct($status)
     {
         $this->status = $status;
     }
@@ -58,8 +57,12 @@ final class TaskLogStatus
             case TaskLogInterface::STATUS_COMPLETED:
                 return TaskLogStatus::completed();
                 break;
-            default:
+            case TaskLogInterface::STATUS_FAILED:
+            case TaskLogInterface::STATUS_UNKNOWN:
                 return TaskLogStatus::failed();
+                break;
+            default:
+                throw new \Exception('Invalid Status provided');
                 break;
         }
     }

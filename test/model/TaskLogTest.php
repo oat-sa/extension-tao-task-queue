@@ -31,9 +31,11 @@ use oat\taoTaskQueue\model\TaskLogBroker\TaskLogBrokerInterface;
  */
 class TaskLogTest extends \PHPUnit_Framework_TestCase
 {
+    /**
+     * @expectedException \InvalidArgumentException
+     */
     public function testTaskLogServiceShouldThrowExceptionWhenTaskLogBrokerOptionIsNotSet()
     {
-        $this->expectException(\InvalidArgumentException::class);
         new TaskLog([]);
     }
 
@@ -87,7 +89,7 @@ class TaskLogTest extends \PHPUnit_Framework_TestCase
     {
         $taskMock = $this->getMockForAbstractClass(AbstractTask::class, [], "", false);
 
-        $logBrokerMock = $this->createMock(TaskLogBrokerInterface::class);
+        $logBrokerMock = $this->getMock(TaskLogBrokerInterface::class);
 
         $logBrokerMock->expects($this->once())
             ->method('add');
@@ -106,7 +108,7 @@ class TaskLogTest extends \PHPUnit_Framework_TestCase
 
     public function testSetStatusWhenNewAndPrevStatusIsOkayThenStatusShouldBeUpdatedByBroker()
     {
-        $logBrokerMock = $this->createMock(TaskLogBrokerInterface::class);
+        $logBrokerMock = $this->getMock(TaskLogBrokerInterface::class);
 
         $logBrokerMock->expects($this->once())
             ->method('updateStatus');
@@ -130,7 +132,7 @@ class TaskLogTest extends \PHPUnit_Framework_TestCase
     {
         $expectedStatus = 'dequeued';
 
-        $logBrokerMock = $this->createMock(TaskLogBrokerInterface::class);
+        $logBrokerMock = $this->getMock(TaskLogBrokerInterface::class);
 
         $logBrokerMock->expects($this->once())
             ->method('getStatus')

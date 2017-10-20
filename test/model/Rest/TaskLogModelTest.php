@@ -18,9 +18,104 @@
  *
  */
 
-namespace oat\taoTaskQueue\test\model\Task;
+namespace oat\taoTaskQueue\test\model\Rest;
+
+use oat\taoTaskQueue\model\Entity\TaskLogEntity;
+use oat\taoTaskQueue\model\Entity\TasksLogsStats;
+use oat\taoTaskQueue\model\Rest\TaskLogModel;
+use oat\taoTaskQueue\model\TaskLogBroker\TaskLogCollection;
+use oat\taoTaskQueue\model\TaskLogInterface;
 
 class TaskLogModelTest extends \PHPUnit_Framework_TestCase
 {
+    public function testFindAvailableByUser()
+    {
+        $model = $this->getModelMocked();
 
+        $this->assertInstanceOf(TaskLogCollection::class, $model->findAvailableByUser('userId'));
+    }
+
+    public function testGetByIdAndUser()
+    {
+        $model = $this->getModelMocked();
+
+        $this->assertInstanceOf(TaskLogEntity::class, $model->getByIdAndUser('taskId', 'userId'));
+    }
+
+    /**
+     * @expectedException  \common_exception_NotFound
+     */
+    public function testGetByIdAndUserNotFound()
+    {
+        $model = $this->getModelMocked(true);
+
+        $this->assertInstanceOf(TaskLogEntity::class, $model->getByIdAndUser('some task id not found', 'userId'));
+    }
+
+    public function testGetStats()
+    {
+        $model = $this->getModelMocked();
+
+        $this->assertInstanceOf(TasksLogsStats::class, $model->getStats('userId'));
+    }
+
+    public function testDelete()
+    {
+        $model = $this->getModelMocked();
+
+        $this->assertTrue($model->delete('taskId' ,'userId'));
+    }
+
+    /**
+     * @expectedException  \common_exception_NotFound
+     */
+    public function testDeleteTaskNotFound()
+    {
+        $model = $this->getModelMocked(true);
+
+        $this->assertTrue($model->delete('taskId' ,'userId'));
+    }
+
+    /**
+     * @expectedException  \Exception
+     */
+    public function testDeleteNotPossibleTaskIsRunning()
+    {
+        $model = $this->getModelMocked(false, false, true);
+
+        $this->assertTrue($model->delete('taskId' ,'userId'));
+    }
+
+    protected function getModelMocked($notFound = false, $shouldArchive = true, $taskRunning = false)
+    {
+        $repositoryMock = $this->getMock(TaskLogInterface::class);
+        $collectionMock = $this->getMockBuilder(TaskLogCollection::class)->disableOriginalConstructor()->getMock();
+        $entity         = $this->getMockBuilder(TaskLogEntity::class)->disableOriginalConstructor()->getMock();
+
+        $repositoryMock
+            ->method('findAvailableByUser')
+            ->willReturn($collectionMock);
+
+        if ($taskRunning) {
+            $repositoryMock
+                ->method('getByIdAndUser')
+                ->willThrowException(new \Exception());
+        }else {
+            $repositoryMock
+                ->method('archive')
+                ->willReturn($shouldArchive);
+        }
+
+        if ($notFound) {
+            $repositoryMock
+                ->method('getByIdAndUser')
+                ->willThrowException(new \common_exception_NotFound());
+        } else {
+            $repositoryMock
+                ->method('getByIdAndUser')
+                ->willReturn($entity);
+        }
+
+        return new TaskLogModel($repositoryMock);
+    }
 }

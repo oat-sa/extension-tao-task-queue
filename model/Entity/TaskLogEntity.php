@@ -138,7 +138,7 @@ class TaskLogEntity implements JsonSerializable
     }
 
     /**
-     * @return Report
+     * @return Report|null
      */
     public function getReport()
     {

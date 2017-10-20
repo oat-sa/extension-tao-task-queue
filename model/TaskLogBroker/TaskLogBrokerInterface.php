@@ -98,7 +98,6 @@ interface TaskLogBrokerInterface
      * @param string $taskId
      * @param $userId
      *
-     *
      * @return TaskLogEntity
      *
      * @throws \common_exception_NotFound
