@@ -80,10 +80,9 @@ class Queue implements QueueInterface, TaskLogAwareInterface
         }
 
         $this->name = $name;
-        $this->broker = $broker;
         $this->weight = abs($weight);
 
-        $this->broker->setQueueName($this->getName());
+        $this->setBroker($broker);
 
         if ($this->isSync()) {
             $this->broker->createQueue();
@@ -134,6 +133,18 @@ class Queue implements QueueInterface, TaskLogAwareInterface
     public function getWeight()
     {
         return $this->weight;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setBroker(QueueBrokerInterface $broker)
+    {
+        $this->broker = $broker;
+
+        $this->broker->setQueueName($this->getName());
+
+        return $this;
     }
 
     /**

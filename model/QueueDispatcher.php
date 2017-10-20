@@ -148,7 +148,7 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
     }
 
     /**
-     * @inheritdoc
+     * @return QueueInterface[]
      */
     public function getQueues()
     {
