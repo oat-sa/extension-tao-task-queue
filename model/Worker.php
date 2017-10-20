@@ -33,6 +33,9 @@ final class Worker implements WorkerInterface
 {
     use LoggerAwareTrait;
 
+    const WAIT_INTERVAL = 2; // sec
+    const MAX_SLEEPING_TIME = 60; //sec
+
     /**
      * @var QueueDispatcherInterface
      */
@@ -47,7 +50,7 @@ final class Worker implements WorkerInterface
     private $iterations;
     private $shutdown;
     private $paused;
-    private $waitInterval = 1; //sec
+    private $iterationsWithOutTask = 0;
     private $processId;
     private $logContext;
     private $taskLog;
@@ -90,7 +93,7 @@ final class Worker implements WorkerInterface
                 $this->logDebug('Paused... ', array_merge($this->logContext, [
                     'Iteration' => $this->iterations
                 ]));
-                usleep($this->waitInterval * 1000000);
+                usleep(self::WAIT_INTERVAL * 1000000);
                 continue;
             }
 
@@ -111,10 +114,16 @@ final class Worker implements WorkerInterface
 
                 // if no task to process, sleep for the specified time and continue.
                 if (!$task) {
-                    $this->logDebug('No task to work on. Sleeping for '. $this->waitInterval .' sec', $this->logContext);
-                    usleep($this->waitInterval * 1000000);
+                    ++$this->iterationsWithOutTask;
+                    $waitInterval = $this->getWaitInterval();
+                    $this->logDebug('No task to work on. Sleeping for '. $waitInterval .' sec', $this->logContext);
+                    usleep($waitInterval * 1000000);
+
                     continue;
                 }
+
+                // we have task, so set this back to 0
+                $this->iterationsWithOutTask = 0;
 
                 if (!$task instanceof TaskInterface) {
                     $this->logDebug('The received queue item ('. $task .') not processable.', $this->logContext);
@@ -267,5 +276,21 @@ final class Worker implements WorkerInterface
     {
         $this->logInfo('CONT received; resuming task processing...', $this->logContext);
         $this->paused = false;
+    }
+
+    /**
+     * Calculate the sleeping time dynamically in case of no task to work on.
+     *
+     * @return int (sec)
+     */
+    private function getWaitInterval()
+    {
+        $waitTime = $this->iterationsWithOutTask * self::WAIT_INTERVAL;
+
+        if ($waitTime > static::MAX_SLEEPING_TIME) {
+            $waitTime = static::MAX_SLEEPING_TIME;
+        }
+
+        return $waitTime;
     }
 }
