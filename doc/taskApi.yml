@@ -18,7 +18,7 @@ paths:
       parameters:
         - name: taskId
           in: query
-          description: Task id to delete
+          description: Task id identifier
           required: true
           type: string
           format: int64
@@ -32,7 +32,7 @@ paths:
               success:
                 type: boolean
               data:
-                $ref: '#/definitions/dataItem'
+                $ref: '#/definitions/TaskLog'
               errorCode:
                 type: string
               errorMsg:
@@ -42,7 +42,7 @@ paths:
         '401':
           description: Unauthorized
           schema:
-            $ref: '#/definitions/errorModel'
+            $ref: '#/definitions/ErrorModel'
   /taoTaskQueue/RestTask/getAll:
     get:
       tags:
@@ -50,6 +50,19 @@ paths:
       summary: Get Tasks
       description: Get Tasks
       operationId: GetTasks
+      parameters:
+        - name: limit
+          in: query
+          description: Limit
+          required: false
+          type: integer
+          format: int64
+        - name: offset
+          in: query
+          description: Offset
+          required: false
+          type: integer
+          format: int64
       consumes:
         - application/json
       produces:
@@ -62,7 +75,9 @@ paths:
               success:
                 type: boolean
               data:
-                $ref: '#/definitions/data'
+                type: array
+                items:
+                  $ref: '#/definitions/TaskLog'
               errorCode:
                 type: string
               errorMsg:
@@ -72,8 +87,8 @@ paths:
         '401':
           description: Unauthorized
           schema:
-            $ref: '#/definitions/errorModel'
-  /taoTaskQueue/RestTask/status:
+            $ref: '#/definitions/ErrorModel'
+  /taoTaskQueue/RestTask/stats:
     get:
       tags:
         - Get Tasks Status
@@ -92,7 +107,7 @@ paths:
               success:
                 type: boolean
               data:
-                $ref: '#/definitions/dataStatus'
+                $ref: '#/definitions/TaskStatus'
               errorCode:
                 type: string
               errorMsg:
@@ -102,7 +117,7 @@ paths:
         '401':
           description: Unauthorized
           schema:
-            $ref: '#/definitions/errorModel'
+            $ref: '#/definitions/ErrorModel'
   /taoTaskQueue/RestTask/archive:
     post:
       tags:
@@ -113,7 +128,7 @@ paths:
       parameters:
         - name: taskId
           in: formData
-          description: Task id to delete
+          description: Task id to archive
           required: true
           type: string
           format: int64
@@ -139,16 +154,8 @@ paths:
         '401':
           description: Unauthorized
           schema:
-            $ref: '#/definitions/errorModel'
+            $ref: '#/definitions/ErrorModel'
 definitions:
-  data:
-      type: array
-      items:
-        $ref: '#/definitions/TaskLog'
-  dataItem:
-    $ref: '#/definitions/TaskLog'
-  dataStatus:
-    $ref: '#/definitions/TaskStatus'
   TaskStatus:
     type: object
     required:
@@ -208,7 +215,7 @@ definitions:
         type: array
         items:
           $ref: '#/definitions/TaskReport'
-  errorModel:
+  ErrorModel:
     type: object
     properties:
       success:

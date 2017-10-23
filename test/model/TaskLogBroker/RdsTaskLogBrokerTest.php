@@ -40,7 +40,7 @@ class RdsTaskLogBrokerTest extends \PHPUnit_Framework_TestCase
     public function testGetPersistenceWhenInstantiatingANewOneThenItReturnsOneWithTheRequiredInterface()
     {
         $commonPersistenceSqlPersistenceMock = $this->getMockBuilder(\common_persistence_SqlPersistence::class)->disableOriginalConstructor()->getMock();
-        $commonPersistenceManagerMock = $this->getMock(\common_persistence_Manager::class);
+        $commonPersistenceManagerMock = $this->getMockBuilder(\common_persistence_Manager::class)->getMock();
 
         $commonPersistenceManagerMock->expects($this->once())
             ->method('getPersistenceById')

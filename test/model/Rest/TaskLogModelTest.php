@@ -88,13 +88,18 @@ class TaskLogModelTest extends \PHPUnit_Framework_TestCase
 
     protected function getModelMocked($notFound = false, $shouldArchive = true, $taskRunning = false)
     {
-        $repositoryMock = $this->getMock(TaskLogInterface::class);
+        $repositoryMock = $this->getMockForAbstractClass(TaskLogInterface::class);
         $collectionMock = $this->getMockBuilder(TaskLogCollection::class)->disableOriginalConstructor()->getMock();
         $entity         = $this->getMockBuilder(TaskLogEntity::class)->disableOriginalConstructor()->getMock();
+        $statsMock      = $this->getMockBuilder(TasksLogsStats::class)->disableOriginalConstructor()->getMock();
 
         $repositoryMock
             ->method('findAvailableByUser')
             ->willReturn($collectionMock);
+
+        $repositoryMock
+            ->method('getStats')
+            ->willReturn($statsMock);
 
         if ($taskRunning) {
             $repositoryMock

@@ -173,9 +173,17 @@ class TaskLog extends ConfigurableService implements TaskLogInterface
     /**
      * @inheritdoc
      */
-    public function findAvailableByUser($userId)
+    public function findAvailableByUser($userId, $limit = null, $offset = null)
     {
-        return $this->getBroker()->findAvailableByUser($userId);
+        return $this->getBroker()->findAvailableByUser($userId, $limit, $offset);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getStats($userId)
+    {
+        return $this->getBroker()->getStats($userId);
     }
 
     /**
@@ -183,6 +191,10 @@ class TaskLog extends ConfigurableService implements TaskLogInterface
      */
     public function archive(TaskLogEntity $entity)
     {
+        if ($entity->getStatus()->isRunning()) {
+            throw new \Exception('Task cannot be archive because it is running');
+        }
+
         return $this->getBroker()->archive($entity);
     }
 

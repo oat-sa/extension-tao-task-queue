@@ -31,15 +31,6 @@ class TaskLogCollectionTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf(TaskLogCollection::class, $collection);
     }
 
-    public function testGetStats()
-    {
-        $collection = $this->createCollection();
-
-        $this->assertSame(1, $collection->getNumberOfTasksCompleted());
-        $this->assertSame(2, $collection->getNumberOfTasksInProgress());
-        $this->assertSame(0, $collection->getNumberOfTasksFailed());
-    }
-
     public function testCollectionToArray()
     {
         $collection = $this->createCollection();

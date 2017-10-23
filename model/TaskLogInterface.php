@@ -22,6 +22,7 @@ namespace oat\taoTaskQueue\model;
 
 use common_report_Report as Report;
 use oat\taoTaskQueue\model\Entity\TaskLogEntity;
+use oat\taoTaskQueue\model\Entity\TasksLogsStats;
 use oat\taoTaskQueue\model\Task\TaskInterface;
 use oat\taoTaskQueue\model\TaskLogBroker\TaskLogCollection;
 use Psr\Log\LoggerAwareInterface;
@@ -98,9 +99,17 @@ interface TaskLogInterface extends LoggerAwareInterface
 
     /**
      * @param string $userId
+     * @param null $limit
+     * @param null $offset
      * @return TaskLogCollection
      */
-    public function findAvailableByUser($userId);
+    public function findAvailableByUser($userId, $limit = null, $offset = null);
+
+    /**
+     * @param string $userId
+     * @return TasksLogsStats
+     */
+    public function getStats($userId);
 
     /**
      * @param string $taskId

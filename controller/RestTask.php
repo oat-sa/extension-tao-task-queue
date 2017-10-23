@@ -28,6 +28,8 @@ use tao_actions_RestController;
 class RestTask extends tao_actions_RestController
 {
     const PARAMETER_TASK_ID = 'taskId';
+    const PARAMETER_LIMIT = 'limit';
+    const PARAMETER_OFFSET = 'offset';
 
     /** @var TaskLogModel */
     private $restTaskModel;
@@ -54,7 +56,17 @@ class RestTask extends tao_actions_RestController
      */
     public function getAll()
     {
-        $this->returnSuccess($this->restTaskModel->findAvailableByUser($this->userId)->jsonSerialize());
+        $limit = $offset = null;
+
+        if ($this->hasRequestParameter(self::PARAMETER_LIMIT)) {
+            $limit = (int) $this->getRequestParameter(self::PARAMETER_LIMIT);
+        }
+
+        if ($this->hasRequestParameter(self::PARAMETER_OFFSET)) {
+            $offset = (int) $this->getRequestParameter(self::PARAMETER_OFFSET);
+        }
+
+        $this->returnSuccess($this->restTaskModel->findAvailableByUser($this->userId, $limit, $offset)->jsonSerialize());
     }
 
     /**
@@ -79,7 +91,7 @@ class RestTask extends tao_actions_RestController
     /**
      * @throws \common_exception_NotImplemented
      */
-    public function status()
+    public function stats()
     {
         $this->returnSuccess($this->restTaskModel->getStats($this->userId)->jsonSerialize());
     }

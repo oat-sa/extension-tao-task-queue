@@ -21,14 +21,14 @@
 namespace oat\taoTaskQueue\test\model\ValueObjects;
 
 
-use oat\taoTaskQueue\model\ValueObjects\TaskLogStatus;
+use oat\taoTaskQueue\model\ValueObjects\TaskLogCategorizedStatus;
 
-class TaskLogStatusTest extends \PHPUnit_Framework_TestCase
+class TaskLogCategorizedStatusTest extends \PHPUnit_Framework_TestCase
 {
     public function testCreateWithValidStatus()
     {
-        $status = TaskLogStatus::create('enqueued');
-        $this->assertInstanceOf(TaskLogStatus::class, $status);
+        $status = TaskLogCategorizedStatus::create('enqueued');
+        $this->assertInstanceOf(TaskLogCategorizedStatus::class, $status);
     }
 
     /**
@@ -36,40 +36,40 @@ class TaskLogStatusTest extends \PHPUnit_Framework_TestCase
      */
     public function testCreateWithInvalidStatus()
     {
-        TaskLogStatus::create('some invalid status');
+        TaskLogCategorizedStatus::create('some invalid status');
     }
 
     public function testStatusAreMappedCorrectly()
     {
-        $status = TaskLogStatus::create('enqueued');
+        $status = TaskLogCategorizedStatus::create('enqueued');
         $this->assertSame('running', (string)$status);
 
-        $status = TaskLogStatus::create('dequeued');
+        $status = TaskLogCategorizedStatus::create('dequeued');
         $this->assertSame('running', (string)$status);
 
-        $status = TaskLogStatus::create('running');
+        $status = TaskLogCategorizedStatus::create('running');
         $this->assertSame('running', (string)$status);
 
-        $status = TaskLogStatus::create('completed');
+        $status = TaskLogCategorizedStatus::create('completed');
         $this->assertSame('completed', (string)$status);
 
-        $status = TaskLogStatus::create('failed');
+        $status = TaskLogCategorizedStatus::create('failed');
         $this->assertSame('failed', (string)$status);
 
-        $status = TaskLogStatus::create('unknown');
+        $status = TaskLogCategorizedStatus::create('unknown');
         $this->assertSame('failed', (string)$status);
     }
 
     public function testStatusEquals()
     {
-        $statusRunning = TaskLogStatus::create('enqueued');
-        $this->assertTrue($statusRunning->equals(TaskLogStatus::create('dequeued')));
+        $statusRunning = TaskLogCategorizedStatus::create('enqueued');
+        $this->assertTrue($statusRunning->equals(TaskLogCategorizedStatus::create('dequeued')));
 
-        $statusCompleted = TaskLogStatus::create('completed');
-        $this->assertTrue($statusCompleted->equals(TaskLogStatus::create('completed')));
+        $statusCompleted = TaskLogCategorizedStatus::create('completed');
+        $this->assertTrue($statusCompleted->equals(TaskLogCategorizedStatus::create('completed')));
 
-        $statusFailed = TaskLogStatus::create('failed');
-        $this->assertTrue($statusFailed->equals(TaskLogStatus::create('unknown')));
+        $statusFailed = TaskLogCategorizedStatus::create('failed');
+        $this->assertTrue($statusFailed->equals(TaskLogCategorizedStatus::create('unknown')));
 
         $this->assertFalse($statusRunning->equals($statusCompleted));
         $this->assertFalse($statusCompleted->equals($statusFailed));

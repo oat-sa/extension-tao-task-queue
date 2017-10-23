@@ -41,11 +41,14 @@ class TaskLogModel
     }
 
     /**
+     * @param string $userId
+     * @param null $limit
+     * @param null $offset
      * @return TaskLogCollection
      */
-    public function findAvailableByUser($userId)
+    public function findAvailableByUser($userId, $limit = null, $offset = null)
     {
-        return $this->repository->findAvailableByUser($userId);
+        return $this->repository->findAvailableByUser($userId, $limit, $offset);
     }
 
     /**
@@ -61,17 +64,12 @@ class TaskLogModel
     }
 
     /**
+     * @param string $userId
      * @return TasksLogsStats
      */
     public function getStats($userId)
     {
-        $collection = $this->repository->findAvailableByUser($userId);
-
-        return new TasksLogsStats(
-            $collection->getNumberOfTasksCompleted(),
-            $collection->getNumberOfTasksFailed(),
-            $collection->getNumberOfTasksInProgress()
-        );
+        return $this->repository->getStats($userId);
     }
 
     /**

@@ -50,7 +50,7 @@ class QueueTest extends \PHPUnit_Framework_TestCase
 
     public function testGetNameShouldReturnTheValueOfQueueName()
     {
-        $brokerMock = $this->getMock(QueueBrokerInterface::class);
+        $brokerMock = $this->getMockForAbstractClass(QueueBrokerInterface::class);
 
         $queue = new Queue('fakeQueue', $brokerMock);
         $this->assertEquals('fakeQueue', $queue->getName());
@@ -58,7 +58,7 @@ class QueueTest extends \PHPUnit_Framework_TestCase
 
     public function testGetWeightShouldReturnTheValueOfQueueWeight()
     {
-        $brokerMock = $this->getMock(QueueBrokerInterface::class);
+        $brokerMock = $this->getMockForAbstractClass(QueueBrokerInterface::class);
 
         $queue = new Queue('fakeQueue', $brokerMock, 23);
         $this->assertEquals(23, $queue->getWeight());
@@ -71,13 +71,13 @@ class QueueTest extends \PHPUnit_Framework_TestCase
     {
         $taskMock = $this->getMockForAbstractClass(AbstractTask::class, [], "", false);
 
-        $queueBrokerMock = $this->getMock(QueueBrokerInterface::class);
+        $queueBrokerMock = $this->getMockForAbstractClass(QueueBrokerInterface::class);
 
         $queueBrokerMock->expects($this->once())
             ->method('push')
             ->willReturn($isEnqueued);
 
-        $taskLogMock = $this->getMock(TaskLogInterface::class);
+        $taskLogMock = $this->getMockForAbstractClass(TaskLogInterface::class);
 
         $queueMock = $this->getMockBuilder(Queue::class)
             ->disableOriginalConstructor()
@@ -113,13 +113,13 @@ class QueueTest extends \PHPUnit_Framework_TestCase
      */
     public function testDequeueWhenTaskPoppedOrNot($dequeuedElem, $expected)
     {
-        $queueBrokerMock = $this->getMock(QueueBrokerInterface::class);
+        $queueBrokerMock = $this->getMockForAbstractClass(QueueBrokerInterface::class);
 
         $queueBrokerMock->expects($this->once())
             ->method('pop')
             ->willReturn($dequeuedElem);
 
-        $taskLogMock = $this->getMock(TaskLogInterface::class);
+        $taskLogMock = $this->getMockForAbstractClass(TaskLogInterface::class);
 
         $queueMock = $this->getMockBuilder(Queue::class)
             ->disableOriginalConstructor()
@@ -156,7 +156,7 @@ class QueueTest extends \PHPUnit_Framework_TestCase
     {
         $taskMock = $this->getMockForAbstractClass(AbstractTask::class, [], "", false);
 
-        $queueBrokerMock = $this->getMock(QueueBrokerInterface::class);
+        $queueBrokerMock = $this->getMockForAbstractClass(QueueBrokerInterface::class);
 
         $queueBrokerMock->expects($this->once())
             ->method('delete');
@@ -177,7 +177,7 @@ class QueueTest extends \PHPUnit_Framework_TestCase
     {
         $taskMock = $this->getMockForAbstractClass(AbstractTask::class, [], "", false);
 
-        $queueBrokerMock = $this->getMock(QueueBrokerInterface::class);
+        $queueBrokerMock = $this->getMockForAbstractClass(QueueBrokerInterface::class);
 
         $queueBrokerMock->expects($this->once())
             ->method('count');
@@ -198,7 +198,7 @@ class QueueTest extends \PHPUnit_Framework_TestCase
     {
         $taskMock = $this->getMockForAbstractClass(AbstractTask::class, [], "", false);
 
-        $queueBrokerMock = $this->getMock(QueueBrokerInterface::class);
+        $queueBrokerMock = $this->getMockForAbstractClass(QueueBrokerInterface::class);
 
         $queueBrokerMock->expects($this->once())
             ->method('createQueue');

@@ -23,7 +23,7 @@ namespace oat\taoTaskQueue\model\ValueObjects;
 use Exception;
 use oat\taoTaskQueue\model\TaskLogInterface;
 
-class TaskLogStatus
+class TaskLogCategorizedStatus
 {
     const STATUS_RUNNING = 'running';
     const STATUS_COMPLETED = 'completed';
@@ -32,6 +32,20 @@ class TaskLogStatus
     /** @var  string */
     private $status;
 
+    public static $categorizeMapping = array(
+        self::STATUS_RUNNING => [
+            TaskLogInterface::STATUS_ENQUEUED,
+            TaskLogInterface::STATUS_DEQUEUED,
+            TaskLogInterface::STATUS_RUNNING,
+        ],
+        self::STATUS_COMPLETED => [
+            TaskLogInterface::STATUS_COMPLETED,
+        ],
+        self::STATUS_FAILED => [
+            TaskLogInterface::STATUS_FAILED,
+            TaskLogInterface::STATUS_UNKNOWN,
+        ]
+    );
     /**
      * @param $status
      */
@@ -42,7 +56,7 @@ class TaskLogStatus
 
     /**
      * @param string $status
-     * @return TaskLogStatus
+     * @return TaskLogCategorizedStatus
      *
      * @throws Exception
      */
@@ -52,14 +66,14 @@ class TaskLogStatus
             case TaskLogInterface::STATUS_ENQUEUED:
             case TaskLogInterface::STATUS_DEQUEUED:
             case TaskLogInterface::STATUS_RUNNING:
-               return TaskLogStatus::running();
+               return TaskLogCategorizedStatus::running();
             break;
             case TaskLogInterface::STATUS_COMPLETED:
-                return TaskLogStatus::completed();
+                return TaskLogCategorizedStatus::completed();
                 break;
             case TaskLogInterface::STATUS_FAILED:
             case TaskLogInterface::STATUS_UNKNOWN:
-                return TaskLogStatus::failed();
+                return TaskLogCategorizedStatus::failed();
                 break;
             default:
                 throw new \Exception('Invalid Status provided');
@@ -68,7 +82,7 @@ class TaskLogStatus
     }
 
     /**
-     * @return TaskLogStatus
+     * @return TaskLogCategorizedStatus
      */
     public static function completed()
     {
@@ -76,7 +90,7 @@ class TaskLogStatus
     }
 
     /**
-     * @return TaskLogStatus
+     * @return TaskLogCategorizedStatus
      */
     public static function failed()
     {
@@ -84,7 +98,7 @@ class TaskLogStatus
     }
 
     /**
-     * @return TaskLogStatus
+     * @return TaskLogCategorizedStatus
      */
     public static function running()
     {
@@ -92,13 +106,46 @@ class TaskLogStatus
     }
 
     /**
-     * @param TaskLogStatus $logStatus
+     * @return bool
+     */
+    public function isRunning()
+    {
+       return $this->equals(TaskLogCategorizedStatus::running());
+    }
+
+    /**
+     * @return bool
+     */
+    public function isCompleted()
+    {
+        return $this->equals(TaskLogCategorizedStatus::completed());
+    }
+
+    /**
+     * @return bool
+     */
+    public function isFailed()
+    {
+        return $this->equals(TaskLogCategorizedStatus::failed());
+    }
+
+    /**
+     * @param TaskLogCategorizedStatus $logStatus
      *
      * @return bool
      */
-    public function equals(TaskLogStatus $logStatus)
+    public function equals(TaskLogCategorizedStatus $logStatus)
     {
        return $this->status === $logStatus->status;
+    }
+
+    /**
+     * @param string $status
+     * @return array
+     */
+    public static function getMappedStatuses($status)
+    {
+        return self::$categorizeMapping[$status];
     }
 
     /**

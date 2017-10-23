@@ -25,7 +25,7 @@ use DateTime;
 use DateTimeInterface;
 use Exception;
 use JsonSerializable;
-use oat\taoTaskQueue\model\ValueObjects\TaskLogStatus;
+use oat\taoTaskQueue\model\ValueObjects\TaskLogCategorizedStatus;
 
 class TaskLogEntity implements JsonSerializable
 {
@@ -58,7 +58,7 @@ class TaskLogEntity implements JsonSerializable
      * @param string $id
      * @param string $name
      * @param string $label
-     * @param TaskLogStatus $status
+     * @param TaskLogCategorizedStatus $status
      * @param string $owner
      * @param Report $report
      * @param DateTimeInterface $createdAt
@@ -68,7 +68,7 @@ class TaskLogEntity implements JsonSerializable
         $id,
         $name,
         $label,
-        TaskLogStatus $status,
+        TaskLogCategorizedStatus $status,
         $owner,
         DateTimeInterface $createdAt,
         DateTimeInterface $updatedAt,
@@ -97,7 +97,7 @@ class TaskLogEntity implements JsonSerializable
             $row['id'],
             $row['task_name'],
             $row['label'],
-            TaskLogStatus::create($row['status']),
+            TaskLogCategorizedStatus::create($row['status']),
             $row['owner'],
             DateTime::createFromFormat('Y-m-d H:i:s', $row['created_at']),
             DateTime::createFromFormat('Y-m-d H:i:s', $row['updated_at']),
@@ -163,7 +163,7 @@ class TaskLogEntity implements JsonSerializable
 
 
     /**
-     * @return TaskLogStatus
+     * @return TaskLogCategorizedStatus
      */
     public function getStatus()
     {

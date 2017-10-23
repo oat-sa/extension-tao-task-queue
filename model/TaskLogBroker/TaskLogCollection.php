@@ -22,7 +22,6 @@ namespace oat\taoTaskQueue\model\TaskLogBroker;
 
 use JsonSerializable;
 use oat\taoTaskQueue\model\Entity\TaskLogEntity;
-use oat\taoTaskQueue\model\ValueObjects\TaskLogStatus;
 
 class TaskLogCollection implements JsonSerializable
 {
@@ -61,57 +60,6 @@ class TaskLogCollection implements JsonSerializable
     public static function createEmptyCollection()
     {
         return new static([]);
-    }
-
-    /**
-     * @return int
-     */
-    public function getNumberOfTasksCompleted()
-    {
-        $count = 0;
-        $completedStatus = TaskLogStatus::completed();
-
-        foreach ($this->taskLogs as $log) {
-            if ($log->getStatus()->equals($completedStatus)) {
-                $count++;
-            }
-        }
-
-        return $count;
-    }
-
-    /**
-     * @return int
-     */
-    public function getNumberOfTasksFailed()
-    {
-        $count = 0;
-        $failedStatus = TaskLogStatus::failed();
-
-        foreach ($this->taskLogs as $log) {
-            if ($log->getStatus()->equals($failedStatus)) {
-                $count++;
-            }
-        }
-
-        return $count;
-    }
-
-    /**
-     * @return int
-     */
-    public function getNumberOfTasksInProgress()
-    {
-        $count = 0;
-        $runningStatus = TaskLogStatus::running();
-
-        foreach ($this->taskLogs as $log) {
-            if ($log->getStatus()->equals($runningStatus)) {
-                $count++;
-            }
-        }
-
-        return $count;
     }
 
     /**

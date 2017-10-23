@@ -89,7 +89,7 @@ class TaskLogTest extends \PHPUnit_Framework_TestCase
     {
         $taskMock = $this->getMockForAbstractClass(AbstractTask::class, [], "", false);
 
-        $logBrokerMock = $this->getMock(TaskLogBrokerInterface::class);
+        $logBrokerMock = $this->getMockForAbstractClass(TaskLogBrokerInterface::class);
 
         $logBrokerMock->expects($this->once())
             ->method('add');
@@ -108,7 +108,7 @@ class TaskLogTest extends \PHPUnit_Framework_TestCase
 
     public function testSetStatusWhenNewAndPrevStatusIsOkayThenStatusShouldBeUpdatedByBroker()
     {
-        $logBrokerMock = $this->getMock(TaskLogBrokerInterface::class);
+        $logBrokerMock = $this->getMockForAbstractClass(TaskLogBrokerInterface::class);
 
         $logBrokerMock->expects($this->once())
             ->method('updateStatus');
@@ -132,7 +132,7 @@ class TaskLogTest extends \PHPUnit_Framework_TestCase
     {
         $expectedStatus = 'dequeued';
 
-        $logBrokerMock = $this->getMock(TaskLogBrokerInterface::class);
+        $logBrokerMock = $this->getMockForAbstractClass(TaskLogBrokerInterface::class);
 
         $logBrokerMock->expects($this->once())
             ->method('getStatus')

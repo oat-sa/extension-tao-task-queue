@@ -23,7 +23,7 @@ namespace oat\taoTaskQueue\test\model\Entity;
 use common_report_Report as Report;
 use oat\taoTaskQueue\model\Entity\TaskLogEntity;
 use oat\taoTaskQueue\model\TaskLogInterface;
-use oat\taoTaskQueue\model\ValueObjects\TaskLogStatus;
+use oat\taoTaskQueue\model\ValueObjects\TaskLogCategorizedStatus;
 
 class TaskLogEntityTest extends \PHPUnit_Framework_TestCase
 {
@@ -46,7 +46,7 @@ class TaskLogEntityTest extends \PHPUnit_Framework_TestCase
         ]);
 
         $this->assertInstanceOf(TaskLogEntity::class, $entity);
-        $this->assertInstanceOf(TaskLogStatus::class, $entity->getStatus());
+        $this->assertInstanceOf(TaskLogCategorizedStatus::class, $entity->getStatus());
         $this->assertInstanceOf(Report::class, $entity->getReport());
         $this->assertInstanceOf(\DateTimeInterface::class, $entity->getCreatedAt());
         $this->assertInstanceOf(\DateTimeInterface::class, $entity->getUpdatedAt());
@@ -59,7 +59,7 @@ class TaskLogEntityTest extends \PHPUnit_Framework_TestCase
             'id' => 'rdf#i1508337970199318643',
             'name' => 'Task Name',
             'label' => 'Task label',
-            'status' => TaskLogStatus::STATUS_COMPLETED,
+            'status' => TaskLogCategorizedStatus::STATUS_COMPLETED,
             'createdDate' => '2017-02-01T12:00:01+00:00',
             'updatedDate' => '2017-02-01T14:00:01+00:00',
             'report' => [

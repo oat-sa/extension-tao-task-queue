@@ -47,6 +47,15 @@ class TasksLogsStats implements JsonSerializable
     }
 
     /**
+     * @param array $rawData
+     * @return TasksLogsStats
+     */
+    public static function buildFromArray(array $rawData)
+    {
+        return new self($rawData['completedTasks'], $rawData['failedTasks'], $rawData['runningTasks']);
+    }
+
+    /**
      * @return int
      */
     public function getNumberOfTasksCompleted()

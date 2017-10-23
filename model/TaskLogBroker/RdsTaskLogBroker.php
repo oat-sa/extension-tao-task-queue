@@ -24,11 +24,12 @@ use oat\oatbox\PhpSerializable;
 use common_report_Report as Report;
 use Doctrine\DBAL\Query\QueryBuilder;
 use oat\taoTaskQueue\model\Entity\TaskLogEntity;
+use oat\taoTaskQueue\model\Entity\TasksLogsStats;
 use oat\taoTaskQueue\model\QueueDispatcherInterface;
 use oat\taoTaskQueue\model\Task\CallbackTaskInterface;
 use oat\taoTaskQueue\model\Task\TaskInterface;
 use oat\taoTaskQueue\model\TaskLogInterface;
-use oat\taoTaskQueue\model\ValueObjects\TaskLogStatus;
+use oat\taoTaskQueue\model\ValueObjects\TaskLogCategorizedStatus;
 use Zend\ServiceManager\ServiceLocatorAwareInterface;
 use Zend\ServiceManager\ServiceLocatorAwareTrait;
 
@@ -40,6 +41,8 @@ use Zend\ServiceManager\ServiceLocatorAwareTrait;
 class RdsTaskLogBroker implements TaskLogBrokerInterface, PhpSerializable, ServiceLocatorAwareInterface
 {
     use ServiceLocatorAwareTrait;
+
+    const DEFAULT_LIMIT = 20;
 
     private $persistenceId;
 
@@ -230,27 +233,19 @@ class RdsTaskLogBroker implements TaskLogBrokerInterface, PhpSerializable, Servi
     /**
      * @inheritdoc
      */
-    public function findAvailableByUser($userId)
+    public function findAvailableByUser($userId, $limit = null, $offset = null)
     {
         try {
-            $filters = [
-                [
-                    'column' => 'status',
-                    'columnSqlTranslate' => ':status',
-                    'operator' => '!=',
-                    'value' => TaskLogInterface::STATUS_ARCHIVED
-                ],
-                [
-                    'column' => 'owner',
-                    'columnSqlTranslate' => ':owner',
-                    'operator' => '=',
-                    'value' => $userId
-                ],
-            ];
+            $filters = $this->getAvailableFilters($userId);
+            $limit = is_null($limit) ? self::DEFAULT_LIMIT : $limit;
+            $offset = is_null($offset) ? 0 : $offset;
 
             $qb = $this->getQueryBuilder()
                 ->select('*')
                 ->from($this->getTableName());
+
+            $qb->setMaxResults($limit);
+            $qb->setFirstResult($offset);
 
             foreach ($filters as $filter) {
                 $qb->andWhere($filter['column'] . $filter['operator'] . $filter['columnSqlTranslate'])
@@ -268,6 +263,32 @@ class RdsTaskLogBroker implements TaskLogBrokerInterface, PhpSerializable, Servi
         }
 
         return $collection;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getStats($userId)
+    {
+        $filters = $this->getAvailableFilters($userId);
+        $qb = $this->getQueryBuilder();
+
+        $qb->select(
+            $this->buildCounterStatusSql('runningTasks', TaskLogCategorizedStatus::getMappedStatuses(TaskLogCategorizedStatus::STATUS_RUNNING)) . ', ' .
+            $this->buildCounterStatusSql('completedTasks', TaskLogCategorizedStatus::getMappedStatuses(TaskLogCategorizedStatus::STATUS_COMPLETED)) . ', ' .
+            $this->buildCounterStatusSql('failedTasks', TaskLogCategorizedStatus::getMappedStatuses(TaskLogCategorizedStatus::STATUS_FAILED))
+        );
+        $qb->from($this->getTableName());
+
+        foreach ($filters as $filter) {
+            $qb->andWhere($filter['column'] . $filter['operator'] . $filter['columnSqlTranslate'])
+                ->setParameter($filter['column'], $filter['value'])
+            ;
+        }
+
+        $row = $qb->execute()->fetch();
+
+        return TasksLogsStats::buildFromArray($row);
     }
 
     /**
@@ -300,12 +321,6 @@ class RdsTaskLogBroker implements TaskLogBrokerInterface, PhpSerializable, Servi
      */
     public function archive(TaskLogEntity $entity)
     {
-        $runningStatus = TaskLogStatus::running();
-
-        if ($entity->getStatus()->equals($runningStatus)) {
-            throw new \Exception('Task cannot archive because it is running');
-        }
-
         $this->getPersistence()->getPlatform()->beginTransaction();
 
         try {
@@ -337,5 +352,55 @@ class RdsTaskLogBroker implements TaskLogBrokerInterface, PhpSerializable, Servi
     {
         /**@var \common_persistence_sql_pdo_mysql_Driver $driver */
         return $this->getPersistence()->getPlatform()->getQueryBuilder();
+    }
+
+    /**
+     * @param $userId
+     * @return array
+     */
+    private function getAvailableFilters($userId)
+    {
+        return [
+            [
+                'column' => 'status',
+                'columnSqlTranslate' => ':status',
+                'operator' => '!=',
+                'value' => TaskLogInterface::STATUS_ARCHIVED
+            ],
+            [
+                'column' => 'owner',
+                'columnSqlTranslate' => ':owner',
+                'operator' => '=',
+                'value' => $userId
+            ],
+        ];
+    }
+
+    /**
+     * @param string $statusColumn
+     * @param array $inStatuses
+     * @return string
+     */
+    private function buildCounterStatusSql($statusColumn, array $inStatuses)
+    {
+        if (empty($inStatuses)) {
+            return '';
+        }
+
+        $sql =  "COUNT( CASE WHEN ";
+        foreach ($inStatuses as $status)
+        {
+
+            if ($status !== reset($inStatuses)) {
+                $sql .= " OR status = '". $status ."'";
+            } else {
+                $sql .= " status = '". $status."'";
+            }
+        }
+
+        $sql .= " THEN 0 END ) AS $statusColumn";
+
+
+        return $sql;
     }
 }
