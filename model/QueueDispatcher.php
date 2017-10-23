@@ -148,7 +148,7 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
     }
 
     /**
-     * @inheritdoc
+     * @return QueueInterface[]
      */
     public function getQueues()
     {
@@ -230,7 +230,7 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
         foreach ($this->getQueues() as $queue) {
             $rand -= $queue->getWeight();
             if ($rand <= 0) {
-                $this->logDebug('Queue "'. strtoupper($queue->getName()) .'" selected by weight.');
+                $this->logInfo('Queue "'. strtoupper($queue->getName()) .'" selected by weight.');
                 return $this->propagateServices($queue);
             }
         }
