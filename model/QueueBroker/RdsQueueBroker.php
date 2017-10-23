@@ -126,7 +126,7 @@ class RdsQueueBroker extends AbstractQueueBroker
         }
 
         if ($queries) {
-            $this->logDebug('Queue '. $this->getTableName() .' created/updated in RDS.');
+            $this->logInfo('Queue '. $this->getTableName() .' created/updated in RDS.');
         }
     }
 
@@ -188,7 +188,7 @@ class RdsQueueBroker extends AbstractQueueBroker
                     }
                 }
             } else {
-                $this->logDebug('No task in the queue.', $logContext);
+                $this->logInfo('No task in the queue.', $logContext);
             }
 
             $this->getPersistence()->getPlatform()->commit();
