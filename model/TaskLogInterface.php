@@ -46,6 +46,8 @@ interface TaskLogInterface extends LoggerAwareInterface
     const STATUS_ARCHIVED = 'archived';
     const STATUS_UNKNOWN = 'unknown';
 
+    const DEFAULT_LIMIT = 20;
+
     /**
      * @return void
      */

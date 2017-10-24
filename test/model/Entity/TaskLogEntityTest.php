@@ -51,7 +51,7 @@ class TaskLogEntityTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf(\DateTimeInterface::class, $entity->getCreatedAt());
         $this->assertInstanceOf(\DateTimeInterface::class, $entity->getUpdatedAt());
         $this->assertInternalType('string', $entity->getId());
-        $this->assertInternalType('string', $entity->getName());
+        $this->assertInternalType('string', $entity->getTaskName());
         $this->assertInternalType('string', $entity->getLabel());
         $this->assertInternalType('string', $entity->getOwner());
 

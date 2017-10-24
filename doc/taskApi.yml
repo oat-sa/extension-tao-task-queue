@@ -175,26 +175,32 @@ definitions:
   TaskLog:
     type: object
     required:
-      - name
       - id
-      - label
+      - taskName
+      - taskLabel
     properties:
       id:
         type: string
         example: 'https://nccersso.taocloud.org/nccer.rdf#i150764040443513560'
-      name:
+      taskName:
         type: string
         example: PrintOrder
-      label:
+      taskLabel:
         type: string
-        example: Booklet for gyula_pdf_2
+        example: Booklet for Test 2
       status:
         type: string
         enum:
-        - running
+        - in_progress
         - completed
         - failed
-      updatedDate:
+      statusLabel:
+        type: string
+        example: In Progress
+      createdAt:
+        type: string
+        format: date-time
+      updatedAt:
         type: string
         format: date-time
       report:

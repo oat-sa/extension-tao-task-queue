@@ -25,7 +25,7 @@ use oat\taoTaskQueue\model\TaskLogInterface;
 
 class TaskLogCategorizedStatus
 {
-    const STATUS_RUNNING = 'running';
+    const STATUS_IN_PROGRESS = 'in_progress';
     const STATUS_COMPLETED = 'completed';
     const STATUS_FAILED = 'failed';
 
@@ -33,19 +33,20 @@ class TaskLogCategorizedStatus
     private $status;
 
     public static $categorizeMapping = array(
-        self::STATUS_RUNNING => [
+        self::STATUS_IN_PROGRESS => [
             TaskLogInterface::STATUS_ENQUEUED,
             TaskLogInterface::STATUS_DEQUEUED,
             TaskLogInterface::STATUS_RUNNING,
         ],
-        self::STATUS_COMPLETED => [
+        self::STATUS_COMPLETED   => [
             TaskLogInterface::STATUS_COMPLETED,
         ],
-        self::STATUS_FAILED => [
+        self::STATUS_FAILED      => [
             TaskLogInterface::STATUS_FAILED,
             TaskLogInterface::STATUS_UNKNOWN,
         ]
     );
+
     /**
      * @param $status
      */
@@ -66,7 +67,7 @@ class TaskLogCategorizedStatus
             case TaskLogInterface::STATUS_ENQUEUED:
             case TaskLogInterface::STATUS_DEQUEUED:
             case TaskLogInterface::STATUS_RUNNING:
-               return TaskLogCategorizedStatus::running();
+               return TaskLogCategorizedStatus::inProgress();
             break;
             case TaskLogInterface::STATUS_COMPLETED:
                 return TaskLogCategorizedStatus::completed();
@@ -76,7 +77,7 @@ class TaskLogCategorizedStatus
                 return TaskLogCategorizedStatus::failed();
                 break;
             default:
-                throw new \Exception('Invalid Status provided');
+                throw new \Exception('Invalid status provided');
                 break;
         }
     }
@@ -100,17 +101,17 @@ class TaskLogCategorizedStatus
     /**
      * @return TaskLogCategorizedStatus
      */
-    public static function running()
+    public static function inProgress()
     {
-        return new self(self::STATUS_RUNNING);
+        return new self(self::STATUS_IN_PROGRESS);
     }
 
     /**
      * @return bool
      */
-    public function isRunning()
+    public function isInProgress()
     {
-       return $this->equals(TaskLogCategorizedStatus::running());
+       return $this->equals(TaskLogCategorizedStatus::inProgress());
     }
 
     /**
@@ -154,5 +155,25 @@ class TaskLogCategorizedStatus
     public function __toString()
     {
         return (string) $this->status;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLabel()
+    {
+        switch ($this->status) {
+            case self::STATUS_IN_PROGRESS:
+                return __('In Progress');
+                break;
+
+            case self::STATUS_COMPLETED:
+                return __('Completed');
+                break;
+
+            case self::STATUS_FAILED:
+                return __('Failed');
+                break;
+        }
     }
 }

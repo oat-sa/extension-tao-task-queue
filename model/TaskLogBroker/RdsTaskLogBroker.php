@@ -30,19 +30,20 @@ use oat\taoTaskQueue\model\Task\CallbackTaskInterface;
 use oat\taoTaskQueue\model\Task\TaskInterface;
 use oat\taoTaskQueue\model\TaskLogInterface;
 use oat\taoTaskQueue\model\ValueObjects\TaskLogCategorizedStatus;
+use Psr\Log\LoggerAwareInterface;
 use Zend\ServiceManager\ServiceLocatorAwareInterface;
 use Zend\ServiceManager\ServiceLocatorAwareTrait;
+use oat\oatbox\log\LoggerAwareTrait;
 
 /**
  * Storing message logs in RDS.
  *
  * @author Gyula Szucs <gyula@taotesting.com>
  */
-class RdsTaskLogBroker implements TaskLogBrokerInterface, PhpSerializable, ServiceLocatorAwareInterface
+class RdsTaskLogBroker implements TaskLogBrokerInterface, PhpSerializable, ServiceLocatorAwareInterface, LoggerAwareInterface
 {
     use ServiceLocatorAwareTrait;
-
-    const DEFAULT_LIMIT = 20;
+    use LoggerAwareTrait;
 
     private $persistenceId;
 
@@ -233,12 +234,10 @@ class RdsTaskLogBroker implements TaskLogBrokerInterface, PhpSerializable, Servi
     /**
      * @inheritdoc
      */
-    public function findAvailableByUser($userId, $limit = null, $offset = null)
+    public function findAvailableByUser($userId, $limit, $offset)
     {
         try {
             $filters = $this->getAvailableFilters($userId);
-            $limit = is_null($limit) ? self::DEFAULT_LIMIT : $limit;
-            $offset = is_null($offset) ? 0 : $offset;
 
             $qb = $this->getQueryBuilder()
                 ->select('*')
@@ -257,7 +256,7 @@ class RdsTaskLogBroker implements TaskLogBrokerInterface, PhpSerializable, Servi
             $collection = TaskLogCollection::createFromArray($rows);
 
         } catch (\Exception $exception) {
-            \common_Logger::w('Something went wrong getting task logs ' . $exception->getMessage());
+            $this->logWarning('Something went wrong getting task logs for user "'. $userId .'"; MSG: ' . $exception->getMessage());
 
             $collection = TaskLogCollection::createEmptyCollection();
         }
@@ -274,7 +273,7 @@ class RdsTaskLogBroker implements TaskLogBrokerInterface, PhpSerializable, Servi
         $qb = $this->getQueryBuilder();
 
         $qb->select(
-            $this->buildCounterStatusSql('runningTasks', TaskLogCategorizedStatus::getMappedStatuses(TaskLogCategorizedStatus::STATUS_RUNNING)) . ', ' .
+            $this->buildCounterStatusSql('inProgressTasks', TaskLogCategorizedStatus::getMappedStatuses(TaskLogCategorizedStatus::STATUS_IN_PROGRESS)) . ', ' .
             $this->buildCounterStatusSql('completedTasks', TaskLogCategorizedStatus::getMappedStatuses(TaskLogCategorizedStatus::STATUS_COMPLETED)) . ', ' .
             $this->buildCounterStatusSql('failedTasks', TaskLogCategorizedStatus::getMappedStatuses(TaskLogCategorizedStatus::STATUS_FAILED))
         );
@@ -310,7 +309,7 @@ class RdsTaskLogBroker implements TaskLogBrokerInterface, PhpSerializable, Servi
         $row = $qb->execute()->fetch();
 
         if ($row === false) {
-            throw new \common_exception_NotFound('Entity not found');
+            throw new \common_exception_NotFound('Task log for task "'. $taskId .'" not found');
         }
 
         return TaskLogEntity::createFromArray($row);

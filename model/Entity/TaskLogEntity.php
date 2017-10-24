@@ -33,7 +33,7 @@ class TaskLogEntity implements JsonSerializable
     private $id;
 
     /** @var string */
-    private $name;
+    private $taskName;
 
     /** @var  string */
     private $label;
@@ -55,18 +55,19 @@ class TaskLogEntity implements JsonSerializable
 
     /**
      * TaskLogEntity constructor.
-     * @param string $id
-     * @param string $name
-     * @param string $label
+     *
+     * @param string                   $id
+     * @param string                   $taskName
+     * @param string                   $label
      * @param TaskLogCategorizedStatus $status
-     * @param string $owner
-     * @param Report $report
-     * @param DateTimeInterface $createdAt
-     * @param DateTimeInterface $updatedAt
+     * @param string                   $owner
+     * @param Report                   $report
+     * @param DateTimeInterface        $createdAt
+     * @param DateTimeInterface        $updatedAt
      */
     public function __construct(
         $id,
-        $name,
+        $taskName,
         $label,
         TaskLogCategorizedStatus $status,
         $owner,
@@ -75,7 +76,7 @@ class TaskLogEntity implements JsonSerializable
         Report $report = null
     ) {
         $this->id = $id;
-        $this->name = $name;
+        $this->taskName = $taskName;
         $this->label = $label;
         $this->status = $status;
         $this->owner = $owner;
@@ -116,9 +117,9 @@ class TaskLogEntity implements JsonSerializable
     /**
      * @return string
      */
-    public function getName()
+    public function getTaskName()
     {
-        return $this->name;
+        return $this->taskName;
     }
 
     /**
@@ -177,11 +178,12 @@ class TaskLogEntity implements JsonSerializable
     {
         return [
             'id' => $this->id,
-            'name' => $this->name,
-            'label' => $this->label,
-            'status' => (string)$this->status,
-            'updatedDate' => $this->updatedAt->format(DateTime::ATOM),
-            'createdDate' => $this->createdAt->format(DateTime::ATOM),
+            'taskName' => $this->taskName,
+            'taskLabel' => $this->label,
+            'status' => (string) $this->status,
+            'statusLabel' => $this->status->getLabel(),
+            'createdAt' => $this->createdAt->format(DateTime::ATOM),
+            'updatedAt' => $this->updatedAt->format(DateTime::ATOM),
             'report' => is_null($this->report) ? [] : $this->report->JsonSerialize()
         ];
     }

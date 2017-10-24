@@ -108,9 +108,7 @@ class RestTask extends tao_actions_RestController
             $this->assertTaskIdExists();
             $taskLogEntity = $taskLogService->getByIdAndUser($this->getRequestParameter(self::PARAMETER_TASK_ID), $this->userId);
 
-            $this->returnSuccess(
-                $taskLogService->archive($taskLogEntity)
-            );
+            $this->returnSuccess($taskLogService->archive($taskLogEntity));
         } catch (\Exception $e) {
             $this->returnFailure($e);
         }

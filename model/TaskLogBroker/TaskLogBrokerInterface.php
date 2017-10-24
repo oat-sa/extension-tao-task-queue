@@ -90,11 +90,11 @@ interface TaskLogBrokerInterface
 
     /**
      * @param string $userId
-     * @param null $limit
-     * @param null $offset
+     * @param int $limit
+     * @param int $offset
      * @return TaskLogCollection
      */
-    public function findAvailableByUser($userId, $limit = null, $offset = null);
+    public function findAvailableByUser($userId, $limit, $offset);
 
     /**
      * @param string $userId
