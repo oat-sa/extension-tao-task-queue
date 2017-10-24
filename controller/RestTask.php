@@ -21,7 +21,6 @@
 namespace oat\taoTaskQueue\controller;
 
 use common_session_SessionManager;
-use oat\taoTaskQueue\model\Rest\TaskLogModel;
 use oat\taoTaskQueue\model\TaskLogInterface;
 use tao_actions_RestController;
 
@@ -30,9 +29,6 @@ class RestTask extends tao_actions_RestController
     const PARAMETER_TASK_ID = 'taskId';
     const PARAMETER_LIMIT = 'limit';
     const PARAMETER_OFFSET = 'offset';
-
-    /** @var TaskLogModel */
-    private $restTaskModel;
 
     /** @var string */
     private $userId;
@@ -44,10 +40,6 @@ class RestTask extends tao_actions_RestController
     {
         parent::__construct();
 
-        /** @var TaskLogInterface $taskLogRepository */
-        $taskLogRepository = $this->getServiceManager()->get(TaskLogInterface::SERVICE_ID);
-
-        $this->restTaskModel = new TaskLogModel($taskLogRepository);
         $this->userId = common_session_SessionManager::getSession()->getUserUri();
     }
 
@@ -56,6 +48,8 @@ class RestTask extends tao_actions_RestController
      */
     public function getAll()
     {
+        /** @var TaskLogInterface $taskLogService */
+        $taskLogService = $this->getServiceManager()->get(TaskLogInterface::SERVICE_ID);
         $limit = $offset = null;
 
         if ($this->hasRequestParameter(self::PARAMETER_LIMIT)) {
@@ -66,7 +60,7 @@ class RestTask extends tao_actions_RestController
             $offset = (int) $this->getRequestParameter(self::PARAMETER_OFFSET);
         }
 
-        $this->returnSuccess($this->restTaskModel->findAvailableByUser($this->userId, $limit, $offset)->jsonSerialize());
+        $this->returnSuccess($taskLogService->findAvailableByUser($this->userId, $limit, $offset)->jsonSerialize());
     }
 
     /**
@@ -74,10 +68,13 @@ class RestTask extends tao_actions_RestController
      */
     public function get()
     {
+        /** @var TaskLogInterface $taskLogService */
+        $taskLogService = $this->getServiceManager()->get(TaskLogInterface::SERVICE_ID);
+
         try {
             $this->assertTaskIdExists();
 
-            $response = $this->restTaskModel->getByIdAndUser(
+            $response = $taskLogService->getByIdAndUser(
                 $this->getRequestParameter(self::PARAMETER_TASK_ID),
                 $this->userId
             );
@@ -93,7 +90,10 @@ class RestTask extends tao_actions_RestController
      */
     public function stats()
     {
-        $this->returnSuccess($this->restTaskModel->getStats($this->userId)->jsonSerialize());
+        /** @var TaskLogInterface $taskLogService */
+        $taskLogService = $this->getServiceManager()->get(TaskLogInterface::SERVICE_ID);
+
+        $this->returnSuccess($taskLogService->getStats($this->userId)->jsonSerialize());
     }
 
     /**
@@ -101,14 +101,15 @@ class RestTask extends tao_actions_RestController
      */
     public function archive()
     {
+        /** @var TaskLogInterface $taskLogService */
+        $taskLogService = $this->getServiceManager()->get(TaskLogInterface::SERVICE_ID);
+
         try{
             $this->assertTaskIdExists();
+            $taskLogEntity = $taskLogService->getByIdAndUser($this->getRequestParameter(self::PARAMETER_TASK_ID), $this->userId);
 
             $this->returnSuccess(
-                $this->restTaskModel->archive(
-                    $this->getRequestParameter(self::PARAMETER_TASK_ID),
-                    $this->userId
-                )
+                $taskLogService->archive($taskLogEntity)
             );
         } catch (\Exception $e) {
             $this->returnFailure($e);
