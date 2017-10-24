@@ -20,8 +20,11 @@
 
 namespace oat\taoTaskQueue\model;
 
+use common_report_Report as Report;
+use oat\generis\model\OntologyAwareTrait;
 use oat\oatbox\service\ConfigurableService;
 use oat\oatbox\log\LoggerAwareTrait;
+use oat\oatbox\task\Task;
 use oat\taoTaskQueue\model\Task\CallbackTask;
 use oat\taoTaskQueue\model\Task\CallbackTaskInterface;
 use oat\taoTaskQueue\model\Task\TaskInterface;
@@ -34,6 +37,7 @@ use oat\taoTaskQueue\model\Task\TaskInterface;
 class QueueDispatcher extends ConfigurableService implements QueueDispatcherInterface
 {
     use LoggerAwareTrait;
+    use OntologyAwareTrait;
 
     /**
      * @var TaskLogInterface
@@ -413,5 +417,93 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
         if (count($notRegisteredQueues)) {
             throw new \LogicException('Found not registered queue(s) linked to task(s): "'. implode('", "', $notRegisteredQueues) .'". Please check the values of "'. self::OPTION_TASK_TO_QUEUE_ASSOCIATIONS .'" in your queue dispatcher settings.');
         }
+    }
+
+    /**
+     * Get resource from rdf storage which represents task in the task queue by linked resource
+     * Returns null if there is no task linked to given resource
+     *
+     * It will be deprecated once we have the general GUI for displaying different info of a task for the user.
+     *
+     * @param \core_kernel_classes_Resource $resource
+     * @return null|\core_kernel_classes_Resource
+     */
+    public function getTaskResource(\core_kernel_classes_Resource $resource)
+    {
+        $tasksRootClass = $this->getClass(Task::TASK_CLASS);
+        $taskResources = $tasksRootClass->searchInstances([Task::PROPERTY_LINKED_RESOURCE => $resource->getUri()]);
+
+        return empty($taskResources) ? null : current($taskResources);
+    }
+
+    /**
+     * It will be deprecated once we have the general GUI for displaying different info of a task for the user.
+     *
+     * @param \core_kernel_classes_Resource $resource
+     * @return Report
+     */
+    public function getReportByLinkedResource(\core_kernel_classes_Resource $resource)
+    {
+        $taskResource = $this->getTaskResource($resource);
+
+        if ($taskResource !== null) {
+            $report = $taskResource->getOnePropertyValue($this->getProperty(Task::PROPERTY_REPORT));
+
+            if ($report) {
+                $report = Report::jsonUnserialize($report->literal);
+            } else {
+                $status = $this->getTaskLog()->getStatus($taskResource->getUri());
+                $msg = __('Task is in \'%s\' state', $status);
+
+                $report = $status == TaskLogInterface::STATUS_FAILED
+                    ? Report::createFailure($msg)
+                    : Report::createInfo($msg);
+            }
+        } else {
+            $report = Report::createFailure(__('Resource is not the task placeholder'));
+        }
+
+        return $report;
+    }
+
+    /**
+     * Create task resource in the rdf storage and link placeholder resource to it.
+     *
+     * It will be deprecated once we have the general GUI for displaying different info of a task for the user.
+     *
+     * @param TaskInterface $task
+     * @param \core_kernel_classes_Resource|null $resource - placeholder resource to be linked with task.
+     * @return \core_kernel_classes_Resource
+     */
+    public function linkTask(TaskInterface $task, \core_kernel_classes_Resource $resource = null)
+    {
+        $taskResource = $this->getResource($task->getId());
+
+        if (!$taskResource->exists()) {
+            $tasksRootClass = $this->getClass(Task::TASK_CLASS);
+            $taskResource = $tasksRootClass->createInstance('', '', $task->getId());
+        }
+
+        if ($resource !== null) {
+            $taskResource->setPropertyValue($this->getProperty(Task::PROPERTY_LINKED_RESOURCE), $resource->getUri());
+        }
+
+        if ($this->isSync()) {
+            $report = $this->getTaskLog()->getReport($task->getId());
+
+            if (!empty($report)) {
+                //serialize only two first report levels because sometimes serialized report is huge and it does not fit into `k_po` index of statements table.
+                $serializableReport = new Report($report->getType(), $report->getMessage(), $report->getData());
+
+                foreach ($report as $subReport) {
+                    $serializableSubReport = new Report($subReport->getType(), $subReport->getMessage(), $subReport->getData());
+                    $serializableReport->add($serializableSubReport);
+                }
+
+                $taskResource->setPropertyValue($this->getProperty(Task::PROPERTY_REPORT), json_encode($serializableReport));
+            }
+        }
+
+        return $taskResource;
     }
 }
