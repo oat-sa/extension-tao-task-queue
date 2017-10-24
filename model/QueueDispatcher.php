@@ -475,7 +475,7 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
      * @param \core_kernel_classes_Resource|null $resource - placeholder resource to be linked with task.
      * @return \core_kernel_classes_Resource
      */
-    public function linkTask(TaskInterface $task, \core_kernel_classes_Resource $resource = null)
+    public function linkTaskToResource(TaskInterface $task, \core_kernel_classes_Resource $resource = null)
     {
         $taskResource = $this->getResource($task->getId());
 

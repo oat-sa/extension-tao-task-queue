@@ -193,4 +193,4 @@ interface QueueDispatcherInterface extends \Countable, LoggerAwareInterface
      * @param TaskInterface $task
      * @param \core_kernel_classes_Resource|null $resource Placeholder resource linked to the task
      */
-    public function linkTask(TaskInterface $task, \core_kernel_classes_Resource $resource = null);}
+    public function linkTaskToResource(TaskInterface $task, \core_kernel_classes_Resource $resource = null);}
