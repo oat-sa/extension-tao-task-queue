@@ -39,7 +39,7 @@ class TaskLogEntityTest extends \PHPUnit_Framework_TestCase
             'updated_at' => '2017-02-01 14:00:01',
             'report' => [
                 'type' => 'info',
-                'message' => 'Running task http://www.act.dev/ontologies/tao.rdf#i1508337970199318643',
+                'message' => 'Running task http://www.taoinstance.dev/ontologies/tao.rdf#i1508337970199318643',
                 'data' => NULL,
                 'children' => []
             ],
@@ -65,7 +65,7 @@ class TaskLogEntityTest extends \PHPUnit_Framework_TestCase
             'updatedAt' => '2017-02-01T14:00:01+00:00',
             'report' => [
                 'type' => 'info',
-                'message' => 'Running task http://www.act.dev/ontologies/tao.rdf#i1508337970199318643',
+                'message' => 'Running task http://www.taoinstance.dev/ontologies/tao.rdf#i1508337970199318643',
                 'data' => NULL,
                 'children' => []
             ]

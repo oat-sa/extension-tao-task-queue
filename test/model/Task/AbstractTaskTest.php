@@ -23,10 +23,6 @@ namespace oat\taoTaskQueue\test\model\Task;
 use oat\taoTaskQueue\model\Task\AbstractTask;
 use oat\taoTaskQueue\model\Task\TaskInterface;
 
-/**
- * @backupGlobals disabled
- * @backupStaticAttributes disabled
- */
 class AbstractTaskTest extends \PHPUnit_Framework_TestCase
 {
     /**

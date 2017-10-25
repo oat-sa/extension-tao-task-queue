@@ -25,10 +25,6 @@ use oat\taoTaskQueue\model\Task\CallbackTask;
 use oat\taoTaskQueue\model\Task\CallbackTaskInterface;
 use oat\taoTaskQueue\model\Task\TaskInterface;
 
-/**
- * @backupGlobals disabled
- * @backupStaticAttributes disabled
- */
 class CallbackTaskTest extends \PHPUnit_Framework_TestCase
 {
     /**

@@ -47,10 +47,20 @@ trait TaskLogActionTrait
         $taskLog = $this->getServiceManager()->get(TaskLogInterface::SERVICE_ID);
 
         if (is_null($userId)) {
-            $userId = \common_session_SessionManager::getSession()->getUserUri();
+            $userId = $this->getUserId();
         }
 
         return $taskLog->getByIdAndUser((string) $taskId, (string) $userId);
+    }
+
+    /**
+     * Get default user id.
+     *
+     * @return string
+     */
+    protected function getUserId()
+    {
+        return \common_session_SessionManager::getSession()->getUserUri();
     }
 
     /**

@@ -9,10 +9,6 @@ use oat\taoTaskQueue\model\Task\AbstractTask;
 use oat\taoTaskQueue\model\Task\CallbackTaskInterface;
 use oat\taoTaskQueue\test\model\Asset\CallableFixture;
 
-/**
- * @backupGlobals disabled
- * @backupStaticAttributes disabled
- */
 class QueueDispatcherTest extends \PHPUnit_Framework_TestCase
 {
     public function setUp()

@@ -25,10 +25,6 @@ use oat\taoTaskQueue\model\QueueBroker\QueueBrokerInterface;
 use oat\taoTaskQueue\model\Queue;
 use oat\taoTaskQueue\model\TaskLogInterface;
 
-/**
- * @backupGlobals disabled
- * @backupStaticAttributes disabled
- */
 class QueueTest extends \PHPUnit_Framework_TestCase
 {
     public function setUp()
