@@ -21,6 +21,8 @@
 namespace oat\taoTaskQueue\model\TaskLogBroker;
 
 use common_report_Report as Report;
+use oat\taoTaskQueue\model\Entity\TaskLogEntity;
+use oat\taoTaskQueue\model\Entity\TasksLogsStats;
 use oat\taoTaskQueue\model\Task\TaskInterface;
 
 /**
@@ -85,4 +87,37 @@ interface TaskLogBrokerInterface
      * @return Report|null
      */
     public function getReport($taskId);
+
+    /**
+     * @param string $userId
+     * @param int $limit
+     * @param int $offset
+     * @return TaskLogCollection
+     */
+    public function findAvailableByUser($userId, $limit, $offset);
+
+    /**
+     * @param string $userId
+     * @return TasksLogsStats
+     */
+    public function getStats($userId);
+
+    /**
+     * @param string $taskId
+     * @param $userId
+     *
+     * @return TaskLogEntity
+     *
+     * @throws \common_exception_NotFound
+     */
+    public function getByIdAndUser($taskId, $userId);
+
+    /**
+     * @param TaskLogEntity $entity
+     *
+     * @return bool
+     *
+     * @throws \Exception
+     */
+    public function archive(TaskLogEntity $entity);
 }

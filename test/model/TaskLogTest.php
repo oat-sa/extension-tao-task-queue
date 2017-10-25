@@ -20,10 +20,12 @@
 
 namespace oat\taoTaskQueue\test\model;
 
-use oat\oatbox\service\ServiceManager;
+use oat\taoTaskQueue\model\Entity\TaskLogEntity;
+use oat\taoTaskQueue\model\Entity\TasksLogsStats;
 use oat\taoTaskQueue\model\Task\AbstractTask;
 use oat\taoTaskQueue\model\TaskLog;
 use oat\taoTaskQueue\model\TaskLogBroker\TaskLogBrokerInterface;
+use oat\taoTaskQueue\model\TaskLogBroker\TaskLogCollection;
 
 /**
  * @backupGlobals disabled
@@ -31,9 +33,11 @@ use oat\taoTaskQueue\model\TaskLogBroker\TaskLogBrokerInterface;
  */
 class TaskLogTest extends \PHPUnit_Framework_TestCase
 {
+    /**
+     * @expectedException \InvalidArgumentException
+     */
     public function testTaskLogServiceShouldThrowExceptionWhenTaskLogBrokerOptionIsNotSet()
     {
-        $this->expectException(\InvalidArgumentException::class);
         new TaskLog([]);
     }
 
@@ -87,7 +91,7 @@ class TaskLogTest extends \PHPUnit_Framework_TestCase
     {
         $taskMock = $this->getMockForAbstractClass(AbstractTask::class, [], "", false);
 
-        $logBrokerMock = $this->createMock(TaskLogBrokerInterface::class);
+        $logBrokerMock = $this->getMockForAbstractClass(TaskLogBrokerInterface::class);
 
         $logBrokerMock->expects($this->once())
             ->method('add');
@@ -106,7 +110,7 @@ class TaskLogTest extends \PHPUnit_Framework_TestCase
 
     public function testSetStatusWhenNewAndPrevStatusIsOkayThenStatusShouldBeUpdatedByBroker()
     {
-        $logBrokerMock = $this->createMock(TaskLogBrokerInterface::class);
+        $logBrokerMock = $this->getMockForAbstractClass(TaskLogBrokerInterface::class);
 
         $logBrokerMock->expects($this->once())
             ->method('updateStatus');
@@ -130,7 +134,7 @@ class TaskLogTest extends \PHPUnit_Framework_TestCase
     {
         $expectedStatus = 'dequeued';
 
-        $logBrokerMock = $this->createMock(TaskLogBrokerInterface::class);
+        $logBrokerMock = $this->getMockForAbstractClass(TaskLogBrokerInterface::class);
 
         $logBrokerMock->expects($this->once())
             ->method('getStatus')
@@ -146,5 +150,92 @@ class TaskLogTest extends \PHPUnit_Framework_TestCase
             ->willReturn($logBrokerMock);
 
         $this->assertEquals($expectedStatus, $taskLogMock->getStatus('existingTaskId'));
+    }
+
+    public function testFindAvailableByUser()
+    {
+        $model = $this->getTaskLogMock();
+        $this->assertInstanceOf(TaskLogCollection::class, $model->findAvailableByUser('userId'));
+    }
+
+    public function testGetByIdAndUser()
+    {
+        $model = $this->getTaskLogMock();
+        $this->assertInstanceOf(TaskLogEntity::class, $model->getByIdAndUser('taskId', 'userId'));
+    }
+
+    /**
+     * @expectedException  \common_exception_NotFound
+     */
+    public function testGetByIdAndUserNotFound()
+    {
+        $model = $this->getTaskLogMock(true);
+        $this->assertInstanceOf(TaskLogEntity::class, $model->getByIdAndUser('some task id not found', 'userId'));
+    }
+
+    public function testGetStats()
+    {
+        $model = $this->getTaskLogMock();
+        $this->assertInstanceOf(TasksLogsStats::class, $model->getStats('userId'));
+    }
+
+    public function testArchive()
+    {
+        $model = $this->getTaskLogMock();
+        $this->assertTrue($model->archive($model->getByIdAndUser('taskId', 'userId')));
+    }
+
+    /**
+     * @expectedException  \common_exception_NotFound
+     */
+    public function testArchiveTaskNotFound()
+    {
+        $model = $this->getTaskLogMock(true);
+        $this->assertTrue($model->archive($model->getByIdAndUser('taskId', 'userId')));
+    }
+
+    /**
+     * @expectedException  \Exception
+     */
+    public function testArchiveNotPossibleTaskIsRunning()
+    {
+        $model = $this->getTaskLogMock(false, false, true);
+
+        $this->assertTrue($model->archive($model->getByIdAndUser('taskId', 'userId')));
+    }
+
+    protected function getTaskLogMock($notFound = false, $shouldArchive = true, $taskRunning = false)
+    {
+        $taskLogMock = $this->getMockBuilder(TaskLog::class)->disableOriginalConstructor()->getMock();
+        $collectionMock = $this->getMockBuilder(TaskLogCollection::class)->disableOriginalConstructor()->getMock();
+        $entity = $this->getMockBuilder(TaskLogEntity::class)->disableOriginalConstructor()->getMock();
+        $statsMock = $this->getMockBuilder(TasksLogsStats::class)->disableOriginalConstructor()->getMock();
+
+        $taskLogMock
+            ->method('findAvailableByUser')
+            ->willReturn($collectionMock);
+        $taskLogMock
+            ->method('getStats')
+            ->willReturn($statsMock);
+        if ($taskRunning) {
+            $taskLogMock
+                ->method('getByIdAndUser')
+                ->willThrowException(new \Exception());
+        } else {
+            $taskLogMock
+                ->method('archive')
+                ->willReturn($shouldArchive);
+        }
+        if ($notFound) {
+            $taskLogMock
+                ->method('getByIdAndUser')
+                ->willThrowException(new \common_exception_NotFound());
+        } else {
+            $taskLogMock
+                ->method('getByIdAndUser')
+                ->willReturn($entity);
+        }
+
+        return $taskLogMock;
     }
 }

@@ -173,7 +173,8 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
         }
 
         $tasks = $this->getLinkedTasks();
-        $tasks[] = (string) $taskName;
+
+        $tasks[ (string) $taskName ] = $queueName;
 
         $this->setOption(self::OPTION_TASK_TO_QUEUE_ASSOCIATIONS, $tasks);
     }
