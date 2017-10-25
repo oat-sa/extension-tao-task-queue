@@ -72,28 +72,27 @@ class TaskLogUtility implements Action, ServiceLocatorAwareInterface
     public function __invoke($params)
     {
         try {
-
             $this->assertValidParams($params);
             /** @var TaskLogInterface $taskLog */
             $taskLog = $this->getServiceLocator()->get(TaskLogInterface::SERVICE_ID);
 
             if ($this->argStats) {
-                $stats = $taskLog->getStats('SuperUser');
+                $stats = $taskLog->getStats(TaskLogInterface::SUPER_USER);
                 return \common_report_Report::createSuccess($this->jsonPretty($stats->jsonSerialize()));
             }
 
             if ($this->argAvailable) {
-                $tasks = $taskLog->findAvailableByUser('SuperUser', $this->argLimit, $this->argOffset);
+                $tasks = $taskLog->findAvailableByUser(TaskLogInterface::SUPER_USER, $this->argLimit, $this->argOffset);
                 return \common_report_Report::createSuccess($this->jsonPretty($tasks->jsonSerialize()));
             }
 
             if ($this->argGetTask) {
-                $task = $taskLog->getByIdAndUser($this->argGetTask, 'SuperUser');
+                $task = $taskLog->getByIdAndUser($this->argGetTask, TaskLogInterface::SUPER_USER);
                 return \common_report_Report::createSuccess($this->jsonPretty($task->jsonSerialize()));
             }
 
             if ($this->argArchive) {
-                $task = $taskLog->getByIdAndUser($this->argArchive, 'SuperUser');
+                $task = $taskLog->getByIdAndUser($this->argArchive, TaskLogInterface::SUPER_USER);
                 return \common_report_Report::createSuccess('Archived: ' .  $taskLog->archive($task, $this->argArchiveForce));
             }
 
@@ -101,13 +100,12 @@ class TaskLogUtility implements Action, ServiceLocatorAwareInterface
                 return \common_report_Report::createSuccess($this->commandOutput($this->examples));
             }
 
-
             return \common_report_Report::createSuccess($this->commandOutput($this->examples));
-        }catch (\Exception $exception) {
+        } catch (\Exception $exception) {
 
             $message = $exception->getMessage();
             if ($this->argArchive) {
-                $message .= "\nPlease use --force for force archive of a In Progress task.";
+                $message .= "\nPlease use --force to force archive of an in-progress task.";
             }
             return \common_report_Report::createFailure($message);
         }

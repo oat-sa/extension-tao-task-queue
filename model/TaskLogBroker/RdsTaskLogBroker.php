@@ -45,8 +45,6 @@ class RdsTaskLogBroker implements TaskLogBrokerInterface, PhpSerializable, Servi
     use ServiceLocatorAwareTrait;
     use LoggerAwareTrait;
 
-    const SUPER_USER = 'SuperUser';
-
     private $persistenceId;
 
     /**
@@ -374,7 +372,7 @@ class RdsTaskLogBroker implements TaskLogBrokerInterface, PhpSerializable, Servi
             ]
         ];
 
-        if ($userId !== RdsTaskLogBroker::SUPER_USER) {
+        if ($userId !== TaskLogInterface::SUPER_USER) {
             $filters[] =  [
                 'column' => 'owner',
                 'columnSqlTranslate' => ':owner',

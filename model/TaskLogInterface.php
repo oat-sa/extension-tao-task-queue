@@ -48,6 +48,8 @@ interface TaskLogInterface extends LoggerAwareInterface
 
     const DEFAULT_LIMIT = 20;
 
+    const SUPER_USER = 'SuperUser';
+
     /**
      * @return void
      */
