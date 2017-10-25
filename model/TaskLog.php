@@ -192,9 +192,9 @@ class TaskLog extends ConfigurableService implements TaskLogInterface
     /**
      * @inheritdoc
      */
-    public function archive(TaskLogEntity $entity)
+    public function archive(TaskLogEntity $entity, $forceArchive = false)
     {
-        if ($entity->getStatus()->isInProgress()) {
+        if ($entity->getStatus()->isInProgress() && $forceArchive === false) {
             throw new \Exception('Task cannot be archived because it is in progress.');
         }
 
