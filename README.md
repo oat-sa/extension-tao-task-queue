@@ -314,6 +314,34 @@ if ($queueService->isSync()) {
 }
 ```
 
+## Rest API
+The task log reports can be viewed/consume using the Application Programming Interface (API).
+In order to use it please check the swagger file in (doc/taskApi.yml).
+
+## Command Line Utility
+Besides using the API to check reports of tasks, another way it's using the command line. 
+```php
+sudo -u www-data php index.php 'oat\taoTaskQueue\scripts\tools\TaskLogUtility' --help
+```
+This command will show you all the possibilities action the the utility can have.
+
+```text
+Examples
+ 1. Stats
+	 Description: 	 Return stats about the tasks logs statuses
+	 Example: 	 sudo -u www-data php index.php 'oat\taoTaskQueue\scripts\tools\TaskLogUtility' --stats
+ 2. List Task Logs
+	 Description: 	 List All the tasks that are not archived will be retrived, default limit is 20
+	 Example: 	 sudo -u www-data php index.php 'oat\taoTaskQueue\scripts\tools\TaskLogUtility' --available --limit[optional]=20 --offset[optional]=10
+ 3. Get Task Log
+	 Description: 	 Get an specific task log by id
+	 Example: 	 sudo -u www-data php index.php 'oat\taoTaskQueue\scripts\tools\TaskLogUtility' --get-task=[taskdId]
+ 4. Archive a Task Log
+	 Description: 	 Archive a task log
+	 Example: 	 sudo -u www-data php index.php 'oat\taoTaskQueue\scripts\tools\TaskLogUtility' --archive=[taskdId] --force[optional]
+
+```
+
 ## Class Diagram
 
 ![Class Diagram](doc/task_queue.png "Task Queue Class Diagram")
