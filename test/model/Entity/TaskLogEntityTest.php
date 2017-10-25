@@ -57,11 +57,12 @@ class TaskLogEntityTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals([
             'id' => 'rdf#i1508337970199318643',
-            'name' => 'Task Name',
-            'label' => 'Task label',
-            'status' => TaskLogCategorizedStatus::STATUS_COMPLETED,
-            'createdDate' => '2017-02-01T12:00:01+00:00',
-            'updatedDate' => '2017-02-01T14:00:01+00:00',
+            'taskName' => 'Task Name',
+            'taskLabel' => 'Task label',
+            'status' => 'completed',
+            'statusLabel' => 'Completed',
+            'createdAt' => '2017-02-01T12:00:01+00:00',
+            'updatedAt' => '2017-02-01T14:00:01+00:00',
             'report' => [
                 'type' => 'info',
                 'message' => 'Running task http://www.act.dev/ontologies/tao.rdf#i1508337970199318643',

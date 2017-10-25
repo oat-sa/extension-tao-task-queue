@@ -42,13 +42,13 @@ class TaskLogCategorizedStatusTest extends \PHPUnit_Framework_TestCase
     public function testStatusAreMappedCorrectly()
     {
         $status = TaskLogCategorizedStatus::create('enqueued');
-        $this->assertSame('running', (string)$status);
+        $this->assertSame('in_progress', (string)$status);
 
         $status = TaskLogCategorizedStatus::create('dequeued');
-        $this->assertSame('running', (string)$status);
+        $this->assertSame('in_progress', (string)$status);
 
         $status = TaskLogCategorizedStatus::create('running');
-        $this->assertSame('running', (string)$status);
+        $this->assertSame('in_progress', (string)$status);
 
         $status = TaskLogCategorizedStatus::create('completed');
         $this->assertSame('completed', (string)$status);
