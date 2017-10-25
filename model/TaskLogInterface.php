@@ -21,7 +21,10 @@
 namespace oat\taoTaskQueue\model;
 
 use common_report_Report as Report;
+use oat\taoTaskQueue\model\Entity\TaskLogEntity;
+use oat\taoTaskQueue\model\Entity\TasksLogsStats;
 use oat\taoTaskQueue\model\Task\TaskInterface;
+use oat\taoTaskQueue\model\TaskLogBroker\TaskLogCollection;
 use Psr\Log\LoggerAwareInterface;
 
 /**
@@ -42,6 +45,8 @@ interface TaskLogInterface extends LoggerAwareInterface
     const STATUS_FAILED = 'failed';
     const STATUS_ARCHIVED = 'archived';
     const STATUS_UNKNOWN = 'unknown';
+
+    const DEFAULT_LIMIT = 20;
 
     /**
      * @return void
@@ -93,4 +98,35 @@ interface TaskLogInterface extends LoggerAwareInterface
      * @return Report|null
      */
     public function getReport($taskId);
+
+    /**
+     * @param string $userId
+     * @param null $limit
+     * @param null $offset
+     * @return TaskLogCollection
+     */
+    public function findAvailableByUser($userId, $limit = null, $offset = null);
+
+    /**
+     * @param string $userId
+     * @return TasksLogsStats
+     */
+    public function getStats($userId);
+
+    /**
+     * @param string $taskId
+     * @param string $userId
+     * @return TaskLogEntity
+     *
+     * @throws \common_exception_NotFound
+     */
+    public function getByIdAndUser($taskId, $userId);
+
+    /**
+     * @param TaskLogEntity $entity
+     * @return bool
+     *
+     * @throws \Exception
+     */
+    public function archive(TaskLogEntity $entity);
 }

@@ -82,15 +82,19 @@ class AbstractTaskTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('bar', $this->abstractTaskMock->getMetadata('foo'));
     }
 
+    /**
+     * @expectedException \InvalidArgumentException
+     */
     public function testSetMetadataWhenKeyIsInvalidThenThrowException()
     {
-        $this->expectException(\InvalidArgumentException::class);
         $this->abstractTaskMock->setMetadata(new \stdClass());
     }
 
+    /**
+     * @expectedException \InvalidArgumentException
+     */
     public function testGetMetadataWhenKeyIsInvalidThenThrowException()
     {
-        $this->expectException(\InvalidArgumentException::class);
         $this->abstractTaskMock->getMetadata(new \stdClass());
     }
 
@@ -128,15 +132,19 @@ class AbstractTaskTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('bar', $this->abstractTaskMock->getParameter('foo'));
     }
 
+    /**
+     * @expectedException \InvalidArgumentException
+     */
     public function testSetParameterWhenKeyIsInvalidThenThrowException()
     {
-        $this->expectException(\InvalidArgumentException::class);
         $this->abstractTaskMock->setParameter(new \stdClass());
     }
 
+    /**
+     * @expectedException \InvalidArgumentException
+     */
     public function testGetParameterWhenKeyIsInvalidThenThrowException()
     {
-        $this->expectException(\InvalidArgumentException::class);
         $this->abstractTaskMock->getParameter(new \stdClass());
     }
 
