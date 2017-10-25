@@ -124,9 +124,10 @@ interface TaskLogInterface extends LoggerAwareInterface
 
     /**
      * @param TaskLogEntity $entity
+     * @param bool $forceArchive
      * @return bool
      *
      * @throws \Exception
      */
-    public function archive(TaskLogEntity $entity);
+    public function archive(TaskLogEntity $entity, $forceArchive = false);
 }

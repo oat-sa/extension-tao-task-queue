@@ -45,6 +45,8 @@ class RdsTaskLogBroker implements TaskLogBrokerInterface, PhpSerializable, Servi
     use ServiceLocatorAwareTrait;
     use LoggerAwareTrait;
 
+    const SUPER_USER = 'SuperUser';
+
     private $persistenceId;
 
     /**
@@ -295,16 +297,20 @@ class RdsTaskLogBroker implements TaskLogBrokerInterface, PhpSerializable, Servi
      */
     public function getByIdAndUser($taskId, $userId)
     {
+        $filters = $this->getAvailableFilters($userId);
+
         $qb = $this->getQueryBuilder()
             ->select('*')
             ->from($this->getTableName())
             ->andWhere('id = :id')
             ->setParameter('id', (string) $taskId)
-            ->andWhere('status != :status')
-            ->setParameter('status', (string) TaskLogInterface::STATUS_ARCHIVED)
-            ->andWhere('owner = :owner')
-            ->setParameter('owner', (string) $userId)
         ;
+
+        foreach ($filters as $filter) {
+            $qb->andWhere($filter['column'] . $filter['operator'] . $filter['columnSqlTranslate'])
+                ->setParameter($filter['column'], $filter['value'])
+            ;
+        }
 
         $row = $qb->execute()->fetch();
 
@@ -359,20 +365,25 @@ class RdsTaskLogBroker implements TaskLogBrokerInterface, PhpSerializable, Servi
      */
     private function getAvailableFilters($userId)
     {
-        return [
+        $filters = [
             [
                 'column' => 'status',
                 'columnSqlTranslate' => ':status',
                 'operator' => '!=',
                 'value' => TaskLogInterface::STATUS_ARCHIVED
-            ],
-            [
+            ]
+        ];
+
+        if ($userId !== RdsTaskLogBroker::SUPER_USER) {
+            $filters[] =  [
                 'column' => 'owner',
                 'columnSqlTranslate' => ':owner',
                 'operator' => '=',
                 'value' => $userId
-            ],
-        ];
+            ];
+        }
+
+        return $filters;
     }
 
     /**
