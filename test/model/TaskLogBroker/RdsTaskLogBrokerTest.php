@@ -23,10 +23,6 @@ namespace oat\taoTaskQueue\test\model\TaskLogBroker;
 use oat\oatbox\service\ServiceManager;
 use oat\taoTaskQueue\model\TaskLogBroker\RdsTaskLogBroker;
 
-/**
- * @backupGlobals disabled
- * @backupStaticAttributes disabled
- */
 class RdsTaskLogBrokerTest extends \PHPUnit_Framework_TestCase
 {
     /**

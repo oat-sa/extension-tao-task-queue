@@ -27,10 +27,6 @@ use oat\taoTaskQueue\model\TaskLog;
 use oat\taoTaskQueue\model\TaskLogBroker\TaskLogBrokerInterface;
 use oat\taoTaskQueue\model\TaskLogBroker\TaskLogCollection;
 
-/**
- * @backupGlobals disabled
- * @backupStaticAttributes disabled
- */
 class TaskLogTest extends \PHPUnit_Framework_TestCase
 {
     /**
