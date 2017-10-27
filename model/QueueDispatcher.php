@@ -44,6 +44,9 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
      */
     private $taskLog;
 
+    /** @var  string */
+    private $owner;
+
     /**
      * QueueDispatcher constructor.
      *
@@ -260,7 +263,7 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
     public function createTask(callable $callable, array $parameters = [], $label = null)
     {
         $id = \common_Utils::getNewUri();
-        $owner = \common_session_SessionManager::getSession()->getUser()->getIdentifier();
+        $owner = $this->getOwner();
 
         $callbackTask = new CallbackTask($id, $owner);
         $callbackTask->setCallable($callable)
@@ -271,6 +274,27 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
         }
 
         return $callbackTask;
+    }
+
+    /**
+     * @param string $owner
+     */
+    public function setOwner($owner)
+    {
+        $this->owner = $owner;
+    }
+
+    /**
+     * @return string
+     * @throws \common_exception_Error
+     */
+    public function getOwner()
+    {
+        if (is_null($this->owner)){
+            return \common_session_SessionManager::getSession()->getUser()->getIdentifier();
+        }
+
+        return $this->owner;
     }
 
     /**
