@@ -22,6 +22,7 @@ namespace oat\taoTaskQueue\model;
 
 use common_report_Report as Report;
 use oat\oatbox\service\ConfigurableService;
+use oat\taoTaskQueue\model\Entity\TaskLogEntity;
 use oat\taoTaskQueue\model\Task\TaskInterface;
 use oat\taoTaskQueue\model\TaskLogBroker\TaskLogBrokerInterface;
 use oat\oatbox\log\LoggerAwareTrait;
@@ -159,6 +160,45 @@ class TaskLog extends ConfigurableService implements TaskLogInterface
         }
 
         return null;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getByIdAndUser($taskId, $userId)
+    {
+        return $this->getBroker()->getByIdAndUser($taskId, $userId);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function findAvailableByUser($userId, $limit = null, $offset = null)
+    {
+        $limit = is_null($limit) ? self::DEFAULT_LIMIT : $limit;
+        $offset = is_null($offset) ? 0 : $offset;
+
+        return $this->getBroker()->findAvailableByUser($userId, $limit, $offset);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getStats($userId)
+    {
+        return $this->getBroker()->getStats($userId);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function archive(TaskLogEntity $entity, $forceArchive = false)
+    {
+        if ($entity->getStatus()->isInProgress() && $forceArchive === false) {
+            throw new \Exception('Task cannot be archived because it is in progress.');
+        }
+
+        return $this->getBroker()->archive($entity);
     }
 
     /**

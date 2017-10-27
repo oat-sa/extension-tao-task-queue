@@ -163,4 +163,34 @@ interface QueueDispatcherInterface extends \Countable, LoggerAwareInterface
      * @return bool
      */
     public function isSync();
-}
+
+    /**
+     * Get resource from rdf storage which represents task in the task queue by linked resource
+     * Returns null if there is no task linked to given resource
+     *
+     * It will be deprecated once we have the general GUI for displaying different info of a task for the user.
+     *
+     * @param \core_kernel_classes_Resource $resource
+     * @return null|\core_kernel_classes_Resource
+     */
+    public function getTaskResource(\core_kernel_classes_Resource $resource);
+
+    /**
+     * Get report by a linked resource.
+     *
+     * It will be deprecated once we have the general GUI for displaying different info of a task for the user.
+     *
+     * @param \core_kernel_classes_Resource $resource
+     * @return \common_report_Report
+     */
+    public function getReportByLinkedResource(\core_kernel_classes_Resource $resource);
+
+    /**
+     * Create task resource in the rdf storage and link placeholder resource to it.
+     *
+     * It will be deprecated once we have the general GUI for displaying different info of a task for the user.
+     *
+     * @param TaskInterface $task
+     * @param \core_kernel_classes_Resource|null $resource Placeholder resource linked to the task
+     */
+    public function linkTaskToResource(TaskInterface $task, \core_kernel_classes_Resource $resource = null);}

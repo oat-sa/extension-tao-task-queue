@@ -33,8 +33,9 @@ final class Worker implements WorkerInterface
 {
     use LoggerAwareTrait;
 
-    const WAIT_INTERVAL = 2; // sec
-    const MAX_SLEEPING_TIME = 60; //sec
+    const WAIT_INTERVAL = 1; // sec
+    const MAX_SLEEPING_TIME = 10; //default sleeping time in sec
+    const MAX_SLEEPING_TIME_FOR_DEDICATED_QUEUE = 30; //working on only one queue, there can be higher sleeping time
 
     /**
      * @var QueueDispatcherInterface
@@ -90,7 +91,7 @@ final class Worker implements WorkerInterface
         while ($this->isRunning()) {
 
             if($this->paused) {
-                $this->logDebug('Paused... ', array_merge($this->logContext, [
+                $this->logInfo('Paused... ', array_merge($this->logContext, [
                     'Iteration' => $this->iterations
                 ]));
                 usleep(self::WAIT_INTERVAL * 1000000);
@@ -104,7 +105,7 @@ final class Worker implements WorkerInterface
             ]);
 
             try{
-                $this->logDebug('Fetching tasks from queue ', $this->logContext);
+                $this->logInfo('Fetching tasks from queue ', $this->logContext);
 
                 // if there is a dedicated queue set, let's do dequeue on that one
                 // otherwise using the built-in strategy to get a new task from any registered queue
@@ -116,7 +117,7 @@ final class Worker implements WorkerInterface
                 if (!$task) {
                     ++$this->iterationsWithOutTask;
                     $waitInterval = $this->getWaitInterval();
-                    $this->logDebug('No task to work on. Sleeping for '. $waitInterval .' sec', $this->logContext);
+                    $this->logInfo('No task to work on. Sleeping for '. $waitInterval .' sec', $this->logContext);
                     usleep($waitInterval * 1000000);
 
                     continue;
@@ -126,7 +127,7 @@ final class Worker implements WorkerInterface
                 $this->iterationsWithOutTask = 0;
 
                 if (!$task instanceof TaskInterface) {
-                    $this->logDebug('The received queue item ('. $task .') not processable.', $this->logContext);
+                    $this->logWarning('The received queue item ('. $task .') not processable.', $this->logContext);
                     continue;
                 }
 
@@ -150,13 +151,13 @@ final class Worker implements WorkerInterface
         $report = Report::createInfo(__('Running task %s', $task->getId()));
 
         try {
-            $this->logDebug('Processing task '. $task->getId(), $this->logContext);
+            $this->logInfo('Processing task '. $task->getId(), $this->logContext);
 
             $rowsTouched = $this->taskLog->setStatus($task->getId(), TaskLogInterface::STATUS_RUNNING, TaskLogInterface::STATUS_DEQUEUED);
 
             // if the task is being executed by another worker, just return, no report needs to be saved
             if (!$rowsTouched) {
-                $this->logDebug('Task '. $task->getId() .' seems to be processed by another worker.', $this->logContext);
+                $this->logInfo('Task '. $task->getId() .' seems to be processed by another worker.', $this->logContext);
                 return TaskLogInterface::STATUS_UNKNOWN;
             }
 
@@ -287,10 +288,8 @@ final class Worker implements WorkerInterface
     {
         $waitTime = $this->iterationsWithOutTask * self::WAIT_INTERVAL;
 
-        if ($waitTime > static::MAX_SLEEPING_TIME) {
-            $waitTime = static::MAX_SLEEPING_TIME;
-        }
+        $maxWait = $this->dedicatedQueue instanceof QueueInterface ? self::MAX_SLEEPING_TIME_FOR_DEDICATED_QUEUE : self::MAX_SLEEPING_TIME;
 
-        return $waitTime;
+        return min($waitTime, $maxWait);
     }
 }

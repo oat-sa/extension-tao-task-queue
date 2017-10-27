@@ -9,23 +9,30 @@ use oat\taoTaskQueue\model\Task\AbstractTask;
 use oat\taoTaskQueue\model\Task\CallbackTaskInterface;
 use oat\taoTaskQueue\test\model\Asset\CallableFixture;
 
-/**
- * @backupGlobals disabled
- * @backupStaticAttributes disabled
- */
 class QueueDispatcherTest extends \PHPUnit_Framework_TestCase
 {
+    public function setUp()
+    {
+        parent::setUp();
+
+        require_once __DIR__ .'/../../../tao/includes/raw_start.php';
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     * @expectedExceptionMessage  Queues needs to be set
+     */
     public function testDispatcherWhenQueuesAreEmptyThenThrowException()
     {
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Queues needs to be set');
         new QueueDispatcher([]);
     }
 
+    /**
+     * @expectedException \InvalidArgumentException
+     * @expectExceptionMessageRegExp  /There are duplicated Queue names/
+     */
     public function testDispatcherWhenDuplicatedQueuesAreSetThenThrowException()
     {
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessageRegExp('/There are duplicated Queue names/');
         new QueueDispatcher([
             QueueDispatcher::OPTION_QUEUES =>[
                 new Queue('queueA', new InMemoryQueueBroker()),
@@ -34,16 +41,18 @@ class QueueDispatcherTest extends \PHPUnit_Framework_TestCase
         ]);
     }
 
+    /**
+     * @expectedException \InvalidArgumentException
+     * @expectExceptionMessageRegExp  There are duplicated Queue names/
+     */
     public function testDispatcherWhenNotRegisteredQueueIsUsedForTaskThenThrowException()
     {
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessageRegExp('/There are duplicated Queue names/');
         new QueueDispatcher([
             QueueDispatcher::OPTION_QUEUES => [
                 new Queue('queueA', new InMemoryQueueBroker()),
                 new Queue('queueA', new InMemoryQueueBroker())
             ],
-            QueueDispatcher::OPTION_LINKED_TASKS => [
+            QueueDispatcher::OPTION_TASK_TO_QUEUE_ASSOCIATIONS => [
                 'fake/class/name' => 'fake_queue_name'
             ]
         ]);

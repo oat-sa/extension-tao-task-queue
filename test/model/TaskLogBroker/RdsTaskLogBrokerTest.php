@@ -23,22 +23,20 @@ namespace oat\taoTaskQueue\test\model\TaskLogBroker;
 use oat\oatbox\service\ServiceManager;
 use oat\taoTaskQueue\model\TaskLogBroker\RdsTaskLogBroker;
 
-/**
- * @backupGlobals disabled
- * @backupStaticAttributes disabled
- */
 class RdsTaskLogBrokerTest extends \PHPUnit_Framework_TestCase
 {
+    /**
+     * @expectedException \InvalidArgumentException
+     */
     public function testTaskLogBrokerServiceShouldThrowExceptionWhenPersistenceOptionIsEmpty()
     {
-        $this->expectException(\InvalidArgumentException::class);
         new RdsTaskLogBroker('');
     }
 
     public function testGetPersistenceWhenInstantiatingANewOneThenItReturnsOneWithTheRequiredInterface()
     {
-        $commonPersistenceSqlPersistenceMock = $this->createMock(\common_persistence_SqlPersistence::class);
-        $commonPersistenceManagerMock = $this->createMock(\common_persistence_Manager::class);
+        $commonPersistenceSqlPersistenceMock = $this->getMockBuilder(\common_persistence_SqlPersistence::class)->disableOriginalConstructor()->getMock();
+        $commonPersistenceManagerMock = $this->getMockBuilder(\common_persistence_Manager::class)->getMock();
 
         $commonPersistenceManagerMock->expects($this->once())
             ->method('getPersistenceById')

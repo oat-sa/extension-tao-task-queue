@@ -23,20 +23,27 @@ namespace oat\taoTaskQueue\model\TaskLogBroker;
 use oat\oatbox\PhpSerializable;
 use common_report_Report as Report;
 use Doctrine\DBAL\Query\QueryBuilder;
+use oat\taoTaskQueue\model\Entity\TaskLogEntity;
+use oat\taoTaskQueue\model\Entity\TasksLogsStats;
 use oat\taoTaskQueue\model\QueueDispatcherInterface;
 use oat\taoTaskQueue\model\Task\CallbackTaskInterface;
 use oat\taoTaskQueue\model\Task\TaskInterface;
+use oat\taoTaskQueue\model\TaskLogInterface;
+use oat\taoTaskQueue\model\ValueObjects\TaskLogCategorizedStatus;
+use Psr\Log\LoggerAwareInterface;
 use Zend\ServiceManager\ServiceLocatorAwareInterface;
 use Zend\ServiceManager\ServiceLocatorAwareTrait;
+use oat\oatbox\log\LoggerAwareTrait;
 
 /**
  * Storing message logs in RDS.
  *
  * @author Gyula Szucs <gyula@taotesting.com>
  */
-class RdsTaskLogBroker implements TaskLogBrokerInterface, PhpSerializable, ServiceLocatorAwareInterface
+class RdsTaskLogBroker implements TaskLogBrokerInterface, PhpSerializable, ServiceLocatorAwareInterface, LoggerAwareInterface
 {
     use ServiceLocatorAwareTrait;
+    use LoggerAwareTrait;
 
     private $persistenceId;
 
@@ -225,11 +232,183 @@ class RdsTaskLogBroker implements TaskLogBrokerInterface, PhpSerializable, Servi
     }
 
     /**
+     * @inheritdoc
+     */
+    public function findAvailableByUser($userId, $limit, $offset)
+    {
+        try {
+            $filters = $this->getAvailableFilters($userId);
+
+            $qb = $this->getQueryBuilder()
+                ->select('*')
+                ->from($this->getTableName());
+
+            $qb->setMaxResults($limit);
+            $qb->setFirstResult($offset);
+
+            foreach ($filters as $filter) {
+                $qb->andWhere($filter['column'] . $filter['operator'] . $filter['columnSqlTranslate'])
+                    ->setParameter($filter['column'], $filter['value'])
+                ;
+            }
+
+            $rows = $qb->execute()->fetchAll();
+            $collection = TaskLogCollection::createFromArray($rows);
+
+        } catch (\Exception $exception) {
+            $this->logWarning('Something went wrong getting task logs for user "'. $userId .'"; MSG: ' . $exception->getMessage());
+
+            $collection = TaskLogCollection::createEmptyCollection();
+        }
+
+        return $collection;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getStats($userId)
+    {
+        $filters = $this->getAvailableFilters($userId);
+        $qb = $this->getQueryBuilder();
+
+        $qb->select(
+            $this->buildCounterStatusSql('inProgressTasks', TaskLogCategorizedStatus::getMappedStatuses(TaskLogCategorizedStatus::STATUS_IN_PROGRESS)) . ', ' .
+            $this->buildCounterStatusSql('completedTasks', TaskLogCategorizedStatus::getMappedStatuses(TaskLogCategorizedStatus::STATUS_COMPLETED)) . ', ' .
+            $this->buildCounterStatusSql('failedTasks', TaskLogCategorizedStatus::getMappedStatuses(TaskLogCategorizedStatus::STATUS_FAILED))
+        );
+        $qb->from($this->getTableName());
+
+        foreach ($filters as $filter) {
+            $qb->andWhere($filter['column'] . $filter['operator'] . $filter['columnSqlTranslate'])
+                ->setParameter($filter['column'], $filter['value'])
+            ;
+        }
+
+        $row = $qb->execute()->fetch();
+
+        return TasksLogsStats::buildFromArray($row);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getByIdAndUser($taskId, $userId)
+    {
+        $filters = $this->getAvailableFilters($userId);
+
+        $qb = $this->getQueryBuilder()
+            ->select('*')
+            ->from($this->getTableName())
+            ->andWhere('id = :id')
+            ->setParameter('id', (string) $taskId)
+        ;
+
+        foreach ($filters as $filter) {
+            $qb->andWhere($filter['column'] . $filter['operator'] . $filter['columnSqlTranslate'])
+                ->setParameter($filter['column'], $filter['value'])
+            ;
+        }
+
+        $row = $qb->execute()->fetch();
+
+        if ($row === false) {
+            throw new \common_exception_NotFound('Task log for task "'. $taskId .'" not found');
+        }
+
+        return TaskLogEntity::createFromArray($row);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function archive(TaskLogEntity $entity)
+    {
+        $this->getPersistence()->getPlatform()->beginTransaction();
+
+        try {
+            $qb = $this->getQueryBuilder()
+                ->update($this->getTableName())
+                ->set('status', ':status_new')
+                ->set('updated_at', ':updated_at')
+                ->where('id = :id')
+                ->setParameter('id', (string) $entity->getId())
+                ->setParameter('status_new', (string) TaskLogInterface::STATUS_ARCHIVED)
+                ->setParameter('updated_at', $this->getPersistence()->getPlatForm()->getNowExpression());
+
+            $qb->execute();
+            $this->getPersistence()->getPlatform()->commit();
+
+        } catch (\Exception $e) {
+            $this->getPersistence()->getPlatform()->rollBack();
+
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * @return QueryBuilder
      */
     private function getQueryBuilder()
     {
         /**@var \common_persistence_sql_pdo_mysql_Driver $driver */
         return $this->getPersistence()->getPlatform()->getQueryBuilder();
+    }
+
+    /**
+     * @param $userId
+     * @return array
+     */
+    private function getAvailableFilters($userId)
+    {
+        $filters = [
+            [
+                'column' => 'status',
+                'columnSqlTranslate' => ':status',
+                'operator' => '!=',
+                'value' => TaskLogInterface::STATUS_ARCHIVED
+            ]
+        ];
+
+        if ($userId !== TaskLogInterface::SUPER_USER) {
+            $filters[] =  [
+                'column' => 'owner',
+                'columnSqlTranslate' => ':owner',
+                'operator' => '=',
+                'value' => $userId
+            ];
+        }
+
+        return $filters;
+    }
+
+    /**
+     * @param string $statusColumn
+     * @param array $inStatuses
+     * @return string
+     */
+    private function buildCounterStatusSql($statusColumn, array $inStatuses)
+    {
+        if (empty($inStatuses)) {
+            return '';
+        }
+
+        $sql =  "COUNT( CASE WHEN ";
+        foreach ($inStatuses as $status)
+        {
+
+            if ($status !== reset($inStatuses)) {
+                $sql .= " OR status = '". $status ."'";
+            } else {
+                $sql .= " status = '". $status."'";
+            }
+        }
+
+        $sql .= " THEN 0 END ) AS $statusColumn";
+
+
+        return $sql;
     }
 }
