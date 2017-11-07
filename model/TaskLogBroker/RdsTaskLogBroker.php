@@ -109,14 +109,11 @@ class RdsTaskLogBroker implements TaskLogBrokerInterface, PhpSerializable, Servi
         /** @var \common_persistence_sql_pdo_mysql_SchemaManager $schemaManager */
         $schemaManager = $this->getPersistence()->getSchemaManager();
 
-        /** @var \Doctrine\DBAL\Schema\MySqlSchemaManager $sm */
-        $sm = $schemaManager->getSchemaManager();
+        $fromSchema = $schemaManager->createSchema();
+        $toSchema = clone $fromSchema;
 
         // if our table does not exist, let's create it
-        if(false === $sm->tablesExist([$this->getTableName()])) {
-            $fromSchema = $schemaManager->createSchema();
-            $toSchema = clone $fromSchema;
-
+        if(false === $fromSchema->hasTable($this->getTableName())) {
             $table = $toSchema->createTable($this->getTableName());
             $table->addOption('engine', 'InnoDB');
             $table->addColumn('id', 'string', ["notnull" => true, "length" => 255]);
