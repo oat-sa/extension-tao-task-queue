@@ -19,59 +19,34 @@
     font-size: 18px;
     color: white;
     text-shadow: none;
-
-
 }
-.status-badge{
-    &.badge-success {
-        border-radius: 50%;
-        width: 20px;
-        height: 20px;
-        display: inline-block;
-        background: $success;
-        color: whiten($success, 0.9);
-        position: absolute;
-        top: -10px;
-        right: -10px;
-        font-size: 14px;
-        text-align: center;
-        padding-top: 1px;
-        text-shadow: none;
-    }
-    &.badge-info {
-        width: 16px;
-        height: 18px;
-        display: inline-block;
-        background: $info;
-        color: whiten($info, 0.9);
-        position: absolute;
-        top: -10px;
-        right: -10px;
-        font-size: 14px;
-        text-align: center;
-        padding-top: 1px;
-        text-shadow: none;
-        border-radius: 2px;
-    }
-    &.badge-error {
 
-        width: 0;
-        height: 0;
-        border-left: 10px solid transparent;
-        border-right: 10px solid transparent;
-        border-bottom: 20px solid $error;
-
-        display: inline-block;
-        //background: $info;
-        color: whiten($info, 0.9);
-        position: absolute;
-        top: -10px;
-        right: -10px;
-        font-size: 14px;
-        text-align: center;
-        padding-top: 1px;
-        text-shadow: none;
-        border-radius: 2px;
+.badge{
+    svg{
+        g.badge-info{
+            path{
+                fill: $info;
+            }
+            text{
+                fill: whiten($info, 0.8);
+            }
+        }
+        g.badge-success{
+            path{
+                fill: $success;
+            }
+            text{
+                fill: whiten($success, 0.8);
+            }
+        }
+        g.badge-error{
+            path{
+                fill: $error;
+            }
+            text{
+                fill: whiten($error, 0.8);
+            }
+        }
     }
 }
 

@@ -105,12 +105,15 @@ define([
 
                 var badge = badgeFactory({})
                     .on('render', function(){
-                        //this.setType('error');
+
+                        this.setType('error');
                         this.setValue(99);
 
                         var self = this;
                         self.pulse();
                         _.delay(function(){
+                            self.setType('success');
+                            self.setValue(1);
                             self.pulse();
                         }, 6000);
 
