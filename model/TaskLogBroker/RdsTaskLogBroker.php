@@ -125,8 +125,8 @@ class RdsTaskLogBroker implements TaskLogBrokerInterface, PhpSerializable, Servi
             $table->addColumn('created_at', 'datetime', ['notnull' => true]);
             $table->addColumn('updated_at', 'datetime', ['notnull' => false]);
             $table->setPrimaryKey(['id']);
-            $table->addIndex(['task_name', 'owner'], 'IDX_task_name_owner');
-            $table->addIndex(['status'], 'IDX_status');
+            $table->addIndex(['task_name', 'owner'], $this->getTableName() .'_IDX_task_name_owner');
+            $table->addIndex(['status'], $this->getTableName() .'_IDX_status');
 
             $queries = $this->getPersistence()->getPlatForm()->getMigrateSchemaSql($fromSchema, $toSchema);
             foreach ($queries as $query) {
