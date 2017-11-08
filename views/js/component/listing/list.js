@@ -47,7 +47,7 @@ define([
                 }));
                 $list.append($li);
 
-                listElement = listElementFactory({}, entry)
+                listElement = listElementFactory(entry)
                     .on('render', function(){
                         console.log('DDD', this);
                     })

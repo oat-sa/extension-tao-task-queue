@@ -19,15 +19,16 @@ define([
     'jquery',
     'lodash',
     'i18n',
+    'moment',
     'ui/component',
     'tpl!taoTaskQueue/component/listing/tpl/element'
-], function ($, _, __, component, elementTpl) {
+], function ($, _, __, moment, component, elementTpl) {
     'use strict';
 
     var _defaults = {
-        type : 'info',
-        value : 0
     };
+
+    var _allowedStatus = ['running', 'failed', 'completed'];
 
     var badgeApi = {
         setData : function setType(data){
@@ -37,17 +38,52 @@ define([
         update : function update(){
             return this;
         },
+        setStatus : function setStatus(status){
+            var self = this;
+            if(!status){
+                throw new Error('status should not be empty');
+            }
+            if(_allowedStatus.indexOf(status) === -1){
+                throw new Error('unknown status '+status);
+            }
+            if(!this.is(status)){
+                _.forEach(_.without(_allowedStatus, status), function(st){
+                    self.setState(st, false);
+                });
+                this.setState(status, true);
+            }
+        }
+    };
+
+    var getFormattedTime = function getFormattedTime(timestamp){
+        return  moment.unix(timestamp).fromNow();
+    };
+
+    var getTimeString = function getTimeString(data){
+        switch(data.status){
+            case 'running':
+                return __('Started %s', getFormattedTime(data.created_at));
+            case 'completed':
+                return __('Completed %s', getFormattedTime(data.updated_at));
+            case 'failed':
+                return __('Failed %s', getFormattedTime(data.updated_at));
+        }
     };
 
     return function taskElementFactory(config, data) {
         var initConfig = _.defaults(config || {}, _defaults);
 
+        initConfig.time = getTimeString(config);
+
         return component(badgeApi)
             .setTemplate(elementTpl)
             .on('init', function() {
-                //this.render($container);
                 if(_.isArray(data)){
                     this.setData(data);
+                }
+                console.log('this.config', this.config);
+                if(this.config.status){
+                    this.setStatus(this.config.status);
                 }
             })
 
@@ -58,6 +94,12 @@ define([
             // renders the component
             .on('render', function() {
 
+                var self = this;
+                var $component = this.getElement();
+                var config = this.config;
+                $component.find('#icon-download').click(function(){
+                    self.trigger('download', config.id);
+                });
                 this.update();
 
             })

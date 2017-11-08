@@ -85,11 +85,101 @@ $listBorderColor: #333;
 }
 
 .notif-element {
+    position: relative;
     background: $canvas;
     padding: 10px 20px;
     width: 100%;
-    height: 60px;
+    height: 70px;
     border-bottom: solid 1px blacken($canvas, 0.2);
+    .container-icon{
+        position: absolute;
+        .shape{
+            display: inline-block;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            top: 2px;
+            position: relative;
+            [class^="icon-"], [class*=" icon-"] {
+                @include font-size(20);
+                position: relative;
+                top:8px;
+                left:10px;
+                text-shadow: none;
+            }
+        }
+    }
+    &.running{
+        .container-icon .shape{
+            background: $info;
+            [class^="icon-"], [class*=" icon-"]{
+                color: whiten($info, 0.9);
+            }
+        }
+        .action-bar.action-bottom [data-role="notify"]{
+            display: inline-block;
+        }
+    }
+    &.completed{
+        .container-icon .shape{
+            background: $success;
+            [class^="icon-"], [class*=" icon-"]{
+                color: whiten($success, 0.9);
+            }
+        }
+        .action-bar.action-bottom{
+            [data-role="download"], [data-role="report"]{
+                display: inline-block;
+            }
+        }
+    }
+    &.failed{
+        .container-icon .shape{
+            background: $error;
+            [class^="icon-"], [class*=" icon-"]{
+                color: whiten($error, 0.9);
+            }
+        }
+        .action-bar.action-bottom{
+            [data-role="download"], [data-role="report"]{
+                display: inline-block;
+            }
+        }
+    }
+    .container-text{
+        padding-top: 4px;
+        margin-left: 60px;
+        .time{
+            color: blacken($canvas, 0.4);
+            @include font-size(12);
+        }
+    }
+    .action-bar{
+        position: absolute;
+        [class^="icon-"], [class*=" icon-"] {
+            @include font-size(16);
+            width: 20px;
+            height: 20px;
+            display: inline-block;
+            padding-left: 4px;
+            margin-left: 5px;
+            cursor: pointer;
+            &:hover{
+                opacity: 0.6;
+            }
+        }
+        &.action-top{
+            top: 4px;
+            right: 6px;
+        }
+        &.action-bottom{
+            bottom: 4px;
+            right: 6px;
+            [class^="icon-"], [class*=" icon-"] {
+                display: none;
+            }
+        }
+    }
 }
 
 .pulse {

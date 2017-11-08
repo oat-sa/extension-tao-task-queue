@@ -59,10 +59,12 @@ define([
             label: 'Task label',
             status: 'completed',
             owner: 'userId',
-            created_at: '2017-02-01 12:00:01',//timezone ?
-            updated_at: '2017-02-01 14:00:01',
+            created_at: '1510149684',//timezone ?
+            updated_at: '1510149694',
+            file: false,//suppose
+            category: 'import',
             report : {
-                type : 'info',
+                type : 'success',
                 message : 'completed task rdf#i1508337970199318643',
                 data : null,
                 children: []
@@ -74,12 +76,31 @@ define([
             label: 'Task label 2',
             status: 'running',
             owner: 'userId',
-            created_at: '2017-02-01 16:00:01',//timezone ?
-            updated_at: '2017-02-01 18:00:01',
+            created_at: '1510149584',//timezone ?
+            updated_at: '1510149574',
+            file: true,//suppose
+            category: 'export',//d
             report : {
                 type : 'info',
                 message : 'running task rdf#i15083379701993186432222',
-                data : null,
+                data : null,//download url ? task context ?
+                children: []
+            }
+        },
+        {
+            id: 'rdf#i1508337970190342',
+            task_name: 'Task Name 2',
+            label: 'Task label 2',
+            status: 'failed',
+            owner: 'userId',
+            created_at: '1510149584',//timezone ?
+            updated_at: '1510049574',
+            file: true,//suppose
+            category: 'export',//d
+            report : {
+                type : 'error',
+                message : 'running task rdf#i1508337970190342',
+                data : null,//download url ? task context ?
                 children: []
             }
         }
