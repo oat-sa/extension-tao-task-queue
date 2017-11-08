@@ -144,7 +144,7 @@ define([
                     .on('render', function(){
 
                         this.setType('error');
-                        this.setValue(99);
+                        this.setValue(199);
 
                         var self = this;
                         self.pulse();

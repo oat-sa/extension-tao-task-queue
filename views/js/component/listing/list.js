@@ -38,7 +38,7 @@ define([
         },
         update : function update(){
             var self = this;
-            var $list = this.getElement().children('ul').empty();
+            var $list = this.getElement().find('ul').empty();
             this.elements = [];
             _.forEach(this.data, function(entry){
                 var listElement;
@@ -57,7 +57,7 @@ define([
                 self.elements.push(listElement);
             });
 
-            this.getElement().children('.description').html(__('Running 1/2 background jobs'));
+            this.getElement().find('.description').html(__('Running 1/2 background jobs'));
 
 
             return this;

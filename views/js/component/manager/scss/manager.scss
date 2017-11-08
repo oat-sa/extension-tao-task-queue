@@ -1,68 +1,90 @@
 @import "inc/bootstrap";
 
-.task-manager-container{
+$listBorderColor: #333;
+
+.task-manager-container {
     position: relative;
     display: inline-block;
     width: 40px;
     height: 64px;
     background: $darkBar;
     padding: 22px 8px 0px;
-    svg{
+    svg {
         position: absolute;
         top: -8px;
         right: -8px;
     }
 }
 
-.task-manager-trigger{
+.task-manager-trigger {
     position: relative;
     font-size: 18px;
     color: white;
     text-shadow: none;
 }
 
-.badge{
-    svg{
-        g.badge-info{
-            path{
+.badge {
+    svg {
+        g.badge-info {
+            path {
                 fill: $info;
             }
-            text{
+            text {
                 fill: whiten($info, 0.8);
             }
         }
-        g.badge-success{
-            path{
+        g.badge-success {
+            path {
                 fill: $success;
             }
-            text{
+            text {
                 fill: whiten($success, 0.8);
             }
         }
-        g.badge-error{
-            path{
+        g.badge-error {
+            path {
                 fill: $error;
             }
-            text{
+            text {
                 fill: whiten($error, 0.8);
             }
         }
     }
 }
 
-.task-listing{
-    //min-height : 200px;
-    min-width: 360px;
-    background: $canvas;
-    @include simple-border($textColor);
-    .description {
-        padding: 5px 20px;
-        border-bottom: solid 1px $textColor;
-        font-weight: bold;
+.task-listing {
+    padding-top: 9px;
+    .box {
+        position: relative;
+        //min-height : 200px;
+        min-width: 360px;
+        background: $canvas;
+        @include simple-border($listBorderColor);
+        .description {
+            padding: 5px 20px;
+            border-bottom: solid 1px $listBorderColor;
+            font-weight: bold;
+        }
+        .arrow {
+            position: absolute;
+            z-index: 301;
+            -webkit-transform: rotate(45deg);
+            -moz-transform: rotate(45deg);
+            -o-transform: rotate(45deg);
+            -ms-transform: rotate(45deg);
+            border: 1px $listBorderColor solid;
+            border-right: none;
+            border-bottom: none;
+            width: 12px;
+            height: 12px;
+            background: $canvas;
+            right: calc(50% - 6px);
+            top: -7px;
+        }
     }
 }
 
-.notif-element{
+.notif-element {
     background: $canvas;
     padding: 10px 20px;
     width: 100%;
@@ -80,32 +102,33 @@
     border-radius: 150%;
     background: transparent;
     cursor: pointer;
-    box-shadow: 0 0 0 rgba(204,169,44, 0.6);
+    box-shadow: 0 0 0 rgba(204, 169, 44, 0.6);
     animation: pulse 1s 5;
 }
 
 @-webkit-keyframes pulse {
     0% {
-        -webkit-box-shadow: 0 0 0 0 rgba(204,169,44, 0.6);
+        -webkit-box-shadow: 0 0 0 0 rgba(204, 169, 44, 0.6);
     }
     70% {
-        -webkit-box-shadow: 0 0 0 30px rgba(204,169,44, 0);
+        -webkit-box-shadow: 0 0 0 30px rgba(204, 169, 44, 0);
     }
     100% {
-        -webkit-box-shadow: 0 0 0 0 rgba(204,169,44, 0);
+        -webkit-box-shadow: 0 0 0 0 rgba(204, 169, 44, 0);
     }
 }
+
 @keyframes pulse {
     0% {
-        -moz-box-shadow: 0 0 0 0 rgba(204,169,44, 0.6);
-        box-shadow: 0 0 0 0 rgba(204,169,44, 0.6);
+        -moz-box-shadow: 0 0 0 0 rgba(204, 169, 44, 0.6);
+        box-shadow: 0 0 0 0 rgba(204, 169, 44, 0.6);
     }
     70% {
-        -moz-box-shadow: 0 0 0 30px rgba(204,169,44, 0);
-        box-shadow: 0 0 0 30px rgba(204,169,44, 0);
+        -moz-box-shadow: 0 0 0 30px rgba(204, 169, 44, 0);
+        box-shadow: 0 0 0 30px rgba(204, 169, 44, 0);
     }
     100% {
-        -moz-box-shadow: 0 0 0 0 rgba(204,169,44, 0);
-        box-shadow: 0 0 0 0 rgba(204,169,44, 0);
+        -moz-box-shadow: 0 0 0 0 rgba(204, 169, 44, 0);
+        box-shadow: 0 0 0 0 rgba(204, 169, 44, 0);
     }
 }

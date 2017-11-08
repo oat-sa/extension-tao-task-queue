@@ -50,7 +50,7 @@ define([
         },
         setValue : function setType(value){
             value = parseInt(value, 10);
-            this.config.value = (value > 99) ? 99 : value;
+            this.config.value = (value > 99) ? '99+' : value;
             this.update();
             return this;
         },
