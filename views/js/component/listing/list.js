@@ -20,12 +20,10 @@ define([
     'lodash',
     'i18n',
     'ui/component',
-    'taoTaskQueue/component/badge/badge',
-    'tpl!taoTaskQueue/component/badge/tpl/main',
-    'tpl!taoTaskQueue/component/badge/tpl/info',
-    'tpl!taoTaskQueue/component/badge/tpl/success',
-    'tpl!taoTaskQueue/component/badge/tpl/error'
-], function ($, _, __, component, badgeFactory, mainTpl, infoTpl, successTpl, errorTpl) {
+    'taoTaskQueue/component/listing/element',
+    'tpl!taoTaskQueue/component/listing/tpl/list',
+    'tpl!taoTaskQueue/component/listing/tpl/elementWrapper'
+], function ($, _, __, component, listElementFactory, listTpl, elementWrapperTpl) {
     'use strict';
 
     var _defaults = {
@@ -33,48 +31,49 @@ define([
         value : 0
     };
 
-    var _templates = {
-        info : infoTpl,
-        success : successTpl,
-        error : errorTpl
-    };
-
-
     var badgeApi = {
-        setType : function setType(type){
-            if(_templates[type]){
-                this.config.type = type;
-                this.update();
-            }
-            return this;
-        },
-        setValue : function setType(value){
-            value = parseInt(value, 10);
-            this.config.value = (value > 99) ? 99 : value;
-            this.update();
+        setData : function setType(data){
+            this.data = data;
             return this;
         },
         update : function update(){
-            this.getElement().html(_templates[this.config.type].call(null, {value : this.config.value}));
+            var self = this;
+            var $list = this.getElement().children('ul').empty();
+            this.elements = [];
+            _.forEach(this.data, function(entry){
+                var listElement;
+                var $li = $(elementWrapperTpl({
+                    id : entry.id
+                }));
+                $list.append($li);
+
+                listElement = listElementFactory({}, entry)
+                    .on('render', function(){
+                        console.log('DDD', this);
+                    })
+                    .render($li);
+
+
+                self.elements.push(listElement);
+            });
+
+            this.getElement().children('.description').html(__('Running 1/2 background jobs'));
+
+
             return this;
         },
-        pulse : function pulse(){
-            var $component = this.getElement();
-            $component.addClass('pulse');
-            _.delay(function(){
-                $component.removeClass('pulse');
-            }, 5000);
-        }
     };
 
-    return function badgeFactory(config) {
+    return function taskListFactory(config, data) {
         var initConfig = _.defaults(config || {}, _defaults);
 
         return component(badgeApi)
-            .setTemplate(mainTpl)
-
+            .setTemplate(listTpl)
             .on('init', function() {
                 //this.render($container);
+                if(_.isArray(data)){
+                    this.setData(data);
+                }
             })
 
             // uninstalls the component
@@ -83,6 +82,10 @@ define([
 
             // renders the component
             .on('render', function() {
+
+                if(this.config.startHidden){
+                    this.hide();
+                }
 
                 this.update();
 

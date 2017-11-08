@@ -20,14 +20,12 @@ define([
     'lodash',
     'i18n',
     'ui/component',
+    'ui/component/alignable',
     'taoTaskQueue/component/badge/badge',
+    'taoTaskQueue/component/listing/list',
     'tpl!taoTaskQueue/component/manager/trigger',
-    'tpl!taoTaskQueue/component/manager/popup',
-    'tpl!taoTaskQueue/component/manager/element',
-    'tpl!taoTaskQueue/component/manager/badge',
-    'tpl!taoTaskQueue/component/badge/tpl/error',
-    'css!taoTaskQueue/component/manager/css/manager',
-], function ($, _, __, component, badgeFactory, triggerTpl, popupTpl, elementTpl, badgeTpl, errorTpl) {
+    'css!taoTaskQueue/component/manager/css/manager'
+], function ($, _, __, component, makeAlignable, badgeFactory, taskListFactory, triggerTpl) {
     'use strict';
 
     var _defaults = {
@@ -47,6 +45,45 @@ define([
 
     var getBadgetClass = function getBadgetClass(){
     };
+
+    var _sampleBadgeData = {
+        numberOfTasksCompleted:10,
+        numberOfTasksFailed:2,
+        numberOfTasksInProgress:5
+    };
+
+    var _sampleLogCollection = [
+        {
+            id: 'rdf#i1508337970199318643',
+            task_name: 'Task Name',
+            label: 'Task label',
+            status: 'completed',
+            owner: 'userId',
+            created_at: '2017-02-01 12:00:01',//timezone ?
+            updated_at: '2017-02-01 14:00:01',
+            report : {
+                type : 'info',
+                message : 'completed task rdf#i1508337970199318643',
+                data : null,
+                children: []
+            }
+        },
+        {
+            id: 'rdf#i15083379701993186432222',
+            task_name: 'Task Name 2',
+            label: 'Task label 2',
+            status: 'running',
+            owner: 'userId',
+            created_at: '2017-02-01 16:00:01',//timezone ?
+            updated_at: '2017-02-01 18:00:01',
+            report : {
+                type : 'info',
+                message : 'running task rdf#i15083379701993186432222',
+                data : null,
+                children: []
+            }
+        }
+    ];
 
     /**
      * Builds an instance of the datalist component
@@ -120,7 +157,18 @@ define([
                     })
                     .render($trigger);
 
-
+                var data = [];
+                var list = makeAlignable(taskListFactory({startHidden : true}, _sampleLogCollection))
+                    .show()
+                    .init()
+                    .render($trigger)
+                    .moveBy(0, 0)
+                    .alignWith($trigger, {
+                        hPos: 'center',
+                        hOrigin: 'center',
+                        vPos: 'bottom',
+                        vOrigin: 'top'
+                    });
 
                 //$trigger.append($badge);
                 //console.log($trigger);
