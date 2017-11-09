@@ -1,7 +1,7 @@
 <div class="notif-element {{status}}">
     <div class="container-icon">
         <div class="shape">
-            <span class="icon-{{icon}}"/>
+            <span class="{{icon}}"/>
         </div>
     </div>
     <div class="container-text">
@@ -13,7 +13,7 @@
     </div>
     <div class="action-bar action-bottom">
         <span data-role="notify" class="icon-preview" title="{{__ "notify me when done"}}"/>
-        <span data-role="download" class="icon-download {{#unless file}}hidden{{/unless}}" title="{{__ "download"}}"/>
+        <span data-role="download" class="icon-download" title="{{__ "download"}}"/>
         <span data-role="report" class="icon-document" title="{{__ "see report"}}"/>
     </div>
 </div>

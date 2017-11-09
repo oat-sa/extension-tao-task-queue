@@ -21,8 +21,9 @@ define([
     'i18n',
     'moment',
     'ui/component',
+    'ui/hider',
     'tpl!taoTaskQueue/component/listing/tpl/element'
-], function ($, _, __, moment, component, elementTpl) {
+], function ($, _, __, moment, component, hider, elementTpl) {
     'use strict';
 
     var _defaults = {
@@ -46,12 +47,53 @@ define([
         failure: 'result-nok',
     };
 
+    var getLabelString = function getLabelString(data){
+        return data.label;
+    };
+
+    var getFormattedTime = function getFormattedTime(timestamp){
+        return  moment.unix(timestamp).fromNow();
+    };
+
+    var getTimeString = function getTimeString(data){
+        switch(data.status){
+            case 'running':
+                return __('Started %s', getFormattedTime(data.created_at));
+            case 'completed':
+                return __('Completed %s', getFormattedTime(data.updated_at));
+            case 'failed':
+                return __('Failed %s', getFormattedTime(data.updated_at));
+        }
+    };
+
+    var getIcon = function getIcon(data){
+        var icon;
+        if(!_.isPlainObject(data)){
+            throw new Error('invalid data');
+        }
+        if(data.category && _categoryMap[data.category]){
+            icon = _categoryMap[data.category];
+        }else if(data.status && _statusIcon[data.status]){
+            icon = _statusIcon[data.status];
+        }else {
+            icon = _statusIcon.running;
+        }
+        return 'icon-'+icon;
+    };
+
     var badgeApi = {
-        setData : function setType(data){
-            this.data = data;
-            return this;
-        },
-        update : function update(){
+        update : function update(data){
+            var $container = this.getElement();
+
+            this.data = _.assign(this.data || {}, data);
+
+            $container.find('.shape > span').removeAttr('class').addClass(getIcon(this.data));
+            $container.find('.label').html(getLabelString(this.data));
+            $container.find('.time').html(getTimeString(this.data));
+
+            this.setStatus(this.data.status);
+
+            hider.toggle($container.find('.action-bottom [data-role="download"]'), this.data.file);
             return this;
         },
         setStatus : function setStatus(status){
@@ -71,54 +113,18 @@ define([
         }
     };
 
-    var getFormattedTime = function getFormattedTime(timestamp){
-        return  moment.unix(timestamp).fromNow();
-    };
-
-    var getTimeString = function getTimeString(data){
-        switch(data.status){
-            case 'running':
-                return __('Started %s', getFormattedTime(data.created_at));
-            case 'completed':
-                return __('Completed %s', getFormattedTime(data.updated_at));
-            case 'failed':
-                return __('Failed %s', getFormattedTime(data.updated_at));
-        }
-    };
-
-    var getIcon = function getIcon(data){
-        if(!_.isPlainObject(data)){
-            throw new Error('invalid data');
-        }
-        if(data.category && _categoryMap[data.category]){
-            return _categoryMap[data.category];
-        }else if(data.status && _statusIcon[data.status]){
-            return _statusIcon[data.status];
-        }else {
-            return _statusIcon.running;
-        }
-    };
-
     return function taskElementFactory(config, data) {
         var initConfig = _.defaults(config || {}, _defaults);
-
-        initConfig.time = getTimeString(config);
-        initConfig.icon = getIcon(config);
 
         return component(badgeApi)
             .setTemplate(elementTpl)
             .on('init', function() {
-                if(_.isArray(data)){
-                    this.setData(data);
-                }
-                console.log('this.config', this.config);
-                if(this.config.status){
-                    this.setStatus(this.config.status);
-                }
+
             })
 
             // uninstalls the component
             .on('destroy', function() {
+                this.getElement().remove();
             })
 
             // renders the component
@@ -126,11 +132,18 @@ define([
 
                 var self = this;
                 var $component = this.getElement();
-                var config = this.config;
+
+                this.update(data);
+
                 $component.find('[data-role="download"]').click(function(){
-                    self.trigger('download', config.id);
+                    self.trigger('download');
                 });
-                this.update();
+                $component.find('[data-role="delete"]').click(function(){
+                    self.destroy();
+                });
+                $component.find('[data-role="report"]').click(function(){
+                    self.trigger('report');
+                });
 
             })
             .init(initConfig);

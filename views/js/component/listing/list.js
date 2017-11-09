@@ -33,35 +33,71 @@ define([
 
     var badgeApi = {
         setData : function setType(data){
-            this.data = data;
             return this;
         },
-        update : function update(){
+        update : function update(data){
             var self = this;
-            var $list = this.getElement().find('ul').empty();
-            this.elements = [];
-            _.forEach(this.data, function(entry){
-                var listElement;
-                var $li = $(elementWrapperTpl({
-                    id : entry.id
-                }));
-                $list.append($li);
+            var $list = this.getElement().find('ul');
+            var found = [];
 
-                listElement = listElementFactory(entry)
-                    .on('render', function(){
-                        console.log('DDD', this);
-                    })
-                    .render($li);
+            _.forEach(data, function(entry){
+                var listElement, $li;
+                var id = entry.id;
+                if(self.elements[id]){
+                    //update
+                    self.elements[id].update(entry);
+                }else{
+                    //create
+                    $li = $(elementWrapperTpl({
+                        id : entry.id
+                    }));
+                    $list.prepend($li);
 
+                    listElement = listElementFactory({}, entry)
+                        .on('render', function(){
+                            //console.log('DDD', this);
+                        })
+                        .on('destroy', function(){
+                            $li.remove();
+                            self.trigger('archivetask', $li.data('id'));
+                            console.log($li.data('id'));
+                        })
+                        .on('download', function(){
+                            $li.remove();
+                            self.trigger('download', $li.data('id'));
+                            console.log($li.data('id'));
+                        })
+                        .render($li);
 
-                self.elements.push(listElement);
+                    self.elements[id] = listElement;
+                    found.push(id);
+                }
             });
+
+            //remove cleared ones:
+            console.log(found, _.keys(this.elements));
+
+
+            this.data = data;
 
             this.getElement().find('.description').html(__('Running 1/2 background jobs'));
 
+            _.delay(function(){
+                var one = _.values(self.elements)[1];
+                one.update({
+                    status: 'failed',
+                    file: true,
+                    updated_at: Math.floor(Date.now() / 1000)
+                });
+            }, 2000);
 
             return this;
         },
+        empty : function empty(){
+            this.getElement().find('ul').empty();
+            this.elements = [];
+        }
+
     };
 
     return function taskListFactory(config, data) {
@@ -70,10 +106,6 @@ define([
         return component(badgeApi)
             .setTemplate(listTpl)
             .on('init', function() {
-                //this.render($container);
-                if(_.isArray(data)){
-                    this.setData(data);
-                }
             })
 
             // uninstalls the component
@@ -83,11 +115,13 @@ define([
             // renders the component
             .on('render', function() {
 
+                this.empty();
+
                 if(this.config.startHidden){
                     this.hide();
                 }
 
-                this.update();
+                this.update(data);
 
             })
             .init(initConfig);
