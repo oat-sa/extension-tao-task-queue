@@ -30,6 +30,22 @@ define([
 
     var _allowedStatus = ['running', 'failed', 'completed'];
 
+    var _categoryMap = {
+        import : 'import',
+        export : 'export',
+        publish : 'delivery',
+        transfer : 'connect',
+        create : 'magicwand',
+        update : 'edit',
+        delete : 'bin'
+    };
+
+    var _statusIcon = {
+        running : 'property-advanced',//TODO find a better one
+        complete: 'result-ok',
+        failure: 'result-nok',
+    };
+
     var badgeApi = {
         setData : function setType(data){
             this.data = data;
@@ -70,10 +86,24 @@ define([
         }
     };
 
+    var getIcon = function getIcon(data){
+        if(!_.isPlainObject(data)){
+            throw new Error('invalid data');
+        }
+        if(data.category && _categoryMap[data.category]){
+            return _categoryMap[data.category];
+        }else if(data.status && _statusIcon[data.status]){
+            return _statusIcon[data.status];
+        }else {
+            return _statusIcon.running;
+        }
+    };
+
     return function taskElementFactory(config, data) {
         var initConfig = _.defaults(config || {}, _defaults);
 
         initConfig.time = getTimeString(config);
+        initConfig.icon = getIcon(config);
 
         return component(badgeApi)
             .setTemplate(elementTpl)
@@ -97,7 +127,7 @@ define([
                 var self = this;
                 var $component = this.getElement();
                 var config = this.config;
-                $component.find('#icon-download').click(function(){
+                $component.find('[data-role="download"]').click(function(){
                     self.trigger('download', config.id);
                 });
                 this.update();

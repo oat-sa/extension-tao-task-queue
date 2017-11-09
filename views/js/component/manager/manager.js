@@ -78,8 +78,8 @@ define([
             owner: 'userId',
             created_at: '1510149584',//timezone ?
             updated_at: '1510149574',
-            file: true,//suppose
-            category: 'export',//d
+            file: false,
+            category: 'publish',//d
             report : {
                 type : 'info',
                 message : 'running task rdf#i15083379701993186432222',

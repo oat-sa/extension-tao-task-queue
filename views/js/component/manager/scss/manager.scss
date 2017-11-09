@@ -103,7 +103,7 @@ $listBorderColor: #333;
             [class^="icon-"], [class*=" icon-"] {
                 @include font-size(20);
                 position: relative;
-                top:8px;
+                top:9px;
                 left:10px;
                 text-shadow: none;
             }
@@ -117,7 +117,10 @@ $listBorderColor: #333;
             }
         }
         .action-bar.action-bottom [data-role="notify"]{
-            display: inline-block;
+            display: none;
+        }
+        .action-bar.action-top [data-role="delete"]{
+            display: none;
         }
     }
     &.completed{
@@ -169,11 +172,11 @@ $listBorderColor: #333;
             }
         }
         &.action-top{
-            top: 4px;
+            top: 6px;
             right: 6px;
         }
         &.action-bottom{
-            bottom: 4px;
+            bottom: 6px;
             right: 6px;
             [class^="icon-"], [class*=" icon-"] {
                 display: none;
