@@ -43,9 +43,6 @@ define([
 
     };
 
-    var getBadgetClass = function getBadgetClass(){
-    };
-
     var _sampleBadgeData = {
         numberOfTasksCompleted:10,
         numberOfTasksFailed:2,
@@ -167,18 +164,16 @@ define([
                         this.setType('error');
                         this.setValue(199);
 
-                        var self = this;
-                        self.pulse();
+                        badge.pulse();
                         _.delay(function(){
-                            self.setType('success');
-                            self.setValue(1);
-                            self.pulse();
+                            badge.setType('success');
+                            badge.setValue(1);
+                            badge.pulse();
                         }, 6000);
 
                     })
                     .render($trigger);
 
-                var data = [];
                 var list = makeAlignable(taskListFactory({startHidden : true}, _sampleLogCollection))
                     .show()
                     .init()
@@ -191,8 +186,19 @@ define([
                         vOrigin: 'top'
                     });
 
-                //$trigger.append($badge);
-                //console.log($trigger);
+                //prevent closing the panel when clicking on it
+                list.getElement().on('click', function(e){
+                    e.stopPropagation();
+                });
+
+                //toggle pannel visibility
+                $trigger.on('click', function(e){
+                    if(list.is('hidden')){
+                        list.show();
+                    }else{
+                        list.hide();
+                    }
+                });
 
             })
             .init(initConfig);

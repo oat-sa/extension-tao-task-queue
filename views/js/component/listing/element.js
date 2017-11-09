@@ -94,6 +94,20 @@ define([
             this.setStatus(this.data.status);
 
             hider.toggle($container.find('.action-bottom [data-role="download"]'), this.data.file);
+
+            return this;
+        },
+
+        /**
+         * Adding transition to highlight the element after an update
+         * @returns {badgeApi}
+         */
+        highlight : function highlight(){
+            var $container = this.getElement();
+            $container.addClass('highlight');
+            _.delay(function(){
+                $container.removeClass('highlight');
+            }, 500);
             return this;
         },
         setStatus : function setStatus(status){

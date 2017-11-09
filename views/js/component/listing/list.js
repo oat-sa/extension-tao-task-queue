@@ -45,7 +45,7 @@ define([
                 var id = entry.id;
                 if(self.elements[id]){
                     //update
-                    self.elements[id].update(entry);
+                    self.elements[id].update(entry).highlight();
                 }else{
                     //create
                     $li = $(elementWrapperTpl({
@@ -88,7 +88,7 @@ define([
                     status: 'failed',
                     file: true,
                     updated_at: Math.floor(Date.now() / 1000)
-                });
+                }).highlight();
             }, 2000);
 
             return this;
