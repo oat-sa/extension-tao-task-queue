@@ -77,7 +77,7 @@ define([
 
     QUnit.asyncTest('playground', function(assert) {
 
-        var container = document.getElementById('visual');
+        var $container = $('#visual');
         var config = {
         };
 
@@ -143,11 +143,42 @@ define([
 
         QUnit.expect(1);
 
+        var getRandomValue = function getRandomValue(arr){
+            return arr[Math.floor(Math.random()*arr.length)];
+        };
+
+        var createTask = function createTask(){
+            var timestamp = Math.floor(Date.now() / 1000);
+            var type = getRandomValue(['import', 'export', 'publish', 'transfer', 'create', 'update', 'delete']);
+            return {
+                id: 'rdf#i'+(Math.floor(Math.random() * 123456789) +  123456789) ,
+                task_name: 'php/class/for/task/'+type,
+                label: 'Async ' +  type + ' ' + (Math.floor(Math.random() * 99) +  1),
+                status: 'in_progress',
+                owner: 'userId',
+                created_at: timestamp,
+                updated_at: timestamp,
+                file: getRandomValue([true, false]),
+                category: type,
+                report : null
+            };
+        };
+
+        console.log([createTask(), createTask(), createTask(), createTask()]);
         taskQueueManagerFactory(config, _sampleLogCollection)
             .on('render', function(){
+                var self = this;
                 assert.ok(true);
+
+                var $controls = $container.find('#controls');
+
+                $controls.find('.add-task').click(function(){
+                    self.addNewTask(createTask());
+                });
+
+
                 QUnit.start();
             })
-            .render(container);
+            .render($container);
     });
 });

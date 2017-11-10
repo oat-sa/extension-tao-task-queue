@@ -31,9 +31,6 @@ define([
     var _defaults = {
     };
 
-    var taskQueue = {
-
-    };
 
     var getBadgeDataFromStatus = function getBadgeDataFromStatus(tasksStatuses){
         if(tasksStatuses){
@@ -80,6 +77,16 @@ define([
                 type : 'info',
                 value: count
             };
+        }
+    };
+
+    var taskQueue = {
+        addNewTask : function addNewTask(taskData){
+            var badgeData;
+            this.data.push(taskData);
+            badgeData = getBadgeDataFromFullLog(this.data);
+            this.badge.update(badgeData);
+            this.list.addNewTask(taskData);
         }
     };
 
@@ -135,21 +142,23 @@ define([
             // renders the component
             .on('render', function() {
 
+                var self = this;
                 var $trigger = this.getElement();
 
-                var badge = badgeFactory(getBadgeDataFromFullLog(data))
+                this.data = data;
+                this.badge = badgeFactory(getBadgeDataFromFullLog(this.data))
                     .on('render', function(){
-                        var self = this;
-                        self.pulse();
-                        _.delay(function(){
-                            self.setType('success');
-                            self.setValue(1);
-                            self.pulse();
-                        }, 6000);
+                        //var badge = this;
+                        //badge.pulse();
+                        //_.delay(function(){
+                        //    badge.setType('success');
+                        //    badge.setValue(1);
+                        //    badge.pulse();
+                        //}, 6000);
                     })
                     .render($trigger);
 
-                var list = makeAlignable(taskListFactory({startHidden : true}, data))
+                this.list = makeAlignable(taskListFactory({startHidden : true}, this.data))
                     .show()
                     .init()
                     .render($trigger)
@@ -162,16 +171,16 @@ define([
                     });
 
                 //prevent closing the panel when clicking on it
-                list.getElement().on('click', function(e){
+                this.list.getElement().on('click', function(e){
                     e.stopPropagation();
                 });
 
                 //toggle pannel visibility
                 $trigger.on('click', function(){
-                    if(list.is('hidden')){
-                        list.show();
+                    if(self.list.is('hidden')){
+                        self.list.show();
                     }else{
-                        list.hide();
+                        self.list.hide();
                     }
                 });
 

@@ -31,9 +31,56 @@ define([
         value : 0
     };
 
+    var highlightElementInsertion = function highlightElementInsertion(listElement){
+        listElement.getElement().addClass('new-element');
+        _.delay(function(){
+            listElement.getElement().removeClass('new-element');
+        }, 100);
+    };
+
+    var createElement = function createElement($appendTo, taskData){
+        var listElement;
+        var $li = $(elementWrapperTpl({
+            id : taskData.id
+        }));
+        $appendTo.prepend($li);
+
+        listElement = listElementFactory({}, taskData)
+            .on('render', function(){
+                //console.log('DDD', this);
+            })
+            .on('destroy', function(){
+                $li.remove();
+                self.trigger('archivetask', $li.data('id'));
+                console.log($li.data('id'));
+            })
+            .on('download', function(){
+                $li.remove();
+                self.trigger('download', $li.data('id'));
+                console.log($li.data('id'));
+            })
+            .render($li);
+
+        return listElement;
+    };
+
+    function highlight(listElement){
+        listElement.getElement().addClass('new-element');
+        _.delay(function(){
+            listElement.getElement().removeClass('new-element');
+        }, 1000);
+    }
+
     var badgeApi = {
         setData : function setType(data){
             return this;
+        },
+        addNewTask : function addNewTask(taskData){
+            var taskElement;
+            this.data.push(taskData);
+            taskElement = createElement(this.getElement().find('ul'), taskData);
+            this.elements[taskData.id] = taskElement;
+            highlightElementInsertion(taskElement);
         },
         update : function update(data){
             var self = this;
@@ -41,47 +88,19 @@ define([
             var found = [];
 
             _.forEach(data, function(entry){
-                var listElement, $li;
                 var id = entry.id;
                 if(self.elements[id]){
                     //update
                     self.elements[id].update(entry).highlight();
                 }else{
                     //create
-                    $li = $(elementWrapperTpl({
-                        id : entry.id
-                    }));
-                    $list.prepend($li);
-
-                    listElement = listElementFactory({}, entry)
-                        .on('render', function(){
-                            //console.log('DDD', this);
-                        })
-                        .on('destroy', function(){
-                            $li.remove();
-                            self.trigger('archivetask', $li.data('id'));
-                            console.log($li.data('id'));
-                        })
-                        .on('download', function(){
-                            $li.remove();
-                            self.trigger('download', $li.data('id'));
-                            console.log($li.data('id'));
-                        })
-                        .render($li);
-
-                    listElement.getElement().addClass('new-element');
-                    _.delay(function(){
-                        listElement.getElement().removeClass('new-element');
-                    }, 1000);
-
-                    self.elements[id] = listElement;
+                    self.elements[id] = createElement($list, entry);
                     found.push(id);
                 }
             });
 
             //remove cleared ones:
             console.log(found, _.keys(this.elements));
-
 
             this.data = data;
 

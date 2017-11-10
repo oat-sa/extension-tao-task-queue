@@ -53,7 +53,10 @@ define([
             this.update();
             return this;
         },
-        update : function update(){
+        update : function update(config){
+            if(config){
+                _.assign(this.config, config);
+            }
             this.getElement().html(_templates[this.config.type].call(null, {value : this.config.value}));
             return this;
         },

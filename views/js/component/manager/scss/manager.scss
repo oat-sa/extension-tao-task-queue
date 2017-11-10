@@ -100,21 +100,20 @@ $listBorderColor: #333;
                 //@include transition('height', 2s);
             }
         }
-        li{
-            min-height: 70px;
-            background: brown;
-        }
-        .notif-element {
-            //max-height: 100px;
-            //@include transition('max-height', 2s);
-            transform: scaleY(1);
-            @include transition('scaleY', 0.5s);
-            &.new-element{
-                //max-height: 0;
-                //padding: 0;
-                //overflow: hidden;
-                transform-origin: 20% 0;
-                transform: scaleY(0);
+        ul{
+            max-height: 460px;
+            overflow: auto;
+            li{
+                min-height: 70px;
+                background: blacken($canvas, 0.2);
+                .notif-element {
+                    transform: scaleY(1);
+                    @include transition('scaleY', 0.5s);
+                    &.new-element{
+                        transform-origin: 20% 0;
+                        transform: scaleY(0);
+                    }
+                }
             }
         }
     }
