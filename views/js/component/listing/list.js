@@ -48,8 +48,8 @@ define([
     };
 
     var badgeApi = {
-        setData : function setType(data){
-            return this;
+        getElements : function getElements(){
+            return this.elements;
         },
         addNewTask : function addNewTask(taskData, animate){
             var taskElement;
@@ -57,17 +57,16 @@ define([
             //$container.find('.task-list').scrollTop(0);
             $container.find('.task-list').get(0).scrollTo(0, 0);
 
-            this.data.push(taskData);
             taskElement = this.createElement(this.getElement().find('ul'), taskData);
             this.elements[taskData.id] = taskElement;
 
             animateIntersion(taskElement);
         },
-        createElement : function createElement($appendTo, taskData, animate){
+        createElement : function createElement($appendTo, taskData){
+            var self = this;
             var listElement;
             var $li = $(elementWrapperTpl({
-                id : taskData.id,
-                inserting : !!animate
+                id : taskData.id
             }));
             $appendTo.prepend($li);
 
@@ -76,24 +75,20 @@ define([
                     //console.log('DDD', this);
                 })
                 .on('destroy', function(){
+                    var taskId = $li.data('id');
                     $li.remove();
-                    self.trigger('archivetask', $li.data('id'));
-                    console.log($li.data('id'));
+                    delete self.elements[taskId];
+                    self.trigger('delete', taskId);
                 })
                 .on('download', function(){
                     $li.remove();
                     self.trigger('download', $li.data('id'));
-                    console.log($li.data('id'));
                 })
                 .render($li);
 
-            if(animate){
-                animateIntersion(listElement);//TODO animate
-            }
-
             return listElement;
         },
-        update : function update(data){
+        update : function update(data){//TODO rename load data
             var self = this;
             var $list = this.getElement().find('ul');
             var found = [];
@@ -111,33 +106,17 @@ define([
             });
 
             //remove cleared ones:
-            console.log(found, _.keys(this.elements));
-
-            this.data = data;
+            console.log('DIFF', found, _.keys(this.elements));
 
             this.getElement().find('.description').html(__('Running 1/2 background jobs'));
 
-            _.delay(function(){
-                //var one = _.values(self.elements)[1];
-                //one.update({
-                //    status: 'failed',
-                //    file: true,
-                //    updated_at: Math.floor(Date.now() / 1000)
-                //}).highlight();
-
-                //var $placeholder = $('<li class="placeholder">TTT</li>');
-                //$list.prepend($placeholder);
-                //_.delay(function(){
-                //    $placeholder.addClass('grow');
-                //}, 1000);
-
-            }, 1000);
+            //console.log(this.elements);
 
             return this;
         },
         empty : function empty(){
             this.getElement().find('ul').empty();
-            this.elements = [];
+            this.elements = {};
         }
 
     };

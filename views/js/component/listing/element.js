@@ -82,6 +82,16 @@ define([
     };
 
     var badgeApi = {
+        getId : function getId(){
+            if(this.data && this.data.id){
+                return this.data.id;
+            }
+        },
+        getStatus : function getStatus(){
+            if(this.data && this.data.status){
+                return this.data.status;
+            }
+        },
         update : function update(data){
             var $container = this.getElement();
 

@@ -1,1 +1,1 @@
-<li data-id="{{id}}" {{#if inserting}}class="inserting"{{/if}}></li>
+<li data-id="{{id}}"></li>

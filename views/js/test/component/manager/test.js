@@ -158,7 +158,6 @@ define([
             };
         };
 
-        console.log([createTask(), createTask(), createTask(), createTask()]);
         taskQueueManagerFactory(config, _sampleLogCollection)
             .on('render', function(){
                 var self = this;

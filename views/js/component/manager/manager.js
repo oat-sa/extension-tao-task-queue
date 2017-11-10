@@ -34,24 +34,26 @@ define([
 
     var getBadgeDataFromStatus = function getBadgeDataFromStatus(tasksStatuses){
         if(tasksStatuses){
-            if(!_.isUndefined(tasksStatuses.numberOfTasksFailed)){
+            if(tasksStatuses.numberOfTasksFailed){
                 return {
                     type : 'error',
                     value : parseInt(tasksStatuses.numberOfTasksFailed, 10),
                 };
             }
-            if(!_.isUndefined(tasksStatuses.numberOfTasksCompleted)){
+            if(tasksStatuses.numberOfTasksCompleted){
                 return {
                     type : 'success',
                     value : parseInt(tasksStatuses.numberOfTasksCompleted, 10),
                 };
             }
-            if(!_.isUndefined(tasksStatuses.numberOfTasksInProgress)){
+            if(tasksStatuses.numberOfTasksInProgress){
                 return {
                     type : 'info',
                     value : parseInt(tasksStatuses.numberOfTasksInProgress, 10),
                 };
             }
+            //hide badge in this case
+            return null;
         }
     };
 
@@ -80,13 +82,43 @@ define([
         }
     };
 
+    var getBadgeDataFromElements = function getBadgeDataFromElements(elements){
+
+        var statusMap = {
+            in_progress: 'numberOfTasksInProgress',
+            failed: 'numberOfTasksFailed',
+            completed: 'numberOfTasksCompleted',
+        };
+
+        var stats = {
+            numberOfTasksFailed : 0,
+            numberOfTasksCompleted : 0,
+            numberOfTasksInProgress : 0
+        };
+
+        _.forEach(elements, function(element){
+            var status = element.getStatus();
+            if(statusMap[status]){
+                //it is a know state, so add to the stats array
+                stats[statusMap[status]]++;
+            }
+        });
+
+        return getBadgeDataFromStatus(stats);
+    };
+
     var taskQueue = {
         addNewTask : function addNewTask(taskData, animate){
-            var badgeData;
-            this.data.push(taskData);
-            badgeData = getBadgeDataFromFullLog(this.data);
-            this.badge.update(badgeData);
             this.list.addNewTask(taskData, animate);
+            this.selfUpdateBadge();
+        },
+        selfUpdateBadge : function selfUpdateBadge(){
+            var badgeData = getBadgeDataFromElements(this.list.getElements());
+            if(badgeData){
+                this.badge.update(badgeData).show();
+            }else{
+                this.badge.hide();
+            }
         }
     };
 
@@ -128,6 +160,8 @@ define([
                 badgeClass : 'badge-info'
             };
 
+        data = data || {};
+
         return component(taskQueue)
             .setTemplate(triggerTpl)
 
@@ -145,8 +179,7 @@ define([
                 var self = this;
                 var $trigger = this.getElement();
 
-                this.data = data;
-                this.badge = badgeFactory(getBadgeDataFromFullLog(this.data))
+                this.badge = badgeFactory(getBadgeDataFromFullLog(data))
                     .on('render', function(){
                         //var badge = this;
                         //badge.pulse();
@@ -158,7 +191,15 @@ define([
                     })
                     .render($trigger);
 
-                this.list = makeAlignable(taskListFactory({startHidden : true}, this.data))
+                this.list = makeAlignable(taskListFactory({startHidden : true}, data))
+                    .on('delete', function(){
+                        var badgeData = getBadgeDataFromElements(this.getElements());
+                        if(badgeData){
+                            self.badge.update(badgeData).show();
+                        }else{
+                            self.badge.hide();
+                        }
+                    })
                     .show()
                     .init()
                     .render($trigger)
