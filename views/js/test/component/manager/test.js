@@ -81,12 +81,6 @@ define([
         var config = {
         };
 
-        var _sampleBadgeData = {
-            numberOfTasksCompleted:10,
-            numberOfTasksFailed:2,
-            numberOfTasksInProgress:5
-        };
-
         var _sampleLogCollection = [
             {
                 id: 'rdf#i1508337970199318643',
@@ -173,7 +167,7 @@ define([
                 var $controls = $container.find('#controls');
 
                 $controls.find('.add-task').click(function(){
-                    self.addNewTask(createTask());
+                    self.addNewTask(createTask(), true);
                 });
 
 

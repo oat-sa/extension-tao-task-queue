@@ -31,7 +31,7 @@ define([
         value : 0
     };
 
-    var highlightElementInsertion = function highlightElementInsertion(listElement){
+    var animateIntersion = function animateIntersion(listElement){
         var $listElement = listElement.getElement();
         var $container = $listElement.parent();
         $container.addClass('inserting');
@@ -53,19 +53,21 @@ define([
         },
         addNewTask : function addNewTask(taskData, animate){
             var taskElement;
-            //var $container = this.getElement();
+            var $container = this.getElement();
             //$container.find('.task-list').scrollTop(0);
+            $container.find('.task-list').get(0).scrollTo(0, 0);
 
             this.data.push(taskData);
             taskElement = this.createElement(this.getElement().find('ul'), taskData);
             this.elements[taskData.id] = taskElement;
 
-            highlightElementInsertion(taskElement);//TODO animate
+            animateIntersion(taskElement);
         },
-        createElement : function createElement($appendTo, taskData){
+        createElement : function createElement($appendTo, taskData, animate){
             var listElement;
             var $li = $(elementWrapperTpl({
-                id : taskData.id
+                id : taskData.id,
+                inserting : !!animate
             }));
             $appendTo.prepend($li);
 
@@ -84,6 +86,10 @@ define([
                     console.log($li.data('id'));
                 })
                 .render($li);
+
+            if(animate){
+                animateIntersion(listElement);//TODO animate
+            }
 
             return listElement;
         },
