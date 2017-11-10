@@ -103,6 +103,33 @@ define([
         }
     ];
 
+    var getBadgeDataFromStatus = function getBadgeDataFromStatus(tasksStatuses){
+        if(tasksStatuses){
+            if(!_.isUndefined(tasksStatuses.numberOfTasksFailed)){
+                return {
+                    type : 'error',
+                    value : parseInt(tasksStatuses.numberOfTasksFailed, 10),
+                };
+            }
+            if(!_.isUndefined(tasksStatuses.numberOfTasksCompleted)){
+                return {
+                    type : 'success',
+                    value : parseInt(tasksStatuses.numberOfTasksCompleted, 10),
+                };
+            }
+            if(!_.isUndefined(tasksStatuses.numberOfTasksInProgress)){
+                return {
+                    type : 'info',
+                    value : parseInt(tasksStatuses.numberOfTasksInProgress, 10),
+                };
+            }
+        }
+    };
+
+    var getBadgeDataFromFullLog = function getBadgeDataFromFullLog(tasksLogs){
+
+    };
+
     /**
      * Builds an instance of the datalist component
      * @param {Object} config
@@ -136,7 +163,7 @@ define([
      * @event disable - Emitted when the component is disabled
      * @event template - Emitted when the template is changed
      */
-    return function taskQueueManagerFactory(config) {
+    return function taskQueueManagerFactory(config, data) {
         var initConfig = config || {
                 badgeClass : 'badge-info'
             };
@@ -155,22 +182,17 @@ define([
             // renders the component
             .on('render', function() {
 
-                var self = this;
                 var $trigger = this.getElement();
 
-                var badge = badgeFactory({})
+                var badge = badgeFactory(getBadgeDataFromStatus(_sampleBadgeData))
                     .on('render', function(){
-
-                        this.setType('error');
-                        this.setValue(199);
-
-                        badge.pulse();
+                        var self = this;
+                        self.pulse();
                         _.delay(function(){
-                            badge.setType('success');
-                            badge.setValue(1);
-                            badge.pulse();
+                            self.setType('success');
+                            self.setValue(1);
+                            self.pulse();
                         }, 6000);
-
                     })
                     .render($trigger);
 

@@ -20,12 +20,11 @@ define([
     'lodash',
     'i18n',
     'ui/component',
-    'taoTaskQueue/component/badge/badge',
-    'tpl!taoTaskQueue/component/badge/tpl/main',
+    'tpl!taoTaskQueue/component/badge/tpl/badge',
     'tpl!taoTaskQueue/component/badge/tpl/info',
     'tpl!taoTaskQueue/component/badge/tpl/success',
     'tpl!taoTaskQueue/component/badge/tpl/error'
-], function ($, _, __, component, badgeFactory, mainTpl, infoTpl, successTpl, errorTpl) {
+], function ($, _, __, component, badgeTpl, infoTpl, successTpl, errorTpl) {
     'use strict';
 
     var _defaults = {
@@ -64,14 +63,14 @@ define([
             _.delay(function(){
                 $component.removeClass('pulse');
             }, 5000);
+            return this;
         }
     };
 
     return function badgeFactory(config) {
         var initConfig = _.defaults(config || {}, _defaults);
-
         return component(badgeApi)
-            .setTemplate(mainTpl)
+            .setTemplate(badgeTpl)
 
             .on('init', function() {
                 //this.render($container);
