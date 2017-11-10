@@ -81,12 +81,12 @@ define([
     };
 
     var taskQueue = {
-        addNewTask : function addNewTask(taskData){
+        addNewTask : function addNewTask(taskData, animate){
             var badgeData;
             this.data.push(taskData);
             badgeData = getBadgeDataFromFullLog(this.data);
             this.badge.update(badgeData);
-            this.list.addNewTask(taskData);
+            this.list.addNewTask(taskData, animate);
         }
     };
 

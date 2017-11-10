@@ -104,8 +104,21 @@ $listBorderColor: #333;
             max-height: 460px;
             overflow: auto;
             li{
-                min-height: 70px;
+                //min-height: 70px;
+                max-height: 100px;
                 background: blacken($canvas, 0.2);
+                &.inserting{
+                    max-height: 0;
+                    @include transition('max-height', 0.5s);
+                    .notif-element{
+                        height: 0px;
+                    }
+                }
+                &.inserted{
+                    min-height: 70px;
+                }
+
+                //enable smooth transition when added
                 .notif-element {
                     transform: scaleY(1);
                     @include transition('scaleY', 0.5s);

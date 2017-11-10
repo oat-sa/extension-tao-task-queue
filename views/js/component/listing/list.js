@@ -32,55 +32,60 @@ define([
     };
 
     var highlightElementInsertion = function highlightElementInsertion(listElement){
-        listElement.getElement().addClass('new-element');
+        var $listElement = listElement.getElement();
+        var $container = $listElement.parent();
+        $container.addClass('inserting');
+        $listElement.addClass('new-element');
         _.delay(function(){
-            listElement.getElement().removeClass('new-element');
-        }, 100);
+            $container.removeClass('inserting');
+            _.delay(function(){
+                //$listElement.addClass('new-element');
+                //_.delay(function(){
+                    $listElement.removeClass('new-element');
+                //}, 100);
+            }, 400);
+        },10);
     };
-
-    var createElement = function createElement($appendTo, taskData){
-        var listElement;
-        var $li = $(elementWrapperTpl({
-            id : taskData.id
-        }));
-        $appendTo.prepend($li);
-
-        listElement = listElementFactory({}, taskData)
-            .on('render', function(){
-                //console.log('DDD', this);
-            })
-            .on('destroy', function(){
-                $li.remove();
-                self.trigger('archivetask', $li.data('id'));
-                console.log($li.data('id'));
-            })
-            .on('download', function(){
-                $li.remove();
-                self.trigger('download', $li.data('id'));
-                console.log($li.data('id'));
-            })
-            .render($li);
-
-        return listElement;
-    };
-
-    function highlight(listElement){
-        listElement.getElement().addClass('new-element');
-        _.delay(function(){
-            listElement.getElement().removeClass('new-element');
-        }, 1000);
-    }
 
     var badgeApi = {
         setData : function setType(data){
             return this;
         },
-        addNewTask : function addNewTask(taskData){
+        addNewTask : function addNewTask(taskData, animate){
             var taskElement;
+            //var $container = this.getElement();
+            //$container.find('.task-list').scrollTop(0);
+
             this.data.push(taskData);
-            taskElement = createElement(this.getElement().find('ul'), taskData);
+            taskElement = this.createElement(this.getElement().find('ul'), taskData);
             this.elements[taskData.id] = taskElement;
-            highlightElementInsertion(taskElement);
+
+            highlightElementInsertion(taskElement);//TODO animate
+        },
+        createElement : function createElement($appendTo, taskData){
+            var listElement;
+            var $li = $(elementWrapperTpl({
+                id : taskData.id
+            }));
+            $appendTo.prepend($li);
+
+            listElement = listElementFactory({}, taskData)
+                .on('render', function(){
+                    //console.log('DDD', this);
+                })
+                .on('destroy', function(){
+                    $li.remove();
+                    self.trigger('archivetask', $li.data('id'));
+                    console.log($li.data('id'));
+                })
+                .on('download', function(){
+                    $li.remove();
+                    self.trigger('download', $li.data('id'));
+                    console.log($li.data('id'));
+                })
+                .render($li);
+
+            return listElement;
         },
         update : function update(data){
             var self = this;
@@ -94,7 +99,7 @@ define([
                     self.elements[id].update(entry).highlight();
                 }else{
                     //create
-                    self.elements[id] = createElement($list, entry);
+                    self.elements[id] = self.createElement($list, entry);
                     found.push(id);
                 }
             });
