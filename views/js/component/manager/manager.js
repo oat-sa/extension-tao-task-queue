@@ -29,79 +29,11 @@ define([
     'use strict';
 
     var _defaults = {
-        keyName : 'id',
-        labelName : 'label',
-        labelText : __('Label'),
-        title : false,
-        textNumber : __('Available'),
-        textEmpty : __('There is nothing to list!'),
-        textLoading : __('Loading'),
-        selectable : false
     };
 
     var taskQueue = {
 
     };
-
-    var _sampleBadgeData = {
-        numberOfTasksCompleted:10,
-        numberOfTasksFailed:2,
-        numberOfTasksInProgress:5
-    };
-
-    var _sampleLogCollection = [
-        {
-            id: 'rdf#i1508337970199318643',
-            task_name: 'Task Name',
-            label: 'Task label',
-            status: 'completed',
-            owner: 'userId',
-            created_at: '1510149684',//timezone ?
-            updated_at: '1510149694',
-            file: false,//suppose
-            category: 'import',
-            report : {
-                type : 'success',
-                message : 'completed task rdf#i1508337970199318643',
-                data : null,
-                children: []
-            }
-        },
-        {
-            id: 'rdf#i15083379701993186432222',
-            task_name: 'Task Name 2',
-            label: 'Task label 2',
-            status: 'running',
-            owner: 'userId',
-            created_at: '1510149584',//timezone ?
-            updated_at: '1510149574',
-            file: false,
-            category: 'publish',//d
-            report : {
-                type : 'info',
-                message : 'running task rdf#i15083379701993186432222',
-                data : null,//download url ? task context ?
-                children: []
-            }
-        },
-        {
-            id: 'rdf#i1508337970190342',
-            task_name: 'Task Name 2',
-            label: 'Task label 2',
-            status: 'failed',
-            owner: 'userId',
-            created_at: '1510149584',//timezone ?
-            updated_at: '1510049574',
-            file: true,//suppose
-            category: 'export',//d
-            report : {
-                type : 'error',
-                message : 'running task rdf#i1508337970190342',
-                data : null,//download url ? task context ?
-                children: []
-            }
-        }
-    ];
 
     var getBadgeDataFromStatus = function getBadgeDataFromStatus(tasksStatuses){
         if(tasksStatuses){
@@ -127,7 +59,28 @@ define([
     };
 
     var getBadgeDataFromFullLog = function getBadgeDataFromFullLog(tasksLogs){
-
+        var logCollection = _(tasksLogs);
+        var count = logCollection.filter({status: 'failed'}).size();
+        if(count){
+            return {
+                type : 'error',
+                value: count
+            };
+        }
+        count = logCollection.filter({status: 'completed'}).size();
+        if(count){
+            return {
+                type : 'success',
+                value: count
+            };
+        }
+        count = logCollection.filter({status: 'in_progress'}).size();
+        if(count){
+            return {
+                type : 'info',
+                value: count
+            };
+        }
     };
 
     /**
@@ -184,7 +137,7 @@ define([
 
                 var $trigger = this.getElement();
 
-                var badge = badgeFactory(getBadgeDataFromStatus(_sampleBadgeData))
+                var badge = badgeFactory(getBadgeDataFromFullLog(data))
                     .on('render', function(){
                         var self = this;
                         self.pulse();
@@ -196,7 +149,7 @@ define([
                     })
                     .render($trigger);
 
-                var list = makeAlignable(taskListFactory({startHidden : true}, _sampleLogCollection))
+                var list = makeAlignable(taskListFactory({startHidden : true}, data))
                     .show()
                     .init()
                     .render($trigger)
@@ -214,7 +167,7 @@ define([
                 });
 
                 //toggle pannel visibility
-                $trigger.on('click', function(e){
+                $trigger.on('click', function(){
                     if(list.is('hidden')){
                         list.show();
                     }else{

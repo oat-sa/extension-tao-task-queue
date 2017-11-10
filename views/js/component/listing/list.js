@@ -69,6 +69,11 @@ define([
                         })
                         .render($li);
 
+                    listElement.getElement().addClass('new-element');
+                    _.delay(function(){
+                        listElement.getElement().removeClass('new-element');
+                    }, 1000);
+
                     self.elements[id] = listElement;
                     found.push(id);
                 }
@@ -83,13 +88,20 @@ define([
             this.getElement().find('.description').html(__('Running 1/2 background jobs'));
 
             _.delay(function(){
-                var one = _.values(self.elements)[1];
-                one.update({
-                    status: 'failed',
-                    file: true,
-                    updated_at: Math.floor(Date.now() / 1000)
-                }).highlight();
-            }, 2000);
+                //var one = _.values(self.elements)[1];
+                //one.update({
+                //    status: 'failed',
+                //    file: true,
+                //    updated_at: Math.floor(Date.now() / 1000)
+                //}).highlight();
+
+                //var $placeholder = $('<li class="placeholder">TTT</li>');
+                //$list.prepend($placeholder);
+                //_.delay(function(){
+                //    $placeholder.addClass('grow');
+                //}, 1000);
+
+            }, 1000);
 
             return this;
         },

@@ -29,7 +29,7 @@ define([
     var _defaults = {
     };
 
-    var _allowedStatus = ['running', 'failed', 'completed'];
+    var _allowedStatus = ['in_progress', 'failed', 'completed'];
 
     var _categoryMap = {
         import : 'import',
@@ -57,7 +57,7 @@ define([
 
     var getTimeString = function getTimeString(data){
         switch(data.status){
-            case 'running':
+            case 'in_progress':
                 return __('Started %s', getFormattedTime(data.created_at));
             case 'completed':
                 return __('Completed %s', getFormattedTime(data.updated_at));

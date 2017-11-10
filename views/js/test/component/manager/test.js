@@ -81,9 +81,69 @@ define([
         var config = {
         };
 
+        var _sampleBadgeData = {
+            numberOfTasksCompleted:10,
+            numberOfTasksFailed:2,
+            numberOfTasksInProgress:5
+        };
+
+        var _sampleLogCollection = [
+            {
+                id: 'rdf#i1508337970199318643',
+                task_name: 'Task Name',
+                label: 'Task label',
+                status: 'completed',
+                owner: 'userId',
+                created_at: '1510149684',//timezone ?
+                updated_at: '1510149694',
+                file: false,//suppose
+                category: 'import',
+                report : {
+                    type : 'success',
+                    message : 'completed task rdf#i1508337970199318643',
+                    data : null,
+                    children: []
+                }
+            },
+            {
+                id: 'rdf#i15083379701993186432222',
+                task_name: 'Task Name 2',
+                label: 'Task label 2',
+                status: 'in_progress',
+                owner: 'userId',
+                created_at: '1510149584',//timezone ?
+                updated_at: '1510149574',
+                file: false,
+                category: 'publish',//d
+                report : {
+                    type : 'info',
+                    message : 'running task rdf#i15083379701993186432222',
+                    data : null,//download url ? task context ?
+                    children: []
+                }
+            },
+            {
+                id: 'rdf#i1508337970190342',
+                task_name: 'Task Name 2',
+                label: 'Task label 2',
+                status: 'failed',
+                owner: 'userId',
+                created_at: '1510149584',//timezone ?
+                updated_at: '1510049574',
+                file: true,//suppose
+                category: 'export',//d
+                report : {
+                    type : 'error',
+                    message : 'running task rdf#i1508337970190342',
+                    data : null,//download url ? task context ?
+                    children: []
+                }
+            }
+        ];
+
         QUnit.expect(1);
 
-        taskQueueManagerFactory(config)
+        taskQueueManagerFactory(config, _sampleLogCollection)
             .on('render', function(){
                 assert.ok(true);
                 QUnit.start();
