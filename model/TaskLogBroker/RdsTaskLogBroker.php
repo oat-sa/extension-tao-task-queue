@@ -109,14 +109,11 @@ class RdsTaskLogBroker implements TaskLogBrokerInterface, PhpSerializable, Servi
         /** @var \common_persistence_sql_pdo_mysql_SchemaManager $schemaManager */
         $schemaManager = $this->getPersistence()->getSchemaManager();
 
-        /** @var \Doctrine\DBAL\Schema\MySqlSchemaManager $sm */
-        $sm = $schemaManager->getSchemaManager();
+        $fromSchema = $schemaManager->createSchema();
+        $toSchema = clone $fromSchema;
 
         // if our table does not exist, let's create it
-        if(false === $sm->tablesExist([$this->getTableName()])) {
-            $fromSchema = $schemaManager->createSchema();
-            $toSchema = clone $fromSchema;
-
+        if(false === $fromSchema->hasTable($this->getTableName())) {
             $table = $toSchema->createTable($this->getTableName());
             $table->addOption('engine', 'InnoDB');
             $table->addColumn('id', 'string', ["notnull" => true, "length" => 255]);
@@ -128,8 +125,8 @@ class RdsTaskLogBroker implements TaskLogBrokerInterface, PhpSerializable, Servi
             $table->addColumn('created_at', 'datetime', ['notnull' => true]);
             $table->addColumn('updated_at', 'datetime', ['notnull' => false]);
             $table->setPrimaryKey(['id']);
-            $table->addIndex(['task_name', 'owner'], 'IDX_task_name_owner');
-            $table->addIndex(['status'], 'IDX_status');
+            $table->addIndex(['task_name', 'owner'], $this->getTableName() .'_IDX_task_name_owner');
+            $table->addIndex(['status'], $this->getTableName() .'_IDX_status');
 
             $queries = $this->getPersistence()->getPlatForm()->getMigrateSchemaSql($fromSchema, $toSchema);
             foreach ($queries as $query) {
