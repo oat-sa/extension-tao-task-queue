@@ -26,6 +26,7 @@ use oat\taoTaskQueue\model\Queue;
 use oat\taoTaskQueue\model\QueueBroker\InMemoryQueueBroker;
 use oat\taoTaskQueue\model\QueueDispatcher;
 use oat\taoTaskQueue\model\QueueDispatcherInterface;
+use oat\taoTaskQueue\model\TaskLogBroker\TaskLogBrokerInterface;
 use oat\taoTaskQueue\model\TaskLogInterface;
 
 /**
@@ -57,5 +58,29 @@ class Updater extends common_ext_ExtensionUpdater
         }
 
         $this->skip('0.2.0', '0.4.1');
+
+        if ($this->isVersion('0.4.1')) {
+
+            /** @var $taskLogService TaskLogInterface */
+            $taskLogService = $this->getServiceManager()->get(TaskLogInterface::SERVICE_ID);
+
+            if ($taskLogService->isRds()) {
+                /** @var \common_persistence_SqlPersistence $persistence */
+                $persistence = \common_persistence_Manager::getPersistence('default');
+                $schemaManager = $persistence->getSchemaManager();
+                $fromSchema = $schemaManager->createSchema();
+                $toSchema = clone $fromSchema;
+
+                $table = $toSchema->getTable($taskLogService->getBroker()->getTableName());
+                $table->addColumn(TaskLogBrokerInterface::COLUMN_PARAMETERS, 'text', ["notnull" => false, "default" => null]);
+
+                $queries = $persistence->getPlatform()->getMigrateSchemaSql($fromSchema, $toSchema);
+                foreach ($queries as $query) {
+                    $persistence->exec($query);
+                }
+            }
+
+            $this->setVersion('0.5.0');
+        }
     }
 }
