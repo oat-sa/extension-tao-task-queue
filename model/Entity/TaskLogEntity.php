@@ -22,9 +22,9 @@ namespace oat\taoTaskQueue\model\Entity;
 
 use common_report_Report as Report;
 use DateTime;
-use DateTimeInterface;
 use Exception;
 use JsonSerializable;
+use oat\taoTaskQueue\model\TaskLogBroker\TaskLogBrokerInterface;
 use oat\taoTaskQueue\model\ValueObjects\TaskLogCategorizedStatus;
 
 class TaskLogEntity implements JsonSerializable
@@ -34,6 +34,9 @@ class TaskLogEntity implements JsonSerializable
 
     /** @var string */
     private $taskName;
+
+    /** @var array */
+    private $parameters;
 
     /** @var  string */
     private $label;
@@ -47,10 +50,10 @@ class TaskLogEntity implements JsonSerializable
     /** @var  Report */
     private $report;
 
-    /** @var  DateTimeInterface */
+    /** @var  DateTime */
     private $createdAt;
 
-    /** @var  DateTimeInterface */
+    /** @var  DateTime */
     private $updatedAt;
 
     /**
@@ -58,25 +61,28 @@ class TaskLogEntity implements JsonSerializable
      *
      * @param string                   $id
      * @param string                   $taskName
+     * @param array                    $parameters
      * @param string                   $label
      * @param TaskLogCategorizedStatus $status
      * @param string                   $owner
      * @param Report                   $report
-     * @param DateTimeInterface        $createdAt
-     * @param DateTimeInterface        $updatedAt
+     * @param DateTime        $createdAt
+     * @param DateTime        $updatedAt
      */
     public function __construct(
         $id,
         $taskName,
+        array $parameters,
         $label,
         TaskLogCategorizedStatus $status,
         $owner,
-        DateTimeInterface $createdAt,
-        DateTimeInterface $updatedAt,
+        DateTime $createdAt,
+        DateTime $updatedAt,
         Report $report = null
     ) {
         $this->id = $id;
         $this->taskName = $taskName;
+        $this->parameters = $parameters;
         $this->label = $label;
         $this->status = $status;
         $this->owner = $owner;
@@ -95,14 +101,15 @@ class TaskLogEntity implements JsonSerializable
     public static function createFromArray(array $row)
     {
         return new self(
-            $row['id'],
-            $row['task_name'],
-            $row['label'],
-            TaskLogCategorizedStatus::create($row['status']),
-            $row['owner'],
-            DateTime::createFromFormat('Y-m-d H:i:s', $row['created_at']),
-            DateTime::createFromFormat('Y-m-d H:i:s', $row['updated_at']),
-            Report::jsonUnserialize($row['report'])
+            $row[TaskLogBrokerInterface::COLUMN_ID],
+            $row[TaskLogBrokerInterface::COLUMN_TASK_NAME],
+            $row[TaskLogBrokerInterface::COLUMN_PARAMETERS] ? json_decode($row[TaskLogBrokerInterface::COLUMN_PARAMETERS], true) : [],
+            $row[TaskLogBrokerInterface::COLUMN_LABEL],
+            TaskLogCategorizedStatus::createFromString($row[TaskLogBrokerInterface::COLUMN_STATUS]),
+            $row[TaskLogBrokerInterface::COLUMN_OWNER],
+            DateTime::createFromFormat('Y-m-d H:i:s', $row[TaskLogBrokerInterface::COLUMN_CREATED_AT]),
+            DateTime::createFromFormat('Y-m-d H:i:s', $row[TaskLogBrokerInterface::COLUMN_UPDATED_AT]),
+            Report::jsonUnserialize($row[TaskLogBrokerInterface::COLUMN_REPORT])
         );
     }
 
@@ -120,6 +127,14 @@ class TaskLogEntity implements JsonSerializable
     public function getTaskName()
     {
         return $this->taskName;
+    }
+
+    /**
+     * @return array
+     */
+    public function getParameters()
+    {
+        return $this->parameters;
     }
 
     /**
@@ -147,7 +162,7 @@ class TaskLogEntity implements JsonSerializable
     }
 
     /**
-     * @return DateTimeInterface
+     * @return DateTime
      */
     public function getCreatedAt()
     {
@@ -155,7 +170,7 @@ class TaskLogEntity implements JsonSerializable
     }
 
     /**
-     * @return DateTimeInterface
+     * @return DateTime
      */
     public function getUpdatedAt()
     {
@@ -169,6 +184,27 @@ class TaskLogEntity implements JsonSerializable
     public function getStatus()
     {
         return $this->status;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFileNameFromReport()
+    {
+        $filename = '';
+
+        if ($this->getStatus()->isFailed() || is_null($this->getReport())) {
+            return $filename;
+        }
+
+        /** @var Report  $successReport */
+        foreach ($this->getReport()->getSuccesses() as $successReport) {
+            if (!is_null($filename = $successReport->getData())) {
+                break;
+            }
+        }
+
+        return $filename;
     }
 
     /**
@@ -186,5 +222,13 @@ class TaskLogEntity implements JsonSerializable
             'updatedAt' => $this->updatedAt->format(DateTime::ATOM),
             'report' => is_null($this->report) ? [] : $this->report->JsonSerialize()
         ];
+    }
+
+    /**
+     * @return array
+     */
+    public function toArray()
+    {
+        return $this->jsonSerialize();
     }
 }

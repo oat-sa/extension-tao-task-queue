@@ -28,6 +28,7 @@ use oat\taoTaskQueue\model\Entity\TasksLogsStats;
 use oat\taoTaskQueue\model\QueueDispatcherInterface;
 use oat\taoTaskQueue\model\Task\CallbackTaskInterface;
 use oat\taoTaskQueue\model\Task\TaskInterface;
+use oat\taoTaskQueue\model\TaskLog\TaskLogFilter;
 use oat\taoTaskQueue\model\TaskLogInterface;
 use oat\taoTaskQueue\model\ValueObjects\TaskLogCategorizedStatus;
 use Psr\Log\LoggerAwareInterface;
@@ -96,7 +97,7 @@ class RdsTaskLogBroker implements TaskLogBrokerInterface, PhpSerializable, Servi
     /**
      * @return string
      */
-    protected function getTableName()
+    public function getTableName()
     {
         return strtolower(QueueDispatcherInterface::QUEUE_PREFIX .'_'. $this->containerName);
     }
@@ -119,17 +120,19 @@ class RdsTaskLogBroker implements TaskLogBrokerInterface, PhpSerializable, Servi
 
             $table = $toSchema->createTable($this->getTableName());
             $table->addOption('engine', 'InnoDB');
-            $table->addColumn('id', 'string', ["notnull" => true, "length" => 255]);
-            $table->addColumn('task_name', 'string', ["notnull" => true, "length" => 255]);
-            $table->addColumn('label', 'string', ["notnull" => false, "length" => 255]);
-            $table->addColumn('status', 'string', ["notnull" => true, "length" => 50]);
-            $table->addColumn('owner', 'string', ["notnull" => false, "length" => 255, "default" => null]);
-            $table->addColumn('report', 'text', ["notnull" => false, "default" => null]);
-            $table->addColumn('created_at', 'datetime', ['notnull' => true]);
-            $table->addColumn('updated_at', 'datetime', ['notnull' => false]);
+            $table->addColumn(self::COLUMN_ID, 'string', ["notnull" => true, "length" => 255]);
+            $table->addColumn(self::COLUMN_TASK_NAME, 'string', ["notnull" => true, "length" => 255]);
+            $table->addColumn(self::COLUMN_PARAMETERS, 'text', ["notnull" => false, "default" => null]);
+            $table->addColumn(self::COLUMN_LABEL, 'string', ["notnull" => false, "length" => 255]);
+            $table->addColumn(self::COLUMN_STATUS, 'string', ["notnull" => true, "length" => 50]);
+            $table->addColumn(self::COLUMN_OWNER, 'string', ["notnull" => false, "length" => 255, "default" => null]);
+            $table->addColumn(self::COLUMN_REPORT, 'text', ["notnull" => false, "default" => null]);
+            $table->addColumn(self::COLUMN_CREATED_AT, 'datetime', ['notnull' => true]);
+            $table->addColumn(self::COLUMN_UPDATED_AT, 'datetime', ['notnull' => false]);
             $table->setPrimaryKey(['id']);
-            $table->addIndex(['task_name', 'owner'], 'IDX_task_name_owner');
-            $table->addIndex(['status'], 'IDX_status');
+            $table->addIndex([self::COLUMN_TASK_NAME, self::COLUMN_OWNER], 'IDX_task_name_owner');
+            $table->addIndex([self::COLUMN_STATUS], 'IDX_status');
+            $table->addIndex([self::COLUMN_CREATED_AT], 'IDX_created_at');
 
             $queries = $this->getPersistence()->getPlatForm()->getMigrateSchemaSql($fromSchema, $toSchema);
             foreach ($queries as $query) {
@@ -144,13 +147,14 @@ class RdsTaskLogBroker implements TaskLogBrokerInterface, PhpSerializable, Servi
     public function add(TaskInterface $task, $status, $label = null)
     {
         $this->getPersistence()->insert($this->getTableName(), [
-            'id'   => (string) $task->getId(),
-            'task_name' => $task instanceof CallbackTaskInterface && is_object($task->getCallable()) ? get_class($task->getCallable()) : get_class($task),
-            'label' => (string) $label,
-            'status' => (string) $status,
-            'owner' => (string) $task->getOwner(),
-            'created_at' => $task->getCreatedAt()->format('Y-m-d H:i:s'),
-            'updated_at' => $this->getPersistence()->getPlatForm()->getNowExpression()
+            self::COLUMN_ID   => (string) $task->getId(),
+            self::COLUMN_TASK_NAME => $task instanceof CallbackTaskInterface && is_object($task->getCallable()) ? get_class($task->getCallable()) : get_class($task),
+            self::COLUMN_PARAMETERS => json_encode($task->getParameters()),
+            self::COLUMN_LABEL => (string) $label,
+            self::COLUMN_STATUS => (string) $status,
+            self::COLUMN_OWNER => (string) $task->getOwner(),
+            self::COLUMN_CREATED_AT => $task->getCreatedAt()->format('Y-m-d H:i:s'),
+            self::COLUMN_UPDATED_AT => $this->getPersistence()->getPlatForm()->getNowExpression()
         ]);
     }
 
@@ -160,9 +164,9 @@ class RdsTaskLogBroker implements TaskLogBrokerInterface, PhpSerializable, Servi
     public function getStatus($taskId)
     {
         $qb = $this->getQueryBuilder()
-            ->select('status')
+            ->select(self::COLUMN_STATUS)
             ->from($this->getTableName())
-            ->andWhere('id = :id')
+            ->andWhere(self::COLUMN_ID .' = :id')
             ->setParameter('id', $taskId);
 
         return $qb->execute()->fetchColumn();
@@ -175,15 +179,15 @@ class RdsTaskLogBroker implements TaskLogBrokerInterface, PhpSerializable, Servi
     {
         $qb = $this->getQueryBuilder()
             ->update($this->getTableName())
-            ->set('status', ':status_new')
-            ->set('updated_at', ':updated_at')
-            ->where('id = :id')
+            ->set(self::COLUMN_STATUS, ':status_new')
+            ->set(self::COLUMN_UPDATED_AT, ':updated_at')
+            ->where(self::COLUMN_ID .' = :id')
             ->setParameter('id', (string) $taskId)
             ->setParameter('status_new', (string) $newStatus)
             ->setParameter('updated_at', $this->getPersistence()->getPlatForm()->getNowExpression());
 
         if ($prevStatus) {
-            $qb->andWhere('status = :status_prev')
+            $qb->andWhere(self::COLUMN_STATUS .' = :status_prev')
                 ->setParameter('status_prev', (string) $prevStatus);
         }
 
@@ -197,10 +201,10 @@ class RdsTaskLogBroker implements TaskLogBrokerInterface, PhpSerializable, Servi
     {
         $qb = $this->getQueryBuilder()
             ->update($this->getTableName())
-            ->set('report', ':report')
-            ->set('status', ':status_new')
-            ->set('updated_at', ':updated_at')
-            ->andWhere('id = :id')
+            ->set(self::COLUMN_REPORT, ':report')
+            ->set(self::COLUMN_STATUS, ':status_new')
+            ->set(self::COLUMN_UPDATED_AT, ':updated_at')
+            ->andWhere(self::COLUMN_ID .' = :id')
             ->setParameter('id', (string) $taskId)
             ->setParameter('report', json_encode($report))
             ->setParameter('status_new', (string) $newStatus)
@@ -215,9 +219,9 @@ class RdsTaskLogBroker implements TaskLogBrokerInterface, PhpSerializable, Servi
     public function getReport($taskId)
     {
         $qb = $this->getQueryBuilder()
-            ->select('report')
+            ->select(self::COLUMN_REPORT)
             ->from($this->getTableName())
-            ->andWhere('id = :id')
+            ->andWhere(self::COLUMN_ID .' = :id')
             ->setParameter('id', (string) $taskId);
 
         if (($reportJson = $qb->execute()->fetchColumn())
@@ -234,29 +238,25 @@ class RdsTaskLogBroker implements TaskLogBrokerInterface, PhpSerializable, Servi
     /**
      * @inheritdoc
      */
-    public function findAvailableByUser($userId, $limit, $offset)
+    public function search(TaskLogFilter $filter)
     {
         try {
-            $filters = $this->getAvailableFilters($userId);
-
             $qb = $this->getQueryBuilder()
                 ->select('*')
                 ->from($this->getTableName());
 
-            $qb->setMaxResults($limit);
-            $qb->setFirstResult($offset);
+            $qb->setMaxResults($filter->getLimit());
+            $qb->setFirstResult($filter->getOffset());
 
-            foreach ($filters as $filter) {
-                $qb->andWhere($filter['column'] . $filter['operator'] . $filter['columnSqlTranslate'])
-                    ->setParameter($filter['column'], $filter['value'])
-                ;
+            if ($filter->getSortBy()) {
+                $qb->orderBy($filter->getSortBy(), $filter->getSortOrder());
             }
 
-            $rows = $qb->execute()->fetchAll();
-            $collection = TaskLogCollection::createFromArray($rows);
+            $filter->applyFilters($qb);
 
+            $collection = TaskLogCollection::createFromArray($qb->execute()->fetchAll());
         } catch (\Exception $exception) {
-            $this->logWarning('Something went wrong getting task logs for user "'. $userId .'"; MSG: ' . $exception->getMessage());
+            $this->logError('Searching for task logs failed with MSG: ' . $exception->getMessage());
 
             $collection = TaskLogCollection::createEmptyCollection();
         }
@@ -267,56 +267,42 @@ class RdsTaskLogBroker implements TaskLogBrokerInterface, PhpSerializable, Servi
     /**
      * @inheritdoc
      */
-    public function getStats($userId)
+    public function count(TaskLogFilter $filter)
     {
-        $filters = $this->getAvailableFilters($userId);
-        $qb = $this->getQueryBuilder();
+        try {
+            $qb = $this->getQueryBuilder()
+                ->select('COUNT(*)')
+                ->from($this->getTableName());
+
+            $filter->applyFilters($qb);
+
+            return (int) $qb->execute()->fetchColumn();
+        } catch (\Exception $e) {
+            $this->logError('Counting task logs failed with MSG: '. $e->getMessage());
+        }
+
+        return 0;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getStats(TaskLogFilter $filter)
+    {
+        $qb = $this->getQueryBuilder()
+            ->from($this->getTableName());
 
         $qb->select(
             $this->buildCounterStatusSql('inProgressTasks', TaskLogCategorizedStatus::getMappedStatuses(TaskLogCategorizedStatus::STATUS_IN_PROGRESS)) . ', ' .
             $this->buildCounterStatusSql('completedTasks', TaskLogCategorizedStatus::getMappedStatuses(TaskLogCategorizedStatus::STATUS_COMPLETED)) . ', ' .
             $this->buildCounterStatusSql('failedTasks', TaskLogCategorizedStatus::getMappedStatuses(TaskLogCategorizedStatus::STATUS_FAILED))
         );
-        $qb->from($this->getTableName());
 
-        foreach ($filters as $filter) {
-            $qb->andWhere($filter['column'] . $filter['operator'] . $filter['columnSqlTranslate'])
-                ->setParameter($filter['column'], $filter['value'])
-            ;
-        }
+        $filter->applyFilters($qb);
 
         $row = $qb->execute()->fetch();
 
         return TasksLogsStats::buildFromArray($row);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getByIdAndUser($taskId, $userId)
-    {
-        $filters = $this->getAvailableFilters($userId);
-
-        $qb = $this->getQueryBuilder()
-            ->select('*')
-            ->from($this->getTableName())
-            ->andWhere('id = :id')
-            ->setParameter('id', (string) $taskId)
-        ;
-
-        foreach ($filters as $filter) {
-            $qb->andWhere($filter['column'] . $filter['operator'] . $filter['columnSqlTranslate'])
-                ->setParameter($filter['column'], $filter['value'])
-            ;
-        }
-
-        $row = $qb->execute()->fetch();
-
-        if ($row === false) {
-            throw new \common_exception_NotFound('Task log for task "'. $taskId .'" not found');
-        }
-
-        return TaskLogEntity::createFromArray($row);
     }
 
     /**
@@ -329,9 +315,9 @@ class RdsTaskLogBroker implements TaskLogBrokerInterface, PhpSerializable, Servi
         try {
             $qb = $this->getQueryBuilder()
                 ->update($this->getTableName())
-                ->set('status', ':status_new')
-                ->set('updated_at', ':updated_at')
-                ->where('id = :id')
+                ->set(self::COLUMN_STATUS, ':status_new')
+                ->set(self::COLUMN_UPDATED_AT, ':updated_at')
+                ->where(self::COLUMN_ID .' = :id')
                 ->setParameter('id', (string) $entity->getId())
                 ->setParameter('status_new', (string) TaskLogInterface::STATUS_ARCHIVED)
                 ->setParameter('updated_at', $this->getPersistence()->getPlatForm()->getNowExpression());
@@ -358,33 +344,6 @@ class RdsTaskLogBroker implements TaskLogBrokerInterface, PhpSerializable, Servi
     }
 
     /**
-     * @param $userId
-     * @return array
-     */
-    private function getAvailableFilters($userId)
-    {
-        $filters = [
-            [
-                'column' => 'status',
-                'columnSqlTranslate' => ':status',
-                'operator' => '!=',
-                'value' => TaskLogInterface::STATUS_ARCHIVED
-            ]
-        ];
-
-        if ($userId !== TaskLogInterface::SUPER_USER) {
-            $filters[] =  [
-                'column' => 'owner',
-                'columnSqlTranslate' => ':owner',
-                'operator' => '=',
-                'value' => $userId
-            ];
-        }
-
-        return $filters;
-    }
-
-    /**
      * @param string $statusColumn
      * @param array $inStatuses
      * @return string
@@ -398,16 +357,14 @@ class RdsTaskLogBroker implements TaskLogBrokerInterface, PhpSerializable, Servi
         $sql =  "COUNT( CASE WHEN ";
         foreach ($inStatuses as $status)
         {
-
             if ($status !== reset($inStatuses)) {
-                $sql .= " OR status = '". $status ."'";
+                $sql .= " OR ". self::COLUMN_STATUS ." = '". $status ."'";
             } else {
-                $sql .= " status = '". $status."'";
+                $sql .= " ". self::COLUMN_STATUS ." = '". $status."'";
             }
         }
 
         $sql .= " THEN 0 END ) AS $statusColumn";
-
 
         return $sql;
     }

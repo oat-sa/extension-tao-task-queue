@@ -27,7 +27,7 @@ class TaskLogCategorizedStatusTest extends \PHPUnit_Framework_TestCase
 {
     public function testCreateWithValidStatus()
     {
-        $status = TaskLogCategorizedStatus::create('enqueued');
+        $status = TaskLogCategorizedStatus::createFromString('enqueued');
         $this->assertInstanceOf(TaskLogCategorizedStatus::class, $status);
     }
 
@@ -36,40 +36,40 @@ class TaskLogCategorizedStatusTest extends \PHPUnit_Framework_TestCase
      */
     public function testCreateWithInvalidStatus()
     {
-        TaskLogCategorizedStatus::create('some invalid status');
+        TaskLogCategorizedStatus::createFromString('some invalid status');
     }
 
     public function testStatusAreMappedCorrectly()
     {
-        $status = TaskLogCategorizedStatus::create('enqueued');
+        $status = TaskLogCategorizedStatus::createFromString('enqueued');
         $this->assertSame('in_progress', (string)$status);
 
-        $status = TaskLogCategorizedStatus::create('dequeued');
+        $status = TaskLogCategorizedStatus::createFromString('dequeued');
         $this->assertSame('in_progress', (string)$status);
 
-        $status = TaskLogCategorizedStatus::create('running');
+        $status = TaskLogCategorizedStatus::createFromString('running');
         $this->assertSame('in_progress', (string)$status);
 
-        $status = TaskLogCategorizedStatus::create('completed');
+        $status = TaskLogCategorizedStatus::createFromString('completed');
         $this->assertSame('completed', (string)$status);
 
-        $status = TaskLogCategorizedStatus::create('failed');
+        $status = TaskLogCategorizedStatus::createFromString('failed');
         $this->assertSame('failed', (string)$status);
 
-        $status = TaskLogCategorizedStatus::create('unknown');
+        $status = TaskLogCategorizedStatus::createFromString('unknown');
         $this->assertSame('failed', (string)$status);
     }
 
     public function testStatusEquals()
     {
-        $statusRunning = TaskLogCategorizedStatus::create('enqueued');
-        $this->assertTrue($statusRunning->equals(TaskLogCategorizedStatus::create('dequeued')));
+        $statusRunning = TaskLogCategorizedStatus::createFromString('enqueued');
+        $this->assertTrue($statusRunning->equals(TaskLogCategorizedStatus::createFromString('dequeued')));
 
-        $statusCompleted = TaskLogCategorizedStatus::create('completed');
-        $this->assertTrue($statusCompleted->equals(TaskLogCategorizedStatus::create('completed')));
+        $statusCompleted = TaskLogCategorizedStatus::createFromString('completed');
+        $this->assertTrue($statusCompleted->equals(TaskLogCategorizedStatus::createFromString('completed')));
 
-        $statusFailed = TaskLogCategorizedStatus::create('failed');
-        $this->assertTrue($statusFailed->equals(TaskLogCategorizedStatus::create('unknown')));
+        $statusFailed = TaskLogCategorizedStatus::createFromString('failed');
+        $this->assertTrue($statusFailed->equals(TaskLogCategorizedStatus::createFromString('unknown')));
 
         $this->assertFalse($statusRunning->equals($statusCompleted));
         $this->assertFalse($statusCompleted->equals($statusFailed));
