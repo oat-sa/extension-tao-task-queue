@@ -25,6 +25,9 @@ use oat\taoTaskQueue\model\ValueObjects\TaskLogCategorizedStatus;
 
 class TaskLogCategorizedStatusTest extends \PHPUnit_Framework_TestCase
 {
+    /**
+     * @throws \Exception
+     */
     public function testCreateWithValidStatus()
     {
         $status = TaskLogCategorizedStatus::createFromString('enqueued');
@@ -33,16 +36,20 @@ class TaskLogCategorizedStatusTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \Exception
+     * @throws \Exception
      */
     public function testCreateWithInvalidStatus()
     {
         TaskLogCategorizedStatus::createFromString('some invalid status');
     }
 
+    /**
+     * @throws \Exception
+     */
     public function testStatusAreMappedCorrectly()
     {
         $status = TaskLogCategorizedStatus::createFromString('enqueued');
-        $this->assertSame('in_progress', (string)$status);
+        $this->assertSame('created', (string)$status);
 
         $status = TaskLogCategorizedStatus::createFromString('dequeued');
         $this->assertSame('in_progress', (string)$status);
@@ -60,9 +67,12 @@ class TaskLogCategorizedStatusTest extends \PHPUnit_Framework_TestCase
         $this->assertSame('failed', (string)$status);
     }
 
+    /**
+     * @throws \Exception
+     */
     public function testStatusEquals()
     {
-        $statusRunning = TaskLogCategorizedStatus::createFromString('enqueued');
+        $statusRunning = TaskLogCategorizedStatus::createFromString('dequeued');
         $this->assertTrue($statusRunning->equals(TaskLogCategorizedStatus::createFromString('dequeued')));
 
         $statusCompleted = TaskLogCategorizedStatus::createFromString('completed');
