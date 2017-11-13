@@ -108,7 +108,7 @@ define([
             //remove cleared ones:
             console.log('DIFF', found, _.keys(this.elements));
 
-            this.getElement().find('.description').html(__('Running 1/2 background jobs'));
+            this.getElement().find('.description').html(__('Running background jobs'));
 
             //console.log(this.elements);
 

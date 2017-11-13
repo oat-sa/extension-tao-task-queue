@@ -109,6 +109,9 @@ define([
 
     var taskQueue = {
         addNewTask : function addNewTask(taskData, animate){
+            if(this.list.is('hidden')){
+                this.list.show();
+            }
             this.list.addNewTask(taskData, animate);
             this.selfUpdateBadge();
         },

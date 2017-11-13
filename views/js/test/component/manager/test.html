@@ -2,7 +2,7 @@
 <html>
     <head>
         <meta charset="utf-8">
-        <title>Component - Task Queue manager List</title>
+        <title>Component - Task Queue Manager</title>
         <base href="../../../../../../tao/views/" />
         <link rel="stylesheet" type="text/css" href="js/lib/qunit/qunit.css">
         <link rel="stylesheet" type="text/css" href="css/tao-main-style.css">
@@ -26,6 +26,18 @@
                 position: absolute !important;
                 top: 0;
                 right: 173px;
+            }
+
+            #controls{
+                padding: 20px;
+            }
+
+            #controls ul li a{
+                padding: 0 20px
+            }
+            #controls ul li .name{
+                display: inline-block;
+                min-width: 100px;
             }
         </style>
 
@@ -51,7 +63,8 @@
         <div id="qunit-fixture"></div>
         <div id="visual">
             <div id="controls">
-                <button class="add-task">Create task</button>
+                <button type="button" class="btn-info add-task">Create Task</button>
+                <h3>Tasks in progress</h3>
                 <ul></ul>
             </div>
         </div>

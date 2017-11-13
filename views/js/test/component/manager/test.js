@@ -18,8 +18,9 @@
 
 define([
     'jquery',
+    'lodash',
     'taoTaskQueue/component/manager/manager'
-], function($, taskQueueManagerFactory) {
+], function($, _, taskQueueManagerFactory) {
     'use strict';
 
     QUnit.module('API');
@@ -77,7 +78,11 @@ define([
 
     QUnit.asyncTest('playground', function(assert) {
 
+        var taskManager;
         var $container = $('#visual');
+        var $controls = $container.find('#controls');
+        var $list = $controls.find('ul');
+
         var config = {
         };
 
@@ -135,15 +140,34 @@ define([
             }
         ];
 
-        QUnit.expect(1);
-
         var getRandomValue = function getRandomValue(arr){
             return arr[Math.floor(Math.random()*arr.length)];
+        };
+
+        var updateTestTask = function updateTestTask(id, status){
+            var elements = taskManager.list.getElements();
+            if(id && elements[id]){
+                elements[id].update({
+                    status: status,
+                    updated_at : Math.floor(Date.now() / 1000)
+                });
+            }
+            taskManager.selfUpdateBadge();
+        };
+
+        var updateTaskList = function updateTaskList(){
+            $list.empty();
+            _.forEach(taskManager.list.getElements(), function(task){
+                if(task.getStatus() === 'in_progress'){
+                    $list.append('<li data-id="'+task.getId()+'"><span class="name">'+task.getData().label+'</span><a class="task-complete">complete it</a><a class="task-fail">fail it</a> </li>');
+                }
+            });
         };
 
         var createTask = function createTask(){
             var timestamp = Math.floor(Date.now() / 1000);
             var type = getRandomValue(['import', 'export', 'publish', 'transfer', 'create', 'update', 'delete']);
+
             return {
                 id: 'rdf#i'+(Math.floor(Math.random() * 123456789) +  123456789) ,
                 task_name: 'php/class/for/task/'+type,
@@ -158,20 +182,33 @@ define([
             };
         };
 
-        taskQueueManagerFactory(config, _sampleLogCollection)
+        QUnit.expect(1);
+
+        $list.on('click', '.task-complete', function(){
+            var id = $(this).closest('li').data('id');
+            updateTestTask(id, 'completed');
+            updateTaskList();
+
+        }).on('click', '.task-fail', function(){
+            var id = $(this).closest('li').data('id');
+            updateTestTask(id, 'failed');
+            updateTaskList();
+        });
+
+        taskManager = taskQueueManagerFactory(config, _sampleLogCollection)
             .on('render', function(){
                 var self = this;
                 assert.ok(true);
 
-                var $controls = $container.find('#controls');
-
                 $controls.find('.add-task').click(function(){
                     self.addNewTask(createTask(), true);
+                    updateTaskList();
                 });
-
 
                 QUnit.start();
             })
             .render($container);
+
+        updateTaskList();
     });
 });

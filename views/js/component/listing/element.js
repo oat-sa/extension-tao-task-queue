@@ -92,6 +92,9 @@ define([
                 return this.data.status;
             }
         },
+        getData : function getData(){
+            return this.data;
+        },
         update : function update(data){
             var $container = this.getElement();
 
@@ -105,6 +108,7 @@ define([
 
             hider.toggle($container.find('.action-bottom [data-role="download"]'), this.data.file);
 
+            this.trigger('update');
             return this;
         },
 
