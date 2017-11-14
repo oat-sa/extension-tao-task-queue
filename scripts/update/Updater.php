@@ -57,9 +57,9 @@ class Updater extends common_ext_ExtensionUpdater
             $this->setVersion('0.2.0');
         }
 
-        $this->skip('0.2.0', '0.4.1');
+        $this->skip('0.2.0', '0.4.2');
 
-        if ($this->isVersion('0.4.1')) {
+        if ($this->isVersion('0.4.2')) {
 
             /** @var $taskLogService TaskLogInterface */
             $taskLogService = $this->getServiceManager()->get(TaskLogInterface::SERVICE_ID);
@@ -82,5 +82,7 @@ class Updater extends common_ext_ExtensionUpdater
 
             $this->setVersion('0.5.0');
         }
+
+        $this->skip('0.5.0', '0.5.1');
     }
 }
