@@ -183,6 +183,10 @@ class TaskLog extends ConfigurableService implements TaskLogInterface
         return $this->getBroker()->search($filter);
     }
 
+    /**
+     * @param TaskLogFilter $filter
+     * @return DataTablePayload
+     */
     public function getDataTablePayload(TaskLogFilter $filter)
     {
         return new DataTablePayload($filter, $this->getBroker());

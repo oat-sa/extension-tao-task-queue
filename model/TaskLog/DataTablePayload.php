@@ -1,11 +1,35 @@
 <?php
+/**
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; under version 2
+ * of the License (non-upgradable).
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ *
+ * Copyright (c) 2017 (original work) Open Assessment Technologies SA (under the project TAO-PRODUCT);
+ *
+ */
 
 namespace oat\taoTaskQueue\model\TaskLog;
 
 use oat\tao\model\datatable\DatatablePayload as DataTablePayloadInterface;
 use oat\tao\model\datatable\implementation\DatatableRequest;
 use oat\taoTaskQueue\model\TaskLogBroker\TaskLogBrokerInterface;
+use oat\taoTaskQueue\model\TaskLogBroker\TaskLogCollection;
 
+/**
+ * Helper class for handling js datatable request.
+ *
+ * @author Gyula Szucs <gyula@taotesting.com>
+ */
 class DataTablePayload implements DataTablePayloadInterface, \Countable
 {
     private $taskLogFilter;
@@ -80,21 +104,37 @@ class DataTablePayload implements DataTablePayloadInterface, \Countable
         // get task log entities by filters
         $collection = $this->broker->search($cloneFilter);
 
-        $resultData = [];
-
-        foreach ($collection as $taskLogEntity) {
-            $newCustomiser = $this->rowCustomiser->bindTo($taskLogEntity, $taskLogEntity);
-
-            $resultData[] = array_merge($taskLogEntity->toArray(), (array) $newCustomiser());
-        }
+        // get customised data
+        $customisedData = $this->getCustomisedData($collection);
 
         $data = [
             'rows'    => $limit,
             'page'    => $page,
             'amount'  => count($collection),
             'total'   => ceil($countTotal / $limit),
-            'data'    => $resultData,
+            'data'    => $customisedData ?: $collection->toArray(),
         ];
+
+        return $data;
+    }
+
+    /**
+     * Get customised data if we have a customiser set
+     *
+     * @param TaskLogCollection $collection
+     * @return array
+     */
+    private function getCustomisedData(TaskLogCollection $collection)
+    {
+        $data = [];
+
+        if (!is_null($this->rowCustomiser)) {
+            foreach ($collection as $taskLogEntity) {
+                $newCustomiser = $this->rowCustomiser->bindTo($taskLogEntity, $taskLogEntity);
+
+                $data[] = array_merge($taskLogEntity->toArray(), (array) $newCustomiser());
+            }
+        }
 
         return $data;
     }
