@@ -32,6 +32,7 @@ class TaskLogEntityTest extends \PHPUnit_Framework_TestCase
         $entity = TaskLogEntity::createFromArray([
             'id' => 'rdf#i1508337970199318643',
             'task_name' => 'Task Name',
+            'parameters' => json_encode(['param1' => 'value1', 'param2' => 'value2']),
             'label' => 'Task label',
             'status' => TaskLogInterface::STATUS_COMPLETED,
             'owner' => 'userId',
@@ -52,6 +53,7 @@ class TaskLogEntityTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf(\DateTimeInterface::class, $entity->getUpdatedAt());
         $this->assertInternalType('string', $entity->getId());
         $this->assertInternalType('string', $entity->getTaskName());
+        $this->assertInternalType('array', $entity->getParameters());
         $this->assertInternalType('string', $entity->getLabel());
         $this->assertInternalType('string', $entity->getOwner());
 
@@ -78,6 +80,7 @@ class TaskLogEntityTest extends \PHPUnit_Framework_TestCase
         $entity = TaskLogEntity::createFromArray([
             'id' => 'rdf#i1508337970199318643',
             'task_name' => 'Task Name',
+            'parameters' => json_encode(['param1' => 'value1', 'param2' => 'value2']),
             'label' => 'Task label',
             'status' => TaskLogInterface::STATUS_COMPLETED,
             'owner' => 'userId',

@@ -24,6 +24,10 @@ use oat\taoTaskQueue\model\TaskLogInterface;
 
 class TaskLogCollectionTest extends \PHPUnit_Framework_TestCase
 {
+    /**
+     * @throws \Exception
+     * @throws \common_exception_Error
+     */
     public function testCreateCollection()
     {
         $collection = $this->createCollection();
@@ -31,12 +35,22 @@ class TaskLogCollectionTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf(TaskLogCollection::class, $collection);
     }
 
+    /**
+     * @throws \Exception
+     * @throws \common_exception_Error
+     */
     public function testCollectionToArray()
     {
         $collection = $this->createCollection();
 
         $this->assertInternalType('array', $collection->jsonSerialize());
     }
+
+    /**
+     * @return TaskLogCollection
+     * @throws \Exception
+     * @throws \common_exception_Error
+     */
     protected function createCollection()
     {
        return TaskLogCollection::createFromArray([
@@ -46,6 +60,7 @@ class TaskLogCollectionTest extends \PHPUnit_Framework_TestCase
                 'label' => 'Task label',
                 'status' => TaskLogInterface::STATUS_COMPLETED,
                 'owner' => 'userId',
+                'parameters' => json_encode([]),
                 'created_at' => '2017-02-01 12:00:01',
                 'updated_at' => '2017-02-01 14:00:01',
                 'report' => [
@@ -61,6 +76,7 @@ class TaskLogCollectionTest extends \PHPUnit_Framework_TestCase
                 'label' => 'Task label  2',
                 'status' => TaskLogInterface::STATUS_RUNNING,
                 'owner' => 'userId',
+                'parameters' => json_encode([]),
                 'created_at' => '2017-02-01 16:00:01',
                 'updated_at' => '2017-02-01 18:00:01',
                 'report' => [
@@ -76,6 +92,7 @@ class TaskLogCollectionTest extends \PHPUnit_Framework_TestCase
                'label' => 'Task label  3',
                'status' => TaskLogInterface::STATUS_RUNNING,
                'owner' => 'userId',
+               'parameters' => json_encode([]),
                'created_at' => '2017-02-01 16:00:01',
                'updated_at' => '2017-02-01 18:00:01',
                'report' => [

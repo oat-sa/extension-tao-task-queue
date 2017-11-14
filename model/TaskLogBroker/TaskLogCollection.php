@@ -23,7 +23,7 @@ namespace oat\taoTaskQueue\model\TaskLogBroker;
 use JsonSerializable;
 use oat\taoTaskQueue\model\Entity\TaskLogEntity;
 
-class TaskLogCollection implements JsonSerializable
+class TaskLogCollection implements JsonSerializable, \Countable, \IteratorAggregate
 {
     /** @var TaskLogEntity[]  */
     private $taskLogs = [];
@@ -74,5 +74,53 @@ class TaskLogCollection implements JsonSerializable
         }
 
         return $data;
+    }
+
+    /**
+     * @return array
+     */
+    public function toArray()
+    {
+        return $this->jsonSerialize();
+    }
+
+    /**
+     * @return int
+     */
+    public function count()
+    {
+        return count($this->taskLogs);
+    }
+
+    /**
+     * @return \ArrayIterator
+     */
+    public function getIterator()
+    {
+        return new \ArrayIterator($this->taskLogs);
+    }
+
+    /**
+     * @return bool
+     */
+    public function isEmpty()
+    {
+        return empty($this->taskLogs);
+    }
+
+    /**
+     * @return TaskLogEntity
+     */
+    public function first()
+    {
+        return reset($this->taskLogs);
+    }
+
+    /**
+     * @return TaskLogEntity
+     */
+    public function last()
+    {
+        return end($this->taskLogs);
     }
 }

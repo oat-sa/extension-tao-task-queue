@@ -24,6 +24,9 @@ use common_report_Report as Report;
 use oat\taoTaskQueue\model\Entity\TaskLogEntity;
 use oat\taoTaskQueue\model\Entity\TasksLogsStats;
 use oat\taoTaskQueue\model\Task\TaskInterface;
+use oat\taoTaskQueue\model\TaskLog\DataTablePayload;
+use oat\taoTaskQueue\model\TaskLog\TaskLogFilter;
+use oat\taoTaskQueue\model\TaskLogBroker\TaskLogBrokerInterface;
 use oat\taoTaskQueue\model\TaskLogBroker\TaskLogCollection;
 use Psr\Log\LoggerAwareInterface;
 
@@ -102,10 +105,22 @@ interface TaskLogInterface extends LoggerAwareInterface
     public function getReport($taskId);
 
     /**
+     * @param TaskLogFilter $filter
+     * @return TaskLogCollection|TaskLogEntity[]
+     */
+    public function search(TaskLogFilter $filter);
+
+    /**
+     * @param TaskLogFilter $filter
+     * @return DataTablePayload
+     */
+    public function getDataTablePayload(TaskLogFilter $filter);
+
+    /**
      * @param string $userId
      * @param null $limit
      * @param null $offset
-     * @return TaskLogCollection
+     * @return TaskLogCollection|TaskLogEntity[]
      */
     public function findAvailableByUser($userId, $limit = null, $offset = null);
 
@@ -132,4 +147,18 @@ interface TaskLogInterface extends LoggerAwareInterface
      * @throws \Exception
      */
     public function archive(TaskLogEntity $entity, $forceArchive = false);
+
+    /**
+     * Gets the current broker instance.
+     *
+     * @return TaskLogBrokerInterface
+     */
+    public function getBroker();
+
+    /**
+     * Is the current broker RDS based?
+     *
+     * @return bool
+     */
+    public function isRds();
 }
