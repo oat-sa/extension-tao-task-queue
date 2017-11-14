@@ -25,6 +25,7 @@ use oat\taoTaskQueue\model\TaskLogInterface;
 
 class TaskLogCategorizedStatus
 {
+    const STATUS_CREATED = 'created';
     const STATUS_IN_PROGRESS = 'in_progress';
     const STATUS_COMPLETED = 'completed';
     const STATUS_FAILED = 'failed';
@@ -33,8 +34,10 @@ class TaskLogCategorizedStatus
     private $status;
 
     public static $categorizeMapping = array(
+        self::STATUS_CREATED => [
+            TaskLogInterface::STATUS_ENQUEUED
+        ],
         self::STATUS_IN_PROGRESS => [
-            TaskLogInterface::STATUS_ENQUEUED,
             TaskLogInterface::STATUS_DEQUEUED,
             TaskLogInterface::STATUS_RUNNING,
         ],
@@ -61,24 +64,29 @@ class TaskLogCategorizedStatus
      *
      * @throws Exception
      */
-    public static function create($status)
+    public static function createFromString($status)
     {
         switch ($status) {
             case TaskLogInterface::STATUS_ENQUEUED:
+                return TaskLogCategorizedStatus::created();
+                break;
+
             case TaskLogInterface::STATUS_DEQUEUED:
             case TaskLogInterface::STATUS_RUNNING:
-               return TaskLogCategorizedStatus::inProgress();
-            break;
+                return TaskLogCategorizedStatus::inProgress();
+                break;
+
             case TaskLogInterface::STATUS_COMPLETED:
                 return TaskLogCategorizedStatus::completed();
                 break;
+
             case TaskLogInterface::STATUS_FAILED:
             case TaskLogInterface::STATUS_UNKNOWN:
                 return TaskLogCategorizedStatus::failed();
                 break;
+
             default:
                 throw new \Exception('Invalid status provided');
-                break;
         }
     }
 
@@ -101,9 +109,25 @@ class TaskLogCategorizedStatus
     /**
      * @return TaskLogCategorizedStatus
      */
+    public static function created()
+    {
+        return new self(self::STATUS_CREATED);
+    }
+
+    /**
+     * @return TaskLogCategorizedStatus
+     */
     public static function inProgress()
     {
         return new self(self::STATUS_IN_PROGRESS);
+    }
+
+    /**
+     * @return bool
+     */
+    public function isCreated()
+    {
+        return $this->equals(TaskLogCategorizedStatus::created());
     }
 
     /**
@@ -163,6 +187,10 @@ class TaskLogCategorizedStatus
     public function getLabel()
     {
         switch ($this->status) {
+            case self::STATUS_CREATED:
+                return __('Queued');
+                break;
+
             case self::STATUS_IN_PROGRESS:
                 return __('In Progress');
                 break;

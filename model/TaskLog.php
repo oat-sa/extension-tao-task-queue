@@ -21,9 +21,14 @@
 namespace oat\taoTaskQueue\model;
 
 use common_report_Report as Report;
+use oat\oatbox\event\EventManager;
 use oat\oatbox\service\ConfigurableService;
 use oat\taoTaskQueue\model\Entity\TaskLogEntity;
+use oat\taoTaskQueue\model\Event\TaskLogArchivedEvent;
 use oat\taoTaskQueue\model\Task\TaskInterface;
+use oat\taoTaskQueue\model\TaskLog\DataTablePayload;
+use oat\taoTaskQueue\model\TaskLog\TaskLogFilter;
+use oat\taoTaskQueue\model\TaskLogBroker\RdsTaskLogBroker;
 use oat\taoTaskQueue\model\TaskLogBroker\TaskLogBrokerInterface;
 use oat\oatbox\log\LoggerAwareTrait;
 
@@ -62,7 +67,7 @@ class TaskLog extends ConfigurableService implements TaskLogInterface
      *
      * @return TaskLogBrokerInterface
      */
-    protected function getBroker()
+    public function getBroker()
     {
         if (is_null($this->broker)) {
             $this->broker = $this->getOption(self::OPTION_TASK_LOG_BROKER);
@@ -70,6 +75,14 @@ class TaskLog extends ConfigurableService implements TaskLogInterface
         }
 
         return $this->broker;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function isRds()
+    {
+        return $this->getBroker() instanceof RdsTaskLogBroker;
     }
 
     /**
@@ -165,9 +178,35 @@ class TaskLog extends ConfigurableService implements TaskLogInterface
     /**
      * @inheritdoc
      */
+    public function search(TaskLogFilter $filter)
+    {
+        return $this->getBroker()->search($filter);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getDataTablePayload(TaskLogFilter $filter)
+    {
+        return new DataTablePayload($filter, $this->getBroker());
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function getByIdAndUser($taskId, $userId)
     {
-        return $this->getBroker()->getByIdAndUser($taskId, $userId);
+        $filter = (new TaskLogFilter())
+            ->addAvailableFilters($userId)
+            ->eq(TaskLogBrokerInterface::COLUMN_ID, $taskId);
+
+        $collection = $this->getBroker()->search($filter);
+
+        if ($collection->isEmpty()) {
+            throw new \common_exception_NotFound('Task log for task "'. $taskId .'" not found');
+        }
+
+        return $collection->first();
     }
 
     /**
@@ -175,10 +214,12 @@ class TaskLog extends ConfigurableService implements TaskLogInterface
      */
     public function findAvailableByUser($userId, $limit = null, $offset = null)
     {
-        $limit = is_null($limit) ? self::DEFAULT_LIMIT : $limit;
-        $offset = is_null($offset) ? 0 : $offset;
+        $filter = (new TaskLogFilter())
+            ->addAvailableFilters($userId)
+            ->setLimit(is_null($limit) ? self::DEFAULT_LIMIT : $limit)
+            ->setOffset(is_null($offset) ? 0 : $offset);
 
-        return $this->getBroker()->findAvailableByUser($userId, $limit, $offset);
+        return $this->getBroker()->search($filter);
     }
 
     /**
@@ -186,7 +227,10 @@ class TaskLog extends ConfigurableService implements TaskLogInterface
      */
     public function getStats($userId)
     {
-        return $this->getBroker()->getStats($userId);
+        $filter = (new TaskLogFilter())
+            ->addAvailableFilters($userId);
+
+        return $this->getBroker()->getStats($filter);
     }
 
     /**
@@ -198,7 +242,14 @@ class TaskLog extends ConfigurableService implements TaskLogInterface
             throw new \Exception('Task cannot be archived because it is in progress.');
         }
 
-        return $this->getBroker()->archive($entity);
+        $isArchived = $this->getBroker()->archive($entity);
+
+        if ($isArchived) {
+            $this->getServiceManager()->get(EventManager::SERVICE_ID)
+                ->trigger(new TaskLogArchivedEvent($entity, $forceArchive));
+        }
+
+        return $isArchived;
     }
 
     /**

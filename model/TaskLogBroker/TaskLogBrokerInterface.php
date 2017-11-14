@@ -24,6 +24,7 @@ use common_report_Report as Report;
 use oat\taoTaskQueue\model\Entity\TaskLogEntity;
 use oat\taoTaskQueue\model\Entity\TasksLogsStats;
 use oat\taoTaskQueue\model\Task\TaskInterface;
+use oat\taoTaskQueue\model\TaskLog\TaskLogFilter;
 
 /**
  * Interface TaskLogBrokerInterface
@@ -34,11 +35,29 @@ interface TaskLogBrokerInterface
 {
     const DEFAULT_CONTAINER_NAME = 'task_log';
 
+    const COLUMN_ID = 'id';
+    const COLUMN_TASK_NAME = 'task_name';
+    const COLUMN_PARAMETERS = 'parameters';
+    const COLUMN_LABEL = 'label';
+    const COLUMN_STATUS = 'status';
+    const COLUMN_OWNER = 'owner';
+    const COLUMN_REPORT = 'report';
+    const COLUMN_CREATED_AT = 'created_at';
+    const COLUMN_UPDATED_AT = 'updated_at';
+
     /**
      * Creates the container where the task logs will be stored.
+     *
      * @return void
      */
     public function createContainer();
+
+    /**
+     * RDS table name.
+     *
+     * @return string
+     */
+    public function getTableName();
 
     /**
      * Inserts a new task log with status for a task.
@@ -55,8 +74,8 @@ interface TaskLogBrokerInterface
      *
      * The previous status can be used for querying the record.
      *
-     * @param string $taskId
-     * @param string $newStatus
+     * @param string      $taskId
+     * @param string      $newStatus
      * @param string|null $prevStatus
      * @return int count of touched records
      */
@@ -73,8 +92,8 @@ interface TaskLogBrokerInterface
     /**
      * Add a report for a task. New status can be supplied as well.
      *
-     * @param string $taskId
-     * @param Report $report
+     * @param string      $taskId
+     * @param Report      $report
      * @param null|string $newStatus
      * @return int
      */
@@ -89,28 +108,26 @@ interface TaskLogBrokerInterface
     public function getReport($taskId);
 
     /**
-     * @param string $userId
-     * @param int $limit
-     * @param int $offset
-     * @return TaskLogCollection
+     * Search for task logs by defined filters.
+     *
+     * @param TaskLogFilter $filter
+     * @return TaskLogCollection|TaskLogEntity[]
      */
-    public function findAvailableByUser($userId, $limit, $offset);
+    public function search(TaskLogFilter $filter);
 
     /**
-     * @param string $userId
+     * Counts task logs by defined filters.
+     *
+     * @param TaskLogFilter $filter
+     * @return int
+     */
+    public function count(TaskLogFilter $filter);
+
+    /**
+     * @param TaskLogFilter $filter
      * @return TasksLogsStats
      */
-    public function getStats($userId);
-
-    /**
-     * @param string $taskId
-     * @param $userId
-     *
-     * @return TaskLogEntity
-     *
-     * @throws \common_exception_NotFound
-     */
-    public function getByIdAndUser($taskId, $userId);
+    public function getStats(TaskLogFilter $filter);
 
     /**
      * @param TaskLogEntity $entity
