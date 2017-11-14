@@ -184,8 +184,7 @@ class TaskLog extends ConfigurableService implements TaskLogInterface
     }
 
     /**
-     * @param TaskLogFilter $filter
-     * @return DataTablePayload
+     * @inheritdoc
      */
     public function getDataTablePayload(TaskLogFilter $filter)
     {
