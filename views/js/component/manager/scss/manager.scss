@@ -15,60 +15,56 @@ $listBorderColor: #333;
         top: 14px;
         right: 7px;
     }
-    .profile-main-loader{
+    .task-manager-trigger {
         .loader {
             width: 24px;
-            height:24px;
-            &:before {
-                content: '';
-                display: block;
-                padding-top: 100%;
-            }
-            .circular-loader {
+            height: 24px;
+            .circle {
                 @include animation(rotate 2s linear infinite);
                 @include vendor-prefix(transform-origin, center center);
-                height: 100%;
-                width: 100%;
-                position: absolute;
-                top: 0;
-                left: 0;
-                margin: auto;
-                .loader-path {
+                .circle-path {
                     stroke-linecap: round;
-                    stroke-width:5;
-                    stroke-dasharray: 150,200;
+                    stroke-width: 5;
+                    stroke-dasharray: 150, 200;
                     stroke-dashoffset: -10;
                     @include vendor-prefix(animation, 'dash 1.5s ease-in-out infinite, color 6s ease-in-out infinite');
                 }
             }
-        }
-        @include keyframes(rotate) {
-            100% {
-                @include vendor-prefix(transform, rotate(360deg));
+            @include keyframes(rotate) {
+                100% {
+                    @include vendor-prefix(transform, rotate(360deg));
+                }
             }
-        }
-        @include keyframes(dash) {
-            0% {
-                stroke-dasharray: 1,200;
-                stroke-dashoffset: 0;
+            @include keyframes(dash) {
+                0% {
+                    stroke-dasharray: 1, 200;
+                    stroke-dashoffset: 0;
+                }
+                50% {
+                    stroke-dasharray: 89, 200;
+                    stroke-dashoffset: -35;
+                }
+                100% {
+                    stroke-dasharray: 89, 200;
+                    stroke-dashoffset: -124;
+                }
             }
-            50% {
-                stroke-dasharray: 89,200;
-                stroke-dashoffset: -35;
+            @include keyframes(color) {
+                0% {
+                    stroke: #70c542;
+                }
+                40% {
+                    stroke: #70c542;
+                }
+                66% {
+                    stroke: #70c542;
+                }
+                80%, 90% {
+                    stroke: #70c542;
+                }
             }
-            100% {
-                stroke-dasharray: 89,200;
-                stroke-dashoffset: -124;
-            }
-        }
-        @include keyframes(color) {
-            0% {stroke: #70c542;}
-            40% {stroke: #70c542;}
-            66% {stroke: #70c542;}
-            80%, 90% {stroke: #70c542;}
         }
     }
-
 }
 
 .task-manager-trigger {
