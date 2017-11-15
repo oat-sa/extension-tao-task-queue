@@ -21,10 +21,10 @@
 namespace oat\taoTaskQueue\controller;
 
 use common_session_SessionManager;
+use oat\oatbox\filesystem\FileSystemService;
 use oat\taoTaskQueue\model\TaskLogInterface;
-use tao_actions_RestController;
 
-class RestTask extends tao_actions_RestController
+class RestTask extends \tao_actions_CommonModule
 {
     const PARAMETER_TASK_ID = 'taskId';
     const PARAMETER_LIMIT = 'limit';
@@ -48,6 +48,10 @@ class RestTask extends tao_actions_RestController
      */
     public function getAll()
     {
+        if (!\tao_helpers_Request::isAjax()) {
+            throw new \Exception('Only ajax call allowed.');
+        }
+
         /** @var TaskLogInterface $taskLogService */
         $taskLogService = $this->getServiceManager()->get(TaskLogInterface::SERVICE_ID);
         $limit = $offset = null;
@@ -60,7 +64,10 @@ class RestTask extends tao_actions_RestController
             $offset = (int) $this->getRequestParameter(self::PARAMETER_OFFSET);
         }
 
-        $this->returnSuccess($taskLogService->findAvailableByUser($this->userId, $limit, $offset)->jsonSerialize());
+        return $this->returnJson([
+            'success' => true,
+            'data' => $taskLogService->findAvailableByUser($this->userId, $limit, $offset)->toArray()
+        ]);
     }
 
     /**
@@ -68,6 +75,10 @@ class RestTask extends tao_actions_RestController
      */
     public function get()
     {
+        if (!\tao_helpers_Request::isAjax()) {
+            throw new \Exception('Only ajax call allowed.');
+        }
+
         /** @var TaskLogInterface $taskLogService */
         $taskLogService = $this->getServiceManager()->get(TaskLogInterface::SERVICE_ID);
 
@@ -78,10 +89,17 @@ class RestTask extends tao_actions_RestController
                 $this->getRequestParameter(self::PARAMETER_TASK_ID),
                 $this->userId
             );
-            $this->returnSuccess($response->jsonSerialize());
 
+            return $this->returnJson([
+                'success' => true,
+                'data' => $response->toArray()
+            ]);
         } catch (\Exception $e) {
-            $this->returnFailure($e);
+            return $this->returnJson([
+                'success' => false,
+                'errorMsg' => $e instanceof \common_exception_UserReadableException ? $e->getUserMessage() : $e->getMessage(),
+                'errorCode' => $e->getCode(),
+            ]);
         }
     }
 
@@ -90,10 +108,17 @@ class RestTask extends tao_actions_RestController
      */
     public function stats()
     {
+        if (!\tao_helpers_Request::isAjax()) {
+            throw new \Exception('Only ajax call allowed.');
+        }
+
         /** @var TaskLogInterface $taskLogService */
         $taskLogService = $this->getServiceManager()->get(TaskLogInterface::SERVICE_ID);
 
-        $this->returnSuccess($taskLogService->getStats($this->userId)->jsonSerialize());
+        return $this->returnJson([
+            'success' => true,
+            'data' => $taskLogService->getStats($this->userId)->toArray()
+        ]);
     }
 
     /**
@@ -101,16 +126,72 @@ class RestTask extends tao_actions_RestController
      */
     public function archive()
     {
-        /** @var TaskLogInterface $taskLogService */
-        $taskLogService = $this->getServiceManager()->get(TaskLogInterface::SERVICE_ID);
+        if (!\tao_helpers_Request::isAjax()) {
+            throw new \Exception('Only ajax call allowed.');
+        }
 
         try{
             $this->assertTaskIdExists();
+
+            /** @var TaskLogInterface $taskLogService */
+            $taskLogService = $this->getServiceManager()->get(TaskLogInterface::SERVICE_ID);
+
             $taskLogEntity = $taskLogService->getByIdAndUser($this->getRequestParameter(self::PARAMETER_TASK_ID), $this->userId);
 
-            $this->returnSuccess($taskLogService->archive($taskLogEntity));
+            return $this->returnJson([
+                'success' => (bool) $taskLogService->archive($taskLogEntity)
+            ]);
         } catch (\Exception $e) {
-            $this->returnFailure($e);
+            return $this->returnJson([
+                'success' => false,
+                'errorMsg' => $e instanceof \common_exception_UserReadableException ? $e->getUserMessage() : $e->getMessage(),
+                'errorCode' => $e instanceof \common_exception_NotFound ? 404 : $e->getCode(),
+            ]);
+        }
+    }
+
+    /**
+     * Download the file created by task.
+     */
+    public function download()
+    {
+        try{
+            $this->assertTaskIdExists();
+
+            /** @var TaskLogInterface $taskLogService */
+            $taskLogService = $this->getServiceManager()->get(TaskLogInterface::SERVICE_ID);
+
+            $taskLogEntity = $taskLogService->getByIdAndUser($this->getRequestParameter(self::PARAMETER_TASK_ID), $this->userId);
+
+            if (!$taskLogEntity->getStatus()->isCompleted()) {
+                throw new \RuntimeException('Task "'. $taskLogEntity->getId() .'" is not downloadable.');
+            }
+
+            $filename = $taskLogEntity->getFileNameFromReport();
+
+            if (empty($filename)) {
+                throw new \LogicException('Filename not found in report.');
+            }
+
+            /** @var FileSystemService $fileSystem */
+            $fileSystem = $this->getServiceManager()->get(FileSystemService::SERVICE_ID);
+            $directory = $fileSystem->getDirectory('taskQueueStorage');
+            $file = $directory->getFile($filename);
+
+            header('Set-Cookie: fileDownload=true');
+            setcookie('fileDownload', 'true', 0, '/');
+            header('Content-Disposition: attachment; filename="' . $filename . '"');
+            header('Content-Type: ' . $file->getMimeType());
+
+            \tao_helpers_Http::returnStream($file->readPsrStream());
+            exit();
+
+        } catch (\Exception $e) {
+            return $this->returnJson([
+                'success' => false,
+                'errorMsg' => $e instanceof \common_exception_UserReadableException ? $e->getUserMessage() : $e->getMessage(),
+                'errorCode' => $e->getCode(),
+            ]);
         }
     }
 

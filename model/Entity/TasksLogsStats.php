@@ -90,4 +90,12 @@ class TasksLogsStats implements JsonSerializable
             'numberOfTasksInProgress' => $this->numberOfTasksInProgress,
         ];
     }
+
+    /**
+     * @return array
+     */
+    public function toArray()
+    {
+        return $this->jsonSerialize();
+    }
 }
