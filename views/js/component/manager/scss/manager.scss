@@ -23,16 +23,18 @@ $listBorderColor: #333;
                 @include animation(rotate 2s linear infinite);
                 @include vendor-prefix(transform-origin, center center);
                 .circle-path {
+                    stroke: $darkBarTxt;
                     stroke-linecap: round;
                     stroke-width: 5;
                     stroke-dasharray: 150, 200;
                     stroke-dashoffset: -10;
+                    transform: translateZ(0);
                     @include vendor-prefix(animation, 'dash 1.5s ease-in-out infinite, color 6s ease-in-out infinite');
                 }
             }
             @include keyframes(rotate) {
                 100% {
-                    @include vendor-prefix(transform, rotate(360deg));
+                    @include vendor-prefix(transform, 'translateZ(0) rotate(360deg)');
                 }
             }
             @include keyframes(dash) {
@@ -51,16 +53,16 @@ $listBorderColor: #333;
             }
             @include keyframes(color) {
                 0% {
-                    stroke: #70c542;
+                    stroke: $darkBarTxt;
                 }
                 40% {
-                    stroke: #70c542;
+                    stroke: $darkBarTxt;
                 }
                 66% {
-                    stroke: #70c542;
+                    stroke: $darkBarTxt;
                 }
                 80%, 90% {
-                    stroke: #70c542;
+                    stroke: $darkBarTxt;
                 }
             }
         }
