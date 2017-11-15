@@ -12,8 +12,8 @@ $listBorderColor: #333;
     padding: 22px 8px 0px;
     .badge{
         position: absolute;
-        top: 20px;
-        right: 0px;
+        top: 14px;
+        right: 7px;
     }
 }
 
@@ -57,6 +57,7 @@ $listBorderColor: #333;
 }
 
 .task-listing {
+    cursor:default;
     padding-top: 9px;
     .box {
         position: relative;
@@ -65,8 +66,9 @@ $listBorderColor: #333;
         @include simple-border($listBorderColor);
         .description {
             padding: 2px 20px;
-            background: $darkBar;
-            color: $darkBarTxt;
+            background: blacken($canvas, 0.1);
+            color: $textColor;
+            font-weight: bold;
             border-bottom: solid 1px $listBorderColor;
         }
         .arrow {
@@ -76,37 +78,19 @@ $listBorderColor: #333;
             border-bottom: none;
             width: 12px;
             height: 12px;
-            background: $darkBar;
-            color: $darkBarTxt;
+            background: blacken($canvas, 0.1);
+            color: $textColor;
             position: absolute;
             right: calc(50% - 6px);
             top: -7px;
-        }
-        .placeholder{
-            //width: 100%;
-            -webkit-transition: max-height 2s;
-            -moz-transition: max-height 2s;
-            -ms-transition: max-height 2s;
-            -o-transition: max-height 2s;
-            transition: max-height 2s;
-            max-height: 0;
-            overflow: hidden;
-            background: $canvas;
-            border-bottom: solid 1px blacken($canvas, 0.2);
-            &.grow{
-                max-height: 100px;
-                //height: 70px;
-                //background: blacken($canvas, 0.5);
-                //border-bottom: solid 1px blacken($canvas, 0.2);
-                //@include transition('height', 2s);
-            }
         }
         ul{
             max-height: 460px;
             overflow: auto;
             li{
-                //min-height: 70px;
+                width: 100%;
                 max-height: 100px;
+                color: $textColor;
                 background: blacken($canvas, 0.2);
                 &.inserting{
                     max-height: 0;
@@ -173,10 +157,10 @@ $listBorderColor: #333;
                 color: whiten($info, 0.9);
             }
         }
-        .action-bar.action-bottom [data-role="notify"]{
+        .action-group.action-bottom [data-role="notify"]{
             display: none;
         }
-        .action-bar.action-top [data-role="delete"]{
+        .action-group.action-top [data-role="delete"]{
             display: none;
         }
     }
@@ -187,7 +171,7 @@ $listBorderColor: #333;
                 color: whiten($success, 0.9);
             }
         }
-        .action-bar.action-bottom{
+        .action-group.action-bottom{
             [data-role="download"], [data-role="report"]{
                 display: inline-block;
             }
@@ -200,7 +184,7 @@ $listBorderColor: #333;
                 color: whiten($error, 0.9);
             }
         }
-        .action-bar.action-bottom{
+        .action-group.action-bottom{
             [data-role="download"], [data-role="report"]{
                 display: inline-block;
             }
@@ -209,15 +193,19 @@ $listBorderColor: #333;
     .container-text{
         padding-top: 4px;
         margin-left: 60px;
+        .label{
+            color: $textColor;
+        }
         .time{
             color: blacken($canvas, 0.4);
             @include font-size(12);
         }
     }
-    .action-bar{
+    .action-group{
         position: absolute;
         [class^="icon-"], [class*=" icon-"] {
             @include font-size(16);
+            background-color: transparent;
             width: 20px;
             height: 20px;
             display: inline-block;
@@ -234,7 +222,7 @@ $listBorderColor: #333;
         }
         &.action-bottom{
             bottom: 6px;
-            right: 6px;
+            right: 4px;
             [class^="icon-"], [class*=" icon-"] {
                 display: none;
             }

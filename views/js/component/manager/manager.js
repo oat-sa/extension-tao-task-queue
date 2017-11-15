@@ -214,8 +214,11 @@ define([
                         vOrigin: 'top'
                     });
 
+
                 //prevent closing the panel when clicking on it
-                this.list.getElement().on('click', function(e){
+                this.list.getElement()
+                    .addClass('overflown-element')
+                    .on('click', function(e){
                     e.stopPropagation();
                 });
 
