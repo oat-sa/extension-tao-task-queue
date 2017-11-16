@@ -34,7 +34,7 @@ class SqsQueueBroker extends AbstractQueueBroker
 {
     const DEFAULT_AWS_CLIENT_KEY = 'generis/awsClient';
 
-    private $awsProfile;
+    //private $awsProfile;
     private $cacheId;
 
     /**
@@ -51,23 +51,22 @@ class SqsQueueBroker extends AbstractQueueBroker
     /**
      * SqsQueueBroker constructor.
      *
-     * @param string $awsProfile AWS profile
      * @param string $cacheServiceId
      * @param int $receiveTasks
      */
-    public function __construct($awsProfile, $cacheServiceId, $receiveTasks = 1)
+    public function __construct(/*$awsProfile, */$cacheServiceId, $receiveTasks = 1)
     {
         parent::__construct($receiveTasks);
 
-        if (empty($awsProfile)) {
+        /*if (empty($awsProfile)) {
             throw new \InvalidArgumentException("AWS profile needs to be set for ". __CLASS__);
-        }
+        }*/
 
         if (empty($cacheServiceId)) {
             throw new \InvalidArgumentException("Cache Service needs to be set for ". __CLASS__);
         }
 
-        $this->awsProfile = $awsProfile;
+        //$this->awsProfile = $awsProfile;
         $this->cacheId = $cacheServiceId;
     }
 
@@ -95,9 +94,9 @@ class SqsQueueBroker extends AbstractQueueBroker
             /** @var AwsClient $awsClient */
             $awsClient = $this->getServiceLocator()->get(self::DEFAULT_AWS_CLIENT_KEY);
 
-            $this->client = $awsClient->getSqsClient([
+            $this->client = $awsClient->getSqsClient(/*[
                 'profile' => $this->awsProfile
-            ]);
+            ]*/);
         }
 
         return $this->client;
