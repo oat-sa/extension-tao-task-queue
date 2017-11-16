@@ -94,7 +94,7 @@ class InitializeQueue extends InstallAction
                         break;
 
                     case self::BROKER_SQS:
-                        $broker = new SqsQueueBroker($this->awsProfile, \common_cache_Cache::SERVICE_ID, $this->receive ?: 1);
+                        $broker = new SqsQueueBroker(/*$this->awsProfile,*/\common_cache_Cache::SERVICE_ID, $this->receive ?: 1);
                         break;
                 }
 
@@ -148,9 +148,9 @@ class InitializeQueue extends InstallAction
                     $this->persistenceId = $value;
                     break;
 
-                case '--aws-profile':
+                /*case '--aws-profile':
                     $this->awsProfile = $value;
-                    break;
+                    break;*/
 
                 case '--receive':
                     $this->receive = abs((int) $value);
@@ -162,9 +162,9 @@ class InitializeQueue extends InstallAction
             throw new \InvalidArgumentException('Persistence id (--persistence=...) needs to be set for RDS.');
         }
 
-        if ($this->wantedBroker == self::BROKER_SQS && !$this->awsProfile) {
+        /*if ($this->wantedBroker == self::BROKER_SQS && !$this->awsProfile) {
             throw new \InvalidArgumentException('AWS profile (--aws-profile=...) needs to be set for SQS.');
-        }
+        }*/
     }
 }
 
