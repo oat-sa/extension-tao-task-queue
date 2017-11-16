@@ -29,9 +29,6 @@ class TaskLogEntityTest extends \PHPUnit_Framework_TestCase
 {
     public function testEntityCreated()
     {
-        $createdAt = new \DateTime('-4 hours');
-        $updatedAt = new \DateTime('-1.5 hours');
-
         $entity = TaskLogEntity::createFromArray([
             'id' => 'rdf#i1508337970199318643',
             'task_name' => 'Task Name',
@@ -39,14 +36,15 @@ class TaskLogEntityTest extends \PHPUnit_Framework_TestCase
             'label' => 'Task label',
             'status' => TaskLogInterface::STATUS_COMPLETED,
             'owner' => 'userId',
-            'created_at' => $createdAt->format('Y-m-d H:i:s'),
-            'updated_at' => $updatedAt->format('Y-m-d H:i:s'),
+            'created_at' => '2017-11-16 14:11:42',
+            'updated_at' => '2017-11-16 17:12:30',
             'report' => [
                 'type' => 'info',
                 'message' => 'Running task http://www.taoinstance.dev/ontologies/tao.rdf#i1508337970199318643',
                 'data' => NULL,
                 'children' => []
             ],
+            'file' => false,
             'category' => 'export'
         ]);
 
@@ -68,8 +66,8 @@ class TaskLogEntityTest extends \PHPUnit_Framework_TestCase
             'taskLabel' => 'Task label',
             'status' => 'completed',
             'statusLabel' => 'Completed',
-            'createdAt' => $createdAt->getTimestamp(),
-            'updatedAt' => $updatedAt->getTimestamp(),
+            'createdAt' => 1510837902,
+            'updatedAt' => 1510848750,
             'report' => [
                 'type' => 'info',
                 'message' => 'Running task http://www.taoinstance.dev/ontologies/tao.rdf#i1508337970199318643',
