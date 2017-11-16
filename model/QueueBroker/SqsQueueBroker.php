@@ -73,8 +73,8 @@ class SqsQueueBroker extends AbstractQueueBroker
     public function __toPhpCode()
     {
         return 'new '. get_called_class() .'('
-            . \common_Utils::toHumanReadablePhpString($this->awsProfile)
-            . ', '
+            //. \common_Utils::toHumanReadablePhpString($this->awsProfile)
+            //. ', '
             . \common_Utils::toHumanReadablePhpString($this->cacheId)
             . ', '
             . \common_Utils::toHumanReadablePhpString($this->getNumberOfTasksToReceive())
