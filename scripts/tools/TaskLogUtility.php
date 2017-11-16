@@ -82,7 +82,7 @@ class TaskLogUtility implements Action, ServiceLocatorAwareInterface
             }
 
             if ($this->argAvailable) {
-                $tasks = $taskLog->findAvailableByUser(TaskLogInterface::SUPER_USER, $this->argLimit, $this->argOffset);
+                $tasks = $taskLog->findAvailableByUser(TaskLogInterface::SUPER_USER, $this->argLimit, $this->argOffset, true);
                 return \common_report_Report::createSuccess($this->jsonPretty($tasks->jsonSerialize()));
             }
 

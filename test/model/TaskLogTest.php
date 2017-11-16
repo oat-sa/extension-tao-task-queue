@@ -24,8 +24,8 @@ use oat\taoTaskQueue\model\Entity\TaskLogEntity;
 use oat\taoTaskQueue\model\Entity\TasksLogsStats;
 use oat\taoTaskQueue\model\Task\AbstractTask;
 use oat\taoTaskQueue\model\TaskLog;
+use oat\taoTaskQueue\model\TaskLog\TaskLogCollection;
 use oat\taoTaskQueue\model\TaskLogBroker\TaskLogBrokerInterface;
-use oat\taoTaskQueue\model\TaskLogBroker\TaskLogCollection;
 
 class TaskLogTest extends \PHPUnit_Framework_TestCase
 {

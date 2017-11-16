@@ -63,6 +63,12 @@ paths:
           required: false
           type: integer
           format: int64
+        - name: reportIncluded
+          in: query
+          description: Should report be included in the response or not?
+          required: false
+          type: integer
+          format: int64
       consumes:
         - application/json
       produces:
@@ -205,6 +211,12 @@ definitions:
         format: date-time
       report:
         $ref: '#/definitions/TaskReport'
+      file:
+        type: boolean
+        example: false
+      category:
+        type: string
+        example: export
   TaskReport:
     type: object
     properties:

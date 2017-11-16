@@ -29,6 +29,9 @@ class TaskLogEntityTest extends \PHPUnit_Framework_TestCase
 {
     public function testEntityCreated()
     {
+        $createdAt = new \DateTime('-4 hours');
+        $updatedAt = new \DateTime('-1.5 hours');
+
         $entity = TaskLogEntity::createFromArray([
             'id' => 'rdf#i1508337970199318643',
             'task_name' => 'Task Name',
@@ -36,26 +39,28 @@ class TaskLogEntityTest extends \PHPUnit_Framework_TestCase
             'label' => 'Task label',
             'status' => TaskLogInterface::STATUS_COMPLETED,
             'owner' => 'userId',
-            'created_at' => '2017-02-01 12:00:01',
-            'updated_at' => '2017-02-01 14:00:01',
+            'created_at' => $createdAt->format('Y-m-d H:i:s'),
+            'updated_at' => $updatedAt->format('Y-m-d H:i:s'),
             'report' => [
                 'type' => 'info',
                 'message' => 'Running task http://www.taoinstance.dev/ontologies/tao.rdf#i1508337970199318643',
                 'data' => NULL,
                 'children' => []
             ],
+            'category' => 'export'
         ]);
 
         $this->assertInstanceOf(TaskLogEntity::class, $entity);
         $this->assertInstanceOf(TaskLogCategorizedStatus::class, $entity->getStatus());
         $this->assertInstanceOf(Report::class, $entity->getReport());
-        $this->assertInstanceOf(\DateTimeInterface::class, $entity->getCreatedAt());
-        $this->assertInstanceOf(\DateTimeInterface::class, $entity->getUpdatedAt());
+        $this->assertInstanceOf(\DateTime::class, $entity->getCreatedAt());
+        $this->assertInstanceOf(\DateTime::class, $entity->getUpdatedAt());
         $this->assertInternalType('string', $entity->getId());
         $this->assertInternalType('string', $entity->getTaskName());
         $this->assertInternalType('array', $entity->getParameters());
         $this->assertInternalType('string', $entity->getLabel());
         $this->assertInternalType('string', $entity->getOwner());
+        $this->assertInternalType('string', $entity->getCategory());
 
         $this->assertEquals([
             'id' => 'rdf#i1508337970199318643',
@@ -63,15 +68,16 @@ class TaskLogEntityTest extends \PHPUnit_Framework_TestCase
             'taskLabel' => 'Task label',
             'status' => 'completed',
             'statusLabel' => 'Completed',
-            'createdAt' => '2017-02-01T12:00:01+00:00',
-            'updatedAt' => '2017-02-01T14:00:01+00:00',
+            'createdAt' => $createdAt->getTimestamp(),
+            'updatedAt' => $updatedAt->getTimestamp(),
             'report' => [
                 'type' => 'info',
                 'message' => 'Running task http://www.taoinstance.dev/ontologies/tao.rdf#i1508337970199318643',
                 'data' => NULL,
                 'children' => []
-            ]
-
+            ],
+            'file' => false,
+            'category' => 'export'
         ], $entity->jsonSerialize());
     }
 

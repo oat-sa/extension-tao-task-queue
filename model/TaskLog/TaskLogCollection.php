@@ -18,7 +18,7 @@
  *
  */
 
-namespace oat\taoTaskQueue\model\TaskLogBroker;
+namespace oat\taoTaskQueue\model\TaskLog;
 
 use JsonSerializable;
 use oat\taoTaskQueue\model\Entity\TaskLogEntity;

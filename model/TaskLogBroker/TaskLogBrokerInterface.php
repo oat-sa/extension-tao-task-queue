@@ -24,6 +24,7 @@ use common_report_Report as Report;
 use oat\taoTaskQueue\model\Entity\TaskLogEntity;
 use oat\taoTaskQueue\model\Entity\TasksLogsStats;
 use oat\taoTaskQueue\model\Task\TaskInterface;
+use oat\taoTaskQueue\model\TaskLog\TaskLogCollection;
 use oat\taoTaskQueue\model\TaskLog\TaskLogFilter;
 
 /**
@@ -38,6 +39,7 @@ interface TaskLogBrokerInterface
     const COLUMN_ID = 'id';
     const COLUMN_TASK_NAME = 'task_name';
     const COLUMN_PARAMETERS = 'parameters';
+    const COLUMN_CATEGORY = 'category';
     const COLUMN_LABEL = 'label';
     const COLUMN_STATUS = 'status';
     const COLUMN_OWNER = 'owner';

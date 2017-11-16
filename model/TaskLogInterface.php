@@ -27,7 +27,7 @@ use oat\taoTaskQueue\model\Task\TaskInterface;
 use oat\taoTaskQueue\model\TaskLog\DataTablePayload;
 use oat\taoTaskQueue\model\TaskLog\TaskLogFilter;
 use oat\taoTaskQueue\model\TaskLogBroker\TaskLogBrokerInterface;
-use oat\taoTaskQueue\model\TaskLogBroker\TaskLogCollection;
+use oat\taoTaskQueue\model\TaskLog\TaskLogCollection;
 use Psr\Log\LoggerAwareInterface;
 
 /**
@@ -48,6 +48,14 @@ interface TaskLogInterface extends LoggerAwareInterface
     const STATUS_FAILED = 'failed';
     const STATUS_ARCHIVED = 'archived';
     const STATUS_UNKNOWN = 'unknown';
+
+    const CATEGORY_UNKNOWN = 'unknown';
+    const CATEGORY_IMPORT = 'import';
+    const CATEGORY_EXPORT = 'export';
+    const CATEGORY_DELIVERY_COMPILATION = 'delivery_comp';
+    const CATEGORY_CREATE = 'create';
+    const CATEGORY_UPDATE = 'update';
+    const CATEGORY_DELETE = 'delete';
 
     const DEFAULT_LIMIT = 20;
 
@@ -118,11 +126,12 @@ interface TaskLogInterface extends LoggerAwareInterface
 
     /**
      * @param string $userId
-     * @param null $limit
-     * @param null $offset
-     * @return TaskLogCollection|TaskLogEntity[]
+     * @param null   $limit
+     * @param null   $offset
+     * @param bool   $reportIncluded Whether reports should be included in the collection or not?
+     * @return TaskLogEntity[]|TaskLogCollection
      */
-    public function findAvailableByUser($userId, $limit = null, $offset = null);
+    public function findAvailableByUser($userId, $limit = null, $offset = null, $reportIncluded = false);
 
     /**
      * @param string $userId
