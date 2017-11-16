@@ -33,46 +33,33 @@ define([
         assert.notStrictEqual(taskQueueModelFactory(), taskQueueModelFactory(), "The taskQueueModelFactory provides a different object on each call");
     });
 
-    //QUnit.cases([
-    //    { title : 'init' },
-    //    { title : 'destroy' },
-    //    { title : 'render' },
-    //    { title : 'show' },
-    //    { title : 'hide' },
-    //    { title : 'enable' },
-    //    { title : 'disable' },
-    //    { title : 'is' },
-    //    { title : 'setState' },
-    //    { title : 'getContainer' },
-    //    { title : 'getElement' },
-    //    { title : 'getTemplate' },
-    //    { title : 'setTemplate' },
-    //]).test('Component API ', function(data, assert) {
-    //    var instance = taskQueueModelFactory();
-    //    assert.equal(typeof instance[data.title], 'function', 'The resourceList exposes the component method "' + data.title);
-    //});
-    //
-    //QUnit.cases([
-    //    { title : 'on' },
-    //    { title : 'off' },
-    //    { title : 'trigger' },
-    //    { title : 'before' },
-    //    { title : 'after' },
-    //]).test('Eventifier API ', function(data, assert) {
-    //    var instance = taskQueueModelFactory();
-    //    assert.equal(typeof instance[data.title], 'function', 'The resourceList exposes the eventifier method "' + data.title);
-    //});
-    //
-    //QUnit.cases([
-    //    { title : 'query' },
-    //    { title : 'update' },
-    //]).test('Instance API ', function(data, assert) {
-    //    var instance = taskQueueModelFactory();
-    //    assert.equal(typeof instance[data.title], 'function', 'The resourceList exposes the method "' + data.title);
-    //});
+    QUnit.cases([
+        { title : 'on' },
+        { title : 'off' },
+        { title : 'trigger' },
+        { title : 'before' },
+        { title : 'after' },
+    ]).test('Eventifier API ', function(data, assert) {
+        var instance = taskQueueModelFactory();
+        assert.equal(typeof instance[data.title], 'function', 'The resourceList exposes the eventifier method "' + data.title);
+    });
 
+    QUnit.cases([
+        { title : 'setEndpoints' },
+        { title : 'get' },
+        { title : 'getAll' },
+        { title : 'archive' },
+        { title : 'pollSingle' },
+        { title : 'pollSingleStop' },
+        { title : 'pollAll' },
+        { title : 'pollAllStop' },
+        { title : 'create' },
+    ]).test('Instance API ', function(data, assert) {
+        var instance = taskQueueModelFactory();
+        assert.equal(typeof instance[data.title], 'function', 'The resourceList exposes the method "' + data.title);
+    });
 
-    QUnit.module('Api');
+    QUnit.module('Get and Poll');
 
     QUnit.asyncTest('getAll', function(assert) {
         QUnit.expect(2);
@@ -173,5 +160,158 @@ define([
             QUnit.start();
         });
 
+    });
+
+    QUnit.module('Archive');
+
+    QUnit.asyncTest('archive - success', function(assert) {
+        QUnit.expect(1);
+        taskQueueModelFactory({
+            url : {
+                archive : '/taoTaskQueue/views/js/test/model/taskQueue/samples/archive-success.json'
+            }
+        }).archive('rdf#i15083379701993186432222').then(function(){
+            assert.ok(true, 'archive successful');
+            QUnit.start();
+        }).catch(function(){
+            assert.ok(false,'archive should not fail');
+            QUnit.start();
+        });
+    });
+
+    QUnit.asyncTest('archive - failure', function(assert) {
+        QUnit.expect(2);
+        taskQueueModelFactory({
+            url : {
+                archive : '/taoTaskQueue/views/js/test/model/taskQueue/samples/archive-failure.json'
+            }
+        }).archive('rdf#i15083379701993186432222').then(function(){
+            assert.ok(false, 'should not be successful');
+            QUnit.start();
+        }).catch(function(err){
+            assert.ok(true,'archive failure detected');
+            assert.equal(err.message, '500 : oops, big bad error', 'archive failure detected');
+            QUnit.start();
+        });
+    });
+
+    QUnit.module('Create');
+
+    QUnit.asyncTest('quick finish - promise mode', function(assert) {
+        QUnit.expect(6);
+        taskQueueModelFactory({
+            url : {
+                get : '/taoTaskQueue/views/js/test/model/taskQueue/samples/newTaskCreated.json'
+            }
+        }).on('created', function(task){
+
+            assert.ok(_.isPlainObject(task), 'the data is a plain object');
+            assert.equal(task.status, 'in_progress', 'the status is correct');
+
+        }).on('pollSingle', function(){
+
+            //after the first poll, simulate a prompt completion of the task
+            this.setEndpoints({
+                get : '/taoTaskQueue/views/js/test/model/taskQueue/samples/newTaskFinished.json'
+            });
+
+        }).create('/taoTaskQueue/views/js/test/model/taskQueue/samples/newTaskCreated.json', {someparam:'xyz'}).then(function(result){
+            assert.ok(true, 'archive successful');
+            assert.equal(result.finished, true, 'the task has time to finish quickly');
+            assert.ok(_.isPlainObject(result.task), 'the data is a plain object');
+            assert.equal(result.task.status, 'completed', 'the status is correct');
+            QUnit.start();
+        }).catch(function(){
+            assert.ok(false,'should not fail');
+            QUnit.start();
+        });
+    });
+
+    QUnit.asyncTest('quick finish - event mode', function(assert) {
+        QUnit.expect(5);
+        taskQueueModelFactory({
+            url : {
+                get : '/taoTaskQueue/views/js/test/model/taskQueue/samples/newTaskCreated.json'
+            }
+        }).on('created', function(task){
+
+            assert.ok(_.isPlainObject(task), 'the data is a plain object');
+            assert.equal(task.status, 'in_progress', 'the status is correct');
+
+        }).on('pollSingle', function(){
+
+            //after the first poll, simulate a prompt completion of the task
+            this.setEndpoints({
+                get : '/taoTaskQueue/views/js/test/model/taskQueue/samples/newTaskFinished.json'
+            });
+
+        }).on('fastFinished', function(task){
+
+            assert.ok(true, 'the task has time to finish quickly');
+            assert.ok(_.isPlainObject(task), 'the data is a plain object');
+            assert.equal(task.status, 'completed', 'the status is correct');
+            QUnit.start();
+
+        }).on('enqueued', function(){
+
+            assert.ok(false,'should not be enqueued');
+            QUnit.start();
+
+        }).create('/taoTaskQueue/views/js/test/model/taskQueue/samples/newTaskCreated.json', {someparam:'xyz'});
+    });
+
+    QUnit.asyncTest('enqueued - promise mode', function(assert) {
+        QUnit.expect(6);
+        taskQueueModelFactory({
+            url : {
+                get : '/taoTaskQueue/views/js/test/model/taskQueue/samples/newTaskCreated.json'
+            },
+            pollSingleIntervals : [
+                {iteration: 1, interval:100},
+            ]
+        }).on('created', function(task){
+
+            assert.ok(_.isPlainObject(task), 'the data is a plain object');
+            assert.equal(task.status, 'in_progress', 'the status is correct');
+
+        }).create('/taoTaskQueue/views/js/test/model/taskQueue/samples/newTaskCreated.json', {someparam:'xyz'}).then(function(result){
+            assert.ok(true, 'archive successful');
+            assert.equal(result.finished, false, 'the task has not the time to finish quickly');
+            assert.ok(_.isPlainObject(result.task), 'the data is a plain object');
+            assert.equal(result.task.status, 'in_progress', 'the status is correct');
+            QUnit.start();
+        }).catch(function(){
+            assert.ok(false,'should not fail');
+            QUnit.start();
+        });
+    });
+
+    QUnit.asyncTest('enqueued - event mode', function(assert) {
+        QUnit.expect(5);
+        taskQueueModelFactory({
+            url : {
+                get : '/taoTaskQueue/views/js/test/model/taskQueue/samples/newTaskCreated.json'
+            },
+            pollSingleIntervals : [
+                {iteration: 1, interval:100},
+            ]
+        }).on('created', function(task){
+
+            assert.ok(_.isPlainObject(task), 'the data is a plain object');
+            assert.equal(task.status, 'in_progress', 'the status is correct');
+
+        }).on('fastFinished', function(){
+
+            assert.ok(false,'should not finish quickly');
+            QUnit.start();
+
+        }).on('enqueued', function(task){
+
+            assert.ok(true, 'the task has no time to finish quickly');
+            assert.ok(_.isPlainObject(task), 'the data is a plain object');
+            assert.equal(task.status, 'in_progress', 'the status is correct');
+            QUnit.start();
+
+        }).create('/taoTaskQueue/views/js/test/model/taskQueue/samples/newTaskCreated.json', {someparam:'xyz'});
     });
 });
