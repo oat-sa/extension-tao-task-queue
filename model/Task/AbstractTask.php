@@ -36,7 +36,7 @@ abstract class AbstractTask implements TaskInterface
     public function __construct($id, $owner)
     {
         $this->setMetadata(self::JSON_METADATA_ID_KEY, $id);
-        $this->setCreatedAt(new \DateTime());
+        $this->setCreatedAt(new \DateTime('now', new \DateTimeZone(TIME_ZONE)));
         $this->setOwner($owner);
     }
 
