@@ -250,6 +250,7 @@ class TaskLogEntity implements JsonSerializable
 
         if ($this->updatedAt instanceof \DateTime) {
             $rs['updatedAt'] = $this->updatedAt->getTimestamp();
+            $rs['updatedAtElapsed'] = (new \DateTime('now', new \DateTimeZone(TIME_ZONE)))->getTimestamp() - $this->updatedAt->getTimestamp();
         }
 
         if ($this->report instanceof Report) {
