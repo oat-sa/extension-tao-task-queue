@@ -24,7 +24,12 @@ use common_session_SessionManager;
 use oat\oatbox\filesystem\FileSystemService;
 use oat\taoTaskQueue\model\TaskLogInterface;
 
-class RestTask extends \tao_actions_CommonModule
+/**
+ * API controller to get task queue data from the WEB.
+ *
+ * @author Gyula Szucs <gyula@taotesting.com>
+ */
+class TaskQueueWebApi extends \tao_actions_CommonModule
 {
     const PARAMETER_TASK_ID = 'taskId';
     const PARAMETER_LIMIT = 'limit';

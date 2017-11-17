@@ -8,7 +8,41 @@ schemes:
   - http
   - https
 paths:
-  /taoTaskQueue/RestTask/get:
+  /taoTaskQueue/TaskQueueRestApi/get:
+    get:
+        tags:
+          - Get Task
+        summary: Get Task through API
+        description: Get Task
+        operationId: GetTask
+        parameters:
+          - name: id
+            in: query
+            description: Task id identifier
+            required: true
+            type: string
+        produces:
+          - application/json
+        responses:
+          '200':
+            description: successful operation
+            schema:
+              properties:
+                success:
+                  type: boolean
+                data:
+                  $ref: '#/definitions/TaskLog'
+                errorCode:
+                  type: string
+                errorMsg:
+                 type: string
+          '400':
+            description: Bad request if you send invalid parameters.
+          '401':
+            description: Unauthorized
+            schema:
+              $ref: '#/definitions/ErrorModel'
+  /taoTaskQueue/TaskQueueWebApi/get:
     get:
       tags:
         - Get Task
@@ -43,7 +77,7 @@ paths:
           description: Unauthorized
           schema:
             $ref: '#/definitions/ErrorModel'
-  /taoTaskQueue/RestTask/getAll:
+  /taoTaskQueue/TaskQueueWebApi/getAll:
     get:
       tags:
         - Get Tasks
@@ -88,7 +122,7 @@ paths:
           description: Unauthorized
           schema:
             $ref: '#/definitions/ErrorModel'
-  /taoTaskQueue/RestTask/stats:
+  /taoTaskQueue/TaskQueueWebApi/stats:
     get:
       tags:
         - Get Tasks Status
@@ -118,7 +152,7 @@ paths:
           description: Unauthorized
           schema:
             $ref: '#/definitions/ErrorModel'
-  /taoTaskQueue/RestTask/archive:
+  /taoTaskQueue/TaskQueueWebApi/archive:
     post:
       tags:
         - Archive Task
