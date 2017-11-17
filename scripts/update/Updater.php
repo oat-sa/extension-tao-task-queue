@@ -72,7 +72,12 @@ class Updater extends common_ext_ExtensionUpdater
                 $toSchema = clone $fromSchema;
 
                 $table = $toSchema->getTable($taskLogService->getBroker()->getTableName());
-                $table->addColumn(TaskLogBrokerInterface::COLUMN_PARAMETERS, 'text', ["notnull" => false, "default" => null]);
+                try {
+                    $table->addColumn(TaskLogBrokerInterface::COLUMN_PARAMETERS, 'text', ["notnull" => false, "default" => null]);
+                }
+                catch (Exception $e) {
+                    // Prevents updater from crashing on already updated tables
+                }
 
                 $queries = $persistence->getPlatform()->getMigrateSchemaSql($fromSchema, $toSchema);
                 foreach ($queries as $query) {
