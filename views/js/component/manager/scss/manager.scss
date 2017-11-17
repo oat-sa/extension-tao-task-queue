@@ -198,8 +198,12 @@ $listBorderColor: #333;
                 @include font-size(20);
                 position: relative;
                 top:9px;
-                left:10px;
+                left:12px;
                 text-shadow: none;
+            }
+            .icon-export, .icon-import, .icon-connect {
+                //larger icons
+                left:10px;
             }
         }
     }

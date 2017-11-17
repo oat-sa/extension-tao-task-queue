@@ -19,7 +19,7 @@
 define([
     'jquery',
     'lodash',
-    'taoTaskQueue/model/taskQueue'
+    'taoTaskQueue/model/taskQueueModel'
 ], function($, _, taskQueueModelFactory) {
     'use strict';
 

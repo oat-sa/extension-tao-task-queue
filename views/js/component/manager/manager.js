@@ -155,6 +155,24 @@ define([
             }else{
                 this.badge.hide();
             }
+        },
+        loadData : function loadData(tasksData){
+            var self = this;
+            var found = [];
+            _.forEach(tasksData, function(entry){
+                var id = entry.id;
+                if(self.taskElements[id]){
+                    //update
+                    self.taskElements[id].update(entry).highlight();
+                }else{
+                    //create
+                    self.addNewTask(entry);
+                }
+                found.push(id);
+            });
+
+            console.log('DIFF', found, _.keys(this.taskElements));
+
         }
     };
 
@@ -216,22 +234,9 @@ define([
                 var self = this;
                 var $trigger = this.getElement();
 
-                this.badge = badgeFactory(getBadgeDataFromFullLog(data))
-                    .on('render', function(){
-                        //var badge = this;
-                        //badge.pulse();
-                        //_.delay(function(){
-                        //    badge.setType('success');
-                        //    badge.setValue(1);
-                        //    badge.pulse();
-                        //}, 6000);
-                    })
-                    .render($trigger);
+                this.badge = badgeFactory(getBadgeDataFromFullLog(data)).render($trigger);
 
                 this.list = makeAlignable(taskListFactory())
-                    //.setTitle(__('Running background jobs'))
-                    //.on('')
-                    //.show()
                     .init({
                         title : __('Running background jobs')
                     })
@@ -243,20 +248,9 @@ define([
                         vPos: 'bottom',
                         vOrigin: 'top'
                     })
-                    .hide();
+                    .hide();//start hidden
 
-                var found = [];
-                _.forEach(data, function(entry){
-                    var id = entry.id;
-                    if(self.taskElements[id]){
-                        //update
-                        self.taskElements[id].update(entry).highlight();
-                    }else{
-                        //create
-                        self.addNewTask(entry);
-                    }
-                    found.push(id);
-                });
+                this.loadData(data);
 
                 //prevent closing the panel when clicking on it
                 this.list.getElement()
