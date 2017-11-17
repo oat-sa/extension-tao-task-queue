@@ -9,7 +9,7 @@
         <div class="time">{{time}}</div>
     </div>
     <div class="action-group action-top">
-        <span data-role="delete" class="icon-result-nok" title="{{__ "remove"}}"/>
+        <span data-role="remove" class="icon-result-nok" title="{{__ "remove"}}"/>
     </div>
     <div class="action-group action-bottom">
         <span data-role="notify" class="icon-preview" title="{{__ "notify me when done"}}"/>

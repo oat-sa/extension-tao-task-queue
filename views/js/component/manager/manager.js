@@ -22,10 +22,11 @@ define([
     'ui/component',
     'ui/component/alignable',
     'taoTaskQueue/component/badge/badge',
+    'taoTaskQueue/component/listing/element',
     'taoTaskQueue/component/listing/list',
     'tpl!taoTaskQueue/component/manager/trigger',
     'css!taoTaskQueue/component/manager/css/manager'
-], function ($, _, __, component, makeAlignable, badgeFactory, taskListFactory, triggerTpl) {
+], function ($, _, __, component, makeAlignable, badgeFactory, listElementFactory, taskListFactory, triggerTpl) {
     'use strict';
 
     var _defaults = {
@@ -108,15 +109,47 @@ define([
     };
 
     var taskQueue = {
+        getTaskElements : function getTaskElements(){
+            return this.taskElements;
+        },
         addNewTask : function addNewTask(taskData, animate){
-            if(this.list.is('hidden')){
-                this.list.show();
+            var self = this;
+            var taskId = taskData.id;
+            var listElement = listElementFactory({}, taskData)
+                .on('render', function(){
+                    //console.log('DDD', this);
+                })
+                .on('remove', function(){
+                    delete self.taskElements[taskId];
+                    self.list.removeElement(listElement);
+                    self.trigger('remove', taskId);
+                    self.selfUpdateBadge();
+                })
+                .on('report', function(){
+                    self.trigger('report', taskId);
+                })
+                .on('download', function(){
+                    self.trigger('download', taskId);
+                });
+
+
+            if(animate){
+                if(this.list.is('hidden')){
+                    this.list.show();
+                }
+                this.list.scrollToTop();
             }
-            this.list.addNewTask(taskData, animate);
+
+            this.list.insertElement(listElement);
+            this.taskElements[taskId] = listElement;
             this.selfUpdateBadge();
+
+            if(animate){
+                this.list.animateInsertion(listElement);
+            }
         },
         selfUpdateBadge : function selfUpdateBadge(){
-            var badgeData = getBadgeDataFromElements(this.list.getElements());
+            var badgeData = getBadgeDataFromElements(this.getTaskElements());
             if(badgeData){
                 this.badge.update(badgeData).show();
             }else{
@@ -170,6 +203,7 @@ define([
 
             .on('init', function() {
                 //this.render($container);
+                this.taskElements = {};
             })
 
             // uninstalls the component
@@ -194,15 +228,9 @@ define([
                     })
                     .render($trigger);
 
-                this.list = makeAlignable(taskListFactory({startHidden : true}, data))
-                    .on('delete', function(){
-                        var badgeData = getBadgeDataFromElements(this.getElements());
-                        if(badgeData){
-                            self.badge.update(badgeData).show();
-                        }else{
-                            self.badge.hide();
-                        }
-                    })
+                this.list = makeAlignable(taskListFactory({startHidden : true}))
+                    .setTitle(__('Running background jobs'))
+                    .on('')
                     .show()
                     .init()
                     .render($trigger)
@@ -214,6 +242,18 @@ define([
                         vOrigin: 'top'
                     });
 
+                var found = [];
+                _.forEach(data, function(entry){
+                    var id = entry.id;
+                    if(self.taskElements[id]){
+                        //update
+                        self.taskElements[id].update(entry).highlight();
+                    }else{
+                        //create
+                        self.addNewTask(entry);
+                    }
+                    found.push(id);
+                });
 
                 //prevent closing the panel when clicking on it
                 this.list.getElement()

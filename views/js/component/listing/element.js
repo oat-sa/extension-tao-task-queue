@@ -166,8 +166,8 @@ define([
                 $component.find('[data-role="download"]').click(function(){
                     self.trigger('download');
                 });
-                $component.find('[data-role="delete"]').click(function(){
-                    self.destroy();
+                $component.find('[data-role="remove"]').click(function(){
+                    self.trigger('remove');
                 });
                 $component.find('[data-role="report"]').click(function(){
                     self.trigger('report');

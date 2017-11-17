@@ -48,80 +48,109 @@ define([
     };
 
     var badgeApi = {
-        getElements : function getElements(){
-            return this.elements;
-        },
-        addNewTask : function addNewTask(taskData, animate){
-            var taskElement;
-            var $container = this.getElement();
-            //$container.find('.task-list').scrollTop(0);
-            $container.find('.task-list').get(0).scrollTo(0, 0);
 
-            taskElement = this.createElement(this.getElement().find('ul'), taskData);
-            this.elements[taskData.id] = taskElement;
-
-            animateIntersion(taskElement);
-        },
-        createElement : function createElement($appendTo, taskData){
-            var self = this;
-            var listElement;
-            var $li = $(elementWrapperTpl({
-                id : taskData.id
-            }));
-            $appendTo.prepend($li);
-
-            listElement = listElementFactory({}, taskData)
-                .on('render', function(){
-                    //console.log('DDD', this);
-                })
-                .on('destroy', function(){
-                    var taskId = $li.data('id');
-                    $li.remove();
-                    delete self.elements[taskId];
-                    self.trigger('delete', taskId);
-                })
-                .on('download', function(){
-                    $li.remove();
-                    self.trigger('download', $li.data('id'));
-                })
-                .render($li);
-
-            return listElement;
-        },
-        update : function update(data){//TODO rename load data
-            var self = this;
-            var $list = this.getElement().find('ul');
-            var found = [];
-
-            _.forEach(data, function(entry){
-                var id = entry.id;
-                if(self.elements[id]){
-                    //update
-                    self.elements[id].update(entry).highlight();
-                }else{
-                    //create
-                    self.elements[id] = self.createElement($list, entry);
-                    found.push(id);
-                }
-            });
-
-            //remove cleared ones:
-            console.log('DIFF', found, _.keys(this.elements));
-
-            this.getElement().find('.description').html(__('Running background jobs'));
-
-            //console.log(this.elements);
-
+        removeElement : function removeElement(listElement){
+            listElement.destroy();
+            this.getElement().find('ul li[data-id="'+listElement.getId()+'"]').remove();
             return this;
         },
-        empty : function empty(){
-            this.getElement().find('ul').empty();
-            this.elements = {};
-        }
+
+        insertElement : function insertElement(listElement){
+            var id = listElement.getId();
+            var $li = $(elementWrapperTpl({
+                id : id
+            }));
+            this.getElement().find('ul').prepend($li);
+            listElement.render($li);
+            return this;
+        },
+        setTitle : function setTitle(title){
+            if(this.is('rendered')){
+                this.getElement().find('.description').html(title);
+            }else{
+                this.config.title = title;
+            }
+            return this;
+        },
+        scrollToTop : function scrollToTop(){
+            this.getElement().find('.task-list').get(0).scrollTo(0, 0);
+            return this;
+        },
+        animateInsertion : function animateInsertion(listElement){
+            animateIntersion(listElement);
+            return this;
+        },
+
+        //addNewTask : function addNewTask(taskData, animate){
+        //    var taskElement;
+        //    var $container = this.getElement();
+        //    //$container.find('.task-list').scrollTop(0);
+        //    $container.find('.task-list').get(0).scrollTo(0, 0);
+        //
+        //    taskElement = this.createElement(this.getElement().find('ul'), taskData);
+        //    this.elements[taskData.id] = taskElement;
+        //
+        //    animateIntersion(taskElement);
+        //},
+        //createElement : function createElement($appendTo, taskData){
+        //    var self = this;
+        //    var listElement;
+        //    var $li = $(elementWrapperTpl({
+        //        id : taskData.id
+        //    }));
+        //    $appendTo.prepend($li);
+        //
+        //    listElement = listElementFactory({}, taskData)
+        //        .on('render', function(){
+        //            //console.log('DDD', this);
+        //        })
+        //        .on('destroy', function(){
+        //            var taskId = $li.data('id');
+        //            $li.remove();
+        //            delete self.elements[taskId];
+        //            self.trigger('delete', taskId);
+        //        })
+        //        .on('download', function(){
+        //            self.trigger('download', $li.data('id'));
+        //        })
+        //        .render($li);
+        //
+        //    return listElement;
+        //},
+        //update : function update(data){//TODO rename load data
+        //    var self = this;
+        //    var $list = this.getElement().find('ul');
+        //    var found = [];
+        //
+        //    _.forEach(data, function(entry){
+        //        var id = entry.id;
+        //        if(self.elements[id]){
+        //            //update
+        //            self.elements[id].update(entry).highlight();
+        //        }else{
+        //            //create
+        //            self.elements[id] = self.createElement($list, entry);
+        //            found.push(id);
+        //        }
+        //    });
+        //
+        //    //remove cleared ones:
+        //    console.log('DIFF', found, _.keys(this.elements));
+        //
+        //    this.getElement().find('.description').html(__('Running background jobs'));
+        //
+        //    //console.log(this.elements);
+        //
+        //    return this;
+        //},
+        //empty : function empty(){
+        //    this.getElement().find('ul').empty();
+        //    this.elements = {};
+        //}
 
     };
 
-    return function taskListFactory(config, data) {
+    return function taskListFactory(config) {
         var initConfig = _.defaults(config || {}, _defaults);
 
         return component(badgeApi)
@@ -136,13 +165,13 @@ define([
             // renders the component
             .on('render', function() {
 
-                this.empty();
+                //this.empty();
 
                 if(this.config.startHidden){
                     this.hide();
                 }
 
-                this.update(data);
+                //this.update(data);
 
             })
             .init(initConfig);

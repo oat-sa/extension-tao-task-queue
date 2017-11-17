@@ -145,7 +145,7 @@ define([
         };
 
         var updateTestTask = function updateTestTask(id, status){
-            var elements = taskManager.list.getElements();
+            var elements = taskManager.getTaskElements();
             if(id && elements[id]){
                 elements[id].update({
                     status: status,
@@ -157,7 +157,7 @@ define([
 
         var updateTaskList = function updateTaskList(){
             $list.empty();
-            _.forEach(taskManager.list.getElements(), function(task){
+            _.forEach(taskManager.getTaskElements(), function(task){
                 if(task.getStatus() === 'in_progress'){
                     $list.append('<li data-id="'+task.getId()+'"><span class="name">'+task.getData().label+'</span><a class="task-complete">complete it</a><a class="task-fail">fail it</a> </li>');
                 }
