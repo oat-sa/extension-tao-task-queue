@@ -228,11 +228,13 @@ define([
                     })
                     .render($trigger);
 
-                this.list = makeAlignable(taskListFactory({startHidden : true}))
-                    .setTitle(__('Running background jobs'))
-                    .on('')
-                    .show()
-                    .init()
+                this.list = makeAlignable(taskListFactory())
+                    //.setTitle(__('Running background jobs'))
+                    //.on('')
+                    //.show()
+                    .init({
+                        title : __('Running background jobs')
+                    })
                     .render($trigger)
                     .moveBy(0, 0)
                     .alignWith($trigger, {
@@ -240,7 +242,8 @@ define([
                         hOrigin: 'center',
                         vPos: 'bottom',
                         vOrigin: 'top'
-                    });
+                    })
+                    .hide();
 
                 var found = [];
                 _.forEach(data, function(entry){
