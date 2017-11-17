@@ -163,7 +163,11 @@ define([
                 var id = entry.id;
                 if(self.taskElements[id]){
                     //update
-                    self.taskElements[id].update(entry).highlight();
+                    self.taskElements[id].update(entry);
+                    if(self.taskElements[id].getStatus() !== entry.status){
+                        //highlight status change only
+                        self.taskElements[id].highlight();
+                    }
                 }else{
                     //create
                     self.addNewTask(entry);
@@ -171,8 +175,9 @@ define([
                 found.push(id);
             });
 
-            console.log('DIFF', found, _.keys(this.taskElements));
+            //console.log('DIFF', found, _.keys(this.taskElements));
 
+            this.selfUpdateBadge();
         }
     };
 

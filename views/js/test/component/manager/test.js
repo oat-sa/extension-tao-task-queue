@@ -89,12 +89,12 @@ define([
         var _sampleLogCollection = [
             {
                 id: 'rdf#i1508337970199318643',
-                task_name: 'Task Name',
-                label: 'Task label',
+                taskName: 'Task Name',
+                taskLabel: 'Task label',
                 status: 'completed',
                 owner: 'userId',
-                created_at: '1510149684',//timezone ?
-                updated_at: '1510149694',
+                createdAt: '1510149684',//timezone ?
+                updatedAt: '1510149694',
                 file: false,//suppose
                 category: 'import',
                 report : {
@@ -106,12 +106,12 @@ define([
             },
             {
                 id: 'rdf#i15083379701993186432222',
-                task_name: 'Task Name 2',
-                label: 'Task label 2',
+                taskName: 'Task Name 2',
+                taskLabel: 'Task label 2',
                 status: 'in_progress',
                 owner: 'userId',
-                created_at: '1510149584',//timezone ?
-                updated_at: '1510149574',
+                createdAt: '1510149584',//timezone ?
+                updatedAt: '1510149574',
                 file: false,
                 category: 'publish',//d
                 report : {
@@ -123,12 +123,12 @@ define([
             },
             {
                 id: 'rdf#i1508337970190342',
-                task_name: 'Task Name 2',
-                label: 'Task label 2',
+                taskName: 'Task Name 2',
+                taskLabel: 'Task label 2',
                 status: 'failed',
                 owner: 'userId',
-                created_at: '1510149584',//timezone ?
-                updated_at: '1510049574',
+                createdAt: '1510149584',//timezone ?
+                updatedAt: '1510049574',
                 file: true,//suppose
                 category: 'export',//d
                 report : {
@@ -149,7 +149,7 @@ define([
             if(id && elements[id]){
                 elements[id].update({
                     status: status,
-                    updated_at : Math.floor(Date.now() / 1000)
+                    updatedAt : Math.floor(Date.now() / 1000)
                 });
             }
             taskManager.selfUpdateBadge();
@@ -159,7 +159,7 @@ define([
             $list.empty();
             _.forEach(taskManager.getTaskElements(), function(task){
                 if(task.getStatus() === 'in_progress'){
-                    $list.append('<li data-id="'+task.getId()+'"><span class="name">'+task.getData().label+'</span><a class="task-complete">complete it</a><a class="task-fail">fail it</a> </li>');
+                    $list.append('<li data-id="'+task.getId()+'"><span class="name">'+task.getData().taskLabel+'</span><a class="task-complete">complete it</a><a class="task-fail">fail it</a> </li>');
                 }
             });
         };
@@ -170,12 +170,12 @@ define([
 
             return {
                 id: 'rdf#i'+(Math.floor(Math.random() * 123456789) +  123456789) ,
-                task_name: 'php/class/for/task/'+type,
-                label: 'Async ' +  type + ' ' + (Math.floor(Math.random() * 99) +  1),
+                taskName: 'php/class/for/task/'+type,
+                taskLabel: 'Async ' +  type + ' ' + (Math.floor(Math.random() * 99) +  1),
                 status: 'in_progress',
                 owner: 'userId',
-                created_at: timestamp,
-                updated_at: timestamp,
+                createdAt: timestamp,
+                updatedAt: timestamp,
                 file: getRandomValue([true, false]),
                 category: type,
                 report : null

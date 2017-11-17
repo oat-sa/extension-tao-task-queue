@@ -5,7 +5,7 @@
         </div>
     </div>
     <div class="container-text">
-        <div class="label">{{label}}</div>
+        <div class="label">{{taskLabel}}</div>
         <div class="time">{{time}}</div>
     </div>
     <div class="action-group action-top">

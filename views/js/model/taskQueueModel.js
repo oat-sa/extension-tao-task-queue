@@ -86,7 +86,7 @@ define([
                     throw new TypeError('config.url.get is not configured while get() is being called');
                 }
 
-                status = request(config.url.get, {taskId: taskId})
+                status = request(config.url.get, {taskId: taskId}, 'GET', {}, true)
                     .then(function(taskData){
                         //check taskData
                         if(taskData && taskData.status){
@@ -114,7 +114,7 @@ define([
                     throw new TypeError('config.url.all is not configured while getAll() is being called');
                 }
 
-                status = request(config.url.all, {})
+                status = request(config.url.all, {noLoadingBar:true}, 'GET', {}, true)
                     .then(function(taskData){
                         //check taskData
                         if(taskData){

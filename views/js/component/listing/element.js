@@ -47,8 +47,11 @@ define([
         failure: 'result-nok',
     };
 
+    //var elapsedTime = moment.unix(1510935125).diff(moment.unix(1510934125));
+    //console.log(elapsedTime, moment.duration(elapsedTime) );
+
     var getLabelString = function getLabelString(data){
-        return data.label;
+        return data.taskLabel;
     };
 
     var getFormattedTime = function getFormattedTime(timestamp){
@@ -57,12 +60,13 @@ define([
 
     var getTimeString = function getTimeString(data){
         switch(data.status){
+            case 'created':
             case 'in_progress':
-                return __('Started %s', getFormattedTime(data.created_at));
+                return __('Started %s', getFormattedTime(data.createdAt));
             case 'completed':
-                return __('Completed %s', getFormattedTime(data.updated_at));
+                return __('Completed %s', getFormattedTime(data.updatedAt));
             case 'failed':
-                return __('Failed %s', getFormattedTime(data.updated_at));
+                return __('Failed %s', getFormattedTime(data.updatedAt));
         }
     };
 
@@ -129,6 +133,11 @@ define([
             if(!status){
                 throw new Error('status should not be empty');
             }
+
+            if(['created'].indexOf(status) !== -1){
+                status = 'in_progress';
+            }
+
             if(_allowedStatus.indexOf(status) === -1){
                 throw new Error('unknown status '+status);
             }

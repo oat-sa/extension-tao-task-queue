@@ -3,12 +3,12 @@
     "data": [
         {
             "id": "rdf#i1508337970199318643",
-            "task_name": "Task Name",
-            "label": "Task label",
+            "taskName": "Task Name",
+            "taskLabel": "Task label",
             "status": "completed",
             "owner": "userId",
-            "created_at": "1510149684",
-            "updated_at": "1510149694",
+            "createdAt": "1510149684",
+            "updatedAt": "1510149694",
             "file": false,
             "category": "import",
             "report": {
@@ -20,12 +20,12 @@
         },
         {
             "id": "rdf#i15083379701993186432222",
-            "task_name": "Task Name 2",
-            "label": "Task label 2",
+            "taskName": "Task Name 2",
+            "taskLabel": "Task label 2",
             "status": "in_progress",
             "owner": "userId",
-            "created_at": "1510149584",
-            "updated_at": "1510149574",
+            "createdAt": "1510149584",
+            "updatedAt": "1510149574",
             "file": false,
             "category": "publish",
             "report": {
@@ -37,12 +37,12 @@
         },
         {
             "id": "rdf#i1508337970190342",
-            "task_name": "Task Name 2",
-            "label": "Task label 2",
+            "taskName": "Task Name 2",
+            "taskLabel": "Task label 2",
             "status": "failed",
             "owner": "userId",
-            "created_at": "1510149584",
-            "updated_at": "1510049574",
+            "createdAt": "1510149584",
+            "updatedAt": "1510049574",
             "file": true,
             "category": "export",
             "report": {

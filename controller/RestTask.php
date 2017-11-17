@@ -42,6 +42,10 @@ class RestTask extends \tao_actions_CommonModule
         parent::__construct();
 
         $this->userId = common_session_SessionManager::getSession()->getUserUri();
+
+        $time1 = new \DateTime('now', new \DateTimeZone('Europe/Budapest'));
+        $time2 = new \DateTime('now', new \DateTimeZone('UTC'));
+        \common_Logger::w("{$time1->getTimestamp()} {$time2->getTimestamp()}");
     }
 
     /**
