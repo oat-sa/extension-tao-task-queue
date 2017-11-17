@@ -47,26 +47,23 @@ define([
         failure: 'result-nok',
     };
 
-    //var elapsedTime = moment.unix(1510935125).diff(moment.unix(1510934125));
-    //console.log(elapsedTime, moment.duration(elapsedTime) );
-
     var getLabelString = function getLabelString(data){
         return data.taskLabel;
     };
 
-    var getFormattedTime = function getFormattedTime(timestamp){
-        return  moment.unix(timestamp).fromNow();
+    var getFormattedTime = function getFormattedTime(from, elapsed){
+        return moment.unix(from).from(moment.unix(from+elapsed));
     };
 
     var getTimeString = function getTimeString(data){
         switch(data.status){
             case 'created':
             case 'in_progress':
-                return __('Started %s', getFormattedTime(data.createdAt));
+                return __('Started %s', getFormattedTime(data.createdAt, data.createdAtElapsed));
             case 'completed':
-                return __('Completed %s', getFormattedTime(data.updatedAt));
+                return __('Completed %s', getFormattedTime(data.updatedAt, data.updatedAtElapsed));
             case 'failed':
-                return __('Failed %s', getFormattedTime(data.updatedAt));
+                return __('Failed %s', getFormattedTime(data.updatedAt, data.updatedAtElapsed));
         }
     };
 
