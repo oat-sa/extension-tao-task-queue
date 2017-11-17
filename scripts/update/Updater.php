@@ -84,5 +84,28 @@ class Updater extends common_ext_ExtensionUpdater
         }
 
         $this->skip('0.5.0', '0.5.1');
+
+        if ($this->isVersion('0.5.1')) {
+            /** @var $taskLogService TaskLogInterface */
+            $taskLogService = $this->getServiceManager()->get(TaskLogInterface::SERVICE_ID);
+
+            if ($taskLogService->isRds()) {
+                /** @var \common_persistence_SqlPersistence $persistence */
+                $persistence = \common_persistence_Manager::getPersistence('default');
+                $schemaManager = $persistence->getSchemaManager();
+                $fromSchema = $schemaManager->createSchema();
+                $toSchema = clone $fromSchema;
+
+                $table = $toSchema->getTable($taskLogService->getBroker()->getTableName());
+                $table->addColumn(TaskLogBrokerInterface::COLUMN_CATEGORY, 'string', ["notnull" => false, "length" => 255]);
+
+                $queries = $persistence->getPlatform()->getMigrateSchemaSql($fromSchema, $toSchema);
+                foreach ($queries as $query) {
+                    $persistence->exec($query);
+                }
+            }
+
+            $this->setVersion('0.6.0');
+        }
     }
 }

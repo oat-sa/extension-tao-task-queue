@@ -46,6 +46,10 @@ final class CallbackTask extends AbstractTask implements CallbackTaskInterface
     {
         $this->callable = $callable;
 
+        if ($callable instanceof TaskCategoriserInterface) {
+            $this->setCategory($callable->getSpecifiedCategory());
+        }
+
         return $this;
     }
 

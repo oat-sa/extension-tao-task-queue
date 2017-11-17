@@ -22,6 +22,7 @@ namespace oat\taoTaskQueue\model\TaskLog;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
+use oat\taoTaskQueue\model\TaskLogBroker\TaskLogBrokerInterface;
 use oat\taoTaskQueue\model\TaskLogInterface;
 
 class TaskLogFilter
@@ -42,6 +43,47 @@ class TaskLogFilter
     private $offset;
     private $sortBy;
     private $sortOrder;
+
+    private $baseColumns = [
+        TaskLogBrokerInterface::COLUMN_ID,
+        TaskLogBrokerInterface::COLUMN_TASK_NAME,
+        TaskLogBrokerInterface::COLUMN_STATUS,
+        TaskLogBrokerInterface::COLUMN_CATEGORY
+    ];
+
+    private $unSelectableColumns = [
+        TaskLogBrokerInterface::COLUMN_PARAMETERS,
+        TaskLogBrokerInterface::COLUMN_LABEL,
+        TaskLogBrokerInterface::COLUMN_OWNER,
+        TaskLogBrokerInterface::COLUMN_REPORT,
+        TaskLogBrokerInterface::COLUMN_CREATED_AT,
+        TaskLogBrokerInterface::COLUMN_UPDATED_AT
+    ];
+
+    private $unSelectedColumns = [];
+
+    /**
+     * @return array
+     */
+    public function getColumns()
+    {
+        return array_merge($this->baseColumns, array_diff( $this->unSelectableColumns, $this->unSelectedColumns));
+    }
+
+    /**
+     * @param string $column
+     * @return $this
+     */
+    public function unSelect($column)
+    {
+        if (!in_array($column, $this->unSelectableColumns)) {
+            throw new \InvalidArgumentException('Column "'. $column .'"" is not valid column or not unselectable.');
+        }
+
+        $this->unSelectedColumns[] = $column;
+
+        return $this;
+    }
 
     /**
      * @return mixed

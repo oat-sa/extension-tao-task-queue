@@ -20,6 +20,7 @@
 
 namespace oat\taoTaskQueue\model\TaskLogBroker;
 
+use oat\taoTaskQueue\model\TaskLog\TaskLogCollection;
 use oat\taoTaskQueue\model\TaskLogInterface;
 
 class TaskLogCollectionTest extends \PHPUnit_Framework_TestCase

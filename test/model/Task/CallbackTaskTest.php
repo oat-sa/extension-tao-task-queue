@@ -51,14 +51,6 @@ class CallbackTaskTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf(CallbackTaskInterface::class, $rs);
     }
 
-    /**
-     * @expectedException \TypeError
-     */
-    public function testSetCallableWhenNotValidCallableIsSetThenThrowException()
-    {
-        $this->task->setCallable('adfafd');
-    }
-
     public function testSetGetCallableShouldAcceptStaticClassMethodCall()
     {
         $callable = [CallableFixture::class, 'exampleStatic'];

@@ -36,26 +36,29 @@ class TaskLogEntityTest extends \PHPUnit_Framework_TestCase
             'label' => 'Task label',
             'status' => TaskLogInterface::STATUS_COMPLETED,
             'owner' => 'userId',
-            'created_at' => '2017-02-01 12:00:01',
-            'updated_at' => '2017-02-01 14:00:01',
+            'created_at' => '2017-11-16 14:11:42',
+            'updated_at' => '2017-11-16 17:12:30',
             'report' => [
                 'type' => 'info',
                 'message' => 'Running task http://www.taoinstance.dev/ontologies/tao.rdf#i1508337970199318643',
                 'data' => NULL,
                 'children' => []
             ],
+            'file' => false,
+            'category' => 'export'
         ]);
 
         $this->assertInstanceOf(TaskLogEntity::class, $entity);
         $this->assertInstanceOf(TaskLogCategorizedStatus::class, $entity->getStatus());
         $this->assertInstanceOf(Report::class, $entity->getReport());
-        $this->assertInstanceOf(\DateTimeInterface::class, $entity->getCreatedAt());
-        $this->assertInstanceOf(\DateTimeInterface::class, $entity->getUpdatedAt());
+        $this->assertInstanceOf(\DateTime::class, $entity->getCreatedAt());
+        $this->assertInstanceOf(\DateTime::class, $entity->getUpdatedAt());
         $this->assertInternalType('string', $entity->getId());
         $this->assertInternalType('string', $entity->getTaskName());
         $this->assertInternalType('array', $entity->getParameters());
         $this->assertInternalType('string', $entity->getLabel());
         $this->assertInternalType('string', $entity->getOwner());
+        $this->assertInternalType('string', $entity->getCategory());
 
         $this->assertEquals([
             'id' => 'rdf#i1508337970199318643',
@@ -63,15 +66,16 @@ class TaskLogEntityTest extends \PHPUnit_Framework_TestCase
             'taskLabel' => 'Task label',
             'status' => 'completed',
             'statusLabel' => 'Completed',
-            'createdAt' => '2017-02-01T12:00:01+00:00',
-            'updatedAt' => '2017-02-01T14:00:01+00:00',
+            'createdAt' => 1510837902,
+            'updatedAt' => 1510848750,
             'report' => [
                 'type' => 'info',
                 'message' => 'Running task http://www.taoinstance.dev/ontologies/tao.rdf#i1508337970199318643',
                 'data' => NULL,
                 'children' => []
-            ]
-
+            ],
+            'file' => false,
+            'category' => 'export'
         ], $entity->jsonSerialize());
     }
 
