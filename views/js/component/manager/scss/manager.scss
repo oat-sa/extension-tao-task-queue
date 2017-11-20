@@ -2,6 +2,9 @@
 
 $listBorderColor: #333;
 
+$background: $info;
+$foreground: $darkBarTxt;
+
 .task-manager-container {
     cursor: pointer;
     position: relative;
@@ -16,145 +19,59 @@ $listBorderColor: #333;
         right: 7px;
     }
     .task-manager-trigger {
+        position: relative;
         .loader {
-            width: 24px;
-            height: 24px;
-            .iicon{
-                animation: indeterminate-rotate 1568.63ms linear infinite;
-                @-webkit-keyframes indeterminate-rotate{
-                    0%{-webkit-transform:rotate(0deg);-webkit-transform:rotate(0deg);transform:rotate(0deg)}
-                    to{-webkit-transform:rotate(360deg);-webkit-transform:rotate(360deg);transform:rotate(360deg)}
-                }
-                @keyframes indeterminate-rotate{
-                    0%{-webkit-transform:rotate(0deg);-webkit-transform:rotate(0deg);transform:rotate(0deg)}
-                    to{-webkit-transform:rotate(360deg);-webkit-transform:rotate(360deg);transform:rotate(360deg)}
-                }
-                @keyframes indeterminate-color{
-                    0%{-webkit-transform:rotate(0deg);-webkit-transform:rotate(0deg);transform:rotate(0deg)}
-                    to{-webkit-transform:rotate(360deg);-webkit-transform:rotate(360deg);transform:rotate(360deg)}
-                }
-            }
-            .jicon {
-
-                .loader,
-                .loader:before,
-                .loader:after {
-                    border-radius: 50%;
-                }
-                .loader {
-                    color: black;
-                    font-size: 11px;
-                    text-indent: -99999em;
-                    //margin: 55px auto;
-                    position: relative;
-                    width: 10em;
-                    height: 10em;
-                    box-shadow: inset 0 0 0 1em;
-                    -webkit-transform: translateZ(0);
-                    -ms-transform: translateZ(0);
-                    transform: translateZ(0);
-                    transform-origin: 5.2em 5.1em;
-                    animation: load2 5s infinite ease;
-                }
-                .loader:before,
-                .loader:after {
-                    position: absolute;
-                    content: '';
-                }
-                .loader:before {
-                    width: 5.2em;
-                    height: 10.2em;
-                    background: white;
-                    border-radius: 10.2em 0 0 10.2em;
-                    top: -0.1em;
-                    left: -0.1em;
-                    transform: translateZ(0);
-                    -webkit-transform-origin: 5.2em 5.1em;
-                    transform-origin: 5.2em 5.1em;
-                    -webkit-animation: load2 2s infinite ease 1.5s;
-                    animation: load2 2s infinite ease 1.5s;
-                }
-                .loader:after {
-                    width: 5.2em;
-                    height: 10.2em;
-                    background: white;
-                    border-radius: 0 10.2em 10.2em 0;
-                    top: -0.1em;
-                    left: 5.1em;
-                    transform: translateZ(0);
-                    -webkit-transform-origin: 0px 5.1em;
-                    transform-origin: 0px 5.1em;
-                    -webkit-animation: load2 2s infinite ease;
-                    animation: load2 2s infinite ease;
-                }
-                @-webkit-keyframes load2 {
-                    0% {
-                        -webkit-transform: rotate(0deg);
-                        transform: rotate(0deg);
-                    }
-                    100% {
-                        -webkit-transform: rotate(360deg);
-                        transform: rotate(360deg);
-                    }
-                }
-                @keyframes load2 {
-                    0% {
-                        -webkit-transform: rotate(0deg);
-                        transform: rotate(0deg);
-                    }
-                    100% {
-                        -webkit-transform: rotate(360deg);
-                        transform: rotate(360deg);
-                    }
-                }
-
-            }
-            .circle {
-                @include animation(rotate 2s linear infinite);
-                @include vendor-prefix(transform-origin, center center);
-                .circle-path {
-                    stroke: $darkBarTxt;
-                    stroke-linecap: round;
-                    stroke-width: 5;
-                    stroke-dasharray: 150, 200;
-                    stroke-dashoffset: -10;
-                    transform: translateZ(0);
-                    @include vendor-prefix(animation, 'dash 1.5s ease-in-out infinite, color 6s ease-in-out infinite');
-                }
-            }
-            @include keyframes(rotate) {
-                100% {
-                    @include vendor-prefix(transform, 'translateZ(0) rotate(360deg)');
-                }
-            }
-            @include keyframes(dash) {
+            width:27px;
+            height:27px;
+            border-radius:50%;
+            position: relative;
+            @include animation(task-manager-trigger-rotate 1.4s infinite linear);
+            @include vendor-prefix(background, linear-gradient(left, rgba($foreground,1) 10%, rgba($foreground,0) 42%), value);
+            @include vendor-prefix(transform, translateZ(0));
+            @include keyframes(task-manager-trigger-rotate) {
                 0% {
-                    stroke-dasharray: 1, 200;
-                    stroke-dashoffset: 0;
-                }
-                50% {
-                    stroke-dasharray: 89, 200;
-                    stroke-dashoffset: -35;
+                    @include vendor-prefix(transform, rotate(0deg));
                 }
                 100% {
-                    stroke-dasharray: 89, 200;
-                    stroke-dashoffset: -124;
+                    @include vendor-prefix(transform, rotate(360deg));
                 }
             }
-            @include keyframes(color) {
-                0% {
-                    stroke: $darkBarTxt;
-                }
-                40% {
-                    stroke: $darkBarTxt;
-                }
-                66% {
-                    stroke: $darkBarTxt;
-                }
-                80%, 90% {
-                    stroke: $darkBarTxt;
-                }
+
+            &:before {
+                width:50%;
+                height:50%;
+                background: $foreground;
+                border-radius: 100% 0 0 0;
+                position:absolute;
+                top:0;
+                left:0;
+                content:'';
             }
+
+            &:after {
+                background: $background;
+                width:75%;
+                height:75%;
+                border-radius:50%;
+                content:'';
+                margin:auto;
+                position: absolute;
+                top: 0; left: 0; bottom: 0; right: 0;
+            }
+        }
+        .badge{
+            background: $error;
+            @include font-size(12);
+            width:21px;
+            height:21px;
+            border-radius:50%;
+            margin:auto;
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            padding-top: 1px;
+            text-align: center;
+            display: inline-block;
         }
     }
 }

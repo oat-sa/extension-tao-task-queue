@@ -1,10 +1,6 @@
 <div class="task-manager-container">
     <div class="task-manager-trigger">
-        <div class="loader">
-            <div class="jicon">
-                <div class="loader">
-                </div>
-            </div>
-        </div>
+        <div class="loader"></div>
+        <span class="badge">99+</span>
     </div>
 </div>
