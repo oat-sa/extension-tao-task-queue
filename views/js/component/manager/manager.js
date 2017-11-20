@@ -19,37 +19,40 @@ define([
     'jquery',
     'lodash',
     'i18n',
+    'ui/hider',
     'ui/component',
     'ui/component/alignable',
-    'taoTaskQueue/component/badge/badge',
     'taoTaskQueue/component/listing/element',
     'taoTaskQueue/component/listing/list',
     'tpl!taoTaskQueue/component/manager/trigger',
     'css!taoTaskQueue/component/manager/css/manager'
-], function ($, _, __, component, makeAlignable, badgeFactory, listElementFactory, taskListFactory, triggerTpl) {
+], function ($, _, __, hider, component, makeAlignable, listElementFactory, taskListFactory, triggerTpl) {
     'use strict';
 
     var _defaults = {
     };
 
-
     var getBadgeDataFromStatus = function getBadgeDataFromStatus(tasksStatuses){
+        var running = (tasksStatuses.numberOfTasksInProgress > 0);
         if(tasksStatuses){
             if(tasksStatuses.numberOfTasksFailed){
                 return {
                     type : 'error',
+                    running : running,
                     value : parseInt(tasksStatuses.numberOfTasksFailed, 10),
                 };
             }
             if(tasksStatuses.numberOfTasksCompleted){
                 return {
                     type : 'success',
+                    running : running,
                     value : parseInt(tasksStatuses.numberOfTasksCompleted, 10),
                 };
             }
             if(tasksStatuses.numberOfTasksInProgress){
                 return {
                     type : 'info',
+                    running : running,
                     value : parseInt(tasksStatuses.numberOfTasksInProgress, 10),
                 };
             }
@@ -150,10 +153,30 @@ define([
         },
         selfUpdateBadge : function selfUpdateBadge(){
             var badgeData = getBadgeDataFromElements(this.getTaskElements());
-            if(badgeData){
-                this.badge.update(badgeData).show();
+            var $badgeBorder = this.getElement().find('.badge-border');
+            var $badge = this.getElement().find('.badge').removeClass('badge-info badge-success badge-error icon-result-ok');
+            var $loader = this.getElement().find('.loader');
+            var displayValue;
+            if(badgeData && badgeData.value){
+                displayValue = parseInt(badgeData.value, 10);
+                displayValue = (displayValue > 99) ? '99+' : displayValue;
+
+                //set status
+                $badge.addClass('badge-'+badgeData.type).html(displayValue);
+
+                //if any is running
+                if(badgeData.running){
+                    hider.show($loader);
+                    hider.hide($badgeBorder);
+                }else{
+                    hider.hide($loader);
+                    hider.show($badgeBorder);
+                }
             }else{
-                this.badge.hide();
+                //idle state:
+                hider.hide($loader);
+                hider.hide($badgeBorder);
+                $badge.addClass('icon-result-ok').empty();
             }
         },
         loadData : function loadData(tasksData){
@@ -238,8 +261,6 @@ define([
 
                 var self = this;
                 var $trigger = this.getElement();
-
-                this.badge = badgeFactory(getBadgeDataFromFullLog(data)).render($trigger);
 
                 this.list = makeAlignable(taskListFactory())
                     .init({
