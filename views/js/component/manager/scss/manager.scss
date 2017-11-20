@@ -72,12 +72,15 @@ $foreground: $darkBarTxt;
             text-align: center;
             display: inline-block;
             &.badge-info{
+                color: whiten($info, 0.9);
                 background: whiten($info, 0.2);
             }
             &.badge-success{
+                color: whiten($success, 0.9);
                 background: whiten($success, 0.2);
             }
             &.badge-error{
+                color: whiten($error, 0.9);
                 background: $error;
             }
             &.icon-result-ok{
@@ -86,6 +89,9 @@ $foreground: $darkBarTxt;
                     position: relative;
                     color: blue;
                 }
+            }
+            &:hover{
+                opacity: 0.9;
             }
         }
         .badge-border{
@@ -144,8 +150,9 @@ $foreground: $darkBarTxt;
     padding-top: 8px;
     .box {
         position: relative;
+        min-height: 76px;
         min-width: 360px;
-        background: $canvas;
+        background: blacken($canvas, 0.3);
         @include simple-border($listBorderColor);
         .description {
             padding: 2px 20px;
@@ -171,7 +178,10 @@ $foreground: $darkBarTxt;
         ul{
             max-height: 460px;
             overflow: auto;
+            background: blacken($canvas, 0.2);;
+            position: relative;
             li{
+                position: relative;
                 width: 100%;
                 max-height: 100px;
                 color: $textColor;
@@ -197,6 +207,14 @@ $foreground: $darkBarTxt;
                     }
                 }
             }
+        }
+        .empty-placeholder{
+            width:100%;
+            position: absolute;
+            top: 25px;
+            padding: 12px 20px;
+            font-style: italic;
+            color: blacken(white, 0.1);
         }
     }
 }

@@ -27,6 +27,7 @@ define([
     'use strict';
 
     var _defaults = {
+        emptyText : __('The list is currently empty.')
     };
 
     var animateIntersion = function animateIntersion(listElement){

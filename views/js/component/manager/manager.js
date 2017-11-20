@@ -264,7 +264,8 @@ define([
 
                 this.list = makeAlignable(taskListFactory())
                     .init({
-                        title : __('Running background jobs')
+                        title : __('Running background jobs'),
+                        emptyText : __('There is currently no background job'),
                     })
                     .render($trigger)
                     .moveBy(0, 0)
