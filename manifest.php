@@ -21,6 +21,7 @@
 
 use oat\taoTaskQueue\scripts\install\RegisterTaskLogService;
 use oat\taoTaskQueue\scripts\install\RegisterTaskQueueService;
+use oat\taoTaskQueue\scripts\install\SetClientRouterConfig;
 
 /**
  * Generated using taoDevTools 3.1.1
@@ -43,7 +44,8 @@ return array(
     'install' => array(
         'php' => [
             RegisterTaskLogService::class,
-            RegisterTaskQueueService::class
+            RegisterTaskQueueService::class,
+            SetClientRouterConfig::class
         ]
     ),
     'uninstall' => array(
