@@ -13,19 +13,20 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2017 (original work) Open Assessment Technologies SA ;
+ * Copyright (c) 2014 (original work) Open Assessment Technologies SA (under the project TAO-PRODUCT);
+ * 
+ * 
  */
-define([
-    'util/url',
-    'taoTaskQueue/model/taskQueueModel'
-], function (urlHelper, taskQueueModelFactory) {
+
+//@see http://forge.taotesting.com/projects/tao/wiki/Front_js
+define(function(){
     'use strict';
 
-    return taskQueueModelFactory({
-        url : {
-            get: urlHelper.route('get', 'RestTask', 'taoTaskQueue'),
-            archive: urlHelper.route('archive', 'RestTask', 'taoTaskQueue'),
-            all : urlHelper.route('getAll', 'RestTask', 'taoTaskQueue'),
+    return {
+        'Main': {
+            'actions' : {
+                'index' : 'taoTaskQueue/controller/main'
+            }
         }
-    });
+    };
 });

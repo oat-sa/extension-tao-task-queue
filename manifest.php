@@ -60,5 +60,6 @@ return array(
         'BASE_URL' => ROOT_URL.'taoTaskQueue/',
     ),
     'extra' => array(
-    )
+        'structures' => dirname(__FILE__).DIRECTORY_SEPARATOR.'controller'.DIRECTORY_SEPARATOR.'structures.xml',
+    ),
 );
