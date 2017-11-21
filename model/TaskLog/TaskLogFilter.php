@@ -47,40 +47,40 @@ class TaskLogFilter
     private $baseColumns = [
         TaskLogBrokerInterface::COLUMN_ID,
         TaskLogBrokerInterface::COLUMN_TASK_NAME,
-        TaskLogBrokerInterface::COLUMN_STATUS,
-        TaskLogBrokerInterface::COLUMN_CATEGORY
+        TaskLogBrokerInterface::COLUMN_STATUS
     ];
 
-    private $unSelectableColumns = [
+    private $optionalColumns = [
         TaskLogBrokerInterface::COLUMN_PARAMETERS,
         TaskLogBrokerInterface::COLUMN_LABEL,
         TaskLogBrokerInterface::COLUMN_OWNER,
         TaskLogBrokerInterface::COLUMN_REPORT,
         TaskLogBrokerInterface::COLUMN_CREATED_AT,
-        TaskLogBrokerInterface::COLUMN_UPDATED_AT
+        TaskLogBrokerInterface::COLUMN_UPDATED_AT,
+        TaskLogBrokerInterface::COLUMN_CATEGORY
     ];
 
-    private $unSelectedColumns = [];
+    private $deselectedColumns = [];
 
     /**
      * @return array
      */
     public function getColumns()
     {
-        return array_merge($this->baseColumns, array_diff( $this->unSelectableColumns, $this->unSelectedColumns));
+        return array_merge($this->baseColumns, array_diff($this->optionalColumns, $this->deselectedColumns));
     }
 
     /**
      * @param string $column
      * @return $this
      */
-    public function unSelect($column)
+    public function deselect($column)
     {
-        if (!in_array($column, $this->unSelectableColumns)) {
+        if (!in_array($column, $this->optionalColumns)) {
             throw new \InvalidArgumentException('Column "'. $column .'"" is not valid column or not unselectable.');
         }
 
-        $this->unSelectedColumns[] = $column;
+        $this->deselectedColumns[] = $column;
 
         return $this;
     }
@@ -197,10 +197,10 @@ class TaskLogFilter
      */
     public function addAvailableFilters($userId)
     {
-        $this->neq('status', TaskLogInterface::STATUS_ARCHIVED);
+        $this->neq(TaskLogBrokerInterface::COLUMN_STATUS, TaskLogInterface::STATUS_ARCHIVED);
 
         if ($userId !== TaskLogInterface::SUPER_USER) {
-            $this->eq('owner', $userId);
+            $this->eq(TaskLogBrokerInterface::COLUMN_OWNER, $userId);
         }
 
         return $this;

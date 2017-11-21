@@ -234,7 +234,7 @@ class TaskLogEntity implements JsonSerializable
             'taskName' => $this->taskName,
             'status' => (string) $this->status,
             'statusLabel' => $this->status->getLabel(),
-            'file' => (bool) $this->getFileNameFromReport(),
+            'hasFile' => (bool) $this->getFileNameFromReport(),
             'category' => $this->getCategory()
         ];
 
