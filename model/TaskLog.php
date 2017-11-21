@@ -194,13 +194,30 @@ class TaskLog extends ConfigurableService implements TaskLogInterface
     /**
      * @inheritdoc
      */
+    public function getById($taskId)
+    {
+        $filter = (new TaskLogFilter())
+            ->eq(TaskLogBrokerInterface::COLUMN_ID, $taskId);
+
+        $collection = $this->search($filter);
+
+        if ($collection->isEmpty()) {
+            throw new \common_exception_NotFound('Task log for task "'. $taskId .'" not found');
+        }
+
+        return $collection->first();
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function getByIdAndUser($taskId, $userId)
     {
         $filter = (new TaskLogFilter())
             ->addAvailableFilters($userId)
             ->eq(TaskLogBrokerInterface::COLUMN_ID, $taskId);
 
-        $collection = $this->getBroker()->search($filter);
+        $collection = $this->search($filter);
 
         if ($collection->isEmpty()) {
             throw new \common_exception_NotFound('Task log for task "'. $taskId .'" not found');

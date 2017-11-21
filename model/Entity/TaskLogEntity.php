@@ -220,7 +220,7 @@ class TaskLogEntity implements JsonSerializable
             'statusLabel' => $this->status->getLabel(),
             'createdAt' => $this->createdAt->format(DateTime::ATOM),
             'updatedAt' => $this->updatedAt->format(DateTime::ATOM),
-            'report' => is_null($this->report) ? [] : $this->report->JsonSerialize()
+            'report' => $this->report
         ];
     }
 
@@ -229,6 +229,8 @@ class TaskLogEntity implements JsonSerializable
      */
     public function toArray()
     {
-        return $this->jsonSerialize();
+        return array_merge($this->jsonSerialize(), [
+            'report' => is_null($this->report) ? [] : $this->report->toArray()
+        ]);
     }
 }
