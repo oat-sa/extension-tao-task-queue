@@ -3,6 +3,7 @@
 $listBorderColor: #333;
 
 $background: $info;
+$foreground: $activeInteraction;
 $foreground: $darkBarTxt;
 
 .task-manager-container {
@@ -19,6 +20,14 @@ $foreground: $darkBarTxt;
     }
     .task-manager-trigger {
         position: relative;
+        .loader-background{
+            position: absolute;
+            top:-1px;
+            width:25px;
+            height:25px;
+            border-radius:50%;
+            background: $darkBarTxt;
+        }
         .loader {
             position: relative;
             top:-1px;
