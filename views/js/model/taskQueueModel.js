@@ -194,7 +194,6 @@ define([
                             // get into asynchronous mode
                             var done = this.async();
                             model.getAll().then(function(taskDataArray){
-                                //TODO compare if any task has changed in status ?
                                 model.trigger('pollAll', taskDataArray);
                                 _updateInterval(self.globalPolling);
                                 done.resolve();

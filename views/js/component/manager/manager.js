@@ -90,6 +90,7 @@ define([
 
         var statusMap = {
             in_progress: 'numberOfTasksInProgress',
+            created: 'numberOfTasksInProgress',
             failed: 'numberOfTasksFailed',
             completed: 'numberOfTasksCompleted',
         };
