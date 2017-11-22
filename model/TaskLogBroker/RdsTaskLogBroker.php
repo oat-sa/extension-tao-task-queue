@@ -121,7 +121,6 @@ class RdsTaskLogBroker implements TaskLogBrokerInterface, PhpSerializable, Servi
             $table->addColumn(self::COLUMN_ID, 'string', ["notnull" => true, "length" => 255]);
             $table->addColumn(self::COLUMN_TASK_NAME, 'string', ["notnull" => true, "length" => 255]);
             $table->addColumn(self::COLUMN_PARAMETERS, 'text', ["notnull" => false, "default" => null]);
-            $table->addColumn(self::COLUMN_CATEGORY, 'string', ["notnull" => false, "length" => 255]);
             $table->addColumn(self::COLUMN_LABEL, 'string', ["notnull" => false, "length" => 255]);
             $table->addColumn(self::COLUMN_STATUS, 'string', ["notnull" => true, "length" => 50]);
             $table->addColumn(self::COLUMN_OWNER, 'string', ["notnull" => false, "length" => 255, "default" => null]);
@@ -149,7 +148,6 @@ class RdsTaskLogBroker implements TaskLogBrokerInterface, PhpSerializable, Servi
             self::COLUMN_ID   => (string) $task->getId(),
             self::COLUMN_TASK_NAME => $task instanceof CallbackTaskInterface && is_object($task->getCallable()) ? get_class($task->getCallable()) : get_class($task),
             self::COLUMN_PARAMETERS => json_encode($task->getParameters()),
-            self::COLUMN_CATEGORY => $task->getCategory(),
             self::COLUMN_LABEL => (string) $label,
             self::COLUMN_STATUS => (string) $status,
             self::COLUMN_OWNER => (string) $task->getOwner(),

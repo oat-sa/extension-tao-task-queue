@@ -274,6 +274,59 @@ class TaskLog extends ConfigurableService implements TaskLogInterface
     }
 
     /**
+     * @inheritdoc
+     */
+    public function linkTaskToCategory($taskName, $category)
+    {
+        if (is_object($taskName)) {
+            $taskName = get_class($taskName);
+        }
+
+        if (!in_array($category, $this->getTaskCategories())) {
+            throw new \InvalidArgumentException('Category "'. $category .'" is not a valid category.');
+        }
+
+        $associations = (array) $this->getOption(self::OPTION_TASK_TO_CATEGORY_ASSOCIATIONS);
+
+        $associations[ (string) $taskName ] = $category;
+
+        $this->setOption(self::OPTION_TASK_TO_CATEGORY_ASSOCIATIONS, $associations);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getCategoryForTask($taskName)
+    {
+        if (is_object($taskName)) {
+            $taskName = get_class($taskName);
+        }
+
+        $associations = (array) $this->getOption(self::OPTION_TASK_TO_CATEGORY_ASSOCIATIONS);
+
+        if (array_key_exists($taskName, $associations)) {
+            return $associations[$taskName];
+        }
+
+        return self::CATEGORY_UNKNOWN;
+    }
+
+    /**
+     * @return array
+     */
+    public function getTaskCategories()
+    {
+        return [
+            self::CATEGORY_CREATE,
+            self::CATEGORY_UPDATE,
+            self::CATEGORY_DELETE,
+            self::CATEGORY_IMPORT,
+            self::CATEGORY_EXPORT,
+            self::CATEGORY_DELIVERY_COMPILATION,
+        ];
+    }
+
+    /**
      * @param string $status
      */
     protected function validateStatus($status)

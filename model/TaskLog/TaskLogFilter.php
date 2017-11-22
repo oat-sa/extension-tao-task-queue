@@ -56,8 +56,7 @@ class TaskLogFilter
         TaskLogBrokerInterface::COLUMN_OWNER,
         TaskLogBrokerInterface::COLUMN_REPORT,
         TaskLogBrokerInterface::COLUMN_CREATED_AT,
-        TaskLogBrokerInterface::COLUMN_UPDATED_AT,
-        TaskLogBrokerInterface::COLUMN_CATEGORY
+        TaskLogBrokerInterface::COLUMN_UPDATED_AT
     ];
 
     private $deselectedColumns = [];

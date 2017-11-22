@@ -50,8 +50,7 @@ class TaskLogFilterTest extends \PHPUnit_Framework_TestCase
             TaskLogBrokerInterface::COLUMN_OWNER,
             TaskLogBrokerInterface::COLUMN_REPORT,
             TaskLogBrokerInterface::COLUMN_CREATED_AT,
-            TaskLogBrokerInterface::COLUMN_UPDATED_AT,
-            TaskLogBrokerInterface::COLUMN_CATEGORY
+            TaskLogBrokerInterface::COLUMN_UPDATED_AT
         ], $this->filter->getColumns());
     }
 

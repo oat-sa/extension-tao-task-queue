@@ -23,12 +23,10 @@ namespace oat\taoTaskQueue\model\Entity;
 use common_report_Report as Report;
 use DateTime;
 use Exception;
-use JsonSerializable;
 use oat\taoTaskQueue\model\TaskLogBroker\TaskLogBrokerInterface;
-use oat\taoTaskQueue\model\TaskLogInterface;
 use oat\taoTaskQueue\model\ValueObjects\TaskLogCategorizedStatus;
 
-class TaskLogEntity implements JsonSerializable
+class TaskLogEntity implements TaskLogEntityInterface
 {
     /** @var string */
     private $id;
@@ -56,10 +54,6 @@ class TaskLogEntity implements JsonSerializable
 
     /** @var  DateTime */
     private $updatedAt;
-    /**
-     * @var null
-     */
-    private $category;
 
     /**
      * TaskLogEntity constructor.
@@ -73,7 +67,6 @@ class TaskLogEntity implements JsonSerializable
      * @param DateTime|null            $createdAt
      * @param DateTime|null            $updatedAt
      * @param Report|null              $report
-     * @param string|null              $category
      */
     public function __construct(
         $id,
@@ -84,8 +77,7 @@ class TaskLogEntity implements JsonSerializable
         $owner,
         DateTime $createdAt = null,
         DateTime $updatedAt = null,
-        Report $report = null,
-        $category = null
+        Report $report = null
     ) {
         $this->id = $id;
         $this->taskName = $taskName;
@@ -96,7 +88,6 @@ class TaskLogEntity implements JsonSerializable
         $this->report = $report;
         $this->createdAt = $createdAt;
         $this->updatedAt = $updatedAt;
-        $this->category = $category;
     }
 
     /**
@@ -116,8 +107,7 @@ class TaskLogEntity implements JsonSerializable
             isset($row[TaskLogBrokerInterface::COLUMN_OWNER]) ? $row[TaskLogBrokerInterface::COLUMN_OWNER] : '',
             isset($row[TaskLogBrokerInterface::COLUMN_CREATED_AT]) ? DateTime::createFromFormat('Y-m-d H:i:s', $row[TaskLogBrokerInterface::COLUMN_CREATED_AT], new \DateTimeZone(TIME_ZONE)) : null,
             isset($row[TaskLogBrokerInterface::COLUMN_UPDATED_AT]) ? DateTime::createFromFormat('Y-m-d H:i:s', $row[TaskLogBrokerInterface::COLUMN_UPDATED_AT], new \DateTimeZone(TIME_ZONE)) : null,
-            isset($row[TaskLogBrokerInterface::COLUMN_REPORT]) ? Report::jsonUnserialize($row[TaskLogBrokerInterface::COLUMN_REPORT]) : null,
-            isset($row[TaskLogBrokerInterface::COLUMN_CATEGORY]) ? $row[TaskLogBrokerInterface::COLUMN_CATEGORY] : null
+            isset($row[TaskLogBrokerInterface::COLUMN_REPORT]) ? Report::jsonUnserialize($row[TaskLogBrokerInterface::COLUMN_REPORT]) : null
         );
     }
 
@@ -216,17 +206,17 @@ class TaskLogEntity implements JsonSerializable
     }
 
     /**
-     * @return string
+     * @return array
      */
-    public function getCategory()
+    public function jsonSerialize()
     {
-        return $this->category ?: TaskLogInterface::CATEGORY_UNKNOWN;
+        return $this->toArray();
     }
 
     /**
      * @return array
      */
-    public function jsonSerialize()
+    public function toArray()
     {
         // add basic fields which always have values
         $rs = [
@@ -234,8 +224,7 @@ class TaskLogEntity implements JsonSerializable
             'taskName' => $this->taskName,
             'status' => (string) $this->status,
             'statusLabel' => $this->status->getLabel(),
-            'hasFile' => (bool) $this->getFileNameFromReport(),
-            'category' => $this->getCategory()
+            'hasFile' => (bool) $this->getFileNameFromReport()
         ];
 
         // add other fields only if they have values
@@ -254,19 +243,9 @@ class TaskLogEntity implements JsonSerializable
         }
 
         if ($this->report instanceof Report) {
-            $rs['report'] = $this->report->JsonSerialize();
+            $rs['report'] = $this->report->toArray();
         }
 
         return $rs;
-    }
-
-    /**
-     * @return array
-     */
-    public function toArray()
-    {
-        return array_merge($this->jsonSerialize(), [
-            'report' => is_null($this->report) ? [] : $this->report->toArray()
-        ]);
     }
 }
