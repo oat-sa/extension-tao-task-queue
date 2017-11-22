@@ -265,6 +265,8 @@ class TaskLogEntity implements JsonSerializable
      */
     public function toArray()
     {
-        return $this->jsonSerialize();
+        return array_merge($this->jsonSerialize(), [
+            'report' => is_null($this->report) ? [] : $this->report->toArray()
+        ]);
     }
 }

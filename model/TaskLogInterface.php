@@ -141,6 +141,14 @@ interface TaskLogInterface extends LoggerAwareInterface
 
     /**
      * @param string $taskId
+     * @return TaskLogEntity
+     *
+     * @throws \common_exception_NotFound
+     */
+    public function getById($taskId);
+
+    /**
+     * @param string $taskId
      * @param string $userId
      * @return TaskLogEntity
      *

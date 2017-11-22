@@ -8,176 +8,41 @@ schemes:
   - http
   - https
 paths:
-  /taoTaskQueue/RestTask/get:
+  /taoTaskQueue/TaskQueueRestApi/get:
     get:
-      tags:
-        - Get Task
-      summary: Get Task
-      description: Get Task
-      operationId: GetTask
-      parameters:
-        - name: taskId
-          in: query
-          description: Task id identifier
-          required: true
-          type: string
-          format: int64
-      produces:
-        - application/json
-      responses:
-        '200':
-          description: successful operation
-          schema:
-            properties:
-              success:
-                type: boolean
-              data:
-                $ref: '#/definitions/TaskLog'
-              errorCode:
-                type: string
-              errorMsg:
-               type: string
-        '400':
-          description: Bad request if you send invalid parameters.
-        '401':
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/ErrorModel'
-  /taoTaskQueue/RestTask/getAll:
-    get:
-      tags:
-        - Get Tasks
-      summary: Get Tasks
-      description: Get Tasks
-      operationId: GetTasks
-      parameters:
-        - name: limit
-          in: query
-          description: Limit
-          required: false
-          type: integer
-          format: int64
-        - name: offset
-          in: query
-          description: Offset
-          required: false
-          type: integer
-          format: int64
-        - name: reportIncluded
-          in: query
-          description: Should report be included in the response or not?
-          required: false
-          type: integer
-          format: int64
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      responses:
-        '200':
-          description: successful operation
-          schema:
-            properties:
-              success:
-                type: boolean
-              data:
-                type: array
-                items:
+        tags:
+          - Get Task
+        summary: Get Task through API
+        description: Get Task
+        operationId: GetTask
+        parameters:
+          - name: id
+            in: query
+            description: Task id identifier
+            required: true
+            type: string
+        produces:
+          - application/json
+        responses:
+          '200':
+            description: successful operation
+            schema:
+              properties:
+                success:
+                  type: boolean
+                data:
                   $ref: '#/definitions/TaskLog'
-              errorCode:
-                type: string
-              errorMsg:
-               type: string
-        '400':
-          description: Bad request if you send invalid parameters.
-        '401':
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/ErrorModel'
-  /taoTaskQueue/RestTask/stats:
-    get:
-      tags:
-        - Get Tasks Status
-      summary: Get Tasks Status
-      description: Get Tasks Status
-      operationId: GetTasksStatus
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      responses:
-        '200':
-          description: successful operation
-          schema:
-            properties:
-              success:
-                type: boolean
-              data:
-                $ref: '#/definitions/TaskStatus'
-              errorCode:
-                type: string
-              errorMsg:
-               type: string
-        '400':
-          description: Invalid input
-        '401':
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/ErrorModel'
-  /taoTaskQueue/RestTask/archive:
-    post:
-      tags:
-        - Archive Task
-      summary: Archive Task
-      description: Archive Task
-      operationId: ArchiveTask
-      parameters:
-        - name: taskId
-          in: formData
-          description: Task id to archive
-          required: true
-          type: string
-          format: int64
-      consumes:
-        - application/x-www-form-urlencoded
-      produces:
-        - application/json
-      responses:
-        '200':
-          description: successful operation
-          schema:
-            properties:
-              success:
-                type: boolean
-              errorCode:
-                type: string
-              errorMsg:
-               type: string
-        '400':
-          description: Invalid ID supplied
-        '404':
-          description: Task not found
-        '401':
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/ErrorModel'
+                errorCode:
+                  type: string
+                errorMsg:
+                 type: string
+          '400':
+            description: Bad request if you send invalid parameters.
+          '401':
+            description: Unauthorized
+            schema:
+              $ref: '#/definitions/ErrorModel'
 definitions:
-  TaskStatus:
-    type: object
-    required:
-      - numberOfTasksCompleted
-      - numberOfTasksFailed
-      - numberOfTasksInProgress
-    properties:
-      numberOfTasksCompleted:
-        type: integer
-        example: 10
-      numberOfTasksFailed:
-        type: integer
-        example: 10
-      numberOfTasksInProgress:
-        type: integer
-        example: 10
   TaskLog:
     type: object
     required:
