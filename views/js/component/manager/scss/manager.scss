@@ -157,10 +157,11 @@ $foreground: $darkBarTxt;
     }
 }
 
-.task-listing {
-    cursor:default;
+div.task-listing {
+    position: relative;
+    cursor: default;
     padding-top: 0px;
-    .box {
+    div.box {
         position: relative;
         min-height: 76px;
         min-width: 360px;
@@ -187,7 +188,14 @@ $foreground: $darkBarTxt;
             right: 14px;
             top: -9px;
         }
-        ul{
+        ul.task-list{
+            position: relative;
+            top: 0;
+            left: 0;
+            right: 0;
+            opacity: 1;
+            padding: 0 !important;
+            border: none;
             max-height: 460px;
             overflow: auto;
             background: blacken($canvas, 0.2);;
