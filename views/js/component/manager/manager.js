@@ -273,7 +273,8 @@ define([
                         hPos: 'center',
                         hOrigin: 'center',
                         vPos: 'bottom',
-                        vOrigin: 'top'
+                        vOrigin: 'top',
+                        hOffset: -156
                     })
                     .hide();//start hidden
 

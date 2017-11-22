@@ -11,7 +11,7 @@ $foreground: $darkBarTxt;
     position: relative;
     width: 40px;
     height: 64px;
-    background: $darkBar;
+    background-color: $darkBar;
     padding: 22px 8px 0px;
     &:hover{
         @include vendor-prefix(transition, background-color 0.2s ease);
@@ -159,7 +159,7 @@ $foreground: $darkBarTxt;
 
 .task-listing {
     cursor:default;
-    padding-top: 8px;
+    padding-top: 0px;
     .box {
         position: relative;
         min-height: 76px;
@@ -179,13 +179,13 @@ $foreground: $darkBarTxt;
             border: 1px $listBorderColor solid;
             border-right: none;
             border-bottom: none;
-            width: 12px;
-            height: 12px;
+            width: 16px;
+            height: 16px;
             background: blacken($canvas, 0.1);
             color: $textColor;
             position: absolute;
-            right: calc(50% - 6px);
-            top: -7px;
+            right: 14px;
+            top: -9px;
         }
         ul{
             max-height: 460px;
