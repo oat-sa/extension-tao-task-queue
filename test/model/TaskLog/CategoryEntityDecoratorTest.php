@@ -22,9 +22,9 @@ namespace oat\taoTaskQueue\test\model\TaskLog;
 
 use oat\taoTaskQueue\model\Entity\TaskLogEntityInterface;
 use oat\taoTaskQueue\model\TaskLog;
-use oat\taoTaskQueue\model\TaskLog\CategoryDecorator;
+use oat\taoTaskQueue\model\Entity\CategoryEntityDecorator;
 
-class CategoryDecoratorTest extends \PHPUnit_Framework_TestCase
+class CategoryEntityDecoratorTest extends \PHPUnit_Framework_TestCase
 {
     public function testToArrayCategoryShouldBeInTheResult()
     {
@@ -32,16 +32,16 @@ class CategoryDecoratorTest extends \PHPUnit_Framework_TestCase
 
         $taskLogMock = $this->getMockBuilder(TaskLog::class)
             ->disableOriginalConstructor()
-            ->setMethods(['getCategoryByTask'])
+            ->setMethods(['getCategoryForTask'])
             ->getMock();
 
         $taskLogMock->expects($this->once())
-            ->method('getCategoryByTask')
+            ->method('getCategoryForTask')
             ->willReturn($category);
 
         $entityMock = $this->getMockForAbstractClass(TaskLogEntityInterface::class);
 
-        $decorator = new CategoryDecorator($entityMock, $taskLogMock);
+        $decorator = new CategoryEntityDecorator($entityMock, $taskLogMock);
 
         $rs = $decorator->toArray();
 
