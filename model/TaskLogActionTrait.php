@@ -159,4 +159,15 @@ trait TaskLogActionTrait
 
         return $reports;
     }
+
+    protected function returnCreatedTaskJson($taskId, $extraData = []){
+        $data = $this->getTaskLogReturnData($taskId);
+        return $this->returnJson([
+            'success' => true,
+            'data' => [
+                'extra' => $extraData,
+                'task' => $data
+            ]
+        ]);
+    }
 }

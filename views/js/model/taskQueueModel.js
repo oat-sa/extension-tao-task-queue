@@ -307,17 +307,20 @@ define([
             create : function create(url, data){
                 var taskCreate, self = this;
                 taskCreate = request(url, data, 'POST', {}, true)
-                    .then(function(taskData){
+                    .then(function(creationResult){
                         //poll short result:
-                        if(taskData && taskData.id){
-                            self.trigger('created', taskData);
-                            return self.pollSingle(taskData.id).then(function(result){
+                        if(creationResult && creationResult.task && creationResult.task.id){
+                            self.trigger('created', creationResult);
+                            return self.pollSingle(creationResult.task.id).then(function(result){
+                                if(creationResult.extra){
+                                    result.extra = creationResult.extra;
+                                }
                                 if(result.finished){
                                     //send to queue
-                                    self.trigger('fastFinished', result.task);
+                                    self.trigger('fastFinished', result);
                                 }else{
                                     //send to queue
-                                    self.trigger('enqueued', result.task);
+                                    self.trigger('enqueued', result);
                                 }
                                 return Promise.resolve(result);
                             });

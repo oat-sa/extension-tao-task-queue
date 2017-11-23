@@ -198,15 +198,16 @@ define([
     QUnit.module('Create');
 
     QUnit.asyncTest('quick finish - promise mode', function(assert) {
-        QUnit.expect(6);
+        QUnit.expect(7);
         taskQueueModelFactory({
             url : {
                 get : '/taoTaskQueue/views/js/test/model/taskQueue/samples/newTaskCreated.json'
             }
-        }).on('created', function(task){
+        }).on('created', function(result){
 
-            assert.ok(_.isPlainObject(task), 'the data is a plain object');
-            assert.equal(task.status, 'in_progress', 'the status is correct');
+            assert.ok(_.isPlainObject(result), 'the data is a plain object');
+            assert.ok(_.isPlainObject(result.task), 'the data contains the task data is a plain object');
+            assert.equal(result.task.status, 'in_progress', 'the status is correct');
 
         }).on('pollSingle', function(){
 
@@ -215,11 +216,12 @@ define([
                 get : '/taoTaskQueue/views/js/test/model/taskQueue/samples/newTaskFinished.json'
             });
 
-        }).create('/taoTaskQueue/views/js/test/model/taskQueue/samples/newTaskCreated.json', {someparam:'xyz'}).then(function(result){
+        }).create('/taoTaskQueue/views/js/test/model/taskQueue/samples/newTaskCreationResult.json', {someparam:'xyz'}).then(function(result){
             assert.ok(true, 'archive successful');
             assert.equal(result.finished, true, 'the task has time to finish quickly');
             assert.ok(_.isPlainObject(result.task), 'the data is a plain object');
             assert.equal(result.task.status, 'completed', 'the status is correct');
+            console.log(result);
             QUnit.start();
         }).catch(function(){
             assert.ok(false,'should not fail');
@@ -228,15 +230,16 @@ define([
     });
 
     QUnit.asyncTest('quick finish - event mode', function(assert) {
-        QUnit.expect(5);
+        QUnit.expect(6);
         taskQueueModelFactory({
             url : {
                 get : '/taoTaskQueue/views/js/test/model/taskQueue/samples/newTaskCreated.json'
             }
-        }).on('created', function(task){
+        }).on('created', function(result){
 
-            assert.ok(_.isPlainObject(task), 'the data is a plain object');
-            assert.equal(task.status, 'in_progress', 'the status is correct');
+            assert.ok(_.isPlainObject(result), 'the data is a plain object');
+            assert.ok(_.isPlainObject(result.task), 'the data contains the task data is a plain object');
+            assert.equal(result.task.status, 'in_progress', 'the status is correct');
 
         }).on('pollSingle', function(){
 
@@ -245,11 +248,11 @@ define([
                 get : '/taoTaskQueue/views/js/test/model/taskQueue/samples/newTaskFinished.json'
             });
 
-        }).on('fastFinished', function(task){
+        }).on('fastFinished', function(result){
 
             assert.ok(true, 'the task has time to finish quickly');
-            assert.ok(_.isPlainObject(task), 'the data is a plain object');
-            assert.equal(task.status, 'completed', 'the status is correct');
+            assert.ok(_.isPlainObject(result.task), 'the data is a plain object');
+            assert.equal(result.task.status, 'completed', 'the status is correct');
             QUnit.start();
 
         }).on('enqueued', function(){
@@ -257,11 +260,11 @@ define([
             assert.ok(false,'should not be enqueued');
             QUnit.start();
 
-        }).create('/taoTaskQueue/views/js/test/model/taskQueue/samples/newTaskCreated.json', {someparam:'xyz'});
+        }).create('/taoTaskQueue/views/js/test/model/taskQueue/samples/newTaskCreationResult.json', {someparam:'xyz'});
     });
 
     QUnit.asyncTest('enqueued - promise mode', function(assert) {
-        QUnit.expect(6);
+        QUnit.expect(7);
         taskQueueModelFactory({
             url : {
                 get : '/taoTaskQueue/views/js/test/model/taskQueue/samples/newTaskCreated.json'
@@ -269,12 +272,13 @@ define([
             pollSingleIntervals : [
                 {iteration: 1, interval:100},
             ]
-        }).on('created', function(task){
+        }).on('created', function(result){
 
-            assert.ok(_.isPlainObject(task), 'the data is a plain object');
-            assert.equal(task.status, 'in_progress', 'the status is correct');
+            assert.ok(_.isPlainObject(result), 'the data is a plain object');
+            assert.ok(_.isPlainObject(result.task), 'the data contains the task data is a plain object');
+            assert.equal(result.task.status, 'in_progress', 'the status is correct');
 
-        }).create('/taoTaskQueue/views/js/test/model/taskQueue/samples/newTaskCreated.json', {someparam:'xyz'}).then(function(result){
+        }).create('/taoTaskQueue/views/js/test/model/taskQueue/samples/newTaskCreationResult.json', {someparam:'xyz'}).then(function(result){
             assert.ok(true, 'archive successful');
             assert.equal(result.finished, false, 'the task has not the time to finish quickly');
             assert.ok(_.isPlainObject(result.task), 'the data is a plain object');
@@ -287,7 +291,7 @@ define([
     });
 
     QUnit.asyncTest('enqueued - event mode', function(assert) {
-        QUnit.expect(5);
+        QUnit.expect(6);
         taskQueueModelFactory({
             url : {
                 get : '/taoTaskQueue/views/js/test/model/taskQueue/samples/newTaskCreated.json'
@@ -295,23 +299,24 @@ define([
             pollSingleIntervals : [
                 {iteration: 1, interval:100},
             ]
-        }).on('created', function(task){
+        }).on('created', function(result){
 
-            assert.ok(_.isPlainObject(task), 'the data is a plain object');
-            assert.equal(task.status, 'in_progress', 'the status is correct');
+            assert.ok(_.isPlainObject(result), 'the data is a plain object');
+            assert.ok(_.isPlainObject(result.task), 'the data contains the task data is a plain object');
+            assert.equal(result.task.status, 'in_progress', 'the status is correct');
 
         }).on('fastFinished', function(){
 
             assert.ok(false,'should not finish quickly');
             QUnit.start();
 
-        }).on('enqueued', function(task){
+        }).on('enqueued', function(result){
 
             assert.ok(true, 'the task has no time to finish quickly');
-            assert.ok(_.isPlainObject(task), 'the data is a plain object');
-            assert.equal(task.status, 'in_progress', 'the status is correct');
+            assert.ok(_.isPlainObject(result.task), 'the data is a plain object');
+            assert.equal(result.task.status, 'in_progress', 'the status is correct');
             QUnit.start();
 
-        }).create('/taoTaskQueue/views/js/test/model/taskQueue/samples/newTaskCreated.json', {someparam:'xyz'});
+        }).create('/taoTaskQueue/views/js/test/model/taskQueue/samples/newTaskCreationResult.json', {someparam:'xyz'});
     });
 });

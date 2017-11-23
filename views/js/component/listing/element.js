@@ -82,7 +82,7 @@ define([
         return 'icon-'+icon;
     };
 
-    var badgeApi = {
+    var taskElementApi = {
         getId : function getId(){
             if(this.data && this.data.id){
                 return this.data.id;
@@ -106,6 +106,7 @@ define([
             $container.find('.time').html(getTimeString(this.data));
 
             this.setStatus(this.data.status);
+            //bonus: check if there is any report and display the report button only when needed
 
             hider.toggle($container.find('.action-bottom [data-role="download"]'), this.data.file);
 
@@ -115,7 +116,7 @@ define([
 
         /**
          * Adding transition to highlight the element after an update
-         * @returns {badgeApi}
+         * @returns {taskElementApi}
          */
         highlight : function highlight(){
             var $container = this.getElement();
@@ -150,7 +151,7 @@ define([
     return function taskElementFactory(config, data) {
         var initConfig = _.defaults(config || {}, _defaults);
 
-        return component(badgeApi)
+        return component(taskElementApi)
             .setTemplate(elementTpl)
             .on('init', function() {
 

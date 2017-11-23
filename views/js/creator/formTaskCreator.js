@@ -30,14 +30,27 @@ define([
     /**
      * prepare the given container to display the final report
      * @param {Object} report - the standard report object
+     * @param {String} type - the report type to be displayed in the title
      * @param {JQuery} $container - the container that will contain the report
      */
-    function displayReport(report, $container){
+    function displayReport(report, type, $container, selectNode){
         var $reportContainer = $(reportContainerTpl({
-            title: report.type === 'error' ? __('Error') : __('Success')
+            title: type
         }));
         $container.html($reportContainer);
-        reportFactory({}, report).render($reportContainer.find('.report'));
+        return reportFactory({
+            actions: [{
+                id: 'continue',
+                icon: 'right',
+                title: 'continue',
+                label: __('Continue')
+            }]
+        }, report)
+        .on('action-continue', function(){
+            $('.tree').trigger('refresh.taotree', [{
+                uri : selectNode
+            }]);
+        }).render($reportContainer.find('.report'));
     }
 
     /**
@@ -54,9 +67,18 @@ define([
             taskQueue.pollAllStop();
             taskQueue.create($form.prop('action'), $form.serializeArray()).then(function(result){
                 var task = result.task;
+                var selectNode;
+                if(result.extra && result.extra.selectNode){
+                    selectNode = result.extra.selectNode;
+                }
+
                 if(result.finished){
                     //the task finished quickly -> display report
-                    displayReport(task.report.children[0], $container);
+                    displayReport(
+                        task.report.children[0],
+                        task.report.type === 'error' ? __('Error') : __('Success'),
+                        $container,
+                        selectNode);
 
                     //immediately archive the finished task as there is no need to display this task in the queue list
                     taskQueue.archive(task.id).then(function(){
@@ -65,9 +87,12 @@ define([
                 }else{
                     //inform the user that task will move to the background
                     displayReport({
-                        type: 'info',
-                        message : __('<strong> %s </strong> takes a long time to execute so it has been moved to the background.', task.taskLabel)
-                    }, $container);
+                            type: 'info',
+                            message : __('<strong> %s </strong> takes a long time to execute so it has been moved to the background.', task.taskLabel)
+                        },
+                        __('In progress'),
+                        $container,
+                        selectNode);
 
                     //leave the user a moment to make the connection between the notification message and the animation
                     _.delay(function(){

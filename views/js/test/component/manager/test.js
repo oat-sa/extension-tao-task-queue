@@ -86,6 +86,88 @@ define([
         var config = {
         };
 
+        var _sampleReport = {
+            "type": "warning",
+            "message": "<em>Data not imported. All records are <strong>invalid.</strong></em>",
+            "data": null,
+            "children": [{
+                "type": "error",
+                "message": "Row 1 Student Number Identifier: Duplicated student \"92001\"",
+                "data": null,
+                "children": [{
+                    "type": "error",
+                    "message": "This is but a sub-report Z",
+                    "data": null,
+                    "children": []
+                }]
+            }, {
+                "type": "success",
+                "message": "Row 2 Student Number Identifier OK",
+                "data": null,
+                "children": [{
+                    "type": "success",
+                    "message": "This is but a sub-report A",
+                    "data": null,
+                    "children": []
+                }, {
+                    "type": "info",
+                    "message": "This is but a sub-report B",
+                    "data": null,
+                    "children": []
+                }]
+            },{
+                "type": "error",
+                "message": "Row 1 Student Number Identifier: Duplicated student \"92001\"",
+                "data": null,
+                "children": [{
+                    "type": "error",
+                    "message": "This is but a sub-report Z",
+                    "data": null,
+                    "children": []
+                }]
+            }, {
+                "type": "success",
+                "message": "Row 2 Student Number Identifier OK",
+                "data": null,
+                "children": [{
+                    "type": "success",
+                    "message": "This is but a sub-report A",
+                    "data": null,
+                    "children": []
+                }, {
+                    "type": "info",
+                    "message": "This is but a sub-report B",
+                    "data": null,
+                    "children": []
+                }]
+            },{
+                "type": "error",
+                "message": "Row 1 Student Number Identifier: Duplicated student \"92001\"",
+                "data": null,
+                "children": [{
+                    "type": "error",
+                    "message": "This is but a sub-report Z",
+                    "data": null,
+                    "children": []
+                }]
+            }, {
+                "type": "success",
+                "message": "Row 2 Student Number Identifier OK",
+                "data": null,
+                "children": [{
+                    "type": "success",
+                    "message": "This is but a sub-report A",
+                    "data": null,
+                    "children": []
+                }, {
+                    "type": "info",
+                    "message": "This is but a sub-report B",
+                    "data": null,
+                    "children": []
+                }]
+            }]
+        };
+
         var _sampleLogCollection = [
             {
                 id: 'rdf#i1508337970199318643',
@@ -135,7 +217,7 @@ define([
                     type : 'error',
                     message : 'running task rdf#i1508337970190342',
                     data : null,//download url ? task context ?
-                    children: []
+                    children: [_sampleReport]
                 }
             }
         ];
@@ -196,6 +278,10 @@ define([
         });
 
         taskManager = taskQueueManagerFactory(config, _sampleLogCollection)
+            .on('report', function(){
+                //fetch report
+                this.showDetail(_sampleLogCollection[2]);
+            })
             .on('render', function(){
                 var self = this;
                 assert.ok(true);
