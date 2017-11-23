@@ -28,15 +28,15 @@ function ($, taskQueueManagerFactory, taskQueue) {
     'use strict';
 
     /**
-     * This controller initialize all the layout components used by the backend : sections, actions, tree, loader, etc.
-     * @exports tao/controller/main
+     * This controller initialize all the task queue component globally for tao backoffice use
+     * @exports taoTaskQueue/controller/main
      */
     return {
         start: function () {
 
             var taskManager = taskQueueManagerFactory({
-                replace: true
-            })
+                    replace: true
+                })
                 .on('render', function () {
                     var self = this;
                 })
@@ -54,22 +54,16 @@ function ($, taskQueueManagerFactory, taskQueue) {
                 })
                 .render($('#taskqueue').parent());
 
-
-            taskQueue.on('pollAll', function (tasks) {
+            //listen to events triggered by the task queue model
+            taskQueue.on('taskcreated', function(task){
+                if(taskManager.list.is('hidden')){
+                    taskManager.animateReduction();
+                }else{
+                    taskManager.addNewTask(task, true);
+                }
+            }).on('pollAll', function (tasks) {
                 taskManager.loadData(tasks);
-            }).pollAll();
-
-            return;
-
-            taskQueueInstance = taskQueueModel()
-                .on('completed failed archived', function () {
-                    //update the view manager
-                    taskManager.update(this.getAllData());
-                }).on('enqueued', function (taskData) {
-                    //update the view manager + animation
-                    feedback('task created');
-                    taskManager.animateInsertion(taskData);
-                }).pollAll();//smart management of poll interval
+            }).pollAll(true);//start polling immediately on load
         }
     };
 });
