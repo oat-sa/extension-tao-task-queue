@@ -59,13 +59,14 @@ After processing the given task, the worker saves the generated report for the t
 ### Task Log component
 It's responsible for managing the lifecycle of Tasks. Can be accessed as a service. 
 It stores the statuses, the generated report and some other useful metadata of the tasks.
+To access those data, you can use the `search` function which takes a `TaskLogFilter` as an argument
+or `getDataTablePayload` method if you want to handle the standard datatable request.
+
 Its main duty is preventing of running the same task by multiple workers at the same time. 
 
 It can also have multiple brokers extending TaskLogBrokerInterface to store the data in different type of storage system. 
 Currently we have **RdsTaskLogBroker** which uses RDS.
 
-Usually, you won't have to interact with this service directly except if you are using InMemoryQueueBroker 
-and want to get the report of the given task in the same request.
 
 ## Service setup examples
 
@@ -292,17 +293,20 @@ As you can see, nothing has changed here. It is the same like before. The magic 
 
 Anyway, the main thing here is that a wrapper class called \oat\taoTaskQueue\model\CallbackTask is used to wrap your Action object and make it consumable for the queue system.
 
+If you want to specify the queue the task should be published to, implement `\oat\taoTaskQueue\model\QueueAssociableInterface` in your action or
+use `$queueService->linkTaskToQueue(CompileDelivery::class, 'queue_name');` in your updater script.
+
 #### Working with Task Log component
 
 Mostly, it can be used when the queue is used as Sync Queue and you want to get the status and the report for a task:
 
 ```php
-/** @var \oat\taoTaskQueue\model\TaskLogInterface $taskLog */
-$taskLog = $this->getServiceManager()->get(\oat\taoTaskQueue\model\TaskLogInterface::SERVICE_ID);
+/** @var \oat\taoTaskQueue\model\TaskLogInterface $taskLogService */
+$taskLogService = $this->getServiceManager()->get(\oat\taoTaskQueue\model\TaskLogInterface::SERVICE_ID);
 
 // checking the status for STATUS_COMPLETED can prevent working with a null report if InMemoryQueueBroker not used anymore.
-if ($task->isEnqueued() && $taskLog->getStatus($task->getId()) == TaskLogInterface::STATUS_COMPLETED) {
-    $report = $taskLog->getReport($task->getId());
+if ($task->isEnqueued() && $taskLogService->getStatus($task->getId()) == TaskLogInterface::STATUS_COMPLETED) {
+    $report = $taskLogService->getReport($task->getId());
 }
 ```
 
@@ -310,8 +314,23 @@ Or we can just simply check if the current queue is a sync one so we have a repo
 
 ```php
 if ($queueService->isSync()) {
-    $report = $taskLog->getReport($task->getId());
+    $report = $taskLogService->getReport($task->getId());
 }
+```
+
+Let's use `search` for gaining some task log entities.
+
+```php
+use \oat\taoTaskQueue\model\TaskLog\TaskLogFilter;
+use \oat\taoTaskQueue\model\TaskLogBroker\TaskLogBrokerInterface;
+
+$filter = (new TaskLogFilter())
+    ->addAvailableFilters(\common_session_SessionManager::getSession()->getUserUri())
+    ->eq(TaskLogBrokerInterface::COLUMN_TASK_NAME, GenerateBillingReport::class)
+    ->in(TaskLogBrokerInterface::COLUMN_STATUS, [TaskLogInterface::STATUS_ENQUEUED, TaskLogInterface::STATUS_DEQUEUED, TaskLogInterface::STATUS_RUNNING]);
+
+    
+$scheduledTasks = $taskLogService->search($filter);    
 ```
 
 ## Rest API

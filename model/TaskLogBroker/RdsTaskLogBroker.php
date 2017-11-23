@@ -28,6 +28,7 @@ use oat\taoTaskQueue\model\Entity\TasksLogsStats;
 use oat\taoTaskQueue\model\QueueDispatcherInterface;
 use oat\taoTaskQueue\model\Task\CallbackTaskInterface;
 use oat\taoTaskQueue\model\Task\TaskInterface;
+use oat\taoTaskQueue\model\TaskLog\TaskLogCollection;
 use oat\taoTaskQueue\model\TaskLog\TaskLogFilter;
 use oat\taoTaskQueue\model\TaskLogInterface;
 use oat\taoTaskQueue\model\ValueObjects\TaskLogCategorizedStatus;
@@ -239,7 +240,7 @@ class RdsTaskLogBroker implements TaskLogBrokerInterface, PhpSerializable, Servi
     {
         try {
             $qb = $this->getQueryBuilder()
-                ->select('*')
+                ->select($filter->getColumns())
                 ->from($this->getTableName());
 
             $qb->setMaxResults($filter->getLimit());

@@ -22,6 +22,8 @@ namespace oat\taoTaskQueue\controller;
 
 use common_session_SessionManager;
 use oat\oatbox\filesystem\FileSystemService;
+use oat\taoTaskQueue\model\Entity\CategoryEntityDecorator;
+use oat\taoTaskQueue\model\TaskLog\CategoryCollectionDecorator;
 use oat\taoTaskQueue\model\TaskLogInterface;
 
 /**
@@ -34,6 +36,7 @@ class TaskQueueWebApi extends \tao_actions_CommonModule
     const PARAMETER_TASK_ID = 'taskId';
     const PARAMETER_LIMIT = 'limit';
     const PARAMETER_OFFSET = 'offset';
+    const PARAMETER_REPORT_INCLUDED = 'reportIncluded';
 
     /** @var string */
     private $userId;
@@ -60,6 +63,7 @@ class TaskQueueWebApi extends \tao_actions_CommonModule
         /** @var TaskLogInterface $taskLogService */
         $taskLogService = $this->getServiceManager()->get(TaskLogInterface::SERVICE_ID);
         $limit = $offset = null;
+        $reportIncluded = false;
 
         if ($this->hasRequestParameter(self::PARAMETER_LIMIT)) {
             $limit = (int) $this->getRequestParameter(self::PARAMETER_LIMIT);
@@ -69,9 +73,15 @@ class TaskQueueWebApi extends \tao_actions_CommonModule
             $offset = (int) $this->getRequestParameter(self::PARAMETER_OFFSET);
         }
 
+        if ($this->hasRequestParameter(self::PARAMETER_REPORT_INCLUDED)) {
+            $reportIncluded = (bool) $this->getRequestParameter(self::PARAMETER_REPORT_INCLUDED);
+        }
+
+        $collection = $taskLogService->findAvailableByUser($this->userId, $limit, $offset, $reportIncluded);
+
         return $this->returnJson([
             'success' => true,
-            'data' => $taskLogService->findAvailableByUser($this->userId, $limit, $offset)->toArray()
+            'data' => (new CategoryCollectionDecorator($collection, $taskLogService))->toArray()
         ]);
     }
 
@@ -90,14 +100,14 @@ class TaskQueueWebApi extends \tao_actions_CommonModule
         try {
             $this->assertTaskIdExists();
 
-            $response = $taskLogService->getByIdAndUser(
+            $entity = $taskLogService->getByIdAndUser(
                 $this->getRequestParameter(self::PARAMETER_TASK_ID),
                 $this->userId
             );
 
             return $this->returnJson([
                 'success' => true,
-                'data' => $response->toArray()
+                'data' => (new CategoryEntityDecorator($entity, $taskLogService))->toArray()
             ]);
         } catch (\Exception $e) {
             return $this->returnJson([

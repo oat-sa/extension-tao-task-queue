@@ -76,6 +76,12 @@ definitions:
         format: date-time
       report:
         $ref: '#/definitions/TaskReport'
+      hasFile:
+        type: boolean
+        example: false
+      category:
+        type: string
+        example: export
   TaskReport:
     type: object
     properties:
