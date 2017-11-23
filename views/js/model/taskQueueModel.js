@@ -35,10 +35,9 @@ define([
             download : urlHelper.route('download', 'RestTask', 'taoTaskQueue'),
         },
         pollSingleIntervals : [
-            {iteration: 10, interval:1000},
+            {iteration: 4, interval:1000},
         ],
         pollAllIntervals : [
-            {iteration: 10, interval:1000},
             {iteration: 10, interval:10000},
             {iteration: 10, interval:30000},
             {iteration: 0, interval:60000}
@@ -114,7 +113,7 @@ define([
                     throw new TypeError('config.url.all is not configured while getAll() is being called');
                 }
 
-                status = request(config.url.all, {noLoadingBar:true}, 'GET', {}, true)
+                status = request(config.url.all, {limit: 100}, 'GET', {}, true)
                     .then(function(taskData){
                         //check taskData
                         if(taskData){
@@ -144,7 +143,7 @@ define([
                     throw new TypeError('config.url.archive is not configured while archive() is being called');
                 }
 
-                status = request(config.url.archive, {taskId : taskId})
+                status = request(config.url.archive, {taskId : taskId}, 'GET', {}, true)
                     .then(function(){
                         return Promise.resolve();
                     });
@@ -159,7 +158,13 @@ define([
             /**
              * Poll status for all tasks
              */
-            pollAll : function pollAll(){
+
+            /**
+             * Poll status for all tasks
+             * @param {Boolean} [immediate] - tells if the polling should immediately start (otherwise, will wait until the next iteration)
+             * @returns {*}
+             */
+            pollAll : function pollAll(immediate){
 
                 var self = this;
                 var loop = 0;
@@ -208,6 +213,11 @@ define([
                 }else{
                     this.globalPolling.start();
                     this.trigger('pollAllStart');
+                }
+
+                if(immediate){
+                    //if it is request to immediate start polling, start it now
+                    this.globalPolling.next();
                 }
 
                 return model;
@@ -263,9 +273,7 @@ define([
                             // get into asynchronous mode
                             var done = this.async();
                             self.get(taskId).then(function(taskData){
-                                //debugger;
-                                //console.log(taskData.status, taskData.status !== 'in_progress');
-                                if(taskData.status !== 'in_progress'){
+                                if(taskData.status === 'completed' || taskData.status === 'failed'){
                                     //the status status could be either "completed" or "failed"
                                     poll.stop();
                                     self.trigger('pollSingleFinished', taskId, taskData);
@@ -297,8 +305,8 @@ define([
                 return this;
             },
             create : function create(url, data){
-                var self = this;
-                var taskCreate = request(url, data)
+                var taskCreate, self = this;
+                taskCreate = request(url, data, 'POST', {}, true)
                     .then(function(taskData){
                         //poll short result:
                         if(taskData && taskData.id){
@@ -332,8 +340,8 @@ define([
                 $.fileDownload(config.url.download, {
                     httpMethod: 'POST',
                     data: {taskId : taskId},
-                    failCallback: function (error) {
-                        console.log(error);
+                    failCallback: function (err) {
+                        model.trigger('error', err);
                     }
                 });
             }
