@@ -23,10 +23,11 @@ define([
     'ui/component',
     'ui/component/alignable',
     'taoTaskQueue/component/listing/element',
+    'taoTaskQueue/component/listing/report',
     'taoTaskQueue/component/listing/list',
     'tpl!taoTaskQueue/component/manager/trigger',
     'css!taoTaskQueue/component/manager/css/manager'
-], function ($, _, __, hider, component, makeAlignable, listElementFactory, taskListFactory, triggerTpl) {
+], function ($, _, __, hider, component, makeAlignable, listElementFactory, reportElementFactory, taskListFactory, triggerTpl) {
     'use strict';
 
     var _defaults = {
@@ -123,6 +124,29 @@ define([
     var taskQueue = {
         getTaskElements : function getTaskElements(){
             return this.taskElements;
+        },
+        showDetail : function showDetail(taskData){
+            var $component = this.getElement();
+            var list = this.list;
+            var reportElement = reportElementFactory({replace:true}, taskData)
+                .on('close', function(){
+                    list.hideDetail();
+                    list.alignWith($component, {
+                        hPos: 'center',
+                        hOrigin: 'center',
+                        vPos: 'bottom',
+                        vOrigin: 'top',
+                        hOffset: -156
+                    });
+                });
+            list.setDetail(reportElement, true);
+            list.alignWith($component, {
+                hPos: 'center',
+                hOrigin: 'center',
+                vPos: 'bottom',
+                vOrigin: 'top',
+                hOffset: -156-121
+            });
         },
         addNewTask : function addNewTask(taskData, animate){
             var self = this;
@@ -243,6 +267,16 @@ define([
                 $target.removeClass('animate-reductor');
                 //$target.hide();
             },2000);
+        },
+        repositionList : function repositionList(){
+            var $trigger = this.getElement();
+            this.list.alignWith($trigger, {
+                    hPos: 'center',
+                    hOrigin: 'center',
+                    vPos: 'bottom',
+                    vOrigin: 'top',
+                    hOffset: -156-122
+                });
         }
     };
 
@@ -308,8 +342,10 @@ define([
                     .init({
                         title : __('Background tasks'),
                         emptyText : __('There is currently no background task'),
-                    })
-                    .render($trigger)
+                    });
+
+                //position it
+                this.list.render($trigger)
                     .moveBy(0, 0)
                     .alignWith($trigger, {
                         hPos: 'center',

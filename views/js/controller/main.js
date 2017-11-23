@@ -37,16 +37,13 @@ function ($, taskQueueManagerFactory, taskQueue) {
             var taskManager = taskQueueManagerFactory({
                     replace: true
                 })
-                .on('render', function () {
-                    var self = this;
-                })
                 .on('remove', function (taskId) {
                     taskQueue.archive(taskId);
                 })
                 .on('report', function (taskId) {
                     taskQueue.get(taskId).then(function (task) {
-                        //show report in popup ???
-                        console.log('show report', task);
+                        //show report in popup
+                        taskManager.showDetail(task);
                     });
                 })
                 .on('download', function (taskId) {

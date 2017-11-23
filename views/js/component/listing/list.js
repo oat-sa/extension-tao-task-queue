@@ -75,6 +75,15 @@ define([
         animateInsertion : function animateInsertion(listElement){
             animateIntersion(listElement);
             return this;
+        },
+        setDetail : function setDetail(detailElement, show){
+            detailElement.render(this.getElement().find('.view-detail'));
+            if(show){
+                this.setState('detail-view', true);
+            }
+        },
+        hideDetail : function hideDetail(){
+            this.setState('detail-view', false);
         }
     };
 

@@ -11,7 +11,7 @@ $foreground: $darkBarTxt;
     position: relative;
     width: 40px;
     height: 64px;
-    background-color: $darkBar;
+    background-color: transparent;
     padding: 22px 8px 0px;
     &:hover{
         @include vendor-prefix(transition, background-color 0.2s ease);
@@ -298,6 +298,62 @@ div.task-listing {
             padding: 12px 20px;
             font-style: italic;
             color: blacken(white, 0.1);
+        }
+        .view-detail{
+            display: none;
+        }
+    }
+    &.detail-view{
+        .box{
+            .task-list{
+                display: none;
+            }
+            .view-detail{
+                display: block;
+                position: relative;
+                .detail-element{
+                    padding: 10px 20px;
+                    width: 600px;
+                    min-height: 250px;
+                    background: $canvas;
+                    .detail-description{
+                        .label{
+                            margin-right: 4px;
+                            color: $textColor;
+                            font-weight: bold;
+                        }
+                        .time{
+                            margin-left: 4px;
+                            color: blacken($canvas, 0.4);
+                            @include font-size(12);
+                        }
+                    }
+                    .detail-body{
+                        max-height: 500px;
+                        overflow-y: auto;
+                        padding: 10px 0;
+                    }
+                    .action-top{
+                        position: absolute;
+                        top: 9px;
+                        right: 14px;
+                        [class^="icon-"], [class*=" icon-"] {
+                            @include font-size(16);
+                            color: $textColor;
+                            background-color: transparent;
+                            width: 20px;
+                            height: 20px;
+                            display: inline-block;
+                            padding-left: 4px;
+                            margin-left: 5px;
+                            cursor: pointer;
+                            &:hover{
+                                opacity: 0.6;
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }
