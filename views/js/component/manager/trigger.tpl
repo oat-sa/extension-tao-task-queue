@@ -4,4 +4,5 @@
         <span class="badge-border"></span>
         <span class="badge">99+</span>
     </div>
+    <div class="pulser"></div>
 </div>

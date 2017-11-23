@@ -112,6 +112,14 @@ define([
         return getBadgeDataFromStatus(stats);
     };
 
+    function pulseBadge($badgeContainer){
+        return;
+        $badgeContainer.addClass('pulse');
+        _.delay(function(){
+            $badgeContainer.removeClass('pulse');
+        }, 5000);
+    }
+
     var taskQueue = {
         getTaskElements : function getTaskElements(){
             return this.taskElements;
@@ -154,6 +162,7 @@ define([
         },
         selfUpdateBadge : function selfUpdateBadge(){
             var badgeData = getBadgeDataFromElements(this.getTaskElements());
+            var $badgeContainer = this.getElement().find('.task-manager-trigger');
             var $badgeBorder = this.getElement().find('.badge-border');
             var $badge = this.getElement().find('.badge').removeClass('badge-info badge-success badge-error icon-result-ok');
             var $loader = this.getElement().find('.loader');
@@ -173,12 +182,35 @@ define([
                     hider.hide($loader);
                     hider.show($badgeBorder);
                 }
+
+                if(this.badge){
+                    if(this.badge.type !== badgeData.type){
+                        this.trigger('badgetypechange', badgeData.type);
+                        pulseBadge($badgeContainer)
+                    }
+                    if(this.badge.value !== badgeData.value){
+                        this.trigger('badgetypevalue', badgeData.value);
+                        pulseBadge($badgeContainer)
+                    }
+                }else{
+                    pulseBadge($badgeContainer)
+                }
+
+                this.badge = {
+                    type : badgeData.type,
+                    value : badgeData.value
+                };
+
             }else{
                 //idle state:
                 hider.hide($loader);
                 hider.hide($badgeBorder);
                 $badge.addClass('icon-result-ok').empty();
+                this.badge = null;
             }
+
+
+
         },
         loadData : function loadData(tasksData){
             var self = this;
@@ -202,6 +234,15 @@ define([
             //console.log('DIFF', found, _.keys(this.taskElements));
 
             this.selfUpdateBadge();
+        },
+        animateReduction : function animateReduction(){
+            var $target = this.getElement().find('.pulser');
+            //$target.show();
+            $target.addClass('animate-reductor');
+            _.delay(function(){
+                $target.removeClass('animate-reductor');
+                //$target.hide();
+            },2000);
         }
     };
 
@@ -295,6 +336,7 @@ define([
                     }else{
                         self.list.hide();
                     }
+                    //self.animateReduction();//for animation testing purpose nly
                 });
 
             })
