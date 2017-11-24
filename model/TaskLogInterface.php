@@ -41,6 +41,11 @@ interface TaskLogInterface extends LoggerAwareInterface
 
     const OPTION_TASK_LOG_BROKER = 'task_log_broker';
 
+    /**
+     * An array of tasks names with the specified category.
+     */
+    const OPTION_TASK_TO_CATEGORY_ASSOCIATIONS = 'task_to_category_associations';
+
     const STATUS_ENQUEUED = 'enqueued';
     const STATUS_DEQUEUED = 'dequeued';
     const STATUS_RUNNING = 'running';
@@ -141,6 +146,14 @@ interface TaskLogInterface extends LoggerAwareInterface
 
     /**
      * @param string $taskId
+     * @return TaskLogEntity
+     *
+     * @throws \common_exception_NotFound
+     */
+    public function getById($taskId);
+
+    /**
+     * @param string $taskId
      * @param string $userId
      * @return TaskLogEntity
      *
@@ -170,4 +183,28 @@ interface TaskLogInterface extends LoggerAwareInterface
      * @return bool
      */
     public function isRds();
+
+    /**
+     * Link a task to a category.
+     *
+     * @param string|object $taskName
+     * @param string $category
+     * @return QueueDispatcherInterface
+     */
+    public function linkTaskToCategory($taskName, $category);
+
+    /**
+     * Returns the defined category for a task.
+     *
+     * @param string|object $taskName
+     * @return string
+     */
+    public function getCategoryForTask($taskName);
+
+    /**
+     * Returns the possible categories for a task.
+     *
+     * @return array
+     */
+    public function getTaskCategories();
 }

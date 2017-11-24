@@ -203,25 +203,6 @@ abstract class AbstractTask implements TaskInterface
     }
 
     /**
-     * @param string $category
-     * @return TaskInterface
-     */
-    public function setCategory($category)
-    {
-        $this->setMetadata(self::JSON_METADATA_CATEGORY_KEY, (string) $category);
-
-        return $this;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getCategory()
-    {
-        return $this->getMetadata(self::JSON_METADATA_CATEGORY_KEY);
-    }
-
-    /**
      * @return array
      */
     public function jsonSerialize()

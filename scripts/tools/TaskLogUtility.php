@@ -21,6 +21,8 @@
 namespace oat\taoTaskQueue\scripts\tools;
 
 use oat\oatbox\action\Action;
+use oat\taoTaskQueue\model\Entity\CategoryEntityDecorator;
+use oat\taoTaskQueue\model\TaskLog\CategoryCollectionDecorator;
 use oat\taoTaskQueue\model\TaskLogInterface;
 use Zend\ServiceManager\ServiceLocatorAwareInterface;
 use Zend\ServiceManager\ServiceLocatorAwareTrait;
@@ -83,12 +85,12 @@ class TaskLogUtility implements Action, ServiceLocatorAwareInterface
 
             if ($this->argAvailable) {
                 $tasks = $taskLog->findAvailableByUser(TaskLogInterface::SUPER_USER, $this->argLimit, $this->argOffset, true);
-                return \common_report_Report::createSuccess($this->jsonPretty($tasks->jsonSerialize()));
+                return \common_report_Report::createSuccess($this->jsonPretty((new CategoryCollectionDecorator($tasks, $taskLog))->jsonSerialize()));
             }
 
             if ($this->argGetTask) {
                 $task = $taskLog->getByIdAndUser($this->argGetTask, TaskLogInterface::SUPER_USER);
-                return \common_report_Report::createSuccess($this->jsonPretty($task->jsonSerialize()));
+                return \common_report_Report::createSuccess($this->jsonPretty((new CategoryEntityDecorator($task, $taskLog))->jsonSerialize()));
             }
 
             if ($this->argArchive) {

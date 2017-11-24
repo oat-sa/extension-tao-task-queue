@@ -44,7 +44,6 @@ class TaskLogEntityTest extends \PHPUnit_Framework_TestCase
                 'data' => NULL,
                 'children' => []
             ],
-            'file' => false,
             'category' => 'export'
         ]);
 
@@ -67,14 +66,16 @@ class TaskLogEntityTest extends \PHPUnit_Framework_TestCase
             'status' => 'completed',
             'statusLabel' => 'Completed',
             'createdAt' => 1510837902,
+            'createdAtElapsed' => (new \DateTime('now', new \DateTimeZone(TIME_ZONE)))->getTimestamp() - 1510837902,
             'updatedAt' => 1510848750,
+            'updatedAtElapsed' => (new \DateTime('now', new \DateTimeZone(TIME_ZONE)))->getTimestamp() - 1510848750,
             'report' => [
                 'type' => 'info',
                 'message' => 'Running task http://www.taoinstance.dev/ontologies/tao.rdf#i1508337970199318643',
                 'data' => NULL,
                 'children' => []
             ],
-            'file' => false,
+            'hasFile' => false,
             'category' => 'export'
         ], $entity->jsonSerialize());
     }

@@ -18,20 +18,48 @@
  *
  */
 
-namespace oat\taoTaskQueue\model\Task;
+namespace oat\taoTaskQueue\model\Entity;
+
+use oat\taoTaskQueue\model\TaskLogInterface;
 
 /**
- * An interface for any task to specify its own category.
+ * Interface CategoryEntityDecorator
  *
  * @author Gyula Szucs <gyula@taotesting.com>
  */
-interface TaskCategoriserInterface
+class CategoryEntityDecorator extends TaskLogEntityDecorator
 {
     /**
-     * Please, return any of those constants "\oat\taoTaskQueue\model\TaskLogInterface::CATEGORY_*"
-     * If you need a new category, just simply define a new const in "\oat\taoTaskQueue\model\TaskLogInterface"
-     *
-     * @return string
+     * @var TaskLogInterface
      */
-    public function getSpecifiedCategory();
+    private $taskLogService;
+
+    public function __construct(TaskLogEntityInterface $entity, TaskLogInterface $taskLogService)
+    {
+        parent::__construct($entity);
+
+        $this->taskLogService = $taskLogService;
+    }
+
+    /**
+     * @return array
+     */
+    public function jsonSerialize()
+    {
+        return $this->toArray();
+    }
+
+    /**
+     * Add category to the result. Required by our frontend.
+     *
+     * @return array
+     */
+    public function toArray()
+    {
+        $result = parent::toArray();
+
+        $result['category'] = $this->taskLogService->getCategoryForTask($this->getTaskName());
+
+        return $result;
+    }
 }
