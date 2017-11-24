@@ -38,7 +38,10 @@ define([
 
             //set report here
             if(data.report && _.isArray(data.report.children) && data.report.children.length){
+                this.setState('noreport', false);
                 reportFactory({replace:true}, data.report.children[0]).render($component.find('.detail-body'));
+            }else{
+                this.setState('noreport', true);
             }
         }
     };

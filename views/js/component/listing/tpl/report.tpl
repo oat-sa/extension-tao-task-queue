@@ -8,4 +8,7 @@
     </div>
     <div class="detail-body">
     </div>
+    <div class="no-detail">
+        <span class="message">{{__ "No report available"}}</span>
+    </div>
 </div>

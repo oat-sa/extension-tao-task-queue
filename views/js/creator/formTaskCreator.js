@@ -95,10 +95,10 @@ define([
                         selectNode);
 
                     //leave the user a moment to make the connection between the notification message and the animation
+                    taskQueue.trigger('taskcreated', task);
                     _.delay(function(){
-                        taskQueue.trigger('taskcreated', task);
                         taskQueue.pollAll(true);
-                    }, 100);
+                    },1500);
                 }
                 loadingBar.stop();
             }).catch(function(err){

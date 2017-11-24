@@ -358,6 +358,15 @@ div.task-listing {
                             }
                         }
                     }
+                    .no-detail{
+                        display: none;
+                    }
+                    &.noreport{
+                        .no-detail{
+                            display: block;
+                            color: blacken($canvas, 0.4);
+                        }
+                    }
                 }
             }
         }
