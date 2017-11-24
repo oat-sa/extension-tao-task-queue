@@ -30,7 +30,7 @@ $foreground: $darkBarTxt;
         z-index: 10;
         top: 0px;
         left: 0px;
-        @include keyframes(badge-reductor) {
+        @include keyframes(badge-absorb) {
             0% {
                 width: 0px;
                 height: 0px;
@@ -42,6 +42,12 @@ $foreground: $darkBarTxt;
                 width: 800px;
                 height: 800px;
                 opacity: 0;
+            }
+            90% {
+                width: 20px;
+                height: 30px;
+                opacity: 0.3;
+                transform: translateX(10px) translateY(-10px) translateZ(0)
             }
             100% {
                 width: 0px;
@@ -77,7 +83,7 @@ $foreground: $darkBarTxt;
             }
         }
         &.animate-reductor{
-            @include animation(badge-reductor 1s ease-in 1);
+            @include animation(badge-absorb 1.5s ease-in 1);
         }
         &.animate-pulse{
             @include animation(badge-pulse 1s ease-out 3);

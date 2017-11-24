@@ -98,7 +98,7 @@ define([
                     _.delay(function(){
                         taskQueue.trigger('taskcreated', task);
                         taskQueue.pollAll(true);
-                    }, 1000);
+                    }, 100);
                 }
                 loadingBar.stop();
             }).catch(function(err){
