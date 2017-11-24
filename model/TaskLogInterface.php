@@ -27,7 +27,7 @@ use oat\taoTaskQueue\model\Task\TaskInterface;
 use oat\taoTaskQueue\model\TaskLog\DataTablePayload;
 use oat\taoTaskQueue\model\TaskLog\TaskLogFilter;
 use oat\taoTaskQueue\model\TaskLogBroker\TaskLogBrokerInterface;
-use oat\taoTaskQueue\model\TaskLogBroker\TaskLogCollection;
+use oat\taoTaskQueue\model\TaskLog\TaskLogCollection;
 use Psr\Log\LoggerAwareInterface;
 
 /**
@@ -41,6 +41,11 @@ interface TaskLogInterface extends LoggerAwareInterface
 
     const OPTION_TASK_LOG_BROKER = 'task_log_broker';
 
+    /**
+     * An array of tasks names with the specified category.
+     */
+    const OPTION_TASK_TO_CATEGORY_ASSOCIATIONS = 'task_to_category_associations';
+
     const STATUS_ENQUEUED = 'enqueued';
     const STATUS_DEQUEUED = 'dequeued';
     const STATUS_RUNNING = 'running';
@@ -48,6 +53,14 @@ interface TaskLogInterface extends LoggerAwareInterface
     const STATUS_FAILED = 'failed';
     const STATUS_ARCHIVED = 'archived';
     const STATUS_UNKNOWN = 'unknown';
+
+    const CATEGORY_UNKNOWN = 'unknown';
+    const CATEGORY_IMPORT = 'import';
+    const CATEGORY_EXPORT = 'export';
+    const CATEGORY_DELIVERY_COMPILATION = 'delivery_comp';
+    const CATEGORY_CREATE = 'create';
+    const CATEGORY_UPDATE = 'update';
+    const CATEGORY_DELETE = 'delete';
 
     const DEFAULT_LIMIT = 20;
 
@@ -118,17 +131,26 @@ interface TaskLogInterface extends LoggerAwareInterface
 
     /**
      * @param string $userId
-     * @param null $limit
-     * @param null $offset
-     * @return TaskLogCollection|TaskLogEntity[]
+     * @param null   $limit
+     * @param null   $offset
+     * @param bool   $reportIncluded Whether reports should be included in the collection or not?
+     * @return TaskLogEntity[]|TaskLogCollection
      */
-    public function findAvailableByUser($userId, $limit = null, $offset = null);
+    public function findAvailableByUser($userId, $limit = null, $offset = null, $reportIncluded = false);
 
     /**
      * @param string $userId
      * @return TasksLogsStats
      */
     public function getStats($userId);
+
+    /**
+     * @param string $taskId
+     * @return TaskLogEntity
+     *
+     * @throws \common_exception_NotFound
+     */
+    public function getById($taskId);
 
     /**
      * @param string $taskId
@@ -161,4 +183,28 @@ interface TaskLogInterface extends LoggerAwareInterface
      * @return bool
      */
     public function isRds();
+
+    /**
+     * Link a task to a category.
+     *
+     * @param string|object $taskName
+     * @param string $category
+     * @return QueueDispatcherInterface
+     */
+    public function linkTaskToCategory($taskName, $category);
+
+    /**
+     * Returns the defined category for a task.
+     *
+     * @param string|object $taskName
+     * @return string
+     */
+    public function getCategoryForTask($taskName);
+
+    /**
+     * Returns the possible categories for a task.
+     *
+     * @return array
+     */
+    public function getTaskCategories();
 }

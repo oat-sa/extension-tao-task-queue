@@ -28,6 +28,7 @@ use oat\taoTaskQueue\model\Entity\TasksLogsStats;
 use oat\taoTaskQueue\model\QueueDispatcherInterface;
 use oat\taoTaskQueue\model\Task\CallbackTaskInterface;
 use oat\taoTaskQueue\model\Task\TaskInterface;
+use oat\taoTaskQueue\model\TaskLog\TaskLogCollection;
 use oat\taoTaskQueue\model\TaskLog\TaskLogFilter;
 use oat\taoTaskQueue\model\TaskLogInterface;
 use oat\taoTaskQueue\model\ValueObjects\TaskLogCategorizedStatus;
@@ -239,7 +240,7 @@ class RdsTaskLogBroker implements TaskLogBrokerInterface, PhpSerializable, Servi
     {
         try {
             $qb = $this->getQueryBuilder()
-                ->select('*')
+                ->select($filter->getColumns())
                 ->from($this->getTableName());
 
             $qb->setMaxResults($filter->getLimit());
@@ -290,9 +291,9 @@ class RdsTaskLogBroker implements TaskLogBrokerInterface, PhpSerializable, Servi
             ->from($this->getTableName());
 
         $qb->select(
-            $this->buildCounterStatusSql('inProgressTasks', TaskLogCategorizedStatus::getMappedStatuses(TaskLogCategorizedStatus::STATUS_IN_PROGRESS)) . ', ' .
-            $this->buildCounterStatusSql('completedTasks', TaskLogCategorizedStatus::getMappedStatuses(TaskLogCategorizedStatus::STATUS_COMPLETED)) . ', ' .
-            $this->buildCounterStatusSql('failedTasks', TaskLogCategorizedStatus::getMappedStatuses(TaskLogCategorizedStatus::STATUS_FAILED))
+            $this->buildCounterStatusSql(TasksLogsStats::IN_PROGRESS_TASKS, TaskLogCategorizedStatus::getMappedStatuses(TaskLogCategorizedStatus::STATUS_IN_PROGRESS)) . ', ' .
+            $this->buildCounterStatusSql(TasksLogsStats::COMPLETED_TASKS, TaskLogCategorizedStatus::getMappedStatuses(TaskLogCategorizedStatus::STATUS_COMPLETED)) . ', ' .
+            $this->buildCounterStatusSql(TasksLogsStats::FAILED_TASKS, TaskLogCategorizedStatus::getMappedStatuses(TaskLogCategorizedStatus::STATUS_FAILED))
         );
 
         $filter->applyFilters($qb);
