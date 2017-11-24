@@ -34,7 +34,7 @@ define([
     var _categoryMap = {
         import : 'import',
         export : 'export',
-        publish : 'delivery',
+        delivery_comp : 'delivery',
         transfer : 'connect',
         create : 'magicwand',
         update : 'edit',
@@ -108,7 +108,7 @@ define([
             this.setStatus(this.data.status);
             //bonus: check if there is any report and display the report button only when needed
 
-            hider.toggle($container.find('.action-bottom [data-role="download"]'), this.data.file);
+            hider.toggle($container.find('.action-bottom [data-role="download"]'), this.data.hasFile);
 
             this.trigger('update');
             return this;

@@ -23,9 +23,10 @@ define([
 
     return taskQueueModelFactory({
         url : {
-            get: urlHelper.route('get', 'RestTask', 'taoTaskQueue'),
-            archive: urlHelper.route('archive', 'RestTask', 'taoTaskQueue'),
-            all : urlHelper.route('getAll', 'RestTask', 'taoTaskQueue'),
+            get: urlHelper.route('get', 'TaskQueueWebApi', 'taoTaskQueue'),
+            archive: urlHelper.route('archive', 'TaskQueueWebApi', 'taoTaskQueue'),
+            all : urlHelper.route('getAll', 'TaskQueueWebApi', 'taoTaskQueue'),
+            download : urlHelper.route('download', 'TaskQueueWebApi', 'taoTaskQueue')
         }
     });
 });

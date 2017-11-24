@@ -29,10 +29,10 @@ define([
 
     var _defaults = {
         url : {
-            get: urlHelper.route('get', 'RestTask', 'taoTaskQueue'),
-            archive: urlHelper.route('archive', 'RestTask', 'taoTaskQueue'),
-            all : urlHelper.route('getAll', 'RestTask', 'taoTaskQueue'),
-            download : urlHelper.route('download', 'RestTask', 'taoTaskQueue'),
+            get: '',
+            archive: '',
+            all : '',
+            download : ''
         },
         pollSingleIntervals : [
             {iteration: 4, interval:1000},
