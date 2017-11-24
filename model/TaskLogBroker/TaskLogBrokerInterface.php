@@ -39,7 +39,6 @@ interface TaskLogBrokerInterface
     const COLUMN_ID = 'id';
     const COLUMN_TASK_NAME = 'task_name';
     const COLUMN_PARAMETERS = 'parameters';
-    const COLUMN_CATEGORY = 'category';
     const COLUMN_LABEL = 'label';
     const COLUMN_STATUS = 'status';
     const COLUMN_OWNER = 'owner';

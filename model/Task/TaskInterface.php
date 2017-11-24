@@ -32,7 +32,6 @@ interface TaskInterface extends \JsonSerializable
     const JSON_METADATA_KEY = 'metadata';
     const JSON_METADATA_ID_KEY = '__id__';
     const JSON_METADATA_OWNER_KEY = '__owner__';
-    const JSON_METADATA_CATEGORY_KEY = '__category__';
     const JSON_METADATA_CREATED_AT_KEY = '__created_at__';
     const JSON_PARAMETERS_KEY = 'parameters';
 
@@ -118,15 +117,4 @@ interface TaskInterface extends \JsonSerializable
      * @return string
      */
     public function getOwner();
-
-    /**
-     * @param string $category
-     * @return TaskInterface
-     */
-    public function setCategory($category);
-
-    /**
-     * @return string
-     */
-    public function getCategory();
 }

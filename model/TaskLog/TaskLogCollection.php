@@ -20,10 +20,9 @@
 
 namespace oat\taoTaskQueue\model\TaskLog;
 
-use JsonSerializable;
 use oat\taoTaskQueue\model\Entity\TaskLogEntity;
 
-class TaskLogCollection implements JsonSerializable, \Countable, \IteratorAggregate
+class TaskLogCollection implements TaskLogCollectionInterface
 {
     /** @var TaskLogEntity[]  */
     private $taskLogs = [];
@@ -67,13 +66,7 @@ class TaskLogCollection implements JsonSerializable, \Countable, \IteratorAggreg
      */
     public function jsonSerialize()
     {
-        $data = [];
-
-        foreach ($this->taskLogs as $taskLog) {
-            $data[] = $taskLog->jsonSerialize();
-        }
-
-        return $data;
+        return $this->toArray();
     }
 
     /**
@@ -81,7 +74,13 @@ class TaskLogCollection implements JsonSerializable, \Countable, \IteratorAggreg
      */
     public function toArray()
     {
-        return $this->jsonSerialize();
+        $data = [];
+
+        foreach ($this->taskLogs as $taskLog) {
+            $data[] = $taskLog->toArray();
+        }
+
+        return $data;
     }
 
     /**

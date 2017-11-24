@@ -293,9 +293,8 @@ As you can see, nothing has changed here. It is the same like before. The magic 
 
 Anyway, the main thing here is that a wrapper class called \oat\taoTaskQueue\model\CallbackTask is used to wrap your Action object and make it consumable for the queue system.
 
-If you want to specify the queue the task should be published to, implement `\oat\taoTaskQueue\model\QueueAssociableInterface` in your action.
-
-And if you want to specify the category of your task, implement `\oat\taoTaskQueue\model\Task\TaskCategoriserInterface` in your action.
+If you want to specify the queue the task should be published to, implement `\oat\taoTaskQueue\model\QueueAssociableInterface` in your action or
+use `$queueService->linkTaskToQueue(CompileDelivery::class, 'queue_name');` in your updater script.
 
 #### Working with Task Log component
 
