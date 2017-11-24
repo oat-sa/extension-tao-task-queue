@@ -262,9 +262,9 @@ define([
         animateReduction : function animateReduction(){
             var $target = this.getElement().find('.pulser');
             //$target.show();
-            $target.addClass('animate-reductor');
+            $target.addClass('animate-absorb');
             _.delay(function(){
-                $target.removeClass('animate-reductor');
+                $target.removeClass('animate-absorb');
                 //$target.hide();
             },2000);
         },

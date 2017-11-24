@@ -43,16 +43,16 @@ $foreground: $darkBarTxt;
                 height: 800px;
                 opacity: 0;
             }
-            90% {
+            75% {
                 width: 20px;
                 height: 30px;
-                opacity: 0.3;
-                transform: translateX(10px) translateY(-10px) translateZ(0)
+                opacity: 0.25;
+                transform: translateX(12px) translateY(-10px) translateZ(0)
             }
             100% {
                 width: 0px;
                 height: 0px;
-                opacity: 0.3;
+                opacity: 0;
                 transform: translateX(20px) translateY(30px) translateZ(0)
             }
         }
@@ -82,8 +82,8 @@ $foreground: $darkBarTxt;
                 box-shadow: 0 0 0 0 rgba($darkBarTxt, 0);
             }
         }
-        &.animate-reductor{
-            @include animation(badge-absorb 1.5s ease-in 1);
+        &.animate-absorb{
+            @include animation(badge-absorb 1.5s ease-out 1);
         }
         &.animate-pulse{
             @include animation(badge-pulse 1s ease-out 3);
