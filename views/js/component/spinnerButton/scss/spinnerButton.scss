@@ -4,7 +4,7 @@
     [class^="icon-"], [class*=" icon-"] {
         padding: 0;
     }
-    .text{
+    .action-text{
         margin-left: 9px;
     }
     .spinner-icon, .terminated-text{
@@ -35,6 +35,9 @@
         cursor: default;
         opacity: 0.6;
         background-color : gray;
+        .action-text{
+            display: none;
+        }
         .terminated-text{
             display: inline-block;
         }

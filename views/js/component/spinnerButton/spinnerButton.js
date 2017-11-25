@@ -28,8 +28,9 @@ define([
     var _defaults = {
         type : 'info',
         icon : 'property-advanced',
+        title : 'GO GO GO',
         label : 'GO GO GO',
-        title : 'GO GO GO'
+        terminatedLabel : 'stopped'
     };
 
     var buttonApi = {
