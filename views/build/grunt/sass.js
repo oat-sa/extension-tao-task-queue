@@ -12,6 +12,7 @@ module.exports = function(grunt) {
     sass.taotaskqueuecomponents = {};
     sass.taotaskqueuecomponents.files = {};
     sass.taotaskqueuecomponents.files[root + 'js/component/manager/css/manager.css'] = root + 'js/component/manager/scss/manager.scss';
+    sass.taotaskqueuecomponents.files[root + 'js/component/spinnerButton/css/spinnerButton.css'] = root + 'js/component/spinnerButton/scss/spinnerButton.scss';
 
     watch.taotaskqueuesass = {
         files : [root + 'scss/**/*.scss'],
@@ -22,7 +23,7 @@ module.exports = function(grunt) {
     };
 
     watch.taotaskqueuecomponents = {
-        files: [root + 'js/component/manager/scss/manager.scss'],
+        files: [root + 'js/component/**/scss/**/*.scss'],
         tasks: ['sass:taotaskqueuecomponents', 'notify:taotaskqueuesass'],
         options: {
             debounceDelay: 600
