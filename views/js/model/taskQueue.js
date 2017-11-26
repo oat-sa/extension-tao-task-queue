@@ -27,6 +27,12 @@ define([
             archive: urlHelper.route('archive', 'TaskQueueWebApi', 'taoTaskQueue'),
             all : urlHelper.route('getAll', 'TaskQueueWebApi', 'taoTaskQueue'),
             download : urlHelper.route('download', 'TaskQueueWebApi', 'taoTaskQueue')
-        }
+        },
+        pollSingleIntervals : [
+            {iteration: 4, interval:1000},
+        ],
+        pollAllIntervals : [
+            {iteration: 0, interval:5000},
+        ]
     });
 });

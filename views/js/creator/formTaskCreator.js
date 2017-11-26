@@ -105,7 +105,7 @@ define([
                                 left: 0
                             }));
                         button.terminate();
-                        var $info = $('<div class="small feedback-info">')
+                        var $info = $('<div class="small-feedback-info">')
                             .css({
                                 marginTop : 40,
                                 textAlign : 'left',
@@ -117,7 +117,7 @@ define([
                         //leave the user a moment to make the connection between the notification message and the animation
                         taskQueue.trigger('taskcreated', task);
                         _.delay(function () {
-                            taskQueue.pollAll(true);
+                            taskQueue.pollAll();
                         }, 1500);
                     }
                     loadingBar.stop();
@@ -129,61 +129,5 @@ define([
             .render($oldSubmitter.closest('.form-toolbar'));
 
         $oldSubmitter.replaceWith(button.getElement().css({float: 'right'}));
-        return;
-
-        $form.on('submit', function (e) {
-            e.preventDefault();
-            e.stopImmediatePropagation();
-            loadingBar.start();
-
-            //pause polling all status during creation process to prevent concurrency issue
-            taskQueue.pollAllStop();
-            taskQueue.create($form.prop('action'), $form.serializeArray()).then(function (result) {
-                var task = result.task;
-                var selectNode;
-                if (result.extra && result.extra.selectNode) {
-                    selectNode = result.extra.selectNode;
-                }
-
-                if (result.finished) {
-                    //the task finished quickly -> display report
-                    displayReport(
-                        task.report.children[0],
-                        task.report.type === 'error' ? __('Error') : __('Success'),
-                        $container,
-                        selectNode);
-
-                    //immediately archive the finished task as there is no need to display this task in the queue list
-                    taskQueue.archive(task.id).then(function () {
-                        taskQueue.pollAll();
-                    });
-                } else {
-                    //inform the user that task will move to the background
-                    $container
-                        .css('position', 'relative')
-                        .append($('<div class="overlay-screen">').css({
-                            width: '100%',
-                            height: '100%',
-                            position: 'absolute',
-                            background: 'gray',
-                            opacity: 0.1,
-                            top: 0,
-                            left: 0
-                        }));
-
-                    $form.find('.form-submitter').replaceWith(__('<strong> %s </strong> takes a long time to execute so it has been moved to the background.', task.taskLabel));
-
-                    //leave the user a moment to make the connection between the notification message and the animation
-                    taskQueue.trigger('taskcreated', task);
-                    _.delay(function () {
-                        taskQueue.pollAll(true);
-                    }, 1500);
-                }
-                loadingBar.stop();
-            }).catch(function (err) {
-                taskQueue.pollAll();
-                feedback().error(err);
-            });
-        });
     };
 });

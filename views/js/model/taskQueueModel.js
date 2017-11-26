@@ -22,9 +22,8 @@ define([
     'core/eventifier',
     'core/polling',
     'core/dataProvider/request',
-    'util/url',
     'jquery.fileDownload'
-], function ($, _, Promise, eventifier, polling, request, urlHelper) {
+], function ($, _, Promise, eventifier, polling, request) {
     'use strict';
 
     var _defaults = {
@@ -38,15 +37,28 @@ define([
             {iteration: 4, interval:1000},
         ],
         pollAllIntervals : [
-            {iteration: 10, interval:10000},
-            {iteration: 10, interval:30000},
-            {iteration: 0, interval:60000}
+            {iteration: 10, interval:5000},
+            {iteration: 0, interval:10000}//infinite
         ]
     };
+
+    function hasSameState(task1, task2){
+        if(task1.status === task2.status){
+            return true;
+        }else if(task1.status === 'created' || task1.status === 'in_progress'){
+            return  (task2.status === 'created' || task2.status === 'in_progress');
+        }
+        return false;
+    }
 
     return function taskQueueModel(config) {
 
         var model;
+        /**
+         * cached array of task data
+         * @type {Object}
+         */
+        var _cache;
 
         //store instance of single polling
         var singlePollings = {};
@@ -89,6 +101,16 @@ define([
                     .then(function(taskData){
                         //check taskData
                         if(taskData && taskData.status){
+                            if(_cache){
+                                //detect change
+                                if(!_cache[taskData.id]){
+                                    model.trigger('singletaskadded', taskData);
+                                }else if(!hasSameState(_cache[taskData.id], taskData)){
+                                    //check if the status has changed
+                                    model.trigger('singletaskstatuschange', taskData);
+                                }
+                            }
+                            _cache[taskData.id] = taskData;
                             return Promise.resolve(taskData);
                         }
                         return Promise.reject(new Error('failed to get task data'));
@@ -115,8 +137,32 @@ define([
 
                 status = request(config.url.all, {limit: 100}, 'GET', {}, true)
                     .then(function(taskData){
+                        var newCache = {};
                         //check taskData
                         if(taskData){
+                            if(_cache){
+                                //detect change
+                                _.forEach(taskData, function(task){
+                                    var id = task.id;
+                                    if(!_cache[id]){
+                                        model.trigger('multitaskadded', task);
+                                    }else if(!hasSameState(_cache[id], task)){
+                                        //check if the status has changed
+                                        model.trigger('multitaskstatuschange', task);
+                                    }
+                                    newCache[id] = task;
+                                });
+                                _.forEach(_.difference(_.keys(_cache), _.keys(newCache)), function(id){
+                                    model.trigger('taskremoved', _cache[id]);
+                                });
+                            }else{
+                                _.forEach(taskData, function(task){
+                                    newCache[task.id] = task;
+                                });
+                            }
+                            //update local cache
+                            _cache = newCache;
+
                             return Promise.resolve(taskData);
                         }
                         return Promise.reject(new Error('failed to get all task data'));
@@ -181,7 +227,7 @@ define([
                         loop --;
                     }else{
                         pollingInterval = pollingIntervals.shift();
-                        if(pollingInterval && pollingInterval.iteration && pollingInterval.interval){
+                        if(pollingInterval && typeof pollingInterval.iteration !== 'undefined' && pollingInterval.interval){
                             loop = pollingInterval.iteration;
                             pollingInstance.setInterval(pollingInterval.interval);
                         }

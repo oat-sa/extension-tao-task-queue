@@ -49,16 +49,24 @@ function ($, taskQueueManagerFactory, taskQueue) {
                 .on('download', function (taskId) {
                     taskQueue.download(taskId);
                 })
-                .render($('#taskqueue').parent());
+                .render($('#taskqueue').parent())
+                .hide();//start hidden to prevent blinking effect
 
             //listen to events triggered by the task queue model
             taskQueue.on('taskcreated', function(task){
                 if(taskManager.list.is('hidden')){
-                    taskManager.animateReduction();
+                    taskManager.animateAbsorption().then(function(){
+                        taskManager.addNewTask(task);
+                    });
                 }else{
                     taskManager.addNewTask(task, true);
                 }
+            }).on('multitaskstatuschange', function(){
+                taskManager.animatePulse();
             }).on('pollAll', function (tasks) {
+                if(taskManager.is('hidden')){
+                    taskManager.show();
+                }
                 taskManager.loadData(tasks);
             }).pollAll(true);//start polling immediately on load
         }

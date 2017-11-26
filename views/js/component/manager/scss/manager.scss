@@ -233,7 +233,7 @@ div.task-listing {
         position: relative;
         min-height: 76px;
         min-width: 360px;
-        background: blacken($canvas, 0.3);
+        background: $canvas;
         @include box-shadow(0, 3px, 6px, 0px, black(0.6));
         @include simple-border($listBorderColor);
         .description {
@@ -303,7 +303,7 @@ div.task-listing {
             top: 25px;
             padding: 12px 20px;
             font-style: italic;
-            color: blacken(white, 0.1);
+            color: $textColor;
         }
         .view-detail{
             display: none;
@@ -457,7 +457,9 @@ div.task-listing {
     .container-text{
         padding-top: 4px;
         margin-left: 60px;
+        width: 240px;
         .label{
+            max-height: 38px;
             color: $textColor;
         }
         .time{

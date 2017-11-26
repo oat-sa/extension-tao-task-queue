@@ -114,7 +114,6 @@ define([
     };
 
     function pulseBadge($badgeContainer){
-        return;
         $badgeContainer.addClass('pulse');
         _.delay(function(){
             $badgeContainer.removeClass('pulse');
@@ -186,7 +185,7 @@ define([
         },
         selfUpdateBadge : function selfUpdateBadge(){
             var badgeData = getBadgeDataFromElements(this.getTaskElements());
-            var $badgeContainer = this.getElement().find('.task-manager-trigger');
+            //var $badgeContainer = this.getElement().find('.task-manager-trigger');
             var $badgeBorder = this.getElement().find('.badge-border');
             var $badge = this.getElement().find('.badge').removeClass('badge-info badge-success badge-error icon-result-ok');
             var $loader = this.getElement().find('.loader');
@@ -207,23 +206,26 @@ define([
                     hider.show($badgeBorder);
                 }
 
-                if(this.badge){
-                    if(this.badge.type !== badgeData.type){
-                        this.trigger('badgetypechange', badgeData.type);
-                        pulseBadge($badgeContainer)
-                    }
-                    if(this.badge.value !== badgeData.value){
-                        this.trigger('badgetypevalue', badgeData.value);
-                        pulseBadge($badgeContainer)
-                    }
-                }else{
-                    pulseBadge($badgeContainer)
-                }
-
-                this.badge = {
-                    type : badgeData.type,
-                    value : badgeData.value
-                };
+                //if(this.badge){
+                //    if(this.badge.type !== badgeData.type){
+                //        this.trigger('badgetypechange', badgeData.type);
+                //        //pulseBadge($badgeContainer)
+                //        this.animatePulse();
+                //    }
+                //    if(this.badge.value !== badgeData.value){
+                //        this.trigger('badgevaluechange', badgeData.value);
+                //        //pulseBadge($badgeContainer)
+                //        this.animatePulse();
+                //    }
+                //}else{
+                //    //pulseBadge($badgeContainer)
+                //    this.animatePulse();
+                //}
+                //
+                //this.badge = {
+                //    type : badgeData.type,
+                //    value : badgeData.value
+                //};
 
             }else{
                 //idle state:
@@ -259,14 +261,25 @@ define([
 
             this.selfUpdateBadge();
         },
-        animateReduction : function animateReduction(){
+        animateAbsorption : function animateAbsorption(){
+            var self = this;
+            return new Promise(function(resolve){
+                var $target = self.getElement().find('.pulser');
+                //$target.show();
+                $target.addClass('animate-absorb');
+                _.delay(function(){
+                    $target.removeClass('animate-absorb');
+                    //$target.hide();
+                    resolve.call(self);
+                },1500);
+            });
+        },
+        animatePulse : function animatePulse(){
             var $target = this.getElement().find('.pulser');
-            //$target.show();
-            $target.addClass('animate-absorb');
+            $target.addClass('animate-pulse');
             _.delay(function(){
-                $target.removeClass('animate-absorb');
-                //$target.hide();
-            },2000);
+                $target.removeClass('animate-pulse');
+            },3100);
         },
         repositionList : function repositionList(){
             var $trigger = this.getElement();
