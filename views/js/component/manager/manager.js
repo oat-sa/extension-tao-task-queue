@@ -21,6 +21,7 @@ define([
     'i18n',
     'ui/hider',
     'ui/component',
+    'ui/badge/badge',
     'ui/component/alignable',
     'ui/animable/absorbable/absorbable',
     'taoTaskQueue/component/listing/element',
@@ -28,7 +29,7 @@ define([
     'taoTaskQueue/component/listing/list',
     'tpl!taoTaskQueue/component/manager/trigger',
     'css!taoTaskQueue/component/manager/css/manager'
-], function ($, _, __, hider, component, makeAlignable, makeAbsorbable, listElementFactory, reportElementFactory, taskListFactory, triggerTpl) {
+], function ($, _, __, hider, component, badgeFactory, makeAlignable, makeAbsorbable, listElementFactory, reportElementFactory, taskListFactory, triggerTpl) {
     'use strict';
 
     var _defaults = {
@@ -40,21 +41,21 @@ define([
             if(tasksStatuses.numberOfTasksFailed){
                 return {
                     type : 'error',
-                    running : running,
+                    loading : running,
                     value : parseInt(tasksStatuses.numberOfTasksFailed, 10),
                 };
             }
             if(tasksStatuses.numberOfTasksCompleted){
                 return {
                     type : 'success',
-                    running : running,
+                    loading : running,
                     value : parseInt(tasksStatuses.numberOfTasksCompleted, 10),
                 };
             }
             if(tasksStatuses.numberOfTasksInProgress){
                 return {
                     type : 'info',
-                    running : running,
+                    loading : running,
                     value : parseInt(tasksStatuses.numberOfTasksInProgress, 10),
                 };
             }
@@ -186,58 +187,11 @@ define([
         },
         selfUpdateBadge : function selfUpdateBadge(){
             var badgeData = getBadgeDataFromElements(this.getTaskElements());
-            //var $badgeContainer = this.getElement().find('.task-manager-trigger');
-            var $badgeBorder = this.getElement().find('.badge-border');
-            var $badge = this.getElement().find('.badge').removeClass('badge-info badge-success badge-error icon-result-ok');
-            var $loader = this.getElement().find('.loader');
-            var displayValue;
-            if(badgeData && badgeData.value){
-                displayValue = parseInt(badgeData.value, 10);
-                displayValue = (displayValue > 99) ? '99+' : displayValue;
-
-                //set status
-                $badge.addClass('badge-'+badgeData.type).html(displayValue);
-
-                //if any is running
-                if(badgeData.running){
-                    hider.show($loader);
-                    hider.hide($badgeBorder);
-                }else{
-                    hider.hide($loader);
-                    hider.show($badgeBorder);
-                }
-
-                //if(this.badge){
-                //    if(this.badge.type !== badgeData.type){
-                //        this.trigger('badgetypechange', badgeData.type);
-                //        //pulseBadge($badgeContainer)
-                //        this.animatePulse();
-                //    }
-                //    if(this.badge.value !== badgeData.value){
-                //        this.trigger('badgevaluechange', badgeData.value);
-                //        //pulseBadge($badgeContainer)
-                //        this.animatePulse();
-                //    }
-                //}else{
-                //    //pulseBadge($badgeContainer)
-                //    this.animatePulse();
-                //}
-                //
-                //this.badge = {
-                //    type : badgeData.type,
-                //    value : badgeData.value
-                //};
-
+            if(!this.badge){
+                this.badge = badgeFactory(badgeData).render(this.getElement());
             }else{
-                //idle state:
-                hider.hide($loader);
-                hider.hide($badgeBorder);
-                $badge.addClass('icon-result-ok').empty();
-                this.badge = null;
+                this.badge.update(badgeData);
             }
-
-
-
         },
         loadData : function loadData(tasksData){
             var self = this;
@@ -262,35 +216,12 @@ define([
 
             this.selfUpdateBadge();
         },
-        animateAbsorption : function animateAbsorption(){
-            var self = this;
-            return new Promise(function(resolve){
-                var $target = self.getElement().find('.pulser');
-                //$target.show();
-                $target.addClass('animate-absorb');
-                _.delay(function(){
-                    $target.removeClass('animate-absorb');
-                    //$target.hide();
-                    resolve.call(self);
-                },1500);
-            });
-        },
         animatePulse : function animatePulse(){
             var $target = this.getElement().find('.pulser');
             $target.addClass('animate-pulse');
             _.delay(function(){
                 $target.removeClass('animate-pulse');
             },3100);
-        },
-        repositionList : function repositionList(){
-            var $trigger = this.getElement();
-            this.list.alignWith($trigger, {
-                    hPos: 'center',
-                    hOrigin: 'center',
-                    vPos: 'bottom',
-                    vOrigin: 'top',
-                    hOffset: -156-122
-                });
         }
     };
 
