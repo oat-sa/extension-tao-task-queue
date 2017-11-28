@@ -52,7 +52,7 @@ function ($, taskQueueManagerFactory, taskQueue) {
                 .render($('#taskqueue').parent())
                 .hide();//start hidden to prevent blinking effect
 
-            //listen to events triggered by the task queue model
+            //listen to events started by the task queue model
             taskQueue.on('taskcreated', function(task){
                 if(taskManager.list.is('hidden')){
                     taskManager.animateAbsorption().then(function(){

@@ -4,13 +4,13 @@
     [class^="icon-"], [class*=" icon-"] {
         padding: 0;
     }
-    .action-text{
+    .action-text, .terminated-text{
         margin-left: 9px;
     }
     .spinner-icon, .terminated-text{
         display: none;
     }
-    &.triggered{
+    &.started{
         cursor: default;
         opacity: 0.5;
         .spinner-icon{

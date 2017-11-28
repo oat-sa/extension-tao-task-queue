@@ -46,7 +46,7 @@ $foreground: $darkBarTxt;
             75% {
                 width: 20px;
                 height: 30px;
-                opacity: 0.25;
+                opacity: 0.6;
                 transform: translateX(12px) translateY(-10px) translateZ(0)
             }
             100% {
@@ -71,7 +71,7 @@ $foreground: $darkBarTxt;
                 left: 20px;
                 width: 1px;
                 height: 1px;
-                box-shadow: 0 0 0 60px rgba($darkBarTxt, 0.6);
+                box-shadow: 0 0 0 180px rgba($darkBarTxt, 0.6);
             }
             100% {
                 opacity: 0.3;
@@ -83,6 +83,7 @@ $foreground: $darkBarTxt;
             }
         }
         &.animate-absorb{
+            background: $info;
             @include animation(badge-absorb 1.5s ease-out 1);
         }
         &.animate-pulse{

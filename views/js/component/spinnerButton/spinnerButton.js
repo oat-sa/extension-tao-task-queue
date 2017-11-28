@@ -30,63 +30,34 @@ define([
         icon : 'property-advanced',
         title : 'GO GO GO',
         label : 'GO GO GO',
-        terminatedLabel : 'stopped'
+        terminatedLabel : 'STOPPED'
     };
 
     var buttonApi = {
-        setType : function setType(type){
-            if(_templates[type]){
-                this.config.type = type;
-                this.update();
-            }
-            return this;
-        },
-        setValue : function setType(value){
-            value = parseInt(value, 10);
-            this.config.value = (value > 99) ? '99+' : value;
-            this.update();
-            return this;
-        },
-        update : function update(config){
-
-            return this;
-            if(config){
-                _.assign(this.config, config);
-            }
-            this.getElement().html(_templates[this.config.type].call(null, {value : this.config.value}));
-            return this;
+        start : function start(){
+            this.setState('started', true);
+            this.trigger('started');
         },
         terminate : function terminate(){
-            this.setState('triggered', false);
+            this.setState('started', false);
             this.setState('terminated', true);
             this.trigger('terminated');
+            return this;
         }
     };
 
+    /**
+     * Create a button with the lifecycle : render -> started -> terminated
+     */
     return function spinnerButtonFactory(config) {
         var initConfig = _.defaults(config || {}, _defaults);
         return component(buttonApi)
             .setTemplate(buttonTpl)
-
-            .on('init', function() {
-                //this.render($container);
-            })
-
-            // uninstalls the component
-            .on('destroy', function() {
-            })
-
-            // renders the component
             .on('render', function() {
-
                 var self = this;
-
-                this.update();
-
                 this.getElement().on('click', function(){
-                    if(!self.is('triggered') && !self.is('terminated')){
-                        self.setState('triggered', true);
-                        self.trigger('triggered');
+                    if(!self.is('started') && !self.is('terminated')){
+                        self.start();
                     }
                 });
 

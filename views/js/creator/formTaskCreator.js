@@ -67,7 +67,7 @@ define([
                 title: 'Publish the test',
                 label: 'Publish',
                 terminatedLabel: 'Moved to background'
-            }).on('triggered', function () {
+            }).on('started', function () {
                 loadingBar.start();
                 taskQueue.pollAllStop();
                 taskQueue.create($form.prop('action'), $form.serializeArray()).then(function (result) {
@@ -104,14 +104,14 @@ define([
                                 top: 0,
                                 left: 0
                             }));
-                        button.terminate();
-                        var $info = $('<div class="small-feedback-info">')
+                        button.terminate().hide();
+                        var $info = $('<div class="small feedback-info">')
                             .css({
-                                marginTop : 40,
+                                //marginTop : 40,
                                 textAlign : 'left',
                                 padding: '8px 20px 8px 20px'
                             })
-                            .html(__('<strong> %s </strong> takes a long time to execute so it has been moved to the background.', task.taskLabel));
+                            .html(__('<strong> %s </strong> takes a long time to execute so it has been moved to the background. You can continue working elsewhere.', task.taskLabel));
                         button.getElement().after($info);
 
                         //leave the user a moment to make the connection between the notification message and the animation

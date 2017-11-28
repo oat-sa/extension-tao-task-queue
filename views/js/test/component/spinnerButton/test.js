@@ -89,7 +89,7 @@ define([
 
                 QUnit.start();
             })
-            .on('triggered', function(){
+            .on('started', function(){
                 _.delay(function(){
                     button.terminate();
                 }, 2000);
