@@ -23,6 +23,7 @@ namespace oat\taoTaskQueue\controller;
 use common_session_SessionManager;
 use oat\oatbox\filesystem\FileSystemService;
 use oat\taoTaskQueue\model\Entity\CategoryEntityDecorator;
+use oat\taoTaskQueue\model\QueueDispatcherInterface;
 use oat\taoTaskQueue\model\TaskLog\CategoryCollectionDecorator;
 use oat\taoTaskQueue\model\TaskLogInterface;
 
@@ -190,7 +191,7 @@ class TaskQueueWebApi extends \tao_actions_CommonModule
 
             /** @var FileSystemService $fileSystem */
             $fileSystem = $this->getServiceManager()->get(FileSystemService::SERVICE_ID);
-            $directory = $fileSystem->getDirectory('taskQueueStorage');
+            $directory = $fileSystem->getDirectory(QueueDispatcherInterface::FILE_SYSTEM_ID);
             $file = $directory->getFile($filename);
 
             header('Set-Cookie: fileDownload=true');
