@@ -22,10 +22,10 @@ define([
     'ui/feedback',
     'ui/report',
     'taoTaskQueue/model/taskQueue',
-    'taoTaskQueue/component/spinnerButton/spinnerButton',
+    'ui/loadingButton/loadingButton',
     'layout/loading-bar',
     'tpl!taoTaskQueue/creator/tpl/reportContainer'
-], function ($, _, __, feedback, reportFactory, taskQueue, spinnerButtonFactory, loadingBar, reportContainerTpl) {
+], function ($, _, __, feedback, reportFactory, taskQueue, loadingButtonFactory, loadingBar, reportContainerTpl) {
     'use strict';
 
     /**
@@ -61,7 +61,7 @@ define([
     return function formTaskCreator($form, $container) {
 
         var $oldSubmitter = $form.find('.form-submitter');
-        var button = spinnerButtonFactory({
+        var button = loadingButtonFactory({
                 type: 'info',
                 icon: 'delivery',
                 title: 'Publish the test',
