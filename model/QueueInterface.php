@@ -80,6 +80,12 @@ interface QueueInterface extends \Countable, LoggerAwareInterface, PhpSerializab
     public function getWeight();
 
     /**
+     * @param int $weight
+     * @return QueueInterface
+     */
+    public function setWeight($weight);
+
+    /**
      * Publish a task to the queue.
      *
      * @param TaskInterface $task
