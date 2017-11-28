@@ -19,8 +19,10 @@
 define([
     'jquery',
     'lodash',
-    'taoTaskQueue/component/manager/manager'
-], function($, _, taskQueueManagerFactory) {
+    'taoTaskQueue/component/manager/manager',
+    'ui/component',
+    'ui/component/alignable',
+], function($, _, taskQueueManagerFactory, componentFactory, makeAlignable) {
     'use strict';
 
     QUnit.module('API');
@@ -177,7 +179,9 @@ define([
                 owner: 'userId',
                 createdAt: '1510149684',//timezone ?
                 updatedAt: '1510149694',
-                file: false,//suppose
+                createdAtElapsed : 601,
+                updatedAtElapsed :26,
+                hasFile: false,//suppose
                 category: 'import',
                 report : {
                     type : 'success',
@@ -194,7 +198,9 @@ define([
                 owner: 'userId',
                 createdAt: '1510149584',//timezone ?
                 updatedAt: '1510149574',
-                file: false,
+                createdAtElapsed : 41,
+                updatedAtElapsed :626,
+                hasFile: false,
                 category: 'publish',//d
                 report : {
                     type : 'info',
@@ -211,7 +217,9 @@ define([
                 owner: 'userId',
                 createdAt: '1510149584',//timezone ?
                 updatedAt: '1510049574',
-                file: true,//suppose
+                createdAtElapsed : 61,
+                updatedAtElapsed :101,
+                hasFile: true,//suppose
                 category: 'export',//d
                 report : {
                     type : 'error',
@@ -296,5 +304,87 @@ define([
             .render($container);
 
         updateTaskList();
+
+
+        //test animation
+        var iWidth = 400;
+        var iHeight = 400;
+        var iLeft = 500;
+        var iTop = 300;
+        var fWidth = 30;
+        var fHeight = 20;
+
+        var component = makeAlignable(componentFactory())
+            .init()
+            .render($container)
+            .setSize(iWidth, iHeight)
+            .moveTo(iLeft, iTop);
+
+        component.getElement().click(function(){
+            //var fantom = makeAlignable(componentFactory())
+            //    .init()
+            //    .render($container)
+            //    .setSize(component.getElement().width(), component.getElement().height())
+            //    .alignWith(component.getElement(), {
+            //        hPos : 0,
+            //        vPos : 0,
+            //        hOrigin : 'center',
+            //        vOrigin : 'center',
+            //    });
+            //
+            //fantom.getElement().css({
+            //       background: 'black'
+            //    });
+            //
+            ////return;
+            //fantom
+            //    .animate()
+            //    .setSize(fWidth, fHeight);
+            //
+            //return;
+            //fantom.alignWith(component.getElement(), {
+            //        hPos : 0,
+            //        vPos : 0,
+            //        hOrigin : 'center',
+            //        vOrigin : 'top',
+            //        hOffset : component.getElement().height()
+            //    });
+            //
+            //return;
+            //
+            //_.delay(function(){
+            //    fantom.alignWith(taskManager.getElement(), {
+            //        hPos : 0,
+            //        vPos : 0,
+            //        hOrigin : 'center',
+            //        vOrigin : 'center',
+            //        hOffset: iWidth/2-fWidth/2,
+            //        vOffset: iHeight/2-fHeight/2,
+            //    });
+            //
+            //}, 1500);
+            //
+            //return;
+            component
+                .getElement().css('border-radius', '30%');
+            component
+                .animate()
+                .setSize(fWidth, fHeight)
+                .alignWith(taskManager.getElement(), {
+                    hPos : 0,
+                    vPos : 0,
+                    hOrigin : 'center',
+                    vOrigin : 'center',
+                    hOffset: iWidth/2-fWidth/2,
+                    vOffset: iHeight/2-fHeight/2,
+                });
+
+            _.delay(function(){
+                component
+                    .stop()
+                    .setSize(iWidth, iHeight)
+                    .moveTo(iLeft, iTop);
+            }, 2000);
+        });
     });
 });
