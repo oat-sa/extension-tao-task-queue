@@ -115,10 +115,7 @@ define([
                         button.getElement().after($info);
 
                         //leave the user a moment to make the connection between the notification message and the animation
-                        taskQueue.trigger('taskcreated', task);
-                        _.delay(function () {
-                            taskQueue.pollAll();
-                        }, 1500);
+                        taskQueue.trigger('taskcreated', {task : task, sourceDom : $form});
                     }
                     loadingBar.stop();
                 }).catch(function (err) {

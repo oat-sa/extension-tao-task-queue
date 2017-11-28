@@ -53,13 +53,15 @@ function ($, taskQueueManagerFactory, taskQueue) {
                 .hide();//start hidden to prevent blinking effect
 
             //listen to events started by the task queue model
-            taskQueue.on('taskcreated', function(task){
+            taskQueue.on('taskcreated', function(data){
                 if(taskManager.list.is('hidden')){
-                    taskManager.animateAbsorption().then(function(){
-                        taskManager.addNewTask(task);
+                    taskManager.absorbBurst(data.sourceDom, [0, 200, 500, 700]).then(function(){
+                        taskManager.addNewTask(data.task);
+                        taskQueue.pollAll();
                     });
                 }else{
-                    taskManager.addNewTask(task, true);
+                    taskManager.addNewTask(data.task, true);
+                    taskQueue.pollAll();
                 }
             }).on('multitaskstatuschange', function(){
                 taskManager.animatePulse();

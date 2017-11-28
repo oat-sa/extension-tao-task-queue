@@ -22,12 +22,13 @@ define([
     'ui/hider',
     'ui/component',
     'ui/component/alignable',
+    'ui/animable/absorbable/absorbable',
     'taoTaskQueue/component/listing/element',
     'taoTaskQueue/component/listing/report',
     'taoTaskQueue/component/listing/list',
     'tpl!taoTaskQueue/component/manager/trigger',
     'css!taoTaskQueue/component/manager/css/manager'
-], function ($, _, __, hider, component, makeAlignable, listElementFactory, reportElementFactory, taskListFactory, triggerTpl) {
+], function ($, _, __, hider, component, makeAlignable, makeAbsorbable, listElementFactory, reportElementFactory, taskListFactory, triggerTpl) {
     'use strict';
 
     var _defaults = {
@@ -333,7 +334,7 @@ define([
 
         data = data || {};
 
-        return component(taskQueue)
+        return makeAbsorbable(component(taskQueue))
             .setTemplate(triggerTpl)
 
             .on('init', function() {
@@ -388,6 +389,9 @@ define([
                     //self.animateReduction();//for animation testing purpose nly
                 });
 
+                //$(document).click(function(){
+                //    self.absorb($('.form-content'));
+                //});
             })
             .init(initConfig);
     };
