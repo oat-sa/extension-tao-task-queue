@@ -1,1 +1,0 @@
-<span class="status-badge {{badgeClass}}">{{value}}</span>

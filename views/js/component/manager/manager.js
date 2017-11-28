@@ -28,9 +28,9 @@ define([
     'taoTaskQueue/component/listing/element',
     'taoTaskQueue/component/listing/report',
     'taoTaskQueue/component/listing/list',
-    'tpl!taoTaskQueue/component/manager/trigger',
+    'tpl!taoTaskQueue/component/manager/tpl/manager',
     'css!taoTaskQueue/component/manager/css/manager'
-], function ($, _, __, hider, component, badgeFactory, makeAlignable, makeAbsorbable, makePulsable, listElementFactory, reportElementFactory, taskListFactory, triggerTpl) {
+], function ($, _, __, hider, component, badgeFactory, makeAlignable, makeAbsorbable, makePulsable, listElementFactory, reportElementFactory, taskListFactory, managerTpl) {
     'use strict';
 
     var _defaults = {
@@ -255,7 +255,7 @@ define([
         data = data || {};
 
         return makeAbsorbable(component(taskQueue))
-            .setTemplate(triggerTpl)
+            .setTemplate(managerTpl)
 
             .on('init', function() {
                 //this.render($container);
