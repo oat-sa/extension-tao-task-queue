@@ -24,12 +24,13 @@ define([
     'ui/badge/badge',
     'ui/component/alignable',
     'ui/animable/absorbable/absorbable',
+    'ui/animable/pulsable/pulsable',
     'taoTaskQueue/component/listing/element',
     'taoTaskQueue/component/listing/report',
     'taoTaskQueue/component/listing/list',
     'tpl!taoTaskQueue/component/manager/trigger',
     'css!taoTaskQueue/component/manager/css/manager'
-], function ($, _, __, hider, component, badgeFactory, makeAlignable, makeAbsorbable, listElementFactory, reportElementFactory, taskListFactory, triggerTpl) {
+], function ($, _, __, hider, component, badgeFactory, makeAlignable, makeAbsorbable, makePulsable, listElementFactory, reportElementFactory, taskListFactory, triggerTpl) {
     'use strict';
 
     var _defaults = {
@@ -115,13 +116,6 @@ define([
         return getBadgeDataFromStatus(stats);
     };
 
-    function pulseBadge($badgeContainer){
-        $badgeContainer.addClass('pulse');
-        _.delay(function(){
-            $badgeContainer.removeClass('pulse');
-        }, 5000);
-    }
-
     var taskQueue = {
         getTaskElements : function getTaskElements(){
             return this.taskElements;
@@ -188,7 +182,7 @@ define([
         selfUpdateBadge : function selfUpdateBadge(){
             var badgeData = getBadgeDataFromElements(this.getTaskElements());
             if(!this.badge){
-                this.badge = badgeFactory(badgeData).render(this.getElement());
+                this.badge = makePulsable(badgeFactory(badgeData)).render(this.getElement());
             }else{
                 this.badge.update(badgeData);
             }
@@ -211,17 +205,12 @@ define([
                 }
                 found.push(id);
             });
-
-            //console.log('DIFF', found, _.keys(this.taskElements));
-
             this.selfUpdateBadge();
         },
-        animatePulse : function animatePulse(){
-            var $target = this.getElement().find('.pulser');
-            $target.addClass('animate-pulse');
-            _.delay(function(){
-                $target.removeClass('animate-pulse');
-            },3100);
+        pulse : function pulse(){
+            if(this.badge){
+                this.badge.pulse(3);
+            }
         }
     };
 
@@ -283,6 +272,7 @@ define([
                 var self = this;
                 var $trigger = this.getElement();
 
+                //create the list
                 this.list = makeAlignable(taskListFactory())
                     .init({
                         title : __('Background tasks'),
@@ -301,6 +291,7 @@ define([
                     })
                     .hide();//start hidden
 
+                //load initial data
                 this.loadData(data);
 
                 //prevent closing the panel when clicking on it
@@ -310,19 +301,14 @@ define([
                     e.stopPropagation();
                 });
 
-                //toggle pannel visibility
+                //toggle list visibility
                 $trigger.on('click', function(){
                     if(self.list.is('hidden')){
                         self.list.show();
                     }else{
                         self.list.hide();
                     }
-                    //self.animateReduction();//for animation testing purpose nly
                 });
-
-                //$(document).click(function(){
-                //    self.absorb($('.form-content'));
-                //});
             })
             .init(initConfig);
     };

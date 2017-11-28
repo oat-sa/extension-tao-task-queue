@@ -64,7 +64,7 @@ function ($, taskQueueManagerFactory, taskQueue) {
                     taskQueue.pollAll();
                 }
             }).on('multitaskstatuschange', function(){
-                taskManager.animatePulse();
+                taskManager.pulse();
             }).on('pollAll', function (tasks) {
                 if(taskManager.is('hidden')){
                     taskManager.show();
