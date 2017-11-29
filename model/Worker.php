@@ -161,6 +161,9 @@ final class Worker implements WorkerInterface
                 return TaskLogInterface::STATUS_UNKNOWN;
             }
 
+            // let the task know that it is called from a worker
+            $task->applyWorkerContext();
+
             // execute the task
             $taskReport = $task();
 

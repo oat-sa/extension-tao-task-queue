@@ -25,7 +25,7 @@ namespace oat\taoTaskQueue\model\Task;
  *
  * @author Gyula Szucs <gyula@taotesting.com>
  */
-interface TaskInterface extends \JsonSerializable
+interface TaskInterface extends WorkerContextAwareInterface, \JsonSerializable
 {
     // Fully Qualified Class Name
     const JSON_TASK_CLASS_NAME_KEY = 'taskFqcn';

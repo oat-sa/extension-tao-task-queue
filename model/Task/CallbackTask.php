@@ -50,7 +50,7 @@ final class CallbackTask extends AbstractTask implements CallbackTaskInterface
     }
 
     /**
-     * @return callable|string
+     * @return callable|string|object
      */
     public function getCallable()
     {
@@ -93,5 +93,19 @@ final class CallbackTask extends AbstractTask implements CallbackTaskInterface
         $this->setMetadata('__callable__', $callableClassOrArray);
 
         return parent::jsonSerialize();
+    }
+
+    /**
+     * @return CallbackTaskInterface
+     */
+    public function applyWorkerContext()
+    {
+        parent::applyWorkerContext();
+
+        if ($this->getCallable() instanceof WorkerContextAwareInterface) {
+            $this->getCallable()->applyWorkerContext();
+        }
+
+        return $this;
     }
 }
