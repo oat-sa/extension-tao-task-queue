@@ -18,43 +18,6 @@ $foreground: $darkBarTxt;
         background-color: rgba($info, .5);
         text-decoration: none;
     }
-    .badge{
-        position: absolute;
-        top: 14px;
-        right: 7px;
-    }
-}
-
-.badge {
-    svg {
-        position: absolute;
-        top: -8px;
-        right: -8px;
-        g.badge-info {
-            path {
-                fill: $info;
-            }
-            text {
-                fill: whiten($info, 0.8);
-            }
-        }
-        g.badge-success {
-            path {
-                fill: $success;
-            }
-            text {
-                fill: whiten($success, 0.8);
-            }
-        }
-        g.badge-error {
-            path {
-                fill: $error;
-            }
-            text {
-                fill: whiten($error, 0.8);
-            }
-        }
-    }
 }
 
 div.task-listing {
