@@ -109,6 +109,8 @@ define([
                                     //check if the status has changed
                                     model.trigger('singletaskstatuschange', taskData);
                                 }
+                            }else{
+                                _cache = {};
                             }
                             _cache[taskData.id] = taskData;
                             return Promise.resolve(taskData);
