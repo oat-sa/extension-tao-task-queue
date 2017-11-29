@@ -1,0 +1,14 @@
+{
+	"version": 3,
+	"file": "style.css",
+	"sources": [
+		"../scss/style.scss",
+		"../../../../../../tao/views/scss/inc/_bootstrap.scss",
+		"../../../../../../tao/views/scss/inc/_variables.scss",
+		"../../../../../../tao/views/scss/inc/_functions.scss",
+		"../../../../../../tao/views/scss/inc/_colors.scss",
+		"../../../../../../tao/views/scss/inc/fonts/_tao-icon-vars.scss"
+	],
+	"names": [],
+	"mappings": "AAEA,AAAA,GAAG,AAAA,eAAe,AAAA,CACd,QAAQ,CAAE,QAAQ,CAClB,GAAG,CAAE,CAAC,CACN,IAAI,CAAE,CAAC,CACP,KAAK,CAAE,IAAI,CACX,MAAM,CAAE,IAAI,CACZ,UAAU,CAAE,IAAI,CAChB,OAAO,CAAE,GAAG,CACf,AAED,AAAA,GAAG,AAAA,uBAAuB,AAAA,MAAM,AAAA,CAC5B,UAAU,CAAG,IAAI,CACjB,OAAO,CAAE,iBAAiB,CAC7B"
+}
