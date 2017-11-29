@@ -22,7 +22,8 @@ define([
     'ui/component',
     'taoTaskQueue/component/listing/element',
     'tpl!taoTaskQueue/component/listing/tpl/list',
-    'tpl!taoTaskQueue/component/listing/tpl/elementWrapper'
+    'tpl!taoTaskQueue/component/listing/tpl/elementWrapper',
+    'css!taoTaskQueue/component/listing/css/list'
 ], function ($, _, __, component, listElementFactory, listTpl, elementWrapperTpl) {
     'use strict';
 
@@ -30,21 +31,13 @@ define([
         emptyText : __('The list is currently empty.')
     };
 
-    var animateIntersion = function animateIntersion(listElement){
-        var $listElement = listElement.getElement();
-        var $container = $listElement.parent();
-        $container.addClass('inserting');
-        $listElement.addClass('new-element');
-        _.delay(function(){
-            $container.removeClass('inserting');
-            _.delay(function(){
-                $listElement.removeClass('new-element');
-            }, 400);
-        },100);
-    };
-
     var listApi = {
 
+        /**
+         * Remove a list element
+         * @param {Object} listElement
+         * @returns {listApi}
+         */
         removeElement : function removeElement(listElement){
             listElement.destroy();
             this.getElement().find('ul li[data-id="'+listElement.getId()+'"]').remove();
@@ -73,7 +66,16 @@ define([
             return this;
         },
         animateInsertion : function animateInsertion(listElement){
-            animateIntersion(listElement);
+            var $listElement = listElement.getElement();
+            var $container = $listElement.parent();
+            $container.addClass('inserting');
+            $listElement.addClass('new-element');
+            _.delay(function(){
+                $container.removeClass('inserting');
+                _.delay(function(){
+                    $listElement.removeClass('new-element');
+                }, 400);
+            },100);
             return this;
         },
         setDetail : function setDetail(detailElement, show){
@@ -89,21 +91,8 @@ define([
 
     return function taskListFactory(config) {
         var initConfig = _.defaults(config || {}, _defaults);
-
         return component(listApi)
             .setTemplate(listTpl)
-            .on('init', function() {
-
-            })
-
-            // uninstalls the component
-            .on('destroy', function() {
-            })
-
-            // renders the component
-            .on('render', function() {
-
-            })
             .init(initConfig);
     };
 

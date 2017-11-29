@@ -22,7 +22,8 @@ define([
     'moment',
     'ui/component',
     'ui/hider',
-    'tpl!taoTaskQueue/component/listing/tpl/element'
+    'tpl!taoTaskQueue/component/listing/tpl/element',
+    'css!taoTaskQueue/component/listing/css/element'
 ], function ($, _, __, moment, component, hider, elementTpl) {
     'use strict';
 

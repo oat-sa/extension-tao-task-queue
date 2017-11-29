@@ -23,7 +23,8 @@ define([
     'ui/component',
     'ui/hider',
     'ui/report',
-    'tpl!taoTaskQueue/component/listing/tpl/report'
+    'tpl!taoTaskQueue/component/listing/tpl/report',
+    'css!taoTaskQueue/component/listing/css/report'
 ], function ($, _, __, moment, component, hider, reportFactory, elementTpl) {
     'use strict';
 
