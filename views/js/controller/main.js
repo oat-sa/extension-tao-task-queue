@@ -55,7 +55,7 @@ function ($, taskQueueManagerFactory, taskQueue) {
             //listen to events started by the task queue model
             taskQueue.on('taskcreated', function(data){
                 if(taskManager.list.is('hidden')){
-                    taskManager.absorbBurst(data.sourceDom, [0, 200, 500, 700]).then(function(){
+                    taskManager.absorbBurst(data.sourceDom, [0, 200, 400, 800, 1000, 1200, 1500]).then(function(){
                         taskManager.addNewTask(data.task);
                         taskQueue.pollAll();
                     });
