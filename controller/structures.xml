@@ -3,7 +3,7 @@
 <structures>
     <structure id="taskqueue" name="Task Queue" level="6" group="persistent" binding="taoCe/controller/help">
         <description/>
-        <icon id="icon-result-ok" src=""/>
+        <icon id="icon-none" src=""/>
         <sections>
             <section id="taskqueue" name="taskqueue" url="/taoTaskQueue/Main/index" binding="taoCe/controller/help"/>
         </sections>

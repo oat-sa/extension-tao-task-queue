@@ -21,13 +21,16 @@ define([
     'i18n',
     'ui/hider',
     'ui/component',
+    'ui/badge/badge',
     'ui/component/alignable',
+    'ui/animable/absorbable/absorbable',
+    'ui/animable/pulsable/pulsable',
     'taoTaskQueue/component/listing/element',
     'taoTaskQueue/component/listing/report',
     'taoTaskQueue/component/listing/list',
-    'tpl!taoTaskQueue/component/manager/trigger',
+    'tpl!taoTaskQueue/component/manager/tpl/manager',
     'css!taoTaskQueue/component/manager/css/manager'
-], function ($, _, __, hider, component, makeAlignable, listElementFactory, reportElementFactory, taskListFactory, triggerTpl) {
+], function ($, _, __, hider, component, badgeFactory, makeAlignable, makeAbsorbable, makePulsable, listElementFactory, reportElementFactory, taskListFactory, managerTpl) {
     'use strict';
 
     var _defaults = {
@@ -39,21 +42,21 @@ define([
             if(tasksStatuses.numberOfTasksFailed){
                 return {
                     type : 'error',
-                    running : running,
+                    loading : running,
                     value : parseInt(tasksStatuses.numberOfTasksFailed, 10),
                 };
             }
             if(tasksStatuses.numberOfTasksCompleted){
                 return {
                     type : 'success',
-                    running : running,
+                    loading : running,
                     value : parseInt(tasksStatuses.numberOfTasksCompleted, 10),
                 };
             }
             if(tasksStatuses.numberOfTasksInProgress){
                 return {
                     type : 'info',
-                    running : running,
+                    loading : running,
                     value : parseInt(tasksStatuses.numberOfTasksInProgress, 10),
                 };
             }
@@ -112,14 +115,6 @@ define([
 
         return getBadgeDataFromStatus(stats);
     };
-
-    function pulseBadge($badgeContainer){
-        return;
-        $badgeContainer.addClass('pulse');
-        _.delay(function(){
-            $badgeContainer.removeClass('pulse');
-        }, 5000);
-    }
 
     var taskQueue = {
         getTaskElements : function getTaskElements(){
@@ -186,55 +181,11 @@ define([
         },
         selfUpdateBadge : function selfUpdateBadge(){
             var badgeData = getBadgeDataFromElements(this.getTaskElements());
-            var $badgeContainer = this.getElement().find('.task-manager-trigger');
-            var $badgeBorder = this.getElement().find('.badge-border');
-            var $badge = this.getElement().find('.badge').removeClass('badge-info badge-success badge-error icon-result-ok');
-            var $loader = this.getElement().find('.loader');
-            var displayValue;
-            if(badgeData && badgeData.value){
-                displayValue = parseInt(badgeData.value, 10);
-                displayValue = (displayValue > 99) ? '99+' : displayValue;
-
-                //set status
-                $badge.addClass('badge-'+badgeData.type).html(displayValue);
-
-                //if any is running
-                if(badgeData.running){
-                    hider.show($loader);
-                    hider.hide($badgeBorder);
-                }else{
-                    hider.hide($loader);
-                    hider.show($badgeBorder);
-                }
-
-                if(this.badge){
-                    if(this.badge.type !== badgeData.type){
-                        this.trigger('badgetypechange', badgeData.type);
-                        pulseBadge($badgeContainer)
-                    }
-                    if(this.badge.value !== badgeData.value){
-                        this.trigger('badgetypevalue', badgeData.value);
-                        pulseBadge($badgeContainer)
-                    }
-                }else{
-                    pulseBadge($badgeContainer)
-                }
-
-                this.badge = {
-                    type : badgeData.type,
-                    value : badgeData.value
-                };
-
+            if(!this.badge){
+                this.badge = makePulsable(badgeFactory(badgeData)).render(this.getElement());
             }else{
-                //idle state:
-                hider.hide($loader);
-                hider.hide($badgeBorder);
-                $badge.addClass('icon-result-ok').empty();
-                this.badge = null;
+                this.badge.update(badgeData);
             }
-
-
-
         },
         loadData : function loadData(tasksData){
             var self = this;
@@ -254,29 +205,12 @@ define([
                 }
                 found.push(id);
             });
-
-            //console.log('DIFF', found, _.keys(this.taskElements));
-
             this.selfUpdateBadge();
         },
-        animateReduction : function animateReduction(){
-            var $target = this.getElement().find('.pulser');
-            //$target.show();
-            $target.addClass('animate-absorb');
-            _.delay(function(){
-                $target.removeClass('animate-absorb');
-                //$target.hide();
-            },2000);
-        },
-        repositionList : function repositionList(){
-            var $trigger = this.getElement();
-            this.list.alignWith($trigger, {
-                    hPos: 'center',
-                    hOrigin: 'center',
-                    vPos: 'bottom',
-                    vOrigin: 'top',
-                    hOffset: -156-122
-                });
+        pulse : function pulse(){
+            if(this.badge){
+                this.badge.pulse(3);
+            }
         }
     };
 
@@ -320,8 +254,8 @@ define([
 
         data = data || {};
 
-        return component(taskQueue)
-            .setTemplate(triggerTpl)
+        return makeAbsorbable(component(taskQueue))
+            .setTemplate(managerTpl)
 
             .on('init', function() {
                 //this.render($container);
@@ -338,6 +272,7 @@ define([
                 var self = this;
                 var $trigger = this.getElement();
 
+                //create the list
                 this.list = makeAlignable(taskListFactory())
                     .init({
                         title : __('Background tasks'),
@@ -356,6 +291,7 @@ define([
                     })
                     .hide();//start hidden
 
+                //load initial data
                 this.loadData(data);
 
                 //prevent closing the panel when clicking on it
@@ -365,16 +301,14 @@ define([
                     e.stopPropagation();
                 });
 
-                //toggle pannel visibility
+                //toggle list visibility
                 $trigger.on('click', function(){
                     if(self.list.is('hidden')){
                         self.list.show();
                     }else{
                         self.list.hide();
                     }
-                    //self.animateReduction();//for animation testing purpose nly
                 });
-
             })
             .init(initConfig);
     };

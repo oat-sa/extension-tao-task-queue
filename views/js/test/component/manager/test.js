@@ -177,7 +177,9 @@ define([
                 owner: 'userId',
                 createdAt: '1510149684',//timezone ?
                 updatedAt: '1510149694',
-                file: false,//suppose
+                createdAtElapsed : 601,
+                updatedAtElapsed :26,
+                hasFile: false,//suppose
                 category: 'import',
                 report : {
                     type : 'success',
@@ -194,7 +196,9 @@ define([
                 owner: 'userId',
                 createdAt: '1510149584',//timezone ?
                 updatedAt: '1510149574',
-                file: false,
+                createdAtElapsed : 41,
+                updatedAtElapsed :626,
+                hasFile: false,
                 category: 'publish',//d
                 report : {
                     type : 'info',
@@ -211,7 +215,9 @@ define([
                 owner: 'userId',
                 createdAt: '1510149584',//timezone ?
                 updatedAt: '1510049574',
-                file: true,//suppose
+                createdAtElapsed : 61,
+                updatedAtElapsed :101,
+                hasFile: true,//suppose
                 category: 'export',//d
                 report : {
                     type : 'error',

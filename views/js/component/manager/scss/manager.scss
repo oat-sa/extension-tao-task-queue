@@ -23,174 +23,6 @@ $foreground: $darkBarTxt;
         top: 14px;
         right: 7px;
     }
-    .pulser{
-        border-radius: 250%;
-        position: absolute;
-        background: $foreground;
-        z-index: 10;
-        top: 0px;
-        left: 0px;
-        @include keyframes(badge-absorb) {
-            0% {
-                width: 0px;
-                height: 0px;
-                opacity: 0;
-                transform: translateX(20px) translateY(30px) translateZ(0)
-            }
-            1% {
-                transform: translateX(-400px) translateY(-400px) translateZ(0);
-                width: 800px;
-                height: 800px;
-                opacity: 0;
-            }
-            75% {
-                width: 20px;
-                height: 30px;
-                opacity: 0.25;
-                transform: translateX(12px) translateY(-10px) translateZ(0)
-            }
-            100% {
-                width: 0px;
-                height: 0px;
-                opacity: 0;
-                transform: translateX(20px) translateY(30px) translateZ(0)
-            }
-        }
-        @include keyframes(badge-pulse) {
-            0% {
-                opacity: 0;
-                top: 32px;
-                left: 20px;
-                width: 1px;
-                height: 1px;
-                box-shadow: 0 0 0 0 rgba($darkBarTxt, 0.9);
-            }
-            50% {
-                opacity: 0.3;
-                top: 32px;
-                left: 20px;
-                width: 1px;
-                height: 1px;
-                box-shadow: 0 0 0 60px rgba($darkBarTxt, 0.6);
-            }
-            100% {
-                opacity: 0.3;
-                top: 32px;
-                left: 20px;
-                width: 1px;
-                height: 1px;
-                box-shadow: 0 0 0 0 rgba($darkBarTxt, 0);
-            }
-        }
-        &.animate-absorb{
-            @include animation(badge-absorb 1.5s ease-out 1);
-        }
-        &.animate-pulse{
-            @include animation(badge-pulse 1s ease-out 3);
-        }
-
-    }
-
-    .task-manager-trigger {
-        position: relative;
-        .loader-background{
-            position: absolute;
-            top:-1px;
-            width:25px;
-            height:25px;
-            border-radius:50%;
-            background: $darkBarTxt;
-        }
-        .loader {
-            position: relative;
-            top:-1px;
-            width:25px;
-            height:25px;
-            border-radius:50%;
-            @include animation(task-manager-trigger-rotate 1.4s infinite linear);
-            @include vendor-prefix(background, linear-gradient(left, rgba($foreground,1) 10%, rgba($foreground,0) 42%), value);
-            @include vendor-prefix(transform, translateZ(0));
-            @include keyframes(task-manager-trigger-rotate) {
-                0% {
-                    @include vendor-prefix(transform, rotate(0deg));
-                }
-                100% {
-                    @include vendor-prefix(transform, rotate(360deg));
-                }
-            }
-
-            &:before {
-                width:50%;
-                height:50%;
-                background: $foreground;
-                border-radius: 100% 0 0 0;
-                position:absolute;
-                top:0;
-                left:0;
-                content:'';
-            }
-
-            &:after {
-                background: $background;
-                width:75%;
-                height:75%;
-                border-radius:50%;
-                content:'';
-                margin:auto;
-                position: absolute;
-                top: 0; left: 0; bottom: 0; right: 0;
-            }
-        }
-        .badge{
-            background: $darkBarTxt;
-            @include vendor-prefix(user-select, none);
-            @include font-size(12);
-            width:19px;
-            height:19px;
-            border-radius:50%;
-            position: absolute;
-            top: 2px;
-            left: 3px;
-            padding-top: 1px;
-            text-align: center;
-            display: inline-block;
-            &.badge-info{
-                color: whiten($info, 0.9);
-                background: whiten($info, 0.2);
-            }
-            &.badge-success{
-                color: whiten($success, 0.9);
-                background: whiten($success, 0.2);
-            }
-            &.badge-error{
-                color: whiten($error, 0.9);
-                background: $error;
-            }
-            &.icon-result-ok{
-                &::before{
-                    top: 3px;
-                    position: relative;
-                    color: blue;
-                }
-            }
-        }
-        .badge-border{
-            background: $darkBarTxt;
-            width:21px;
-            height:21px;
-            border-radius:50%;
-            position: absolute;
-            top: 1px;
-            left: 2px;
-        }
-    }
-}
-
-.task-manager-trigger {
-    position: relative;
-    font-size: 18px;
-    color: white;
-    text-shadow: none;
 }
 
 .badge {
@@ -233,7 +65,7 @@ div.task-listing {
         position: relative;
         min-height: 76px;
         min-width: 360px;
-        background: blacken($canvas, 0.3);
+        background: $canvas;
         @include box-shadow(0, 3px, 6px, 0px, black(0.6));
         @include simple-border($listBorderColor);
         .description {
@@ -303,7 +135,7 @@ div.task-listing {
             top: 25px;
             padding: 12px 20px;
             font-style: italic;
-            color: blacken(white, 0.1);
+            color: $textColor;
         }
         .view-detail{
             display: none;
@@ -457,7 +289,9 @@ div.task-listing {
     .container-text{
         padding-top: 4px;
         margin-left: 60px;
+        width: 240px;
         .label{
+            max-height: 38px;
             color: $textColor;
         }
         .time{
@@ -494,29 +328,7 @@ div.task-listing {
     }
 }
 
-.pulse {
-    ::after{
-        display: inline-block;
-        position: absolute;
-        top: 0;
-        right: 0;
-        width: 10px;
-        height: 10px;
-        border-radius: 250%;
-        background: red;
-        cursor: pointer;
-        box-shadow: 0 0 0 rgba($darkBarTxt, 0.6);
-        //animation: pulse 2s 5;
-        @include keyframes(badget-pulse) {
-            0% {box-shadow: 0 0 0 0 rgba($darkBarTxt, 0.6)}
-            50% {box-shadow: 0 0 0 30px rgba($darkBarTxt, 0)}
-            100% {box-shadow: 0 0 0 0 rgba($darkBarTxt, 0)}
-        }
-        @include animation(badget-pulse 1s ease-out infinite);
-    }
-}
-
-//integration with the other button in backoffice
+//improve style integration with the other button of backoffice
 .dark-bar nav .settings-menu:hover ~ .persistent-menu .task-listing .box{
     box-shadow: none;
     border-color: whiten($listBorderColor, 0.5);
