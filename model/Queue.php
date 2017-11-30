@@ -80,7 +80,7 @@ class Queue implements QueueInterface, TaskLogAwareInterface
         }
 
         $this->name = $name;
-        $this->weight = abs($weight);
+        $this->setWeight($weight);
 
         $this->setBroker($broker);
 
@@ -125,6 +125,17 @@ class Queue implements QueueInterface, TaskLogAwareInterface
     public function getName()
     {
         return $this->name;
+    }
+
+    /**
+     * @param int $weight
+     * @return Queue
+     */
+    public function setWeight($weight)
+    {
+        $this->weight = abs($weight);
+
+        return $this;
     }
 
     /**
