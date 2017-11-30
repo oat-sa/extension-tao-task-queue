@@ -1,2 +1,2 @@
-<div class="task-manager-container">
+<div class="task-manager-container" title="{{__ 'Background tasks'}}">
 </div>

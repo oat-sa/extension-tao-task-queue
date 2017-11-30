@@ -1,6 +1,6 @@
 @import "inc/bootstrap";
 
-div.notif-element {
+div.task-element {
     position: relative;
     background: $canvas;
     padding: 10px 20px;
@@ -9,10 +9,10 @@ div.notif-element {
     border-bottom: solid 1px blacken($canvas, 0.1);
 
     //adding transition for highlighting the element after an update
-    @include transition('background', 2s);
+    @include transition(background, 2s);
     &.highlight {
         background: white;
-        @include transition('background', 0s);
+        @include transition(background, 0s);
     }
 
     .container-icon {

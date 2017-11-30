@@ -23,7 +23,7 @@ use oat\oatbox\extension\InstallAction;
 use oat\tao\model\ClientLibConfigRegistry;
 
 /**
- * Add an extra router the backoffice
+ * Add an extra controller the backoffice 'controller/main'
  * @author Sam <sam@taotesting.com>
  */
 class SetClientRouterConfig extends InstallAction

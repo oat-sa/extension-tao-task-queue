@@ -1,4 +1,4 @@
-<div class="notif-element {{status}}">
+<div class="task-element {{status}}">
     <div class="container-icon">
         <div class="shape">
             <span class="{{icon}}"/>

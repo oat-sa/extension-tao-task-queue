@@ -1,7 +1,5 @@
 @import "inc/bootstrap";
 
-$listBorderColor: #ddd;
-
 .task-manager-container {
     cursor: pointer;
     position: relative;
@@ -19,12 +17,8 @@ $listBorderColor: #ddd;
 //improve style integration with the other button of backoffice
 .dark-bar nav .settings-menu:hover ~ .persistent-menu .task-listing .box{
     box-shadow: none;
-    border-color: whiten($listBorderColor, 0.5);
+    border-color: whiten($uiGeneralContentBorder, 0.5);
     .arrow{
         display: none;
     }
-}
-
-.task-report-container{
-    width: 100%;
 }

@@ -1,5 +1,9 @@
 @import "inc/bootstrap";
 
+div.task-report-container{
+    width: 100%;
+}
+
 div.overlay-screen{
     position: absolute;
     top: 0;
@@ -12,5 +16,5 @@ div.overlay-screen{
 
 div.task-creation-feedback.small{
     text-align : left;
-    padding: 8px 20px 8px 20px;
+    padding: 8px 20px;
 }
