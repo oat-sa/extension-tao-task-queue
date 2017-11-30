@@ -32,7 +32,6 @@ class RestTask extends \tao_actions_CommonModule
     const PARAMETER_TASK_ID = 'taskId';
     const PARAMETER_LIMIT = 'limit';
     const PARAMETER_OFFSET = 'offset';
-    const PARAMETER_REPORT_INCLUDED = 'reportIncluded';
 
     /** @var string */
     private $userId;
@@ -59,7 +58,6 @@ class RestTask extends \tao_actions_CommonModule
         /** @var TaskLogInterface $taskLogService */
         $taskLogService = $this->getServiceManager()->get(TaskLogInterface::SERVICE_ID);
         $limit = $offset = null;
-        $reportIncluded = false;
 
         if ($this->hasRequestParameter(self::PARAMETER_LIMIT)) {
             $limit = (int) $this->getRequestParameter(self::PARAMETER_LIMIT);
@@ -69,13 +67,9 @@ class RestTask extends \tao_actions_CommonModule
             $offset = (int) $this->getRequestParameter(self::PARAMETER_OFFSET);
         }
 
-        if ($this->hasRequestParameter(self::PARAMETER_REPORT_INCLUDED)) {
-            $reportIncluded = (bool) $this->getRequestParameter(self::PARAMETER_REPORT_INCLUDED);
-        }
-
         return $this->returnJson([
             'success' => true,
-            'data' => $taskLogService->findAvailableByUser($this->userId, $limit, $offset, $reportIncluded)->toArray()
+            'data' => $taskLogService->findAvailableByUser($this->userId, $limit, $offset)->toArray()
         ]);
     }
 

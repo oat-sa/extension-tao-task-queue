@@ -133,10 +133,9 @@ interface TaskLogInterface extends LoggerAwareInterface
      * @param string $userId
      * @param null   $limit
      * @param null   $offset
-     * @param bool   $reportIncluded Whether reports should be included in the collection or not?
      * @return TaskLogEntity[]|TaskLogCollection
      */
-    public function findAvailableByUser($userId, $limit = null, $offset = null, $reportIncluded = false);
+    public function findAvailableByUser($userId, $limit = null, $offset = null);
 
     /**
      * @param string $userId

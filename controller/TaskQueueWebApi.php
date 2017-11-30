@@ -25,6 +25,8 @@ use oat\oatbox\filesystem\FileSystemService;
 use oat\taoTaskQueue\model\Entity\CategoryEntityDecorator;
 use oat\taoTaskQueue\model\QueueDispatcherInterface;
 use oat\taoTaskQueue\model\TaskLog\CategoryCollectionDecorator;
+use oat\taoTaskQueue\model\TaskLog\FieldRemoverCollectionDecorator;
+use oat\taoTaskQueue\model\TaskLogBroker\TaskLogBrokerInterface;
 use oat\taoTaskQueue\model\TaskLogInterface;
 
 /**
@@ -64,7 +66,6 @@ class TaskQueueWebApi extends \tao_actions_CommonModule
         /** @var TaskLogInterface $taskLogService */
         $taskLogService = $this->getServiceManager()->get(TaskLogInterface::SERVICE_ID);
         $limit = $offset = null;
-        $reportIncluded = false;
 
         if ($this->hasRequestParameter(self::PARAMETER_LIMIT)) {
             $limit = (int) $this->getRequestParameter(self::PARAMETER_LIMIT);
@@ -74,15 +75,20 @@ class TaskQueueWebApi extends \tao_actions_CommonModule
             $offset = (int) $this->getRequestParameter(self::PARAMETER_OFFSET);
         }
 
-        if ($this->hasRequestParameter(self::PARAMETER_REPORT_INCLUDED)) {
-            $reportIncluded = (bool) $this->getRequestParameter(self::PARAMETER_REPORT_INCLUDED);
-        }
+        // adding category to the results
+        $collection = new CategoryCollectionDecorator(
+            $taskLogService->findAvailableByUser($this->userId, $limit, $offset),
+            $taskLogService
+        );
 
-        $collection = $taskLogService->findAvailableByUser($this->userId, $limit, $offset, $reportIncluded);
+        // removing reports from the results
+        if ($this->hasRequestParameter(self::PARAMETER_REPORT_INCLUDED) && false == $this->getRequestParameter(self::PARAMETER_REPORT_INCLUDED)) {
+            $collection = new FieldRemoverCollectionDecorator($collection, TaskLogBrokerInterface::COLUMN_REPORT);
+        }
 
         return $this->returnJson([
             'success' => true,
-            'data' => (new CategoryCollectionDecorator($collection, $taskLogService))->toArray()
+            'data' => $collection->toArray()
         ]);
     }
 

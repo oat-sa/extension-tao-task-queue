@@ -20,45 +20,39 @@
 
 namespace oat\taoTaskQueue\model\TaskLog;
 
-use oat\taoTaskQueue\model\Entity\CategoryEntityDecorator;
-use oat\taoTaskQueue\model\TaskLogInterface;
-
 /**
- * CategoryCollectionDecorator
+ * FieldRemoverCollectionDecorator
  *
  * @author Gyula Szucs <gyula@taotesting.com>
  */
-class CategoryCollectionDecorator extends TaskLogCollectionDecorator
+class FieldRemoverCollectionDecorator extends TaskLogCollectionDecorator
 {
-    /**
-     * @var TaskLogInterface
-     */
-    private $taskLogService;
+    private $fieldToRemove;
 
     /**
      * CategoryCollectionDecorator constructor.
      *
      * @param TaskLogCollectionInterface $collection
-     * @param TaskLogInterface           $taskLogService
+     * @param string $fieldToRemove
      */
-    public function __construct(TaskLogCollectionInterface $collection, TaskLogInterface $taskLogService)
+    public function __construct(TaskLogCollectionInterface $collection, $fieldToRemove)
     {
         parent::__construct($collection);
 
-        $this->taskLogService = $taskLogService;
+        $this->fieldToRemove = $fieldToRemove;
     }
 
     /**
-     * Use CategoryEntityDecorator on each entity to add category to the result.
-     *
      * @return array
      */
     public function toArray()
     {
-        $data = [];
+        $data = parent::toArray();
 
-        foreach ($this->getIterator() as $taskLog) {
-            $data[] = (new CategoryEntityDecorator($taskLog, $this->taskLogService))->toArray();
+        foreach ($data as &$row) {
+            if (array_key_exists($this->fieldToRemove, $row)) {
+                unset($row[$this->fieldToRemove]);
+            }
         }
 
         return $data;

@@ -107,7 +107,7 @@ class TaskLogEntity implements TaskLogEntityInterface
             isset($row[TaskLogBrokerInterface::COLUMN_OWNER]) ? $row[TaskLogBrokerInterface::COLUMN_OWNER] : '',
             isset($row[TaskLogBrokerInterface::COLUMN_CREATED_AT]) ? DateTime::createFromFormat('Y-m-d H:i:s', $row[TaskLogBrokerInterface::COLUMN_CREATED_AT], new \DateTimeZone(TIME_ZONE)) : null,
             isset($row[TaskLogBrokerInterface::COLUMN_UPDATED_AT]) ? DateTime::createFromFormat('Y-m-d H:i:s', $row[TaskLogBrokerInterface::COLUMN_UPDATED_AT], new \DateTimeZone(TIME_ZONE)) : null,
-            isset($row[TaskLogBrokerInterface::COLUMN_REPORT]) ? Report::jsonUnserialize($row[TaskLogBrokerInterface::COLUMN_REPORT]) : null
+            Report::jsonUnserialize($row[TaskLogBrokerInterface::COLUMN_REPORT])
         );
     }
 
