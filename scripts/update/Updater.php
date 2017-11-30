@@ -28,6 +28,7 @@ use oat\taoTaskQueue\model\QueueDispatcher;
 use oat\taoTaskQueue\model\QueueDispatcherInterface;
 use oat\taoTaskQueue\model\TaskLogBroker\TaskLogBrokerInterface;
 use oat\taoTaskQueue\model\TaskLogInterface;
+use oat\tao\model\ClientLibConfigRegistry;
 
 /**
  * Class Updater
@@ -86,5 +87,15 @@ class Updater extends common_ext_ExtensionUpdater
         }
 
         $this->skip('0.5.0', '0.8.0');
+
+        if ($this->isVersion('0.8.0')) {
+            //Add an extra controller the backoffice 'controller/main'
+            ClientLibConfigRegistry::getRegistry()->register(
+                'controller/main', [
+                    'extraRoutes' => ['taoTaskQueue/Main/index']
+                ]
+            );
+            $this->setVersion('0.9.0');
+        }
     }
 }
