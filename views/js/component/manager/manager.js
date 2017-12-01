@@ -63,7 +63,7 @@ define([
                 };
             }
             //hide badge in this case
-            return null;
+            return {value:0};
         }
     };
 
