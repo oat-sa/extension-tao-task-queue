@@ -175,8 +175,8 @@ define([
                 taskLabel: 'Task label',
                 status: 'completed',
                 owner: 'userId',
-                createdAt: '1510149684',//timezone ?
-                updatedAt: '1510149694',
+                createdAt: '1512120107',
+                updatedAt: '1512121107',
                 createdAtElapsed : 601,
                 updatedAtElapsed :26,
                 hasFile: false,//suppose
@@ -194,8 +194,8 @@ define([
                 taskLabel: 'Task label 2',
                 status: 'in_progress',
                 owner: 'userId',
-                createdAt: '1510149584',//timezone ?
-                updatedAt: '1510149574',
+                createdAt: '1512122107',
+                updatedAt: '1512123107',
                 createdAtElapsed : 41,
                 updatedAtElapsed :626,
                 hasFile: false,
@@ -213,8 +213,8 @@ define([
                 taskLabel: 'Task label 2',
                 status: 'failed',
                 owner: 'userId',
-                createdAt: '1510149584',//timezone ?
-                updatedAt: '1510049574',
+                createdAt: '1512124107',
+                updatedAt: '1512125107',
                 createdAtElapsed : 61,
                 updatedAtElapsed :101,
                 hasFile: true,//suppose
@@ -237,7 +237,8 @@ define([
             if(id && elements[id]){
                 elements[id].update({
                     status: status,
-                    updatedAt : Math.floor(Date.now() / 1000)
+                    updatedAt : Math.floor(Date.now() / 1000),
+                    updatedAtElapsed : 0
                 });
             }
             taskManager.selfUpdateBadge();
@@ -264,6 +265,8 @@ define([
                 owner: 'userId',
                 createdAt: timestamp,
                 updatedAt: timestamp,
+                updatedAtElapsed : 0,
+                createdAtElapsed : 0,
                 file: getRandomValue([true, false]),
                 category: type,
                 report : null
