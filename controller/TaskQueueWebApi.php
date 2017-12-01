@@ -211,6 +211,10 @@ class TaskQueueWebApi extends \tao_actions_CommonModule
             $directory = $fileSystem->getDirectory(QueueDispatcherInterface::FILE_SYSTEM_ID);
             $file = $directory->getFile($filename);
 
+            if (!$file->exists()) {
+                throw new \common_exception_NotFound('File not found.');
+            }
+
             header('Set-Cookie: fileDownload=true');
             setcookie('fileDownload', 'true', 0, '/');
             header('Content-Disposition: attachment; filename="' . $filename . '"');
