@@ -51,6 +51,9 @@ div.task-listing {
                 max-height: 100px;
                 color: $textColor;
                 background: blacken($canvas, 0.2);
+                &:not(:last-child){
+                    border-bottom: solid 1px blacken($canvas, 0.1);
+                }
                 &.inserting {
                     max-height: 0;
                     @include transition('max-height', 0.5s);

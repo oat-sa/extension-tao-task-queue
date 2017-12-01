@@ -28,6 +28,7 @@ define([
     'use strict';
 
     var _defaults = {
+        title : 'Task List',
         emptyText : __('The list is currently empty.')
     };
 
@@ -43,7 +44,6 @@ define([
             this.getElement().find('ul li[data-id="'+listElement.getId()+'"]').remove();
             return this;
         },
-
         insertElement : function insertElement(listElement){
             var id = listElement.getId();
             var $li = $(elementWrapperTpl({
@@ -51,14 +51,6 @@ define([
             }));
             this.getElement().find('ul').prepend($li);
             listElement.render($li);
-            return this;
-        },
-        setTitle : function setTitle(title){
-            if(this.is('rendered')){
-                this.getElement().find('.description').html(title);
-            }else{
-                this.config.title = title;
-            }
             return this;
         },
         scrollToTop : function scrollToTop(){

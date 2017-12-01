@@ -6,7 +6,6 @@ div.task-element {
     padding: 10px 20px;
     width: 100%;
     height: 70px;
-    border-bottom: solid 1px blacken($canvas, 0.1);
 
     //adding transition for highlighting the element after an update
     @include transition(background, 2s);
