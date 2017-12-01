@@ -18,27 +18,30 @@
  *
  */
 
-namespace oat\taoTaskQueue\model\Entity;
+namespace oat\taoTaskQueue\model\Entity\Decorator;
 
-use oat\taoTaskQueue\model\TaskLogInterface;
+use oat\oatbox\filesystem\Directory;
+use oat\oatbox\filesystem\FileSystemService;
+use oat\taoTaskQueue\model\Entity\TaskLogEntityInterface;
+use oat\taoTaskQueue\model\QueueDispatcherInterface;
 
 /**
- * Interface CategoryEntityDecorator
+ * HasFileEntityDecorator
  *
  * @author Gyula Szucs <gyula@taotesting.com>
  */
-class CategoryEntityDecorator extends TaskLogEntityDecorator
+class HasFileEntityDecorator extends TaskLogEntityDecorator
 {
     /**
-     * @var TaskLogInterface
+     * @var FileSystemService
      */
-    private $taskLogService;
+    private $fileSystemService;
 
-    public function __construct(TaskLogEntityInterface $entity, TaskLogInterface $taskLogService)
+    public function __construct(TaskLogEntityInterface $entity, FileSystemService $fileSystemService)
     {
         parent::__construct($entity);
 
-        $this->taskLogService = $taskLogService;
+        $this->fileSystemService = $fileSystemService;
     }
 
     /**
@@ -50,7 +53,7 @@ class CategoryEntityDecorator extends TaskLogEntityDecorator
     }
 
     /**
-     * Add category to the result. Required by our frontend.
+     * Add 'hasFile' to the result. Required by our frontend.
      *
      * @return array
      */
@@ -58,7 +61,17 @@ class CategoryEntityDecorator extends TaskLogEntityDecorator
     {
         $result = parent::toArray();
 
-        $result['category'] = $this->taskLogService->getCategoryForTask($this->getTaskName());
+        $result['hasFile'] = false;
+
+        if ($this->getFileNameFromReport()) {
+            /** @var Directory $queueStorage */
+            $queueStorage = $this->fileSystemService
+                ->getDirectory(QueueDispatcherInterface::FILE_SYSTEM_ID);
+
+            if ($queueStorage->getFile($this->getFileNameFromReport())->exists()) {
+                $result['hasFile'] = true;
+            }
+        }
 
         return $result;
     }

@@ -18,38 +18,33 @@
  *
  */
 
-namespace oat\taoTaskQueue\model\TaskLog;
+namespace oat\taoTaskQueue\model\TaskLog\Decorator;
 
-use oat\taoTaskQueue\model\Entity\CategoryEntityDecorator;
-use oat\taoTaskQueue\model\TaskLogInterface;
+use oat\oatbox\filesystem\FileSystemService;
+use oat\taoTaskQueue\model\Entity\Decorator\HasFileEntityDecorator;
+use oat\taoTaskQueue\model\TaskLog\TaskLogCollectionInterface;
 
 /**
- * CategoryCollectionDecorator
+ * HasFileCollectionDecorator
  *
  * @author Gyula Szucs <gyula@taotesting.com>
  */
-class CategoryCollectionDecorator extends TaskLogCollectionDecorator
+class HasFileCollectionDecorator extends TaskLogCollectionDecorator
 {
     /**
-     * @var TaskLogInterface
+     * @var FileSystemService
      */
-    private $taskLogService;
+    private $fileSystemService;
 
-    /**
-     * CategoryCollectionDecorator constructor.
-     *
-     * @param TaskLogCollectionInterface $collection
-     * @param TaskLogInterface           $taskLogService
-     */
-    public function __construct(TaskLogCollectionInterface $collection, TaskLogInterface $taskLogService)
+    public function __construct(TaskLogCollectionInterface $collection, FileSystemService $fileSystemService)
     {
         parent::__construct($collection);
 
-        $this->taskLogService = $taskLogService;
+        $this->fileSystemService = $fileSystemService;
     }
 
     /**
-     * Use CategoryEntityDecorator on each entity to add category to the result.
+     * CAUTION: Parent not used, so this decorator needs to be the first one in the queue.
      *
      * @return array
      */
@@ -57,8 +52,8 @@ class CategoryCollectionDecorator extends TaskLogCollectionDecorator
     {
         $data = [];
 
-        foreach ($this->getIterator() as $taskLog) {
-            $data[] = (new CategoryEntityDecorator($taskLog, $this->taskLogService))->toArray();
+        foreach ($this->getIterator() as $entity) {
+            $data[] = (new HasFileEntityDecorator($entity, $this->fileSystemService))->toArray();
         }
 
         return $data;
