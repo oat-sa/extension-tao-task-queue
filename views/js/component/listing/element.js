@@ -43,9 +43,9 @@ define([
     };
 
     var _statusIcon = {
-        running : 'property-advanced',//TODO find a better one
-        complete: 'result-ok',
-        failure: 'result-nok',
+        in_progress : 'property-advanced',//TODO find a better one
+        completed: 'result-ok',
+        failed: 'result-nok',
     };
 
     var getLabelString = function getLabelString(data){
@@ -53,7 +53,7 @@ define([
     };
 
     var getFormattedTime = function getFormattedTime(from, elapsed){
-        return moment.unix(from).from(moment.unix(from+elapsed));
+        return moment.unix(from).from(moment.unix(parseInt(from, 10)+parseInt(elapsed, 10)));
     };
 
     var getTimeString = function getTimeString(data){
@@ -78,7 +78,7 @@ define([
         }else if(data.status && _statusIcon[data.status]){
             icon = _statusIcon[data.status];
         }else {
-            icon = _statusIcon.running;
+            icon = _statusIcon.in_progress;
         }
         return 'icon-'+icon;
     };
@@ -154,16 +154,6 @@ define([
 
         return component(taskElementApi)
             .setTemplate(elementTpl)
-            .on('init', function() {
-
-            })
-
-            // uninstalls the component
-            .on('destroy', function() {
-                this.getElement().remove();
-            })
-
-            // renders the component
             .on('render', function() {
 
                 var self = this;

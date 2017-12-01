@@ -18,8 +18,8 @@
 define([
     'jquery',
     'lodash',
-    'ui/loadingButton/loadingButton'
-], function($, _, loadingButtonFactory) {
+    'taoTaskQueue/component/listing/element'
+], function($, _, taskElementFactory) {
     'use strict';
 
     QUnit.module('API');
@@ -27,9 +27,9 @@ define([
     QUnit.test('module', function(assert) {
         QUnit.expect(3);
 
-        assert.equal(typeof loadingButtonFactory, 'function', "The loadingButtonFactory module exposes a function");
-        assert.equal(typeof loadingButtonFactory(), 'object', "The loadingButtonFactory produces an object");
-        assert.notStrictEqual(loadingButtonFactory(), loadingButtonFactory(), "The loadingButtonFactory provides a different object on each call");
+        assert.equal(typeof taskElementFactory, 'function', "The taskElementFactory module exposes a function");
+        assert.equal(typeof taskElementFactory(), 'object', "The taskElementFactory produces an object");
+        assert.notStrictEqual(taskElementFactory(), taskElementFactory(), "The taskElementFactory provides a different object on each call");
     });
 
     QUnit.cases([
@@ -47,8 +47,8 @@ define([
         { title : 'getTemplate' },
         { title : 'setTemplate' },
     ]).test('Component API ', function(data, assert) {
-        var instance = loadingButtonFactory();
-        assert.equal(typeof instance[data.title], 'function', 'The loadingButton exposes the component method "' + data.title);
+        var instance = taskElementFactory();
+        assert.equal(typeof instance[data.title], 'function', 'The element exposes the component method "' + data.title);
     });
 
     QUnit.cases([
@@ -58,8 +58,8 @@ define([
         { title : 'before' },
         { title : 'after' },
     ]).test('Eventifier API ', function(data, assert) {
-        var instance = loadingButtonFactory();
-        assert.equal(typeof instance[data.title], 'function', 'The loadingButton exposes the eventifier method "' + data.title);
+        var instance = taskElementFactory();
+        assert.equal(typeof instance[data.title], 'function', 'The element exposes the eventifier method "' + data.title);
     });
 
     QUnit.cases([
@@ -71,96 +71,228 @@ define([
         { title : 'setStatus' },
         { title : 'getData' },
     ]).test('Instance API ', function(data, assert) {
-        var instance = loadingButtonFactory();
-        assert.equal(typeof instance[data.title], 'function', 'The loadingButton exposes the method "' + data.title);
+        var instance = taskElementFactory();
+        assert.equal(typeof instance[data.title], 'function', 'The element exposes the method "' + data.title);
+    });
+
+    QUnit.asyncTest('getId and getData', function(assert) {
+        var $container = $('#qunit-fixture');
+        var data = {
+            id: 'rdf#i1508337970199318643',
+            taskName: 'Task Name',
+            taskLabel: 'Task label',
+            status: 'created',
+            owner: 'userId',
+            createdAt: '1512120107',
+            updatedAt: '1512121107',
+            createdAtElapsed : 601,
+            updatedAtElapsed :26,
+            hasFile: true,
+            category: 'import',
+            report : {
+                type : 'success',
+                message : 'completed task rdf#i1508337970199318643',
+                data : null,
+                children: []
+            }
+        };
+
+        QUnit.expect(3);
+
+        taskElementFactory({}, data)
+            .on('render', function(){
+                assert.deepEqual(this.getData(), data, 'get data correct');
+                assert.equal(this.getId(), data.id, 'get id correct');
+                assert.equal(this.getStatus(), data.status, 'get status correct');
+                QUnit.start();
+            })
+            .render($container);
     });
 
     QUnit.module('Behavior');
 
-    QUnit.asyncTest('click and start', function(assert) {
+    QUnit.asyncTest('rendering and update', function(assert) {
         var $container = $('#qunit-fixture');
-        loadingButtonFactory({})
+        var data = {
+            id: 'rdf#i1508337970199318643',
+            taskName: 'Task Name',
+            taskLabel: 'Task label',
+            status: 'in_progress',
+            owner: 'userId',
+            createdAt: '1512120107',
+            updatedAt: '1512121107',
+            createdAtElapsed : 601,
+            updatedAtElapsed :26,
+            hasFile: true,
+            category: 'import',
+            report : {
+                type : 'success',
+                message : 'completed task rdf#i1508337970199318643',
+                data : null,
+                children: []
+            }
+        };
+
+        QUnit.expect(7);
+
+        taskElementFactory({}, data)
             .on('render', function(){
-                assert.ok(true, 'rendered');
-                this.getElement().click();
-            })
-            .on('started', function(){
-                assert.ok(true, 'started after click');
+                var $component = this.getElement();
+                assert.ok(true);
+
+                assert.equal($component.find('.label').text(), 'Task label', 'the task label is correct');
+                assert.equal($component.find('.time').text(), 'Started 10 minutes ago', 'the task label is correct');
+                assert.ok($component.find('.shape > span').hasClass('icon-import'), 'icon correct');
+
+                assert.ok(!$component.find('[data-role="download"]').is(':visible'));
+                assert.ok(!$component.find('[data-role="report"]').is(':visible'));
+                assert.ok(!$component.find('[data-role="remove"]').is(':visible'));
+
                 QUnit.start();
             })
             .render($container);
     });
 
-    QUnit.asyncTest('start, terminate and reset', function(assert) {
-        var $container = $('#qunit-fixture');
-        QUnit.expect(27);
-        loadingButtonFactory({
-            type : 'info',
-            icon : 'delivery',
-            title : 'Publish',
-            label : 'Publish',
-            terminatedLabel : 'Interrupted'
-        })
-        .on('render', function(){
-            assert.ok(this.getElement().find('.start-icon').is(':visible'), 'start icon visible');
-            assert.ok(this.getElement().find('.action-label').is(':visible'), 'action label visible');
-            assert.equal(this.getElement().find('.action-label').text(), 'Publish', 'label correct');
-            assert.ok(!this.getElement().find('.terminated-label').is(':visible'), 'terminate label hidden');
-            assert.ok(!this.getElement().find('.spinning').is(':visible'), 'loading icon visible');
-            assert.ok(!this.is('disabled'), 'component is enabled');
-            this.start();
-        })
-        .on('started', function(){
-            assert.ok(true, 'programmatically started');
-            assert.ok(!this.getElement().find('.start-icon').is(':visible'), 'start icon hidden');
-            assert.ok(this.getElement().find('.action-label').is(':visible'), 'action label visible');
-            assert.equal(this.getElement().find('.action-label').text(), 'Publish', 'label correct');
-            assert.ok(!this.getElement().find('.terminated-label').is(':visible'), 'terminate label hidden');
-            assert.ok(this.getElement().find('.spinning').is(':visible'), 'loading icon visible');
-            assert.ok(!this.is('disabled'), 'component is enabled');
-            this.terminate();
-        })
-        .on('terminated', function(){
-            assert.ok(true, 'programmatically terminated');
-            assert.ok(this.getElement().find('.start-icon').is(':visible'), 'start icon visible');
-            assert.ok(!this.getElement().find('.action-label').is(':visible'), 'action label hidden');
-            assert.equal(this.getElement().find('.terminated-label').text(), 'Interrupted', 'terminate label correct');
-            assert.ok(this.getElement().find('.terminated-label').is(':visible'), 'terminate visible');
-            assert.ok(!this.getElement().find('.spinning').is(':visible'), 'loading icon hidden');
-            assert.ok(this.is('disabled'), 'component is disabled');
-            this.reset();
-        })
-        .on('reset', function(){
-            assert.ok(true, 'programmatically reset');
-            assert.ok(this.getElement().find('.start-icon').is(':visible'), 'start icon visible');
-            assert.ok(this.getElement().find('.action-label').is(':visible'), 'action label visible');
-            assert.equal(this.getElement().find('.action-label').text(), 'Publish', 'label correct');
-            assert.ok(!this.getElement().find('.terminated-label').is(':visible'), 'terminate label hidden');
-            assert.ok(!this.getElement().find('.spinning').is(':visible'), 'loading icon visible');
-            assert.ok(!this.is('disabled'), 'component is enabled again');
-            QUnit.start();
-        })
-        .render($container);
+    QUnit.asyncTest('render unknown category', function(assert) {
+        var $container = $('#visual');
+        var data = {
+            id: 'rdf#i1508337970199318643',
+            taskName: 'Task Name',
+            taskLabel: 'Task label',
+            status: 'created',
+            owner: 'userId',
+            createdAt: '1512120107',
+            updatedAt: '1512121107',
+            createdAtElapsed : 601,
+            updatedAtElapsed :26,
+            hasFile: true,
+            category: 'unknown',
+            report : null
+        };
+
+        QUnit.expect(23);
+
+        taskElementFactory({}, data)
+            .on('render', function(){
+                var $component = this.getElement();
+                assert.ok(true);
+
+                assert.equal($component.find('.label').text(), 'Task label', 'the task label is correct');
+                assert.equal($component.find('.time').text(), 'Started 10 minutes ago', 'the task time is correct');
+                assert.ok($component.find('.shape > span').hasClass('icon-property-advanced'), 'unknown icon correct');
+
+                assert.ok(!$component.find('[data-role="download"]').is(':visible'));
+                assert.ok(!$component.find('[data-role="report"]').is(':visible'));
+                assert.ok(!$component.find('[data-role="remove"]').is(':visible'));
+
+                this.update({
+                    status : 'in_progress'
+                });
+
+                assert.equal($component.find('.label').text(), 'Task label', 'the task label is correct');
+                assert.equal($component.find('.time').text(), 'Started 10 minutes ago', 'the task time is correct');
+                assert.ok($component.find('.shape > span').hasClass('icon-property-advanced'), 'unknown icon correct');
+
+                assert.ok(!$component.find('[data-role="download"]').is(':visible'));
+                assert.ok(!$component.find('[data-role="report"]').is(':visible'));
+                assert.ok(!$component.find('[data-role="remove"]').is(':visible'));
+
+                this.update({
+                    status : 'failed'
+                });
+
+                assert.ok($component.find('[data-role="download"]').is(':visible'));
+                assert.ok($component.find('[data-role="report"]').is(':visible'));
+                assert.ok($component.find('[data-role="remove"]').is(':visible'));
+                assert.equal($component.find('.time').text(), 'Failed a few seconds ago', 'the task label is correct');
+                assert.ok($component.find('.shape > span').hasClass('icon-result-nok'), 'icon correct');
+
+                this.update({
+                    status : 'completed'
+                });
+
+                assert.ok($component.find('[data-role="download"]').is(':visible'));
+                assert.ok($component.find('[data-role="report"]').is(':visible'));
+                assert.ok($component.find('[data-role="remove"]').is(':visible'));
+                assert.equal($component.find('.time').text(), 'Completed a few seconds ago', 'the task label is correct');
+                assert.ok($component.find('.shape > span').hasClass('icon-result-ok'), 'icon correct');
+
+                QUnit.start();
+            })
+            .render($container);
     });
 
+    QUnit.asyncTest('Events', function(assert) {
+        var $container = $('#qunit-fixture');
+        var data = {
+            id: 'rdf#i1508337970199318643',
+            taskName: 'Task Name',
+            taskLabel: 'Task label',
+            status: 'in_progress',
+            owner: 'userId',
+            createdAt: '1512120107',
+            updatedAt: '1512121107',
+            createdAtElapsed : 601,
+            updatedAtElapsed :26,
+            hasFile: true,
+            category: 'import',
+            report : null
+        };
+
+        QUnit.expect(3);
+
+        taskElementFactory({}, data)
+            .on('download', function(){
+                assert.ok(true, 'download requested');
+            })
+            .on('report', function(){
+                assert.ok(true, 'report requested');
+            })
+            .on('report', function(){
+                assert.ok(true, 'remove requested');
+            })
+            .on('render', function(){
+                var $component = this.getElement();
+                $component.find('[data-role="download"]').click();
+                $component.find('[data-role="report"]').click();
+                $component.find('[data-role="remove"]').click();
+
+                QUnit.start();
+            })
+            .render($container);
+    });
+
+    return
     QUnit.module('Visual');
 
-    QUnit.asyncTest('playground', function(assert) {
+    QUnit.asyncTest('visual test', function(assert) {
         var $container = $('#visual');
-        var button = loadingButtonFactory({})
+        var data = {
+            id: 'rdf#i1508337970199318643',
+            taskName: 'Task Name',
+            taskLabel: 'Task label',
+            status: 'in_progress',
+            owner: 'userId',
+            createdAt: '1512120107',
+            updatedAt: '1512121107',
+            createdAtElapsed : 601,
+            updatedAtElapsed :26,
+            hasFile: true,
+            category: 'import',
+            report : {
+                type : 'success',
+                message : 'completed task rdf#i1508337970199318643',
+                data : null,
+                children: []
+            }
+        };
+
+        taskElementFactory({}, data)
             .on('render', function(){
                 assert.ok(true);
                 QUnit.start();
             })
-            .on('started', function(){
-                _.delay(function(){
-                    button.terminate();
-                }, 2000);
-            }).on('terminated', function(){
-                _.delay(function(){
-                    button.reset();
-                }, 2000);
-            })
             .render($container);
     });
+
 });
