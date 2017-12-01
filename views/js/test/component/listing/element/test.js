@@ -154,7 +154,7 @@ define([
     });
 
     QUnit.asyncTest('render unknown category', function(assert) {
-        var $container = $('#visual');
+        var $container = $('#qunit-fixture');
         var data = {
             id: 'rdf#i1508337970199318643',
             taskName: 'Task Name',
@@ -262,7 +262,6 @@ define([
             .render($container);
     });
 
-    return
     QUnit.module('Visual');
 
     QUnit.asyncTest('visual test', function(assert) {

@@ -1,6 +1,7 @@
 @import "inc/bootstrap";
 
-div.detail-element {
+div.task-detail-element {
+    position: relative;
     padding: 10px 20px;
     width: 600px;
     min-height: 250px;

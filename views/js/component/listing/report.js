@@ -52,16 +52,6 @@ define([
 
         return component(reportElementApi)
             .setTemplate(elementTpl)
-            .on('init', function() {
-
-            })
-
-            // uninstalls the component
-            .on('destroy', function() {
-                this.getElement().remove();
-            })
-
-            // renders the component
             .on('render', function() {
 
                 var self = this;

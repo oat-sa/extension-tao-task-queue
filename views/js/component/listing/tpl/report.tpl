@@ -1,4 +1,4 @@
-<div class="detail-element">
+<div class="task-detail-element">
     <div class="detail-description">
         <span class="label"></span>
         <span class="time"></span>
