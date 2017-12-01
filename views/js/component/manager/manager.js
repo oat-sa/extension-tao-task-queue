@@ -242,6 +242,8 @@ define([
      * @event remove - Emitted when a list element is removed
      * @event download - Emitted when a list element requests the file download associated to a completed task
      * @event report - Emitted when a list element requests a task report to be displayed
+     * @event listshow - Emitted when the list is displayed
+     * @event listhide - Emitted when the list is hidden
      */
     return function taskQueueManagerFactory(config, data) {
 
@@ -295,8 +297,10 @@ define([
                 $trigger.on('click', function(){
                     if(self.list.is('hidden')){
                         self.list.show();
+                        self.trigger('listshow');
                     }else{
                         self.list.hide();
+                        self.trigger('listhide');
                     }
                 });
             })

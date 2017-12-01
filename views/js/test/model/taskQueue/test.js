@@ -221,7 +221,6 @@ define([
             assert.equal(result.finished, true, 'the task has time to finish quickly');
             assert.ok(_.isPlainObject(result.task), 'the data is a plain object');
             assert.equal(result.task.status, 'completed', 'the status is correct');
-            console.log(result);
             QUnit.start();
         }).catch(function(){
             assert.ok(false,'should not fail');

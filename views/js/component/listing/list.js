@@ -33,17 +33,22 @@ define([
     };
 
     var listApi = {
-
         /**
          * Remove a list element
-         * @param {Object} listElement
-         * @returns {listApi}
+         * @param {taoTaskQueue/component/listing/element} listElement
+         * @returns {taskList}
          */
         removeElement : function removeElement(listElement){
             listElement.destroy();
             this.getElement().find('ul li[data-id="'+listElement.getId()+'"]').remove();
             return this;
         },
+
+        /**
+         * Insert a list element
+         * @param {taoTaskQueue/component/listing/element} listElement
+         * @returns {taskList}
+         */
         insertElement : function insertElement(listElement){
             var id = listElement.getId();
             var $li = $(elementWrapperTpl({
@@ -53,10 +58,44 @@ define([
             listElement.render($li);
             return this;
         },
+
+        /**
+         * Show the detail
+         * @param {taoTaskQueue/component/listing/report} detailElement - the detail element to be shown
+         * @param {Booleam} [show] - should the detail of an element be immediately shown or not
+         * @returns {taskList}
+         */
+        setDetail : function setDetail(detailElement, show){
+            detailElement.render(this.getElement().find('.view-detail'));
+            if(show){
+                this.setState('detail-view', true);
+            }
+            return this;
+        },
+
+        /**
+         * Hide the detail panel and display the default list view again
+         * @returns {taskList}
+         */
+        hideDetail : function hideDetail(){
+            this.setState('detail-view', false);
+            return this;
+        },
+
+        /**
+         * Scroll to the top of the list
+         * @returns {taskList}
+         */
         scrollToTop : function scrollToTop(){
             this.getElement().find('.task-list').get(0).scrollTo(0, 0);
             return this;
         },
+
+        /**
+         * Animate the insertion tset emphasis on it
+         * @param listElement
+         * @returns {taskList}
+         */
         animateInsertion : function animateInsertion(listElement){
             var $listElement = listElement.getElement();
             var $container = $listElement.parent();
@@ -69,20 +108,22 @@ define([
                 }, 400);
             },100);
             return this;
-        },
-        setDetail : function setDetail(detailElement, show){
-            detailElement.render(this.getElement().find('.view-detail'));
-            if(show){
-                this.setState('detail-view', true);
-            }
-        },
-        hideDetail : function hideDetail(){
-            this.setState('detail-view', false);
         }
     };
 
+    /**
+     * Builds a simple task list component
+     *
+     * @param {Object} config - the component config
+     * @returns {taskList} the component
+     */
     return function taskListFactory(config) {
         var initConfig = _.defaults(config || {}, _defaults);
+
+        /**
+         * The component
+         * @typedef {ui/component} taskList
+         */
         return component(listApi)
             .setTemplate(listTpl)
             .init(initConfig);

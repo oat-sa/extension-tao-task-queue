@@ -23,6 +23,147 @@ define([
 ], function($, _, taskQueueManagerFactory) {
     'use strict';
 
+    var _sampleReport = {
+        "type": "warning",
+        "message": "<em>Data not imported. All records are <strong>invalid.</strong></em>",
+        "data": null,
+        "children": [{
+            "type": "error",
+            "message": "Row 1 Student Number Identifier: Duplicated student \"92001\"",
+            "data": null,
+            "children": [{
+                "type": "error",
+                "message": "This is but a sub-report Z",
+                "data": null,
+                "children": []
+            }]
+        }, {
+            "type": "success",
+            "message": "Row 2 Student Number Identifier OK",
+            "data": null,
+            "children": [{
+                "type": "success",
+                "message": "This is but a sub-report A",
+                "data": null,
+                "children": []
+            }, {
+                "type": "info",
+                "message": "This is but a sub-report B",
+                "data": null,
+                "children": []
+            }]
+        },{
+            "type": "error",
+            "message": "Row 1 Student Number Identifier: Duplicated student \"92001\"",
+            "data": null,
+            "children": [{
+                "type": "error",
+                "message": "This is but a sub-report Z",
+                "data": null,
+                "children": []
+            }]
+        }, {
+            "type": "success",
+            "message": "Row 2 Student Number Identifier OK",
+            "data": null,
+            "children": [{
+                "type": "success",
+                "message": "This is but a sub-report A",
+                "data": null,
+                "children": []
+            }, {
+                "type": "info",
+                "message": "This is but a sub-report B",
+                "data": null,
+                "children": []
+            }]
+        },{
+            "type": "error",
+            "message": "Row 1 Student Number Identifier: Duplicated student \"92001\"",
+            "data": null,
+            "children": [{
+                "type": "error",
+                "message": "This is but a sub-report Z",
+                "data": null,
+                "children": []
+            }]
+        }, {
+            "type": "success",
+            "message": "Row 2 Student Number Identifier OK",
+            "data": null,
+            "children": [{
+                "type": "success",
+                "message": "This is but a sub-report A",
+                "data": null,
+                "children": []
+            }, {
+                "type": "info",
+                "message": "This is but a sub-report B",
+                "data": null,
+                "children": []
+            }]
+        }]
+    };
+    var _sampleLogCollection = [
+        {
+            id: 'rdf#i1508337970199318643',
+            taskName: 'Task Name',
+            taskLabel: 'Task label',
+            status: 'completed',
+            owner: 'userId',
+            createdAt: '1512120107',
+            updatedAt: '1512121107',
+            createdAtElapsed : 601,
+            updatedAtElapsed :26,
+            hasFile: false,//suppose
+            category: 'import',
+            report : {
+                type : 'success',
+                message : 'completed task rdf#i1508337970199318643',
+                data : null,
+                children: []
+            }
+        },
+        {
+            id: 'rdf#i15083379701993186432222',
+            taskName: 'Task Name 2',
+            taskLabel: 'Task label 2',
+            status: 'in_progress',
+            owner: 'userId',
+            createdAt: '1512122107',
+            updatedAt: '1512123107',
+            createdAtElapsed : 41,
+            updatedAtElapsed :626,
+            hasFile: false,
+            category: 'publish',//d
+            report : {
+                type : 'info',
+                message : 'running task rdf#i15083379701993186432222',
+                data : null,//download url ? task context ?
+                children: []
+            }
+        },
+        {
+            id: 'rdf#i1508337970190342',
+            taskName: 'Task Name 2',
+            taskLabel: 'Task label 2',
+            status: 'failed',
+            owner: 'userId',
+            createdAt: '1512124107',
+            updatedAt: '1512125107',
+            createdAtElapsed : 61,
+            updatedAtElapsed :101,
+            hasFile: true,//suppose
+            category: 'export',//d
+            report : {
+                type : 'error',
+                message : 'running task rdf#i1508337970190342',
+                data : null,//download url ? task context ?
+                children: [_sampleReport]
+            }
+        }
+    ];
+
     QUnit.module('API');
 
     QUnit.test('module', function(assert) {
@@ -33,46 +174,104 @@ define([
         assert.notStrictEqual(taskQueueManagerFactory(), taskQueueManagerFactory(), "The taskQueueManagerFactory provides a different object on each call");
     });
 
-    //QUnit.cases([
-    //    { title : 'init' },
-    //    { title : 'destroy' },
-    //    { title : 'render' },
-    //    { title : 'show' },
-    //    { title : 'hide' },
-    //    { title : 'enable' },
-    //    { title : 'disable' },
-    //    { title : 'is' },
-    //    { title : 'setState' },
-    //    { title : 'getContainer' },
-    //    { title : 'getElement' },
-    //    { title : 'getTemplate' },
-    //    { title : 'setTemplate' },
-    //]).test('Component API ', function(data, assert) {
-    //    var instance = taskQueueManagerFactory();
-    //    assert.equal(typeof instance[data.title], 'function', 'The resourceList exposes the component method "' + data.title);
-    //});
-    //
-    //QUnit.cases([
-    //    { title : 'on' },
-    //    { title : 'off' },
-    //    { title : 'trigger' },
-    //    { title : 'before' },
-    //    { title : 'after' },
-    //]).test('Eventifier API ', function(data, assert) {
-    //    var instance = taskQueueManagerFactory();
-    //    assert.equal(typeof instance[data.title], 'function', 'The resourceList exposes the eventifier method "' + data.title);
-    //});
-    //
-    //QUnit.cases([
-    //    { title : 'query' },
-    //    { title : 'update' },
-    //]).test('Instance API ', function(data, assert) {
-    //    var instance = taskQueueManagerFactory();
-    //    assert.equal(typeof instance[data.title], 'function', 'The resourceList exposes the method "' + data.title);
-    //});
+    QUnit.cases([
+        { title : 'init' },
+        { title : 'destroy' },
+        { title : 'render' },
+        { title : 'show' },
+        { title : 'hide' },
+        { title : 'enable' },
+        { title : 'disable' },
+        { title : 'is' },
+        { title : 'setState' },
+        { title : 'getContainer' },
+        { title : 'getElement' },
+        { title : 'getTemplate' },
+        { title : 'setTemplate' },
+    ]).test('Component API ', function(data, assert) {
+        var instance = taskQueueManagerFactory();
+        assert.equal(typeof instance[data.title], 'function', 'The taskQueueManager exposes the component method "' + data.title);
+    });
 
+    QUnit.cases([
+        { title : 'on' },
+        { title : 'off' },
+        { title : 'trigger' },
+        { title : 'before' },
+        { title : 'after' },
+    ]).test('Eventifier API ', function(data, assert) {
+        var instance = taskQueueManagerFactory();
+        assert.equal(typeof instance[data.title], 'function', 'The taskQueueManager exposes the eventifier method "' + data.title);
+    });
+
+    QUnit.cases([
+        { title : 'getTaskElements' },
+        { title : 'showDetail' },
+        { title : 'addNewTask' },
+        { title : 'selfUpdateBadge' },
+        { title : 'loadData' },
+        { title : 'pulse' },
+    ]).test('Instance API ', function(data, assert) {
+        var instance = taskQueueManagerFactory();
+        assert.equal(typeof instance[data.title], 'function', 'The taskQueueManager exposes the method "' + data.title);
+    });
 
     QUnit.module('Behavior');
+
+    QUnit.asyncTest('rendering', function(assert) {
+
+        var $container = $('#qunit-fixture');
+
+        taskQueueManagerFactory({}, _sampleLogCollection)
+            .on('report', function(){
+                //fetch report
+                this.showDetail(_sampleLogCollection[2]);
+            })
+            .on('render', function(){
+
+                assert.equal(this.getElement().get(0), $container.find('.task-manager-container').get(0), 'component container found');
+
+                assert.equal(this.getElement().find('.badge-component').length, 1, 'badge component found');
+                assert.ok(this.getElement().find('.badge-component .loader').is(':visible'), 'the loader is on');
+                assert.ok(this.getElement().find('.badge-component .badge').hasClass('badge-error'), 'the badge is displaying an error');
+                assert.equal(this.getElement().find('.badge-component .badge').text(), '1', 'the badge value is correct');
+
+                assert.equal(this.getElement().find('.task-listing').length, 1, 'list component found');
+                assert.ok(!this.getElement().find('.task-listing').is(':visible'), 'list starts hidden');
+                assert.equal(this.getElement().find('.task-listing .task-list li').length, 3, 'list has 3 elements');
+
+                QUnit.start();
+            })
+            .render($container);
+    });
+
+    QUnit.asyncTest('show list & report', function(assert) {
+
+        var $container = $('#qunit-fixture');
+
+        taskQueueManagerFactory({}, _sampleLogCollection)
+            .on('render', function(){
+                this.getElement().click();
+            })
+            .on('listshow', function(){
+
+                assert.ok(true, 'list shown');
+
+                this.showDetail(_sampleLogCollection[2]);
+
+                assert.ok(!this.getElement().find('.task-listing .task-list').is(':visible'), 'the list is hidden');
+                assert.ok(this.getElement().find('.task-listing .view-detail').is(':visible'), 'the detail is displayed');
+
+                //hide the list
+                this.getElement().click();
+            })
+            .on('listhide', function(){
+
+                assert.ok(true, 'list hidden');
+                QUnit.start();
+            })
+            .render($container);
+    });
 
     QUnit.module('Visual');
 
@@ -82,151 +281,6 @@ define([
         var $container = $('#visual');
         var $controls = $container.find('#controls');
         var $list = $controls.find('ul');
-
-        var config = {
-        };
-
-        var _sampleReport = {
-            "type": "warning",
-            "message": "<em>Data not imported. All records are <strong>invalid.</strong></em>",
-            "data": null,
-            "children": [{
-                "type": "error",
-                "message": "Row 1 Student Number Identifier: Duplicated student \"92001\"",
-                "data": null,
-                "children": [{
-                    "type": "error",
-                    "message": "This is but a sub-report Z",
-                    "data": null,
-                    "children": []
-                }]
-            }, {
-                "type": "success",
-                "message": "Row 2 Student Number Identifier OK",
-                "data": null,
-                "children": [{
-                    "type": "success",
-                    "message": "This is but a sub-report A",
-                    "data": null,
-                    "children": []
-                }, {
-                    "type": "info",
-                    "message": "This is but a sub-report B",
-                    "data": null,
-                    "children": []
-                }]
-            },{
-                "type": "error",
-                "message": "Row 1 Student Number Identifier: Duplicated student \"92001\"",
-                "data": null,
-                "children": [{
-                    "type": "error",
-                    "message": "This is but a sub-report Z",
-                    "data": null,
-                    "children": []
-                }]
-            }, {
-                "type": "success",
-                "message": "Row 2 Student Number Identifier OK",
-                "data": null,
-                "children": [{
-                    "type": "success",
-                    "message": "This is but a sub-report A",
-                    "data": null,
-                    "children": []
-                }, {
-                    "type": "info",
-                    "message": "This is but a sub-report B",
-                    "data": null,
-                    "children": []
-                }]
-            },{
-                "type": "error",
-                "message": "Row 1 Student Number Identifier: Duplicated student \"92001\"",
-                "data": null,
-                "children": [{
-                    "type": "error",
-                    "message": "This is but a sub-report Z",
-                    "data": null,
-                    "children": []
-                }]
-            }, {
-                "type": "success",
-                "message": "Row 2 Student Number Identifier OK",
-                "data": null,
-                "children": [{
-                    "type": "success",
-                    "message": "This is but a sub-report A",
-                    "data": null,
-                    "children": []
-                }, {
-                    "type": "info",
-                    "message": "This is but a sub-report B",
-                    "data": null,
-                    "children": []
-                }]
-            }]
-        };
-
-        var _sampleLogCollection = [
-            {
-                id: 'rdf#i1508337970199318643',
-                taskName: 'Task Name',
-                taskLabel: 'Task label',
-                status: 'completed',
-                owner: 'userId',
-                createdAt: '1512120107',
-                updatedAt: '1512121107',
-                createdAtElapsed : 601,
-                updatedAtElapsed :26,
-                hasFile: false,//suppose
-                category: 'import',
-                report : {
-                    type : 'success',
-                    message : 'completed task rdf#i1508337970199318643',
-                    data : null,
-                    children: []
-                }
-            },
-            {
-                id: 'rdf#i15083379701993186432222',
-                taskName: 'Task Name 2',
-                taskLabel: 'Task label 2',
-                status: 'in_progress',
-                owner: 'userId',
-                createdAt: '1512122107',
-                updatedAt: '1512123107',
-                createdAtElapsed : 41,
-                updatedAtElapsed :626,
-                hasFile: false,
-                category: 'publish',//d
-                report : {
-                    type : 'info',
-                    message : 'running task rdf#i15083379701993186432222',
-                    data : null,//download url ? task context ?
-                    children: []
-                }
-            },
-            {
-                id: 'rdf#i1508337970190342',
-                taskName: 'Task Name 2',
-                taskLabel: 'Task label 2',
-                status: 'failed',
-                owner: 'userId',
-                createdAt: '1512124107',
-                updatedAt: '1512125107',
-                createdAtElapsed : 61,
-                updatedAtElapsed :101,
-                hasFile: true,//suppose
-                category: 'export',//d
-                report : {
-                    type : 'error',
-                    message : 'running task rdf#i1508337970190342',
-                    data : null,//download url ? task context ?
-                    children: [_sampleReport]
-                }
-            }
-        ];
 
         var getRandomValue = function getRandomValue(arr){
             return arr[Math.floor(Math.random()*arr.length)];
@@ -273,8 +327,6 @@ define([
             };
         };
 
-        QUnit.expect(1);
-
         $list.on('click', '.task-complete', function(){
             var id = $(this).closest('li').data('id');
             updateTestTask(id, 'completed');
@@ -286,7 +338,7 @@ define([
             updateTaskList();
         });
 
-        taskManager = taskQueueManagerFactory(config, _sampleLogCollection)
+        taskManager = taskQueueManagerFactory({}, _sampleLogCollection)
             .on('report', function(){
                 //fetch report
                 this.showDetail(_sampleLogCollection[2]);

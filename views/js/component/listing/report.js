@@ -32,6 +32,12 @@ define([
     };
 
     var reportElementApi = {
+        /**
+         * Update the task report with the data
+         * @param {Object} data - the standard task log data
+         * @param {String} data.taskLabel - the task name to be displayed to user
+         * @param {Object} data.report - the standard report object
+         */
         update : function update(data){
 
             var $component = this.getElement();
@@ -47,9 +53,22 @@ define([
         }
     };
 
+    /**
+     * Builds a task listing element
+     *
+     * @param {Object} config - the component config
+     * @param {Array} data - the initial task data to be loaded from the server REST api call
+     * @returns {taskReport} the component
+     *
+     * @event close - Emitted when the report needs to be closed
+     */
     return function taskReportFactory(config, data) {
         var initConfig = _.defaults(config || {}, _defaults);
 
+        /**
+         * The component
+         * @typedef {ui/component} taskReport
+         */
         return component(reportElementApi)
             .setTemplate(elementTpl)
             .on('render', function() {

@@ -117,8 +117,14 @@ define([
     };
 
     /**
-     * @param {Component} component - an instance of ui/component
-     * @param {Object} config
+     * Builds the task queue manager
+     * @param {Object} config - the component config
+     * @param {Array} data - the initial task data to be loaded from the server REST api call
+     * @returns {taskQueueManager} the component
+     *
+     * @event remove - Emitted when a list element is removed
+     * @event download - Emitted when a list element requests the file download associated to a completed task
+     * @event report - Emitted when a list element requests a task report to be displayed
      */
     return function taskCreationButtonFactory(config) {
 
@@ -129,6 +135,10 @@ define([
         component = loadingButton(config);
         _.assign(component, taskCreationButtonComponent);
 
+        /**
+         * The component
+         * @typedef {ui/component} taskCreationButton
+         */
         return component.on('started', function(){
 
             var data = {};
