@@ -53,16 +53,13 @@ define([
 
                 if (result.finished) {
                     //the task finished quickly -> display report
-                    self.displayReport(
-                        task.report.children[0],
-                        (task.report.type === 'error') ? __('Error') : __('Success'),
-                        result
-                    );
 
                     //immediately archive the finished task as there is no need to display this task in the queue list
                     taskQueue.archive(task.id).then(function () {
                         taskQueue.pollAll();
                     });
+
+                    self.trigger('finished', result);
                 } else {
                     //prevent further interactions and inform the user that task will move to the background and
                     $container
@@ -74,7 +71,7 @@ define([
                         .hide()
                         .getElement().after(feedbackTpl({
                         type : 'info',
-                        message : __('<strong> %s </strong> takes a long time to execute so it has been moved to the background. You can continue working elsewhere.', task.taskLabel)
+                        message : __('<strong> %s </strong> takes a long time so it has been moved to the background. You can continue working elsewhere.', task.taskLabel)
                     }));
 
                     //leave the user a moment to make the connection between the notification message and the animation
