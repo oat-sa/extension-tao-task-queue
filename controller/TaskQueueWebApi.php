@@ -22,10 +22,12 @@ namespace oat\taoTaskQueue\controller;
 
 use common_session_SessionManager;
 use oat\oatbox\filesystem\FileSystemService;
-use oat\taoTaskQueue\model\Entity\CategoryEntityDecorator;
+use oat\taoTaskQueue\model\Entity\Decorator\CategoryEntityDecorator;
+use oat\taoTaskQueue\model\Entity\Decorator\HasFileEntityDecorator;
 use oat\taoTaskQueue\model\QueueDispatcherInterface;
-use oat\taoTaskQueue\model\TaskLog\CategoryCollectionDecorator;
-use oat\taoTaskQueue\model\TaskLog\FieldRemoverCollectionDecorator;
+use oat\taoTaskQueue\model\TaskLog\Decorator\CategoryCollectionDecorator;
+use oat\taoTaskQueue\model\TaskLog\Decorator\FieldRemoverCollectionDecorator;
+use oat\taoTaskQueue\model\TaskLog\Decorator\HasFileCollectionDecorator;
 use oat\taoTaskQueue\model\TaskLogBroker\TaskLogBrokerInterface;
 use oat\taoTaskQueue\model\TaskLogInterface;
 
@@ -75,15 +77,21 @@ class TaskQueueWebApi extends \tao_actions_CommonModule
             $offset = (int) $this->getRequestParameter(self::PARAMETER_OFFSET);
         }
 
-        // adding category to the results
-        $collection = new CategoryCollectionDecorator(
+        /** @var FileSystemService $fs */
+        $fs = $this->getServiceManager()->get(FileSystemService::SERVICE_ID);
+
+        // adding hasFile to the results
+        $collection = new HasFileCollectionDecorator(
             $taskLogService->findAvailableByUser($this->userId, $limit, $offset),
-            $taskLogService
+            $fs
         );
 
+        // adding category to the results
+        $collection = new CategoryCollectionDecorator($collection, $taskLogService);
+
         // removing reports from the results
-        if ($this->hasRequestParameter(self::PARAMETER_REPORT_INCLUDED) && false == $this->getRequestParameter(self::PARAMETER_REPORT_INCLUDED)) {
-            $collection = new FieldRemoverCollectionDecorator($collection, TaskLogBrokerInterface::COLUMN_REPORT);
+        if (!$this->hasRequestParameter(self::PARAMETER_REPORT_INCLUDED) || false == $this->getRequestParameter(self::PARAMETER_REPORT_INCLUDED)) {
+            $collection = new FieldRemoverCollectionDecorator($collection, 'report');
         }
 
         return $this->returnJson([
@@ -104,6 +112,9 @@ class TaskQueueWebApi extends \tao_actions_CommonModule
         /** @var TaskLogInterface $taskLogService */
         $taskLogService = $this->getServiceManager()->get(TaskLogInterface::SERVICE_ID);
 
+        /** @var FileSystemService $fs */
+        $fs = $this->getServiceManager()->get(FileSystemService::SERVICE_ID);
+
         try {
             $this->assertTaskIdExists();
 
@@ -114,7 +125,7 @@ class TaskQueueWebApi extends \tao_actions_CommonModule
 
             return $this->returnJson([
                 'success' => true,
-                'data' => (new CategoryEntityDecorator($entity, $taskLogService))->toArray()
+                'data' => (new HasFileEntityDecorator(new CategoryEntityDecorator($entity, $taskLogService), $fs))->toArray()
             ]);
         } catch (\Exception $e) {
             return $this->returnJson([
@@ -186,19 +197,23 @@ class TaskQueueWebApi extends \tao_actions_CommonModule
             $taskLogEntity = $taskLogService->getByIdAndUser($this->getRequestParameter(self::PARAMETER_TASK_ID), $this->userId);
 
             if (!$taskLogEntity->getStatus()->isCompleted()) {
-                throw new \RuntimeException('Task "'. $taskLogEntity->getId() .'" is not downloadable.');
+                throw new \common_Exception('Task "'. $taskLogEntity->getId() .'" is not downloadable.');
             }
 
             $filename = $taskLogEntity->getFileNameFromReport();
 
             if (empty($filename)) {
-                throw new \LogicException('Filename not found in report.');
+                throw new \common_Exception('Filename not found in report.');
             }
 
             /** @var FileSystemService $fileSystem */
             $fileSystem = $this->getServiceManager()->get(FileSystemService::SERVICE_ID);
             $directory = $fileSystem->getDirectory(QueueDispatcherInterface::FILE_SYSTEM_ID);
             $file = $directory->getFile($filename);
+
+            if (!$file->exists()) {
+                throw new \common_exception_NotFound('File not found.');
+            }
 
             header('Set-Cookie: fileDownload=true');
             setcookie('fileDownload', 'true', 0, '/');

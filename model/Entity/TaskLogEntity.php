@@ -23,6 +23,10 @@ namespace oat\taoTaskQueue\model\Entity;
 use common_report_Report as Report;
 use DateTime;
 use Exception;
+use oat\oatbox\filesystem\Directory;
+use oat\oatbox\filesystem\FileSystemService;
+use oat\oatbox\service\ServiceManager;
+use oat\taoTaskQueue\model\QueueDispatcherInterface;
 use oat\taoTaskQueue\model\TaskLogBroker\TaskLogBrokerInterface;
 use oat\taoTaskQueue\model\ValueObjects\TaskLogCategorizedStatus;
 
@@ -185,6 +189,11 @@ class TaskLogEntity implements TaskLogEntityInterface
     }
 
     /**
+     * Returns the file name from the generated report.
+     *
+     * CAUTION: it is not 100% sure that the returned string is really a file name because different reports set different values as data.
+     * So this return value can be any kind of string. Please check the file whether it exist or not before usage.
+     *
      * @return string
      */
     public function getFileNameFromReport()
@@ -197,7 +206,9 @@ class TaskLogEntity implements TaskLogEntityInterface
 
         /** @var Report  $successReport */
         foreach ($this->getReport()->getSuccesses() as $successReport) {
-            if (!is_null($filename = $successReport->getData())) {
+            $data = $successReport->getData();
+            if (is_string($data)) {
+                $filename = $data;
                 break;
             }
         }
@@ -223,8 +234,7 @@ class TaskLogEntity implements TaskLogEntityInterface
             'id' => $this->id,
             'taskName' => $this->taskName,
             'status' => (string) $this->status,
-            'statusLabel' => $this->status->getLabel(),
-            'hasFile' => (bool) $this->getFileNameFromReport()
+            'statusLabel' => $this->status->getLabel()
         ];
 
         // add other fields only if they have values
