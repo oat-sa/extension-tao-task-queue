@@ -15,6 +15,24 @@
  *
  * Copyright (c) 2017 (original work) Open Assessment Technologies SA ;
  */
+
+/**
+ * @example
+ * taskQueueModelFactory({
+ *        url : {
+ *            get: urlHelper.route('get', 'TaskQueueWebApi', 'taoTaskQueue'),
+ *            archive: urlHelper.route('archive', 'TaskQueueWebApi', 'taoTaskQueue'),
+ *            all : urlHelper.route('getAll', 'TaskQueueWebApi', 'taoTaskQueue'),
+ *            download : urlHelper.route('download', 'TaskQueueWebApi', 'taoTaskQueue')
+ *        },
+ *        pollSingleIntervals : [
+ *            {iteration: 4, interval:1000},
+ *        ],
+ *        pollAllIntervals : [
+ *            {iteration: 0, interval:5000},
+ *        ]
+ *    }).pollAll()
+ */
 define([
     'jquery',
     'lodash',
@@ -42,6 +60,12 @@ define([
         ]
     };
 
+    /**
+     * Check if two tasks have equivalent task status
+     * @param {Object} task1 - a task object to be compared
+     * @param {Object} task2 - another task object to be compared
+     * @returns {Boolean}
+     */
     function hasSameState(task1, task2){
         if(task1.status === task2.status){
             return true;
@@ -51,16 +75,37 @@ define([
         return false;
     }
 
+    /**
+     * Create a task queue model to communicates with the server REST API
+     *
+     * @param {Object} config
+     * @param {Object} config.url - the list of server endpoints
+     * @param {String} config.url.get - the url to get the status log for a single task
+     * @param {String} config.url.archive - the url to archive a task
+     * @param {String} config.url.all - the url to get the status for all tasks for the current user
+     * @param {String} config.url.download - the url to download a file created by the task
+     * @param {Array} config.pollSingleIntervals - the array of poll intervals that will be used to regulate the polling speed for a simple task
+     *         e.g. {iteration: 4, interval:1000} means that it will poll up to four times every 1000ms.
+     * @param {Array} config.pollAllIntervals - the array of poll intervals that will be used to regulate the main polling speed.
+     *         e.g. {iteration: 10, interval:1000} means that it will poll up to 10 times every 5000ms.
+     *         e.g. {iteration: 0, interval:10000} means that it will poll up to 10000ms indefinitely
+     *
+     * @return {taskQueueModel}
+     */
     return function taskQueueModel(config) {
 
         var model;
+
         /**
          * cached array of task data
          * @type {Object}
          */
         var _cache;
 
-        //store instance of single polling
+        /**
+         * store instance of single polling
+         * @type {Object}
+         */
         var singlePollings = {};
 
         var getPollSingleIntervals = function getPollSingleIntervals(){
@@ -77,8 +122,16 @@ define([
 
         config = _.defaults(config || {}, _defaults);
 
+        /**
+         * @typedef taskQueueModel - central model to query the backend's REST API for task queue
+         */
         model = eventifier({
 
+            /**
+             * Modify the task queue REST API endpoints
+             * @param urls - the new endpoints
+             * @returns {taskQueueModel}
+             */
             setEndpoints : function setEndpoints(urls){
                 _.assign(config.url, urls || {});
                 return this;
@@ -126,9 +179,9 @@ define([
             },
 
             /**
-             * Get the status of all task identified by its unique task id
+             * Get the status of all task identified by their unique task id
              *
-             * @returns {Promise}
+             * @returns {Promise} - resolved when the server response has been received
              */
             getAll : function getAll(){
                 var status;
@@ -180,8 +233,8 @@ define([
             /**
              * Remove a task identified by its unique task id
              *
-             * @param {String} taskId - unique task identifier
-             * @returns {Promise}
+             * @param {String} taskId - the task id
+             * @returns {Promise} - resolved when achive action done
              */
             archive : function archive(taskId){
 
@@ -205,12 +258,8 @@ define([
 
             /**
              * Poll status for all tasks
-             */
-
-            /**
-             * Poll status for all tasks
              * @param {Boolean} [immediate] - tells if the polling should immediately start (otherwise, will wait until the next iteration)
-             * @returns {*}
+             * @returns {taskQueueModel}
              */
             pollAll : function pollAll(immediate){
 
@@ -270,6 +319,11 @@ define([
 
                 return model;
             },
+
+            /**
+             * Stop the main polling action
+             * @returns {taskQueueModel}
+             */
             pollAllStop : function pollAllStop(){
                 if(this.globalPolling){
                     this.globalPolling.stop();
@@ -277,6 +331,12 @@ define([
                 }
                 return this;
             },
+
+            /**
+             * Start a single fast polling for a single task id
+             * @param {String} taskId - the task id
+             * @returns {Promise} resolved when the single polling action finishes
+             */
             pollSingle : function pollSingle(taskId){
 
                 var self = this;
@@ -345,6 +405,12 @@ define([
                     self.trigger('pollSingleStart', taskId);
                 });
             },
+
+            /**
+             * Interrupt a single polling action
+             * @param {String} taskId - the task id
+             * @returns {model}
+             */
             pollSingleStop : function pollSingleStop(taskId){
                 if(singlePollings && singlePollings[taskId]){
                     singlePollings[taskId].stop();
@@ -352,6 +418,13 @@ define([
                 }
                 return this;
             },
+
+            /**
+             * Call a task creation url
+             * @param {String} url - the server side task queue creation service
+             * @param {Object} [data] - request data
+             * @returns {promise} - resolved when task creation response is sent back by the server
+             */
             create : function create(url, data){
                 var taskCreate, self = this;
                 taskCreate = request(url, data, 'POST', {}, true)
@@ -382,6 +455,11 @@ define([
 
                 return taskCreate;
             },
+
+            /**
+             * Call the task result file download endpoint
+             * @param {String} taskId - the task id
+             */
             download : function download(taskId){
 
                 if(!config.url || !config.url.download){

@@ -42,7 +42,7 @@ define([
          */
         createTask : function createTask(taskQueue, requestUrl, requestData){
             var self = this;
-            var $container = this.config.reportContainer;
+            var $container = $(this.config.reportContainer);
 
             loadingBar.start();
             taskQueue.pollAllStop();

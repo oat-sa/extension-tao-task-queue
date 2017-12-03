@@ -21,6 +21,9 @@ define([
 ], function (urlHelper, taskQueueModelFactory) {
     'use strict';
 
+    /**
+     * Returns the singleton task queue preconfigured with the tao task queue REST API.
+     */
     return taskQueueModelFactory({
         url : {
             get: urlHelper.route('get', 'TaskQueueWebApi', 'taoTaskQueue'),
@@ -29,7 +32,7 @@ define([
             download : urlHelper.route('download', 'TaskQueueWebApi', 'taoTaskQueue')
         },
         pollSingleIntervals : [
-            {iteration: 1, interval:1000},
+            {iteration: 4, interval:1000},
         ],
         pollAllIntervals : [
             {iteration: 0, interval:5000},
