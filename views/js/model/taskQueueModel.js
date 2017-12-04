@@ -166,7 +166,7 @@ define([
                                 _cache = {};
                             }
                             _cache[taskData.id] = taskData;
-                            return Promise.resolve(taskData);
+                            return taskData;
                         }
                         return Promise.reject(new Error('failed to get task data'));
                     });
@@ -218,7 +218,7 @@ define([
                             //update local cache
                             _cache = newCache;
 
-                            return Promise.resolve(taskData);
+                            return taskData;
                         }
                         return Promise.reject(new Error('failed to get all task data'));
                     });
@@ -244,10 +244,7 @@ define([
                     throw new TypeError('config.url.archive is not configured while archive() is being called');
                 }
 
-                status = request(config.url.archive, {taskId : taskId}, 'GET', {}, true)
-                    .then(function(){
-                        return Promise.resolve();
-                    });
+                status = request(config.url.archive, {taskId : taskId}, 'GET', {}, true);
 
                 status.catch(function(res){
                     model.trigger('error', res);
@@ -443,7 +440,7 @@ define([
                                     //send to queue
                                     self.trigger('enqueued', result);
                                 }
-                                return Promise.resolve(result);
+                                return result;
                             });
                         }
                         return Promise.reject(new Error('failed to get task data'));
