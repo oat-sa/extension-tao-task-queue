@@ -194,13 +194,12 @@ class TaskLog extends ConfigurableService implements TaskLogInterface
     /**
      * @inheritdoc
      */
-    public function getByIdAndUser($taskId, $userId)
+    public function getById($taskId)
     {
         $filter = (new TaskLogFilter())
-            ->addAvailableFilters($userId)
             ->eq(TaskLogBrokerInterface::COLUMN_ID, $taskId);
 
-        $collection = $this->getBroker()->search($filter);
+        $collection = $this->search($filter);
 
         if ($collection->isEmpty()) {
             throw new \common_exception_NotFound('Task log for task "'. $taskId .'" not found');
@@ -212,12 +211,34 @@ class TaskLog extends ConfigurableService implements TaskLogInterface
     /**
      * @inheritdoc
      */
-    public function findAvailableByUser($userId, $limit = null, $offset = null)
+    public function getByIdAndUser($taskId, $userId)
+    {
+        $filter = (new TaskLogFilter())
+            ->addAvailableFilters($userId)
+            ->eq(TaskLogBrokerInterface::COLUMN_ID, $taskId);
+
+        $collection = $this->search($filter);
+
+        if ($collection->isEmpty()) {
+            throw new \common_exception_NotFound('Task log for task "'. $taskId .'" not found');
+        }
+
+        return $collection->first();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function findAvailableByUser($userId, $limit = null, $offset = null, $reportIncluded = false)
     {
         $filter = (new TaskLogFilter())
             ->addAvailableFilters($userId)
             ->setLimit(is_null($limit) ? self::DEFAULT_LIMIT : $limit)
             ->setOffset(is_null($offset) ? 0 : $offset);
+
+        if (false === $reportIncluded) {
+            $filter->deselect(TaskLogBrokerInterface::COLUMN_REPORT);
+        }
 
         return $this->getBroker()->search($filter);
     }
@@ -250,6 +271,59 @@ class TaskLog extends ConfigurableService implements TaskLogInterface
         }
 
         return $isArchived;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function linkTaskToCategory($taskName, $category)
+    {
+        if (is_object($taskName)) {
+            $taskName = get_class($taskName);
+        }
+
+        if (!in_array($category, $this->getTaskCategories())) {
+            throw new \InvalidArgumentException('Category "'. $category .'" is not a valid category.');
+        }
+
+        $associations = (array) $this->getOption(self::OPTION_TASK_TO_CATEGORY_ASSOCIATIONS);
+
+        $associations[ (string) $taskName ] = $category;
+
+        $this->setOption(self::OPTION_TASK_TO_CATEGORY_ASSOCIATIONS, $associations);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getCategoryForTask($taskName)
+    {
+        if (is_object($taskName)) {
+            $taskName = get_class($taskName);
+        }
+
+        $associations = (array) $this->getOption(self::OPTION_TASK_TO_CATEGORY_ASSOCIATIONS);
+
+        if (array_key_exists($taskName, $associations)) {
+            return $associations[$taskName];
+        }
+
+        return self::CATEGORY_UNKNOWN;
+    }
+
+    /**
+     * @return array
+     */
+    public function getTaskCategories()
+    {
+        return [
+            self::CATEGORY_CREATE,
+            self::CATEGORY_UPDATE,
+            self::CATEGORY_DELETE,
+            self::CATEGORY_IMPORT,
+            self::CATEGORY_EXPORT,
+            self::CATEGORY_DELIVERY_COMPILATION,
+        ];
     }
 
     /**

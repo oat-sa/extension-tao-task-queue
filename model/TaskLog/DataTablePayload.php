@@ -23,7 +23,6 @@ namespace oat\taoTaskQueue\model\TaskLog;
 use oat\tao\model\datatable\DatatablePayload as DataTablePayloadInterface;
 use oat\tao\model\datatable\implementation\DatatableRequest;
 use oat\taoTaskQueue\model\TaskLogBroker\TaskLogBrokerInterface;
-use oat\taoTaskQueue\model\TaskLogBroker\TaskLogCollection;
 
 /**
  * Helper class for handling js datatable request.

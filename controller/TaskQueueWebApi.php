@@ -22,12 +22,16 @@ namespace oat\taoTaskQueue\controller;
 
 use common_session_SessionManager;
 use oat\oatbox\filesystem\FileSystemService;
+use oat\taoTaskQueue\model\Entity\CategoryEntityDecorator;
+use oat\taoTaskQueue\model\TaskLog\CategoryCollectionDecorator;
 use oat\taoTaskQueue\model\TaskLogInterface;
 
 /**
- * @deprecated Use oat\taoTaskQueue\controller\TaskQueueWebApi instead!
+ * API controller to get task queue data from the WEB.
+ *
+ * @author Gyula Szucs <gyula@taotesting.com>
  */
-class RestTask extends \tao_actions_CommonModule
+class TaskQueueWebApi extends \tao_actions_CommonModule
 {
     const PARAMETER_TASK_ID = 'taskId';
     const PARAMETER_LIMIT = 'limit';
@@ -73,9 +77,11 @@ class RestTask extends \tao_actions_CommonModule
             $reportIncluded = (bool) $this->getRequestParameter(self::PARAMETER_REPORT_INCLUDED);
         }
 
+        $collection = $taskLogService->findAvailableByUser($this->userId, $limit, $offset, $reportIncluded);
+
         return $this->returnJson([
             'success' => true,
-            'data' => $taskLogService->findAvailableByUser($this->userId, $limit, $offset, $reportIncluded)->toArray()
+            'data' => (new CategoryCollectionDecorator($collection, $taskLogService))->toArray()
         ]);
     }
 
@@ -94,14 +100,14 @@ class RestTask extends \tao_actions_CommonModule
         try {
             $this->assertTaskIdExists();
 
-            $response = $taskLogService->getByIdAndUser(
+            $entity = $taskLogService->getByIdAndUser(
                 $this->getRequestParameter(self::PARAMETER_TASK_ID),
                 $this->userId
             );
 
             return $this->returnJson([
                 'success' => true,
-                'data' => $response->toArray()
+                'data' => (new CategoryEntityDecorator($entity, $taskLogService))->toArray()
             ]);
         } catch (\Exception $e) {
             return $this->returnJson([

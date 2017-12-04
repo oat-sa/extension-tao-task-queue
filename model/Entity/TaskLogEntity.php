@@ -23,11 +23,10 @@ namespace oat\taoTaskQueue\model\Entity;
 use common_report_Report as Report;
 use DateTime;
 use Exception;
-use JsonSerializable;
 use oat\taoTaskQueue\model\TaskLogBroker\TaskLogBrokerInterface;
 use oat\taoTaskQueue\model\ValueObjects\TaskLogCategorizedStatus;
 
-class TaskLogEntity implements JsonSerializable
+class TaskLogEntity implements TaskLogEntityInterface
 {
     /** @var string */
     private $id;
@@ -61,36 +60,35 @@ class TaskLogEntity implements JsonSerializable
      *
      * @param string                   $id
      * @param string                   $taskName
+     * @param TaskLogCategorizedStatus $status
      * @param array                    $parameters
      * @param string                   $label
-     * @param TaskLogCategorizedStatus $status
      * @param string                   $owner
-     * @param Report                   $report
-     * @param DateTime        $createdAt
-     * @param DateTime        $updatedAt
+     * @param DateTime|null            $createdAt
+     * @param DateTime|null            $updatedAt
+     * @param Report|null              $report
      */
     public function __construct(
         $id,
         $taskName,
+        TaskLogCategorizedStatus $status,
         array $parameters,
         $label,
-        TaskLogCategorizedStatus $status,
         $owner,
-        DateTime $createdAt,
-        DateTime $updatedAt,
+        DateTime $createdAt = null,
+        DateTime $updatedAt = null,
         Report $report = null
     ) {
         $this->id = $id;
         $this->taskName = $taskName;
+        $this->status = $status;
         $this->parameters = $parameters;
         $this->label = $label;
-        $this->status = $status;
         $this->owner = $owner;
         $this->report = $report;
         $this->createdAt = $createdAt;
         $this->updatedAt = $updatedAt;
     }
-
 
     /**
      * @param array $row
@@ -103,13 +101,13 @@ class TaskLogEntity implements JsonSerializable
         return new self(
             $row[TaskLogBrokerInterface::COLUMN_ID],
             $row[TaskLogBrokerInterface::COLUMN_TASK_NAME],
-            $row[TaskLogBrokerInterface::COLUMN_PARAMETERS] ? json_decode($row[TaskLogBrokerInterface::COLUMN_PARAMETERS], true) : [],
-            $row[TaskLogBrokerInterface::COLUMN_LABEL],
             TaskLogCategorizedStatus::createFromString($row[TaskLogBrokerInterface::COLUMN_STATUS]),
-            $row[TaskLogBrokerInterface::COLUMN_OWNER],
-            DateTime::createFromFormat('Y-m-d H:i:s', $row[TaskLogBrokerInterface::COLUMN_CREATED_AT]),
-            DateTime::createFromFormat('Y-m-d H:i:s', $row[TaskLogBrokerInterface::COLUMN_UPDATED_AT]),
-            Report::jsonUnserialize($row[TaskLogBrokerInterface::COLUMN_REPORT])
+            isset($row[TaskLogBrokerInterface::COLUMN_PARAMETERS]) ? json_decode($row[TaskLogBrokerInterface::COLUMN_PARAMETERS], true) : [],
+            isset($row[TaskLogBrokerInterface::COLUMN_LABEL]) ? $row[TaskLogBrokerInterface::COLUMN_LABEL] : '',
+            isset($row[TaskLogBrokerInterface::COLUMN_OWNER]) ? $row[TaskLogBrokerInterface::COLUMN_OWNER] : '',
+            isset($row[TaskLogBrokerInterface::COLUMN_CREATED_AT]) ? DateTime::createFromFormat('Y-m-d H:i:s', $row[TaskLogBrokerInterface::COLUMN_CREATED_AT], new \DateTimeZone(TIME_ZONE)) : null,
+            isset($row[TaskLogBrokerInterface::COLUMN_UPDATED_AT]) ? DateTime::createFromFormat('Y-m-d H:i:s', $row[TaskLogBrokerInterface::COLUMN_UPDATED_AT], new \DateTimeZone(TIME_ZONE)) : null,
+            isset($row[TaskLogBrokerInterface::COLUMN_REPORT]) ? Report::jsonUnserialize($row[TaskLogBrokerInterface::COLUMN_REPORT]) : null
         );
     }
 
@@ -162,7 +160,7 @@ class TaskLogEntity implements JsonSerializable
     }
 
     /**
-     * @return DateTime
+     * @return DateTime|null
      */
     public function getCreatedAt()
     {
@@ -170,7 +168,7 @@ class TaskLogEntity implements JsonSerializable
     }
 
     /**
-     * @return DateTime
+     * @return DateTime|null
      */
     public function getUpdatedAt()
     {
@@ -212,16 +210,7 @@ class TaskLogEntity implements JsonSerializable
      */
     public function jsonSerialize()
     {
-        return [
-            'id' => $this->id,
-            'taskName' => $this->taskName,
-            'taskLabel' => $this->label,
-            'status' => (string) $this->status,
-            'statusLabel' => $this->status->getLabel(),
-            'createdAt' => $this->createdAt->format(DateTime::ATOM),
-            'updatedAt' => $this->updatedAt->format(DateTime::ATOM),
-            'report' => is_null($this->report) ? [] : $this->report->JsonSerialize()
-        ];
+        return $this->toArray();
     }
 
     /**
@@ -229,6 +218,34 @@ class TaskLogEntity implements JsonSerializable
      */
     public function toArray()
     {
-        return $this->jsonSerialize();
+        // add basic fields which always have values
+        $rs = [
+            'id' => $this->id,
+            'taskName' => $this->taskName,
+            'status' => (string) $this->status,
+            'statusLabel' => $this->status->getLabel(),
+            'hasFile' => (bool) $this->getFileNameFromReport()
+        ];
+
+        // add other fields only if they have values
+        if ($this->label) {
+            $rs['taskLabel'] = $this->label;
+        }
+
+        if ($this->createdAt instanceof \DateTime) {
+            $rs['createdAt'] = $this->createdAt->getTimestamp();
+            $rs['createdAtElapsed'] = (new \DateTime('now', new \DateTimeZone(TIME_ZONE)))->getTimestamp() - $this->createdAt->getTimestamp();
+        }
+
+        if ($this->updatedAt instanceof \DateTime) {
+            $rs['updatedAt'] = $this->updatedAt->getTimestamp();
+            $rs['updatedAtElapsed'] = (new \DateTime('now', new \DateTimeZone(TIME_ZONE)))->getTimestamp() - $this->updatedAt->getTimestamp();
+        }
+
+        if ($this->report instanceof Report) {
+            $rs['report'] = $this->report->toArray();
+        }
+
+        return $rs;
     }
 }

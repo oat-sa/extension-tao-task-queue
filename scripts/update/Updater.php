@@ -72,8 +72,9 @@ class Updater extends common_ext_ExtensionUpdater
                 $toSchema = clone $fromSchema;
 
                 $table = $toSchema->getTable($taskLogService->getBroker()->getTableName());
-                // Causes crash if column is already existing
-                $table->addColumn(TaskLogBrokerInterface::COLUMN_PARAMETERS, 'text', ["notnull" => false, "default" => null]);
+                if (!$table->hasColumn(TaskLogBrokerInterface::COLUMN_PARAMETERS)) {
+                    $table->addColumn(TaskLogBrokerInterface::COLUMN_PARAMETERS, 'text', ["notnull" => false, "default" => null]);
+                }
 
                 $queries = $persistence->getPlatform()->getMigrateSchemaSql($fromSchema, $toSchema);
                 foreach ($queries as $query) {
@@ -84,6 +85,6 @@ class Updater extends common_ext_ExtensionUpdater
             $this->setVersion('0.5.0');
         }
 
-        $this->skip('0.5.0', '0.5.1');
+        $this->skip('0.5.0', '0.8.0');
     }
 }

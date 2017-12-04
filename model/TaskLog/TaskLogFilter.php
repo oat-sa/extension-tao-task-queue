@@ -22,6 +22,7 @@ namespace oat\taoTaskQueue\model\TaskLog;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
+use oat\taoTaskQueue\model\TaskLogBroker\TaskLogBrokerInterface;
 use oat\taoTaskQueue\model\TaskLogInterface;
 
 class TaskLogFilter
@@ -42,6 +43,46 @@ class TaskLogFilter
     private $offset;
     private $sortBy;
     private $sortOrder;
+
+    private $baseColumns = [
+        TaskLogBrokerInterface::COLUMN_ID,
+        TaskLogBrokerInterface::COLUMN_TASK_NAME,
+        TaskLogBrokerInterface::COLUMN_STATUS
+    ];
+
+    private $optionalColumns = [
+        TaskLogBrokerInterface::COLUMN_PARAMETERS,
+        TaskLogBrokerInterface::COLUMN_LABEL,
+        TaskLogBrokerInterface::COLUMN_OWNER,
+        TaskLogBrokerInterface::COLUMN_REPORT,
+        TaskLogBrokerInterface::COLUMN_CREATED_AT,
+        TaskLogBrokerInterface::COLUMN_UPDATED_AT
+    ];
+
+    private $deselectedColumns = [];
+
+    /**
+     * @return array
+     */
+    public function getColumns()
+    {
+        return array_merge($this->baseColumns, array_diff($this->optionalColumns, $this->deselectedColumns));
+    }
+
+    /**
+     * @param string $column
+     * @return $this
+     */
+    public function deselect($column)
+    {
+        if (!in_array($column, $this->optionalColumns)) {
+            throw new \InvalidArgumentException('Column "'. $column .'"" is not valid column or not unselectable.');
+        }
+
+        $this->deselectedColumns[] = $column;
+
+        return $this;
+    }
 
     /**
      * @return mixed
@@ -155,10 +196,10 @@ class TaskLogFilter
      */
     public function addAvailableFilters($userId)
     {
-        $this->neq('status', TaskLogInterface::STATUS_ARCHIVED);
+        $this->neq(TaskLogBrokerInterface::COLUMN_STATUS, TaskLogInterface::STATUS_ARCHIVED);
 
         if ($userId !== TaskLogInterface::SUPER_USER) {
-            $this->eq('owner', $userId);
+            $this->eq(TaskLogBrokerInterface::COLUMN_OWNER, $userId);
         }
 
         return $this;
