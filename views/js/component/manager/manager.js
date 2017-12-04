@@ -39,26 +39,26 @@ define([
      * @returns {Object} the new badge data to be displayed following the format {type, loading, value}
      */
     var getBadgeDataFromStatus = function getBadgeDataFromStatus(tasksStatuses){
-        var running = (tasksStatuses.numberOfTasksInProgress > 0);
+        var isRunning = (tasksStatuses.numberOfTasksInProgress > 0);
         if(tasksStatuses){
             if(tasksStatuses.numberOfTasksFailed){
                 return {
                     type : 'error',
-                    loading : running,
+                    loading : isRunning,
                     value : parseInt(tasksStatuses.numberOfTasksFailed, 10),
                 };
             }
             if(tasksStatuses.numberOfTasksCompleted){
                 return {
                     type : 'success',
-                    loading : running,
+                    loading : isRunning,
                     value : parseInt(tasksStatuses.numberOfTasksCompleted, 10),
                 };
             }
             if(tasksStatuses.numberOfTasksInProgress){
                 return {
                     type : 'info',
-                    loading : running,
+                    loading : isRunning,
                     value : parseInt(tasksStatuses.numberOfTasksInProgress, 10),
                 };
             }

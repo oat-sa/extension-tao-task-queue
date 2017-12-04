@@ -115,7 +115,7 @@ define([
             updatedAt: '1512121107',
             createdAtElapsed : 601,
             updatedAtElapsed :26,
-            hasFile: false,//suppose
+            hasFile: false,
             category: 'import',
             report : {
                 type : 'success',
@@ -135,11 +135,11 @@ define([
             createdAtElapsed : 41,
             updatedAtElapsed :626,
             hasFile: false,
-            category: 'publish',//d
+            category: 'publish',
             report : {
                 type : 'info',
                 message : 'running task rdf#i15083379701993186432222',
-                data : null,//download url ? task context ?
+                data : null,
                 children: []
             }
         },
@@ -153,12 +153,12 @@ define([
             updatedAt: '1512125107',
             createdAtElapsed : 61,
             updatedAtElapsed :101,
-            hasFile: true,//suppose
-            category: 'export',//d
+            hasFile: true,
+            category: 'export',
             report : {
                 type : 'error',
                 message : 'running task rdf#i1508337970190342',
-                data : null,//download url ? task context ?
+                data : null,
                 children: [_sampleReport]
             }
         }
