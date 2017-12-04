@@ -51,10 +51,9 @@ use Zend\ServiceManager\ServiceLocatorAwareTrait;
  * ```
  *
  * - Using SQS Queues. Every existing queue will be changed to use SqsQueueBroker. You can set the following parameters:
- *  - aws-profile: Required
  *  - receive: Optional (Maximum amount of tasks that can be received when polling the queue)
  * ```
- * $ sudo -u www-data php index.php 'oat\taoTaskQueue\scripts\tools\InitializeQueue' --broker=sqs --aws-profile=default --receive=10
+ * $ sudo -u www-data php index.php 'oat\taoTaskQueue\scripts\tools\InitializeQueue' --broker=sqs --receive=10
  * ```
  */
 class InitializeQueue extends InstallAction
@@ -67,7 +66,6 @@ class InitializeQueue extends InstallAction
 
     private $wantedBroker;
     private $persistenceId;
-    private $awsProfile;
     private $receive;
 
     public function __invoke($params)
@@ -94,7 +92,7 @@ class InitializeQueue extends InstallAction
                         break;
 
                     case self::BROKER_SQS:
-                        $broker = new SqsQueueBroker(/*$this->awsProfile,*/\common_cache_Cache::SERVICE_ID, $this->receive ?: 1);
+                        $broker = new SqsQueueBroker(\common_cache_Cache::SERVICE_ID, $this->receive ?: 1);
                         break;
                 }
 
@@ -148,10 +146,6 @@ class InitializeQueue extends InstallAction
                     $this->persistenceId = $value;
                     break;
 
-                /*case '--aws-profile':
-                    $this->awsProfile = $value;
-                    break;*/
-
                 case '--receive':
                     $this->receive = abs((int) $value);
                     break;
@@ -161,10 +155,6 @@ class InitializeQueue extends InstallAction
         if ($this->wantedBroker == self::BROKER_RDS && !$this->persistenceId) {
             throw new \InvalidArgumentException('Persistence id (--persistence=...) needs to be set for RDS.');
         }
-
-        /*if ($this->wantedBroker == self::BROKER_SQS && !$this->awsProfile) {
-            throw new \InvalidArgumentException('AWS profile (--aws-profile=...) needs to be set for SQS.');
-        }*/
     }
 }
 
