@@ -456,6 +456,7 @@ define([
             /**
              * Call the task result file download endpoint
              * @param {String} taskId - the task id
+             * @returns {promise} - resolved when the download popup is shown
              */
             download : function download(taskId){
 
@@ -463,12 +464,17 @@ define([
                     throw new TypeError('config.url.download is not configured while download() is being called');
                 }
 
-                $.fileDownload(config.url.download, {
-                    httpMethod: 'POST',
-                    data: {taskId : taskId},
-                    failCallback: function (err) {
-                        model.trigger('error', err);
-                    }
+                return new Promise(function(resolve, reject){
+                    $.fileDownload(config.url.download, {
+                        httpMethod: 'POST',
+                        data: {taskId : taskId},
+                        successCallback : function(result){
+                            resolve(result);
+                        },
+                        failCallback: function (err) {
+                            reject(err);
+                        }
+                    });
                 });
             }
         });
