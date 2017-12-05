@@ -81,11 +81,13 @@ div.task-element {
         }
     }
     .container-text {
-        padding-top: 4px;
+        padding-top: 0px;
         margin-left: 60px;
         width: 240px;
         .label {
+            min-height: 22px;
             max-height: 38px;
+            overflow: hidden;
             color: $textColor;
         }
         .time {
