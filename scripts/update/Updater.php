@@ -91,6 +91,13 @@ class Updater extends common_ext_ExtensionUpdater
 
             /** @var $taskLogService TaskLogInterface */
             $taskLogService = $this->getServiceManager()->get(TaskLogInterface::SERVICE_ID);
+            /** @var QueueDispatcher $queueService */
+            $queueService = $this->getServiceManager()->get(QueueDispatcherInterface::SERVICE_ID);
+
+            // Create queues
+            if (!$queueService->isSync()) {
+                $queueService->initialize();
+            }
 
             if ($taskLogService->isRds()) {
                 /** @var \common_persistence_SqlPersistence $persistence */
