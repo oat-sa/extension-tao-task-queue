@@ -52,14 +52,22 @@ define([
                 loadingBar.stop();
 
                 if (result.finished) {
-                    //the task finished quickly -> display report
-
-                    //immediately archive the finished task as there is no need to display this task in the queue list
-                    taskQueue.archive(task.id).then(function () {
-                        taskQueue.pollAll();
-                    });
-
-                    self.trigger('finished', result);
+                    if(task.hasFile){
+                        //download if its is a export-typed task
+                        taskQueue.download(task.id).then(function(){
+                            //immediately archive the finished task as there is no need to display this task in the queue list
+                            taskQueue.archive(task.id).then(function () {
+                                self.trigger('finished', result);
+                                taskQueue.pollAll();
+                            });
+                        });
+                    }else{
+                        //immediately archive the finished task as there is no need to display this task in the queue list
+                        taskQueue.archive(task.id).then(function () {
+                            self.trigger('finished', result);
+                            taskQueue.pollAll();
+                        });
+                    }
                 } else {
                     //prevent further interactions and inform the user that task will move to the background and
                     $container
@@ -84,6 +92,20 @@ define([
                 self.trigger('error', err);
             });
         },
+
+        /**
+         * Restore the button to its state before the task creation
+         * @returns {taskCreationButton}
+         */
+        restoreButton : function restoreButton(){
+            if(this.is('terminated')){
+                this.reset()
+                    .show()
+                    .getElement().siblings('.task-creation-feedback').remove();
+            }
+            return this;
+        },
+
         /**
          * prepare the given container to display the final report
          * @param {Object} report - the standard report object
