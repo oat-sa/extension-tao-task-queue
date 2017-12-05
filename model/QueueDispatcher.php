@@ -25,6 +25,8 @@ use oat\generis\model\OntologyAwareTrait;
 use oat\oatbox\service\ConfigurableService;
 use oat\oatbox\log\LoggerAwareTrait;
 use oat\oatbox\task\Task;
+use oat\taoTaskQueue\model\QueueSelector\SelectorStrategyInterface;
+use oat\taoTaskQueue\model\QueueSelector\WeightStrategy;
 use oat\taoTaskQueue\model\Task\CallbackTask;
 use oat\taoTaskQueue\model\Task\CallbackTaskInterface;
 use oat\taoTaskQueue\model\Task\TaskInterface;
@@ -47,10 +49,14 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
     /** @var  string */
     private $owner;
 
+    /** @var SelectorStrategyInterface */
+    private $selectorStrategy;
+
     /**
      * QueueDispatcher constructor.
      *
      * @param array $options
+     * @throws \common_exception_Error
      */
     public function __construct(array $options)
     {
@@ -60,8 +66,23 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
 
         $this->assertTasks();
 
+        if (!$this->hasOption(self::OPTION_QUEUE_SELECTOR_STRATEGY) || empty($this->getOption(self::OPTION_QUEUE_SELECTOR_STRATEGY))) {
+            // setting default strategy
+            $this->selectorStrategy = new WeightStrategy();
+        } else {
+            // using the strategy set in the options
+            if (!is_a($this->getOption(self::OPTION_QUEUE_SELECTOR_STRATEGY), SelectorStrategyInterface::class, true)) {
+                throw new \common_exception_Error('Queue selector must implement ' . SelectorStrategyInterface::class);
+            }
+
+            $strategyClass = $this->getOption(self::OPTION_QUEUE_SELECTOR_STRATEGY);
+
+            /** @var SelectorStrategyInterface $strategy */
+            $this->selectorStrategy = new $strategyClass;
+        }
+
         if (!$this->hasOption(self::OPTION_TASK_LOG) || empty($this->getOption(self::OPTION_TASK_LOG))) {
-            throw new \InvalidArgumentException("Task Log service needs to be set.");
+            throw new \common_exception_Error('Task Log service needs to be set.');
         }
     }
 
@@ -126,6 +147,8 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
         $queues[] = $queue;
 
         $this->setOption(self::OPTION_QUEUES, $queues);
+
+        return $this;
     }
 
     /**
@@ -180,6 +203,8 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
         $tasks[ (string) $taskName ] = $queueName;
 
         $this->setOption(self::OPTION_TASK_TO_QUEUE_ASSOCIATIONS, $tasks);
+
+        return $this;
     }
 
     /**
@@ -224,6 +249,7 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
      * The values are simply relative to each other. If one value weight was 2, and the other weight of 1,
      * the value with the weight of 2 has about a 66% chance of being selected.
      *
+     * @deprecated
      * @return QueueInterface
      */
     public function getQueueByWeight()
@@ -242,6 +268,28 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
                 return $this->propagateServices($queue);
             }
         }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setQueueSelector(SelectorStrategyInterface $selectorStrategy)
+    {
+        $this->setOption(self::OPTION_QUEUE_SELECTOR_STRATEGY, get_class($selectorStrategy));
+
+        return $this;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getQueueBySelector()
+    {
+        $queue = $this->selectorStrategy->pickNextQueue($this->getQueues());
+
+        $this->logInfo('Queue "'. strtoupper($queue->getName()) .'" picked by the selector.');
+
+        return $this->propagateServices($queue);
     }
 
     /**
@@ -329,8 +377,8 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
             return $this->getFirstQueue()->dequeue();
         }
 
-        // default option getting a queue by weights
-        return $this->getQueueByWeight()->dequeue();
+        // default: consuming a queue selected by the current queue selector
+        return $this->getQueueBySelector()->dequeue();
     }
 
     /**

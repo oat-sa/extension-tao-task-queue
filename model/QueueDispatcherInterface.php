@@ -20,6 +20,7 @@
 
 namespace oat\taoTaskQueue\model;
 
+use oat\taoTaskQueue\model\QueueSelector\SelectorStrategyInterface;
 use oat\taoTaskQueue\model\Task\CallbackTaskInterface;
 use oat\taoTaskQueue\model\Task\TaskInterface;
 use Psr\Log\LoggerAwareInterface;
@@ -49,6 +50,8 @@ interface QueueDispatcherInterface extends \Countable, LoggerAwareInterface
     const OPTION_TASK_TO_QUEUE_ASSOCIATIONS = 'task_to_queue_associations';
 
     const OPTION_TASK_LOG = 'task_log';
+
+    const OPTION_QUEUE_SELECTOR_STRATEGY = 'queue_selector_strategy';
 
     const QUEUE_PREFIX = 'TQ';
 
@@ -96,6 +99,7 @@ interface QueueDispatcherInterface extends \Countable, LoggerAwareInterface
     /**
      * Get a queue randomly using weight.
      *
+     * @deprecated
      * @return QueueInterface
      */
     public function getQueueByWeight();
@@ -193,4 +197,16 @@ interface QueueDispatcherInterface extends \Countable, LoggerAwareInterface
      * @param TaskInterface $task
      * @param \core_kernel_classes_Resource|null $resource Placeholder resource linked to the task
      */
-    public function linkTaskToResource(TaskInterface $task, \core_kernel_classes_Resource $resource = null);}
+    public function linkTaskToResource(TaskInterface $task, \core_kernel_classes_Resource $resource = null);
+
+    /**
+     * @param SelectorStrategyInterface $selectorStrategy
+     * @return QueueDispatcherInterface
+     */
+    public function setQueueSelector(SelectorStrategyInterface $selectorStrategy);
+
+    /**
+     * @return QueueInterface
+     */
+    public function getQueueBySelector();
+}
