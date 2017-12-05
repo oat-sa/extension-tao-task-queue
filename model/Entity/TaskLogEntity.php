@@ -32,6 +32,9 @@ class TaskLogEntity implements TaskLogEntityInterface
     private $id;
 
     /** @var string */
+    private $parent;
+
+    /** @var string */
     private $taskName;
 
     /** @var array */
@@ -59,6 +62,7 @@ class TaskLogEntity implements TaskLogEntityInterface
      * TaskLogEntity constructor.
      *
      * @param string                   $id
+     * @param string                   $parentId
      * @param string                   $taskName
      * @param TaskLogCategorizedStatus $status
      * @param array                    $parameters
@@ -70,6 +74,7 @@ class TaskLogEntity implements TaskLogEntityInterface
      */
     public function __construct(
         $id,
+        $parentId,
         $taskName,
         TaskLogCategorizedStatus $status,
         array $parameters,
@@ -80,6 +85,7 @@ class TaskLogEntity implements TaskLogEntityInterface
         Report $report = null
     ) {
         $this->id = $id;
+        $this->parent = $parentId;
         $this->taskName = $taskName;
         $this->status = $status;
         $this->parameters = $parameters;
@@ -100,6 +106,7 @@ class TaskLogEntity implements TaskLogEntityInterface
     {
         return new self(
             $row[TaskLogBrokerInterface::COLUMN_ID],
+            isset($row[TaskLogBrokerInterface::COLUMN_PARENT_ID]) ? $row[TaskLogBrokerInterface::COLUMN_PARENT_ID] : null,
             $row[TaskLogBrokerInterface::COLUMN_TASK_NAME],
             TaskLogCategorizedStatus::createFromString($row[TaskLogBrokerInterface::COLUMN_STATUS]),
             isset($row[TaskLogBrokerInterface::COLUMN_PARAMETERS]) ? json_decode($row[TaskLogBrokerInterface::COLUMN_PARAMETERS], true) : [],
@@ -117,6 +124,14 @@ class TaskLogEntity implements TaskLogEntityInterface
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * @return string
+     */
+    public function getParent()
+    {
+        return $this->parent;
     }
 
     /**
@@ -221,6 +236,7 @@ class TaskLogEntity implements TaskLogEntityInterface
         // add basic fields which always have values
         $rs = [
             'id' => $this->id,
+            'parent' => $this->parent,
             'taskName' => $this->taskName,
             'status' => (string) $this->status,
             'statusLabel' => $this->status->getLabel(),

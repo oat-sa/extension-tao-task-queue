@@ -111,6 +111,7 @@ class RdsQueueBroker extends AbstractQueueBroker
             $table->addColumn('id', 'integer', ["autoincrement" => true, "notnull" => true, "unsigned" => true]);
             $table->addColumn('message', 'text', ["notnull" => true]);
             $table->addColumn('visible', 'boolean', ["default" => 1]);
+            $table->addColumn('remote', 'boolean', ["default" => 0]);
             $table->addColumn('created_at', 'datetime', ['notnull' => true]);
             $table->setPrimaryKey(['id']);
             $table->addIndex(['created_at', 'visible'], 'IDX_created_at_visible_'. $this->getQueueName());
@@ -140,6 +141,7 @@ class RdsQueueBroker extends AbstractQueueBroker
     {
         return (bool) $this->getPersistence()->insert($this->getTableName(), [
             'message' => $this->serializeTask($task),
+            'remote' => $task->getMetadata(TaskInterface::JSON_METADATA_REMOTE_KEY) ? $task->getMetadata(TaskInterface::JSON_METADATA_REMOTE_KEY) : false,
             'created_at' => $this->getPersistence()->getPlatForm()->getNowExpression()
         ]);
     }
@@ -157,9 +159,10 @@ class RdsQueueBroker extends AbstractQueueBroker
 
         try {
             $qb = $this->getQueryBuilder()
-                ->select('id, message')
+                ->select('id, message, remote')
                 ->from($this->getTableName())
                 ->andWhere('visible = :visible')
+                ->orWhere('remote = :remote')
                 ->orderBy('created_at')
                 ->setMaxResults($this->getNumberOfTasksToReceive());
 
@@ -170,8 +173,7 @@ class RdsQueueBroker extends AbstractQueueBroker
              */
             $sql = $qb->getSQL() .' '. $this->getPersistence()->getPlatForm()->getWriteLockSQL();
 
-            if ($dbResult = $this->getPersistence()->query($sql, ['visible' => 1])->fetchAll(\PDO::FETCH_ASSOC)) {
-
+            if ($dbResult = $this->getPersistence()->query($sql, ['visible' => 1, 'remote' => 1])->fetchAll(\PDO::FETCH_ASSOC)) {
                 // set the received messages to invisible for other workers
                 $qb = $this->getQueryBuilder()
                     ->update($this->getTableName())
@@ -184,6 +186,7 @@ class RdsQueueBroker extends AbstractQueueBroker
                 foreach ($dbResult as $row) {
                     if ($task = $this->unserializeTask($row['message'], $row['id'], $logContext)) {
                         $task->setMetadata('RdsMessageId', $row['id']);
+                        $task->setMetadata('remote', $row['remote']);
                         $this->pushPreFetchedMessage($task);
                     }
                 }

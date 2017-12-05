@@ -33,9 +33,11 @@ abstract class AbstractTask implements TaskInterface
     /**
      * @inheritdoc
      */
-    public function __construct($id, $owner)
+    public function __construct($id, $owner, $parent = null, $remote = false)
     {
         $this->setMetadata(self::JSON_METADATA_ID_KEY, $id);
+        $this->setMetadata(self::JSON_METADATA_REMOTE_KEY, $remote);
+        $this->setMetadata(self::JSON_METADATA_PARENT_KEY, $parent);
         $this->setCreatedAt(new \DateTime('now', new \DateTimeZone(TIME_ZONE)));
         $this->setOwner($owner);
     }
@@ -54,6 +56,11 @@ abstract class AbstractTask implements TaskInterface
     public function getId()
     {
         return $this->getMetadata(self::JSON_METADATA_ID_KEY);
+    }
+
+    public function getParent()
+    {
+        return $this->getMetadata(self::JSON_METADATA_PARENT_KEY);
     }
 
     /**
