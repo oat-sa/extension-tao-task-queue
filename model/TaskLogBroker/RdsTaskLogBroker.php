@@ -119,6 +119,7 @@ class RdsTaskLogBroker implements TaskLogBrokerInterface, PhpSerializable, Servi
             $table = $toSchema->createTable($this->getTableName());
             $table->addOption('engine', 'InnoDB');
             $table->addColumn(self::COLUMN_ID, 'string', ["notnull" => true, "length" => 255]);
+            $table->addColumn(self::COLUMN_PARENT_ID, 'string', ["notnull" => false, "length" => 255]);
             $table->addColumn(self::COLUMN_TASK_NAME, 'string', ["notnull" => true, "length" => 255]);
             $table->addColumn(self::COLUMN_PARAMETERS, 'text', ["notnull" => false, "default" => null]);
             $table->addColumn(self::COLUMN_LABEL, 'string', ["notnull" => false, "length" => 255]);
@@ -130,6 +131,7 @@ class RdsTaskLogBroker implements TaskLogBrokerInterface, PhpSerializable, Servi
             $table->setPrimaryKey(['id']);
             $table->addIndex([self::COLUMN_TASK_NAME, self::COLUMN_OWNER], $this->getTableName() .'IDX_task_name_owner');
             $table->addIndex([self::COLUMN_STATUS], $this->getTableName() .'IDX_status');
+            $table->addIndex([self::COLUMN_PARENT_ID], $this->getTableName() .'IDX_parent_id');
             $table->addIndex([self::COLUMN_CREATED_AT], $this->getTableName() .'IDX_created_at');
 
             $queries = $this->getPersistence()->getPlatForm()->getMigrateSchemaSql($fromSchema, $toSchema);
@@ -149,6 +151,7 @@ class RdsTaskLogBroker implements TaskLogBrokerInterface, PhpSerializable, Servi
             self::COLUMN_TASK_NAME => $task instanceof CallbackTaskInterface && is_object($task->getCallable()) ? get_class($task->getCallable()) : get_class($task),
             self::COLUMN_PARAMETERS => json_encode($task->getParameters()),
             self::COLUMN_LABEL => (string) $label,
+            self::COLUMN_PARENT_ID => (string) $task->getParent(),
             self::COLUMN_STATUS => (string) $status,
             self::COLUMN_OWNER => (string) $task->getOwner(),
             self::COLUMN_CREATED_AT => $task->getCreatedAt()->format('Y-m-d H:i:s'),

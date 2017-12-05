@@ -260,12 +260,12 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
     /**
      * @inheritdoc
      */
-    public function createTask(callable $callable, array $parameters = [], $label = null)
+    public function createTask(callable $callable, array $parameters = [], $label = null, $parent = null, $remote = false)
     {
         $id = \common_Utils::getNewUri();
         $owner = $this->getOwner();
 
-        $callbackTask = new CallbackTask($id, $owner);
+        $callbackTask = new CallbackTask($id, $owner, $parent, $remote);
         $callbackTask->setCallable($callable)
             ->setParameter($parameters);
 

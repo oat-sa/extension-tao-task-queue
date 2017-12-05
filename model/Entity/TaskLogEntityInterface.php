@@ -38,6 +38,11 @@ interface TaskLogEntityInterface extends \JsonSerializable
     /**
      * @return string
      */
+    public function getParent();
+
+    /**
+     * @return string
+     */
     public function getTaskName();
 
     /**

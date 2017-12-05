@@ -31,6 +31,8 @@ interface TaskInterface extends \JsonSerializable
     const JSON_TASK_CLASS_NAME_KEY = 'taskFqcn';
     const JSON_METADATA_KEY = 'metadata';
     const JSON_METADATA_ID_KEY = '__id__';
+    const JSON_METADATA_REMOTE_KEY = '__remote__';
+    const JSON_METADATA_PARENT_KEY = '__parent__';
     const JSON_METADATA_OWNER_KEY = '__owner__';
     const JSON_METADATA_CREATED_AT_KEY = '__created_at__';
     const JSON_PARAMETERS_KEY = 'parameters';
@@ -38,8 +40,10 @@ interface TaskInterface extends \JsonSerializable
     /**
      * @param string $id Should be a unique id. Use \common_Utils::getNewUri() to get one.
      * @param string $owner
+     * @param string $parent
+     * @param boolean $remote
      */
-    public function __construct($id, $owner);
+    public function __construct($id, $owner, $parent = null, $remote = false);
 
     /**
      * @return \common_report_Report
@@ -57,6 +61,13 @@ interface TaskInterface extends \JsonSerializable
      * @return string
      */
     public function getId();
+
+    /**
+     * Gets the parent id.
+     *
+     * @return string
+     */
+    public function getParent();
 
     /**
      * Set message metadata

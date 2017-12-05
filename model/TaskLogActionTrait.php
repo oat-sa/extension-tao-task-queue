@@ -23,6 +23,9 @@ namespace oat\taoTaskQueue\model;
 use common_report_Report as Report;
 use oat\oatbox\service\ServiceManager;
 use oat\taoTaskQueue\model\Entity\TaskLogEntity;
+use oat\taoTaskQueue\model\TaskLog\TaskLogFilter;
+use oat\taoTaskQueue\model\TaskLogBroker\TaskLogBrokerInterface;
+use oat\taoTaskQueue\model\ValueObjects\TaskLogCategorizedStatus;
 
 /**
  * Helper trait for legacy REST actions/controllers to operate with task log data for a given task.
@@ -81,6 +84,8 @@ trait TaskLogActionTrait
         $result['id']     = $this->getTaskId($taskLogEntity);
         $result['status'] = $this->getTaskStatus($taskLogEntity);
         $result['report'] = $taskLogEntity->getReport() ? $this->getTaskReport($taskLogEntity) : [];
+        $result['status_code'] = $this->taskStatusMapper((string) $taskLogEntity->getStatus());
+        $result['remote_environments'] = $this->getChildTasks($taskLogEntity);
 
         return array_merge($result, (array) $this->addExtraReturnData($taskLogEntity));
     }
@@ -158,5 +163,63 @@ trait TaskLogActionTrait
         }
 
         return $reports;
+    }
+
+    /**
+     * @param $statusCode
+     * @return string
+     */
+    protected function taskStatusMapper($statusCode)
+    {
+        $status = TaskLogInterface::STATUS_UNKNOWN;
+        switch ($statusCode) {
+            case TaskLogCategorizedStatus::STATUS_IN_PROGRESS:
+                $status = TaskLogInterface::STATUS_RUNNING;
+                break;
+            case TaskLogCategorizedStatus::STATUS_CREATED:
+                $status = TaskLogInterface::STATUS_ENQUEUED;
+                break;
+            case TaskLogCategorizedStatus::STATUS_COMPLETED:
+                $status = TaskLogInterface::STATUS_COMPLETED;
+                break;
+            case TaskLogCategorizedStatus::STATUS_FAILED:
+                $status = TaskLogInterface::STATUS_FAILED;
+                break;
+        }
+        return $status;
+    }
+
+    /**
+     * @param TaskLogEntity $taskLogEntity
+     * @return array
+     * @throws \common_exception_NotFound
+     */
+    protected function getChildTasks(TaskLogEntity $taskLogEntity)
+    {
+        /** @var TaskLogInterface $taskLog */
+        $taskLog = $this->getServiceManager()->get(TaskLogInterface::SERVICE_ID);
+
+        $taskId = $taskLogEntity->getId();
+        $filter = (new TaskLogFilter())
+            ->eq(TaskLogBrokerInterface::COLUMN_PARENT_ID, $taskId);
+
+        $collection = $taskLog->search($filter);
+        $response = [];
+
+        if ($collection->isEmpty()) {
+            return $response;
+        }
+
+        /** @var TaskLogEntity $item */
+        foreach ($collection as $item) {
+            $response[] = [
+                'id' => $this->getTaskId($item),
+                'label' => $item->getLabel(),
+                'status' => $this->getTaskStatus($item),
+                'status_code' => $this->taskStatusMapper((string) $item->getStatus()),
+                'report' => $item->getReport() ? $this->getTaskReport($item) : []
+            ];
+        }
+        return $response;
     }
 }

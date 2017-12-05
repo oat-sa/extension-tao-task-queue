@@ -22,6 +22,8 @@ namespace oat\taoTaskQueue\model;
 
 use oat\oatbox\log\LoggerAwareTrait;
 use common_report_Report as Report;
+use oat\taoPublishing\model\publishing\delivery\tasks\DeliveryRemoteEnvironments;
+use oat\taoTaskQueue\model\Event\TaskLogCompletedEvent;
 use oat\taoTaskQueue\model\Task\TaskInterface;
 
 /**
@@ -130,8 +132,11 @@ final class Worker implements WorkerInterface
                     $this->logWarning('The received queue item ('. $task .') not processable.', $this->logContext);
                     continue;
                 }
-
-                $this->processTask($task);
+                if ($task->getMetadata('remote')) {
+                    $this->processRemoteTask($task);
+                } else {
+                    $this->processTask($task);
+                }
 
                 unset($task);
             } catch (\Exception $e) {
@@ -186,6 +191,55 @@ final class Worker implements WorkerInterface
 
         // delete message from queue
         $this->queueService->acknowledge($task);
+
+        return $status;
+    }
+
+    /**
+     * @param TaskInterface $task
+     * @return mixed|null|string
+     */
+    public function processRemoteTask(TaskInterface $task)
+    {
+        $report = Report::createInfo(__('Running remote task %s', $task->getId()));
+        $statusReport = TaskLogInterface::STATUS_FAILED;
+        try {
+            $this->logInfo('Processing remote task '. $task->getId(), $this->logContext);
+            $rowsTouched = $this->taskLog->setStatus($task->getId(), TaskLogInterface::STATUS_RUNNING, TaskLogInterface::STATUS_DEQUEUED);
+
+            // if the task is being executed by another worker, just return, no report needs to be saved
+            if (!$rowsTouched) {
+                $this->logInfo('Task '. $task->getId() .' seems to be processed by another worker.', $this->logContext);
+                return TaskLogInterface::STATUS_UNKNOWN;
+            }
+
+            // execute the task
+            $taskReport = $task();
+
+            if (!$taskReport instanceof Report) {
+                $this->logWarning('Task '. $task->getId() .' should return a report object.', $this->logContext);
+                $taskReport = Report::createInfo(__('Task not returned any report.'));
+            }
+            $statusReport = $taskReport->getData();
+            $report->add($taskReport);
+            unset($taskReport, $rowsTouched);
+        } catch (\Exception $e) {
+            $this->logError('Executing task '. $task->getId() .' failed with MSG: '. $e->getMessage(), $this->logContext);
+            $report = Report::createFailure(__('Executing task %s failed', $task->getId()));
+        }
+
+        $status = $report->getType() == Report::TYPE_ERROR || $report->containsError()
+            ? TaskLogInterface::STATUS_FAILED
+            : $statusReport;
+
+        if ($status == TaskLogInterface::STATUS_COMPLETED || $status == TaskLogInterface::STATUS_FAILED) {
+            $this->taskLog->setReport($task->getId(), $report, $status);
+            // delete message from queue
+            $this->queueService->acknowledge($task);
+        } else {
+            $this->taskLog->setReport($task->getId(), $report, TaskLogInterface::STATUS_ENQUEUED);
+        }
+        unset($report);
 
         return $status;
     }
