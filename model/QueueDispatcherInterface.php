@@ -20,7 +20,7 @@
 
 namespace oat\taoTaskQueue\model;
 
-use oat\taoTaskQueue\model\QueueSelector\SelectorStrategyInterface;
+use oat\taoTaskQueue\model\TaskSelector\SelectorStrategyInterface;
 use oat\taoTaskQueue\model\Task\CallbackTaskInterface;
 use oat\taoTaskQueue\model\Task\TaskInterface;
 use Psr\Log\LoggerAwareInterface;
@@ -51,7 +51,7 @@ interface QueueDispatcherInterface extends \Countable, LoggerAwareInterface
 
     const OPTION_TASK_LOG = 'task_log';
 
-    const OPTION_QUEUE_SELECTOR_STRATEGY = 'queue_selector_strategy';
+    const OPTION_TASK_SELECTOR_STRATEGY = 'task_selector_strategy';
 
     const QUEUE_PREFIX = 'TQ';
 
@@ -203,10 +203,12 @@ interface QueueDispatcherInterface extends \Countable, LoggerAwareInterface
      * @param SelectorStrategyInterface $selectorStrategy
      * @return QueueDispatcherInterface
      */
-    public function setQueueSelector(SelectorStrategyInterface $selectorStrategy);
+    public function setTaskSelector(SelectorStrategyInterface $selectorStrategy);
 
     /**
-     * @return QueueInterface
+     * Seconds for the worker to wait if there is no task.
+     *
+     * @return int
      */
-    public function getQueueBySelector();
+    public function getWaitTime();
 }

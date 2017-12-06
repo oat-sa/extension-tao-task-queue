@@ -18,19 +18,43 @@
  *
  */
 
-namespace oat\taoTaskQueue\model\QueueSelector;
+namespace oat\taoTaskQueue\model\TaskSelector;
 
+use oat\oatbox\log\LoggerAwareTrait;
 use oat\taoTaskQueue\model\QueueInterface;
+use Psr\Log\LoggerAwareInterface;
 
 /**
- * Implements a strategy for selecting a queue by weights.
+ * Implements a strategy for selecting a queue randomly taking into account the known weights.
  *
  * @author Gyula Szucs <gyula@taotesting.com>
  */
-class WeightStrategy implements SelectorStrategyInterface
+class WeightStrategy implements SelectorStrategyInterface, LoggerAwareInterface
 {
+    use LoggerAwareTrait;
+
     /**
-     * Picks random queue based on weight.
+     * @inheritdoc
+     */
+    public function pickNextTask(array $queues)
+    {
+        $pickedQueue = $this->pickQueueByWight($queues);
+
+        $this->logInfo('Queue "' . strtoupper($pickedQueue->getName()) . '" picked by WeightStrategy');
+
+        return $pickedQueue->dequeue();
+    }
+
+    /**
+     * @return int
+     */
+    public function getWaitTime()
+    {
+        return 1;
+    }
+
+    /**
+     * Picks randomly a queue based on weight.
      *
      * For example, an array like ['A'=>5, 'B'=>45, 'C'=>50] means that "A" has a 5% chance of being selected, "B" 45%, and "C" 50%.
      * The values are simply relative to each other. If one value weight was 2, and the other weight of 1,
@@ -38,7 +62,7 @@ class WeightStrategy implements SelectorStrategyInterface
      *
      * @inheritdoc
      */
-    public function pickNextQueue(array $queues)
+    private function pickQueueByWight(array $queues)
     {
         $weights = array_map(function(QueueInterface $queue) {
             return $queue->getWeight();

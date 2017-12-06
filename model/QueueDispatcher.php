@@ -25,8 +25,8 @@ use oat\generis\model\OntologyAwareTrait;
 use oat\oatbox\service\ConfigurableService;
 use oat\oatbox\log\LoggerAwareTrait;
 use oat\oatbox\task\Task;
-use oat\taoTaskQueue\model\QueueSelector\SelectorStrategyInterface;
-use oat\taoTaskQueue\model\QueueSelector\WeightStrategy;
+use oat\taoTaskQueue\model\TaskSelector\SelectorStrategyInterface;
+use oat\taoTaskQueue\model\TaskSelector\WeightStrategy;
 use oat\taoTaskQueue\model\Task\CallbackTask;
 use oat\taoTaskQueue\model\Task\CallbackTaskInterface;
 use oat\taoTaskQueue\model\Task\TaskInterface;
@@ -66,16 +66,16 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
 
         $this->assertTasks();
 
-        if (!$this->hasOption(self::OPTION_QUEUE_SELECTOR_STRATEGY) || empty($this->getOption(self::OPTION_QUEUE_SELECTOR_STRATEGY))) {
+        if (!$this->hasOption(self::OPTION_TASK_SELECTOR_STRATEGY) || empty($this->getOption(self::OPTION_TASK_SELECTOR_STRATEGY))) {
             // setting default strategy
             $this->selectorStrategy = new WeightStrategy();
         } else {
             // using the strategy set in the options
-            if (!is_a($this->getOption(self::OPTION_QUEUE_SELECTOR_STRATEGY), SelectorStrategyInterface::class, true)) {
-                throw new \common_exception_Error('Queue selector must implement ' . SelectorStrategyInterface::class);
+            if (!is_a($this->getOption(self::OPTION_TASK_SELECTOR_STRATEGY), SelectorStrategyInterface::class, true)) {
+                throw new \common_exception_Error('Task selector must implement ' . SelectorStrategyInterface::class);
             }
 
-            $strategyClass = $this->getOption(self::OPTION_QUEUE_SELECTOR_STRATEGY);
+            $strategyClass = $this->getOption(self::OPTION_TASK_SELECTOR_STRATEGY);
 
             /** @var SelectorStrategyInterface $strategy */
             $this->selectorStrategy = new $strategyClass;
@@ -91,9 +91,8 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
      */
     public function __toPhpCode()
     {
-        foreach ($this->getQueues() as $queue) {
-            $this->propagateServices($queue);
-        }
+        // to propagate the required services
+        $this->getQueues();
 
         return parent::__toPhpCode();
     }
@@ -130,7 +129,7 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
     {
         return array_map(function(QueueInterface $queue) {
             return $queue->getName();
-        }, $this->getQueues());
+        }, $this->getOption(self::OPTION_QUEUES));
     }
 
     /**
@@ -169,9 +168,7 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
         });
 
         if (count($foundQueue) === 1) {
-            /** @var Queue $queue */
-            $queue = reset($foundQueue);
-            return $this->propagateServices($queue);
+            return reset($foundQueue);
         }
 
         throw new \InvalidArgumentException('Queue "'. $queueName .'" does not exist.');
@@ -182,7 +179,20 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
      */
     public function getQueues()
     {
-        return (array) $this->getOption(self::OPTION_QUEUES);
+        static $propagated = false;
+
+        if (!$propagated) {
+            $queues = (array) $this->getOption(self::OPTION_QUEUES);
+
+            // propagate the services for the queues first
+            array_walk($queues, function (QueueInterface $queue) {
+                $this->propagateServices($queue);
+            });
+
+            $propagated = true;
+        }
+
+        return $this->getOption(self::OPTION_QUEUES);
     }
 
     /**
@@ -237,9 +247,7 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
     {
         $queues = $this->getQueues();
 
-        /** @var Queue $queue */
-        $queue = reset($queues);
-        return $this->propagateServices($queue);
+        return reset($queues);
     }
 
     /**
@@ -265,7 +273,7 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
             $rand -= $queue->getWeight();
             if ($rand <= 0) {
                 $this->logInfo('Queue "'. strtoupper($queue->getName()) .'" selected by weight.');
-                return $this->propagateServices($queue);
+                return $queue;
             }
         }
     }
@@ -273,23 +281,11 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
     /**
      * @inheritdoc
      */
-    public function setQueueSelector(SelectorStrategyInterface $selectorStrategy)
+    public function setTaskSelector(SelectorStrategyInterface $selectorStrategy)
     {
-        $this->setOption(self::OPTION_QUEUE_SELECTOR_STRATEGY, get_class($selectorStrategy));
+        $this->setOption(self::OPTION_TASK_SELECTOR_STRATEGY, get_class($selectorStrategy));
 
         return $this;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getQueueBySelector()
-    {
-        $queue = $this->selectorStrategy->pickNextQueue($this->getQueues());
-
-        $this->logInfo('Queue "'. strtoupper($queue->getName()) .'" picked by the selector.');
-
-        return $this->propagateServices($queue);
     }
 
     /**
@@ -300,8 +296,7 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
     public function initialize()
     {
         foreach ($this->getQueues() as $queue) {
-            $this->propagateServices($queue)
-                ->initialize();
+            $queue->initialize();
         }
     }
 
@@ -377,8 +372,8 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
             return $this->getFirstQueue()->dequeue();
         }
 
-        // default: consuming a queue selected by the current queue selector
-        return $this->getQueueBySelector()->dequeue();
+        // default: getting a task using the current task selector strategy
+        return $this->selectorStrategy->pickNextTask($this->getQueues());
     }
 
     /**
@@ -397,8 +392,7 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
     public function count()
     {
         $counts = array_map(function(QueueInterface $queue) {
-            return $this->propagateServices($queue)
-                ->count();
+            return $queue->count();
         }, $this->getQueues());
 
         return array_sum($counts);
@@ -416,6 +410,11 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
         }
 
         return true;
+    }
+
+    public function getWaitTime()
+    {
+        return $this->selectorStrategy->getWaitTime();
     }
 
     /**
@@ -466,11 +465,11 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
             throw new \InvalidArgumentException("Queues needs to be set.");
         }
 
-        if (count($this->getQueues()) === 1) {
+        if (count($this->getOption(self::OPTION_QUEUES)) === 1) {
             return;
         }
 
-        if (count($this->getQueues()) != count(array_unique($this->getQueues()))) {
+        if (count($this->getOption(self::OPTION_QUEUES)) != count(array_unique($this->getOption(self::OPTION_QUEUES)))) {
             throw new \InvalidArgumentException('There are duplicated Queue names. Please check the values of "'. self::OPTION_QUEUES .'" in your queue dispatcher settings.');
         }
     }

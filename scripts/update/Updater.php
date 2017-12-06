@@ -27,7 +27,7 @@ use oat\taoTaskQueue\model\Queue;
 use oat\taoTaskQueue\model\QueueBroker\InMemoryQueueBroker;
 use oat\taoTaskQueue\model\QueueDispatcher;
 use oat\taoTaskQueue\model\QueueDispatcherInterface;
-use oat\taoTaskQueue\model\QueueSelector\WeightStrategy;
+use oat\taoTaskQueue\model\TaskSelector\WeightStrategy;
 use oat\taoTaskQueue\model\TaskLogBroker\TaskLogBrokerInterface;
 use oat\taoTaskQueue\model\TaskLogInterface;
 
@@ -93,7 +93,7 @@ class Updater extends common_ext_ExtensionUpdater
             /** @var QueueDispatcherInterface|ConfigurableService $queueService */
             $queueService = $this->getServiceManager()->get(QueueDispatcherInterface::SERVICE_ID);
 
-            $queueService->setQueueSelector(new WeightStrategy());
+            $queueService->setTaskSelector(new WeightStrategy());
 
             $this->getServiceManager()->register(QueueDispatcherInterface::SERVICE_ID, $queueService);
 

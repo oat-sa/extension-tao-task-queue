@@ -18,12 +18,13 @@
  *
  */
 
-namespace oat\taoTaskQueue\model\QueueSelector;
+namespace oat\taoTaskQueue\model\TaskSelector;
 
 use oat\taoTaskQueue\model\QueueInterface;
+use oat\taoTaskQueue\model\Task\TaskInterface;
 
 /**
- * Interface QueueDispatcherInterface
+ * Interface SelectorStrategyInterface
  *
  * @author Gyula Szucs <gyula@taotesting.com>
  */
@@ -31,7 +32,14 @@ interface SelectorStrategyInterface
 {
     /**
      * @param QueueInterface[] $queues
-     * @return QueueInterface
+     * @return null|TaskInterface
      */
-    public function pickNextQueue(array $queues);
+    public function pickNextTask(array $queues);
+
+    /**
+     * A time in seconds for the worker to wait if there is no task.
+     *
+     * @return int
+     */
+    public function getWaitTime();
 }
