@@ -90,10 +90,10 @@ define([
             loadingBar.start();
             taskQueue.pollAllStop();
             taskQueue.create(requestUrl, requestData).then(function (result) {
-                var task = result.task;
-
+                var infoBox,
+                    message,
+                    task = result.task;
                 loadingBar.stop();
-
                 if (result.finished) {
                     if(task.hasFile){
                         //download if its is a export-typed task
@@ -114,13 +114,14 @@ define([
                         });
                     }
                 } else {
-
-                    feedback().info(__('%s takes a long time so has been moved to the background. You can continue working elsewhere.', task.taskLabel));
-
+                    //enqueuing process:
+                    message = __('<strong> %s </strong> takes a long time so it has been moved to the background. <br/> You can continue working elsewhere.', task.taskLabel);
+                    infoBox = feedback(null, {
+                        encodeHtml : false,
+                        timeout : {info: 10000}
+                    }).info(message);
+                    taskQueue.trigger('taskcreated', {task : task, sourceDom : infoBox.getElement()});
                     self.stop();
-
-                    //leave the user a moment to make the connection between the notification message and the animation
-                    taskQueue.trigger('taskcreated', {task : task, sourceDom : self.config.sourceElement || self.getElement()});
                 }
                 loadingBar.stop();
             }).catch(function (err) {

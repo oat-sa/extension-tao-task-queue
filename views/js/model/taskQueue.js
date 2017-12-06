@@ -32,7 +32,7 @@ define([
             download : urlHelper.route('download', 'TaskQueueWebApi', 'taoTaskQueue')
         },
         pollSingleIntervals : [
-            {iteration: 4, interval:1000}
+            {iteration: 3, interval:1000}
         ],
         pollAllIntervals : [
             {iteration: 0, interval:5000}

@@ -22,13 +22,12 @@ define([
     'i18n',
     'core/promise',
     'ui/report',
+    'ui/feedback',
     'layout/loading-bar',
     'ui/loadingButton/loadingButton',
     'tpl!taoTaskQueue/component/taskCreationButton/tpl/report',
-    'tpl!taoTaskQueue/component/taskCreationButton/tpl/feedback',
-    'tpl!taoTaskQueue/component/taskCreationButton/tpl/overlay',
     'css!taoTaskQueue/component/taskCreationButton/css/style'
-], function ($, _, __, Promise, reportFactory, loadingBar, loadingButton, reportTpl, feedbackTpl, overlayTpl) {
+], function ($, _, __, Promise, reportFactory, feedback, loadingBar, loadingButton, reportTpl) {
     'use strict';
 
     var defaultConfig = {
@@ -36,21 +35,20 @@ define([
 
     var taskCreationButtonComponent = {
         /**
-         *
+         * Create a task
          * @param requestUrl
          * @param requestData
          */
         createTask : function createTask(taskQueue, requestUrl, requestData){
             var self = this;
-            var $container = $(this.config.reportContainer);
 
             loadingBar.start();
             taskQueue.pollAllStop();
             taskQueue.create(requestUrl, requestData).then(function (result) {
-                var task = result.task;
-
+                var infoBox,
+                    message,
+                    task = result.task;
                 loadingBar.stop();
-
                 if (result.finished) {
                     if(task.hasFile){
                         //download if its is a export-typed task
@@ -69,21 +67,15 @@ define([
                         });
                     }
                 } else {
-                    //prevent further interactions and inform the user that task will move to the background and
-                    $container
-                        .css('position', 'relative')
-                        .append(overlayTpl());
+                    //enqueuing process:
+                    message = __('<strong> %s </strong> takes a long time so it has been moved to the background. <br/> You can continue working elsewhere.', task.taskLabel);
+                    infoBox = feedback(null, {
+                        encodeHtml : false,
+                        timeout : {info: 10000}
+                    }).info(message);
 
-                    self
-                        .terminate()
-                        .hide()
-                        .getElement().after(feedbackTpl({
-                        type : 'info',
-                        message : __('<strong> %s </strong> takes a long time so it has been moved to the background. You can continue working elsewhere.', task.taskLabel)
-                    }));
-
-                    //leave the user a moment to make the connection between the notification message and the animation
-                    taskQueue.trigger('taskcreated', {task : task, sourceDom : self.config.sourceElement || $(document)});
+                    taskQueue.trigger('taskcreated', {task : task, sourceDom : infoBox.getElement()});
+                    self.terminate().reset();
                 }
                 loadingBar.stop();
             }).catch(function (err) {
