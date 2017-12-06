@@ -25,10 +25,7 @@ use oat\oatbox\filesystem\FileSystemService;
 use oat\taoTaskQueue\model\Entity\Decorator\CategoryEntityDecorator;
 use oat\taoTaskQueue\model\Entity\Decorator\HasFileEntityDecorator;
 use oat\taoTaskQueue\model\QueueDispatcherInterface;
-use oat\taoTaskQueue\model\TaskLog\Decorator\CategoryCollectionDecorator;
-use oat\taoTaskQueue\model\TaskLog\Decorator\FieldRemoverCollectionDecorator;
-use oat\taoTaskQueue\model\TaskLog\Decorator\HasFileCollectionDecorator;
-use oat\taoTaskQueue\model\TaskLogBroker\TaskLogBrokerInterface;
+use oat\taoTaskQueue\model\TaskLog\Decorator\SimpleManagementCollectionDecorator;
 use oat\taoTaskQueue\model\TaskLogInterface;
 
 /**
@@ -41,7 +38,6 @@ class TaskQueueWebApi extends \tao_actions_CommonModule
     const PARAMETER_TASK_ID = 'taskId';
     const PARAMETER_LIMIT = 'limit';
     const PARAMETER_OFFSET = 'offset';
-    const PARAMETER_REPORT_INCLUDED = 'reportIncluded';
 
     /** @var string */
     private $userId;
@@ -80,19 +76,12 @@ class TaskQueueWebApi extends \tao_actions_CommonModule
         /** @var FileSystemService $fs */
         $fs = $this->getServiceManager()->get(FileSystemService::SERVICE_ID);
 
-        // adding hasFile to the results
-        $collection = new HasFileCollectionDecorator(
+        $collection = new SimpleManagementCollectionDecorator(
             $taskLogService->findAvailableByUser($this->userId, $limit, $offset),
-            $fs
+            $taskLogService,
+            $fs,
+            false
         );
-
-        // adding category to the results
-        $collection = new CategoryCollectionDecorator($collection, $taskLogService);
-
-        // removing reports from the results
-        if (!$this->hasRequestParameter(self::PARAMETER_REPORT_INCLUDED) || false == $this->getRequestParameter(self::PARAMETER_REPORT_INCLUDED)) {
-            $collection = new FieldRemoverCollectionDecorator($collection, 'report');
-        }
 
         return $this->returnJson([
             'success' => true,

@@ -21,8 +21,10 @@
 namespace oat\taoTaskQueue\scripts\tools;
 
 use oat\oatbox\action\Action;
-use oat\taoTaskQueue\model\Entity\CategoryEntityDecorator;
-use oat\taoTaskQueue\model\TaskLog\CategoryCollectionDecorator;
+use oat\oatbox\filesystem\FileSystemService;
+use oat\taoTaskQueue\model\Entity\Decorator\CategoryEntityDecorator;
+use oat\taoTaskQueue\model\Entity\Decorator\HasFileEntityDecorator;
+use oat\taoTaskQueue\model\TaskLog\Decorator\SimpleManagementCollectionDecorator;
 use oat\taoTaskQueue\model\TaskLogInterface;
 use Zend\ServiceManager\ServiceLocatorAwareInterface;
 use Zend\ServiceManager\ServiceLocatorAwareTrait;
@@ -75,8 +77,12 @@ class TaskLogUtility implements Action, ServiceLocatorAwareInterface
     {
         try {
             $this->assertValidParams($params);
+
             /** @var TaskLogInterface $taskLog */
             $taskLog = $this->getServiceLocator()->get(TaskLogInterface::SERVICE_ID);
+
+            /** @var FileSystemService $fs */
+            $fs = $this->getServiceLocator()->get(FileSystemService::SERVICE_ID);
 
             if ($this->argStats) {
                 $stats = $taskLog->getStats(TaskLogInterface::SUPER_USER);
@@ -85,12 +91,24 @@ class TaskLogUtility implements Action, ServiceLocatorAwareInterface
 
             if ($this->argAvailable) {
                 $tasks = $taskLog->findAvailableByUser(TaskLogInterface::SUPER_USER, $this->argLimit, $this->argOffset);
-                return \common_report_Report::createSuccess($this->jsonPretty((new CategoryCollectionDecorator($tasks, $taskLog))->jsonSerialize()));
+
+                return \common_report_Report::createSuccess($this->jsonPretty(
+                    (new SimpleManagementCollectionDecorator(
+                        $tasks,
+                        $taskLog,
+                        $fs,
+                        true
+                    ))
+                        ->jsonSerialize()
+                ));
             }
 
             if ($this->argGetTask) {
                 $task = $taskLog->getByIdAndUser($this->argGetTask, TaskLogInterface::SUPER_USER);
-                return \common_report_Report::createSuccess($this->jsonPretty((new CategoryEntityDecorator($task, $taskLog))->jsonSerialize()));
+
+                return \common_report_Report::createSuccess($this->jsonPretty(
+                    (new HasFileEntityDecorator(new CategoryEntityDecorator($task, $taskLog), $fs))->jsonSerialize()
+                ));
             }
 
             if ($this->argArchive) {

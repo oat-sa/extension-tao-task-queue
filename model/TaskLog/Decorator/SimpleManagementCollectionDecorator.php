@@ -19,33 +19,50 @@
  */
 
 namespace oat\taoTaskQueue\model\TaskLog\Decorator;
-
 use oat\oatbox\filesystem\FileSystemService;
+use oat\taoTaskQueue\model\Entity\Decorator\CategoryEntityDecorator;
 use oat\taoTaskQueue\model\Entity\Decorator\HasFileEntityDecorator;
 use oat\taoTaskQueue\model\TaskLog\TaskLogCollectionInterface;
+use oat\taoTaskQueue\model\TaskLogInterface;
 
 /**
- * HasFileCollectionDecorator
+ * Containing all necessary modification required by the simple UI component.
  *
  * @author Gyula Szucs <gyula@taotesting.com>
  */
-class HasFileCollectionDecorator extends TaskLogCollectionDecorator
+class SimpleManagementCollectionDecorator extends TaskLogCollectionDecorator
 {
+    /**
+     * @var TaskLogCollectionInterface
+     */
+    private $collection;
+
+    /**
+     * @var TaskLogInterface
+     */
+    private $taskLogService;
+
     /**
      * @var FileSystemService
      */
     private $fileSystemService;
 
-    public function __construct(TaskLogCollectionInterface $collection, FileSystemService $fileSystemService)
+    /**
+     * @var bool
+     */
+    private $reportIncluded;
+
+    public function __construct(TaskLogCollectionInterface $collection, TaskLogInterface $taskLogService, FileSystemService $fileSystemService, $reportIncluded)
     {
         parent::__construct($collection);
 
         $this->fileSystemService = $fileSystemService;
+        $this->collection = $collection;
+        $this->taskLogService = $taskLogService;
+        $this->reportIncluded = (bool) $reportIncluded;
     }
 
     /**
-     * CAUTION: Parent not used, so this decorator needs to be the first one in the queue.
-     *
      * @return array
      */
     public function toArray()
@@ -53,7 +70,13 @@ class HasFileCollectionDecorator extends TaskLogCollectionDecorator
         $data = [];
 
         foreach ($this->getIterator() as $entity) {
-            $data[] = (new HasFileEntityDecorator($entity, $this->fileSystemService))->toArray();
+            $entityData = (new HasFileEntityDecorator(new CategoryEntityDecorator($entity, $this->taskLogService), $this->fileSystemService))->toArray();
+
+            if (!$this->reportIncluded && array_key_exists('report', $entityData)) {
+                unset($entityData['report']);
+            }
+
+            $data[] = $entityData;
         }
 
         return $data;
