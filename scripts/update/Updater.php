@@ -86,15 +86,16 @@ class Updater extends common_ext_ExtensionUpdater
             $this->setVersion('0.5.0');
         }
 
-        $this->skip('0.5.0', '0.8.0');
+        $this->skip('0.5.0', '0.8.1');
 
-        if ($this->isVersion('0.8.0')) {
+        if ($this->isVersion('0.8.1')) {
             //Add an extra controller the backoffice 'controller/main'
             ClientLibConfigRegistry::getRegistry()->register(
                 'controller/main', [
                     'extraRoutes' => ['taoTaskQueue/Main/index']
                 ]
             );
+
             $this->setVersion('0.9.0');
         }
     }
