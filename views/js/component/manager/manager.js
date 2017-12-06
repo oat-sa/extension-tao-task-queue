@@ -52,7 +52,6 @@ define([
                 data.type = 'success';
             }
             if(tasksStatuses.numberOfTasksFailed){
-                console.log('tasksStatuses.numberOfTasksFailed', tasksStatuses.numberOfTasksFailed);
                 total += parseInt(tasksStatuses.numberOfTasksFailed, 10);
                 if(data.type === 'success'){
                     data.type = 'warning';//if there are both success and failures, the status should be a warning
@@ -61,8 +60,6 @@ define([
                 }
             }
             data.value = total;
-
-            console.log(data);
             return data;
         }
     };
@@ -255,8 +252,11 @@ define([
          */
         return makeAbsorbable(component(taskQueue))
             .setTemplate(managerTpl)
+            .on('destroy', function(){
+                $(document).off('click.task-queue-manager');
+            })
             .on('init', function() {
-                //initialiaze the task element collection
+                //initialize the task element collection
                 this.taskElements = {};
             })
             .on('render', function() {
@@ -266,6 +266,12 @@ define([
 
                 //create the list
                 this.list = makeAlignable(taskListFactory())
+                    .on('show', function(){
+                        self.trigger('listshow');
+                    })
+                    .on('hide', function(){
+                        self.trigger('listhide');
+                    })
                     .init({
                         title : __('Background tasks'),
                         emptyText : __('There is currently no background task'),
@@ -293,16 +299,24 @@ define([
                     e.stopPropagation();
                 });
 
+                //close the popup when clicking outside of the component
+                $(document).off('click.task-queue-manager').on('click.task-queue-manager', function(e){
+                    if($trigger.get(0) !== e.target && !$.contains($trigger.get(0), e.target)){
+                        if(!self.list.is('hidden')){
+                            self.list.hide();
+                        }
+                    }
+                });
+
                 //toggle list visibility
                 $trigger.on('click', function(){
                     if(self.list.is('hidden')){
                         self.list.show();
-                        self.trigger('listshow');
                     }else{
                         self.list.hide();
-                        self.trigger('listhide');
                     }
                 });
+
             })
             .init(config || {});
     };
