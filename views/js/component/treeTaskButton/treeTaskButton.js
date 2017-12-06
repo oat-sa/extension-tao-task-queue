@@ -17,16 +17,12 @@
  */
 
 /**
- * A button component used to trigger lengthy action.
- * It has its own lifecycle: render -> started -> terminated [-> reset]
+ * A button component used to trigger lengthy action from the tree
  *
  * @example
- * loadingButtonFactory({
- *          type : 'info',
+ * treeTaskButtonFactory({
  *          icon : 'property-advanced',
- *          title : 'Execute my script',
- *          label : 'Run',
- *          terminatedLabel : 'Terminated'
+ *          label : 'Run'
  *     });
  *
  * @author Sam <sam@taotesting.com>
@@ -138,12 +134,9 @@ define([
     /**
      * Create a button with the lifecycle : render -> started -> terminated [-> reset]
      * @param {Object} config - the component config
-     * @param {String} config.type - the icon type (info, success, error)
      * @param {String} config.icon - the button icon
-     * @param {String} config.title - the button's title
      * @param {String} config.label - the button's label
-     * @param {String} config.terminatedLabel - the button's label when terminated
-     * @return {loadingButton} the component
+     * @return {treeTaskButton} the component
      *
      * @event started - Emitted when the button is clicked and the triggered action supposed to be started
      * @event terminated - Emitted when the button action is stopped, interrupted
@@ -153,19 +146,10 @@ define([
         var initConfig = _.defaults(config || {}, _defaults);
 
         /**
-         * @typedef {loadingButton} the component
+         * @typedef {treeTaskButton} the component
          */
         return component(buttonApi)
             .setTemplate(buttonTpl)
-            .on('render', function() {
-                return;
-                var self = this;
-                this.getElement().on('click', function(){
-                    if(!self.is('disabled') && !self.is('started')){
-                        self.start();
-                    }
-                });
-            })
             .init(initConfig);
     };
 

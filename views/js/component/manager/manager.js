@@ -39,31 +39,31 @@ define([
      * @returns {Object} the new badge data to be displayed following the format {type, loading, value}
      */
     var getBadgeDataFromStatus = function getBadgeDataFromStatus(tasksStatuses){
-        var isRunning = (tasksStatuses.numberOfTasksInProgress > 0);
+        var total =  0;
+        var data = {loading : false};
         if(tasksStatuses){
-            if(tasksStatuses.numberOfTasksFailed){
-                return {
-                    type : 'error',
-                    loading : isRunning,
-                    value : parseInt(tasksStatuses.numberOfTasksFailed, 10),
-                };
+            if(tasksStatuses.numberOfTasksInProgress){
+                total += parseInt(tasksStatuses.numberOfTasksInProgress, 10);
+                data.type = 'info';
+                data.loading = (tasksStatuses.numberOfTasksInProgress > 0);
             }
             if(tasksStatuses.numberOfTasksCompleted){
-                return {
-                    type : 'success',
-                    loading : isRunning,
-                    value : parseInt(tasksStatuses.numberOfTasksCompleted, 10),
-                };
+                total += parseInt(tasksStatuses.numberOfTasksCompleted, 10);
+                data.type = 'success';
             }
-            if(tasksStatuses.numberOfTasksInProgress){
-                return {
-                    type : 'info',
-                    loading : isRunning,
-                    value : parseInt(tasksStatuses.numberOfTasksInProgress, 10),
-                };
+            if(tasksStatuses.numberOfTasksFailed){
+                console.log('tasksStatuses.numberOfTasksFailed', tasksStatuses.numberOfTasksFailed);
+                total += parseInt(tasksStatuses.numberOfTasksFailed, 10);
+                if(data.type === 'success'){
+                    data.type = 'warning';//if there are both success and failures, the status should be a warning
+                }else{
+                    data.type = 'error';
+                }
             }
-            //hide badge in this case
-            return {value:0};
+            data.value = total;
+
+            console.log(data);
+            return data;
         }
     };
 
