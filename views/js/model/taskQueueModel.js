@@ -292,8 +292,16 @@ define([
                         action: function action() {
                             // get into asynchronous mode
                             var done = this.async();
+                            var statusArr;
                             model.getAll().then(function(taskDataArray){
                                 model.trigger('pollAll', taskDataArray);
+
+                                //smart polling: stop polling when there is no task in progress
+                                statusArr = _.map(taskDataArray, 'status');
+                                if(statusArr.indexOf('in_progress') === -1 && statusArr.indexOf('created') === -1){
+                                    return done.reject();
+                                }
+
                                 _updateInterval(self.globalPolling);
                                 done.resolve();
                             }).catch(function(){
