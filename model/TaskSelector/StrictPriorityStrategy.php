@@ -30,7 +30,8 @@ use Psr\Log\LoggerAwareInterface;
  * 1: generating a list of queues in the order of weights
  * 2: get a queue by the current index (starting with the highest priority queue always)
  * 3a: IF there is a task in the current queue, let's process it and restart form point 2
- * 3b: IF there is no task sleep a while and go to the next queue
+ * 3b: IF there is no task go to the next queue and repeat from point 2
+ * 3c: IF there is no task and we have a complete iteration, sleep a while and repeat from point 2
  *
  * @author Gyula Szucs <gyula@taotesting.com>
  */
