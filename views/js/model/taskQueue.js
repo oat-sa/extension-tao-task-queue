@@ -35,6 +35,7 @@ define([
             {iteration: 3, interval:1000}
         ],
         pollAllIntervals : [
+            {iteration: 1, interval:8000},
             {iteration: 0, interval:5000}
         ]
     });

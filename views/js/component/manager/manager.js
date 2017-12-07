@@ -95,6 +95,29 @@ define([
         return getBadgeDataFromStatus(stats);
     };
 
+    /**
+     * The collection of config used for component alignments
+     * the values have been adjusted to make it work well with the list's css
+     * @type {Object}
+     * @private
+     */
+    var _alignementConfig = {
+        initial : {
+            hPos: 'center',
+            hOrigin: 'center',
+            vPos: 'bottom',
+            vOrigin: 'top',
+            hOffset: -156
+        },
+        showDetail : {
+            hPos: 'center',
+            hOrigin: 'center',
+            vPos: 'bottom',
+            vOrigin: 'top',
+            hOffset: -156-121
+        }
+    };
+
     var taskQueue = {
 
         /**
@@ -116,23 +139,11 @@ define([
             var reportElement = reportElementFactory({replace:true}, taskData)
                 .on('close', function(){
                     list.hideDetail();
-                    list.alignWith($component, {
-                        hPos: 'center',
-                        hOrigin: 'center',
-                        vPos: 'bottom',
-                        vOrigin: 'top',
-                        hOffset: -156
-                    });
+                    list.alignWith($component, _alignementConfig.initial);
                     this.destroy();
                 });
             list.setDetail(reportElement, true);
-            list.alignWith($component, {
-                hPos: 'center',
-                hOrigin: 'center',
-                vPos: 'bottom',
-                vOrigin: 'top',
-                hOffset: -156-121
-            });
+            list.alignWith($component, _alignementConfig.showDetail);
             return this;
         },
 
@@ -258,11 +269,6 @@ define([
             .on('init', function() {
                 //initialize the task element collection
                 this.taskElements = {};
-            })
-            .on('render', function() {
-
-                var self = this;
-                var $trigger = this.getElement();
 
                 //create the list
                 this.list = makeAlignable(taskListFactory())
@@ -270,17 +276,16 @@ define([
                         title : __('Background tasks'),
                         emptyText : __('There is currently no background task'),
                     });
+            })
+            .on('render', function() {
 
-                //position it
+                var self = this;
+                var $trigger = this.getElement();
+
+                //position the list
                 this.list.render($trigger)
                     .moveBy(0, 0)
-                    .alignWith($trigger, {
-                        hPos: 'center',
-                        hOrigin: 'center',
-                        vPos: 'bottom',
-                        vOrigin: 'top',
-                        hOffset: -156
-                    })
+                    .alignWith($trigger, _alignementConfig.initial)
                     .hide();//start hidden
 
                 //load initial data
