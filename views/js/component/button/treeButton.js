@@ -83,6 +83,9 @@ define([
          * @typedef {treeTaskButton} the component
          */
         return makeTaskable(component(buttonApi))
+            .on('finished', function(){
+                this.stop();
+            })
             .on('enqueued', function(){
                 this.stop();
             })

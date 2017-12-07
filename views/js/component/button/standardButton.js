@@ -32,21 +32,6 @@ define([
     var defaultConfig = {
     };
 
-    var standardTaskButtonComponent = {
-        /**
-         * Restore the button to its state before the task creation
-         * @returns {standardTaskButton}
-         */
-        restoreButton : function restoreButton(){
-            if(this.is('terminated')){
-                this.reset()
-                    .show()
-                    .getElement().siblings('.task-creation-feedback').remove();
-            }
-            return this;
-        }
-    };
-
     /**
      * Builds a standard task creation button
      * @param {Object} config - the component config
@@ -62,15 +47,14 @@ define([
         //create the base loading button and make it taskable
         component = makeTaskable(loadingButton(config));
 
-        //add specific methods
-        _.assign(component, standardTaskButtonComponent);
-
         /**
          * The component
          * @typedef {ui/component} standardTaskButton
          */
         return component.on('started', function(){
             this.createTask();
+        }).on('finished', function(){
+            this.terminate().reset();
         }).on('enqueued', function(){
             this.terminate().reset();
         });
