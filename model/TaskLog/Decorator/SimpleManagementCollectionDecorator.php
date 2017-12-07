@@ -19,6 +19,7 @@
  */
 
 namespace oat\taoTaskQueue\model\TaskLog\Decorator;
+
 use oat\oatbox\filesystem\FileSystemService;
 use oat\taoTaskQueue\model\Entity\Decorator\CategoryEntityDecorator;
 use oat\taoTaskQueue\model\Entity\Decorator\HasFileEntityDecorator;
