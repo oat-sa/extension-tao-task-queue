@@ -40,7 +40,6 @@ define([
     'use strict';
 
     var defaultConfig = {
-        animationDuration: 1
     };
 
     var taskableComponent = {
@@ -73,10 +72,10 @@ define([
                 requestData = this.config.taskCreationData;
             }
 
-            if(!this.config.taskCreationtUrl){
+            if(!this.config.taskCreationUrl){
                 return this.trigger('error', 'the request url is required to create a task');
             }
-            requestUrl = this.config.taskCreationtUrl;
+            requestUrl = this.config.taskCreationUrl;
 
             if(!this.config.taskQueue){
                 return this.trigger('error', 'the taskQueue model is required to create a task');
@@ -107,7 +106,6 @@ define([
                             taskQueue.pollAll();
                         });
                     }
-                    self.trigger('finished', result);
                 } else {
                     //enqueuing process:
                     message = __('<strong> %s </strong> has been moved to the background.', task.taskLabel);
@@ -161,11 +159,19 @@ define([
 
     /**
      * @param {Component} component - an instance of ui/component
-     * @param {Object} config
+     * @param {Object} config - task queue creation specific config
+     * @param {Object} config.taskQueue - the task queue model to be used
+     * @param {String} config.taskCreationUrl - endpoint to create a task
+     * @param {Object|Function} [config.taskCreationData] - the parameters that will be send to the task creation request
+     * @param {JQuery} [config.taskReportContainer] - the container where the inline report can be printed to
+     * @return {taskableComponent}
      */
     return function makeTaskable(component, config) {
         _.assign(component, taskableComponent);
 
+        /**
+         * @typedef {ui/component} taskableComponent
+         */
         return component
             .off('.taskable')
             .on('init.taskable', function() {
