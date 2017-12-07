@@ -29,6 +29,9 @@ class TaskLogEntityTest extends \PHPUnit_Framework_TestCase
 {
     public function testEntityCreated()
     {
+        $createdAt = new \DateTime('2017-11-16 14:11:42', new \DateTimeZone(TIME_ZONE));
+        $updatedAt = new \DateTime('2017-11-16 17:12:30', new \DateTimeZone(TIME_ZONE));
+
         $entity = TaskLogEntity::createFromArray([
             'id' => 'rdf#i1508337970199318643',
             'task_name' => 'Task Name',
@@ -36,15 +39,14 @@ class TaskLogEntityTest extends \PHPUnit_Framework_TestCase
             'label' => 'Task label',
             'status' => TaskLogInterface::STATUS_COMPLETED,
             'owner' => 'userId',
-            'created_at' => '2017-11-16 14:11:42',
-            'updated_at' => '2017-11-16 17:12:30',
+            'created_at' => $createdAt->format('Y-m-d H:i:s'),
+            'updated_at' => $updatedAt->format('Y-m-d H:i:s'),
             'report' => [
                 'type' => 'info',
                 'message' => 'Running task http://www.taoinstance.dev/ontologies/tao.rdf#i1508337970199318643',
                 'data' => NULL,
                 'children' => []
-            ],
-            'category' => 'export'
+            ]
         ]);
 
         $this->assertInstanceOf(TaskLogEntity::class, $entity);
@@ -57,7 +59,6 @@ class TaskLogEntityTest extends \PHPUnit_Framework_TestCase
         $this->assertInternalType('array', $entity->getParameters());
         $this->assertInternalType('string', $entity->getLabel());
         $this->assertInternalType('string', $entity->getOwner());
-        $this->assertInternalType('string', $entity->getCategory());
 
         $this->assertEquals([
             'id' => 'rdf#i1508337970199318643',
@@ -65,18 +66,17 @@ class TaskLogEntityTest extends \PHPUnit_Framework_TestCase
             'taskLabel' => 'Task label',
             'status' => 'completed',
             'statusLabel' => 'Completed',
-            'createdAt' => 1510837902,
-            'createdAtElapsed' => (new \DateTime('now', new \DateTimeZone(TIME_ZONE)))->getTimestamp() - 1510837902,
-            'updatedAt' => 1510848750,
-            'updatedAtElapsed' => (new \DateTime('now', new \DateTimeZone(TIME_ZONE)))->getTimestamp() - 1510848750,
+            'createdAt' => $createdAt->getTimestamp(),
+            'createdAtElapsed' => (new \DateTime('now', new \DateTimeZone(TIME_ZONE)))->getTimestamp() - $createdAt->getTimestamp(),
+            'updatedAt' => $updatedAt->getTimestamp(),
+            'updatedAtElapsed' => (new \DateTime('now', new \DateTimeZone(TIME_ZONE)))->getTimestamp() - $updatedAt->getTimestamp(),
             'report' => [
                 'type' => 'info',
                 'message' => 'Running task http://www.taoinstance.dev/ontologies/tao.rdf#i1508337970199318643',
                 'data' => NULL,
                 'children' => []
             ],
-            'hasFile' => false,
-            'category' => 'export'
+            'hasFile' => false
         ], $entity->jsonSerialize());
     }
 
