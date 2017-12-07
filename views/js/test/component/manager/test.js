@@ -223,18 +223,14 @@ define([
         var $container = $('#qunit-fixture');
 
         taskQueueManagerFactory({}, _sampleLogCollection)
-            .on('report', function(){
-                //fetch report
-                this.showDetail(_sampleLogCollection[2]);
-            })
             .on('render', function(){
 
                 assert.equal(this.getElement().get(0), $container.find('.task-manager-container').get(0), 'component container found');
 
                 assert.equal(this.getElement().find('.badge-component').length, 1, 'badge component found');
                 assert.ok(this.getElement().find('.badge-component .loader').is(':visible'), 'the loader is on');
-                assert.ok(this.getElement().find('.badge-component .badge').hasClass('badge-error'), 'the badge is displaying an error');
-                assert.equal(this.getElement().find('.badge-component .badge').text(), '1', 'the badge value is correct');
+                assert.ok(this.getElement().find('.badge-component .badge').hasClass('badge-warning'), 'the badge is displaying a warning');
+                assert.equal(this.getElement().find('.badge-component .badge').text(), '3', 'the badge value is correct');
 
                 assert.equal(this.getElement().find('.task-listing').length, 1, 'list component found');
                 assert.ok(!this.getElement().find('.task-listing').is(':visible'), 'list starts hidden');

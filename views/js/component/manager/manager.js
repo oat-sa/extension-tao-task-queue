@@ -266,12 +266,6 @@ define([
 
                 //create the list
                 this.list = makeAlignable(taskListFactory())
-                    .on('show', function(){
-                        self.trigger('listshow');
-                    })
-                    .on('hide', function(){
-                        self.trigger('listhide');
-                    })
                     .init({
                         title : __('Background tasks'),
                         emptyText : __('There is currently no background task'),
@@ -304,6 +298,7 @@ define([
                     if($trigger.get(0) !== e.target && !$.contains($trigger.get(0), e.target)){
                         if(!self.list.is('hidden')){
                             self.list.hide();
+                            self.trigger('listhide');
                         }
                     }
                 });
@@ -312,8 +307,10 @@ define([
                 $trigger.on('click', function(){
                     if(self.list.is('hidden')){
                         self.list.show();
+                        self.trigger('listshow');
                     }else{
                         self.list.hide();
+                        self.trigger('listhide');
                     }
                 });
 
