@@ -18,48 +18,26 @@
  *
  */
 
-namespace oat\taoTaskQueue\model\Entity;
-
-use oat\taoTaskQueue\model\TaskLogInterface;
+namespace oat\taoTaskQueue\model\Task;
 
 /**
- * Interface CategoryEntityDecorator
+ * WorkerContextAwareInterface
  *
  * @author Gyula Szucs <gyula@taotesting.com>
  */
-class CategoryEntityDecorator extends TaskLogEntityDecorator
+interface WorkerContextAwareInterface
 {
     /**
-     * @var TaskLogInterface
-     */
-    private $taskLogService;
-
-    public function __construct(TaskLogEntityInterface $entity, TaskLogInterface $taskLogService)
-    {
-        parent::__construct($entity);
-
-        $this->taskLogService = $taskLogService;
-    }
-
-    /**
-     * @return array
-     */
-    public function jsonSerialize()
-    {
-        return $this->toArray();
-    }
-
-    /**
-     * Add category to the result. Required by our frontend.
+     * Called from the worker, meaning the task is being processed by the worker.
      *
-     * @return array
+     * @return mixed
      */
-    public function toArray()
-    {
-        $result = parent::toArray();
+    public function applyWorkerContext();
 
-        $result['category'] = $this->taskLogService->getCategoryForTask($this->getTaskName());
-
-        return $result;
-    }
+    /**
+     * Is the task being processed by the worker?
+     *
+     * @return mixed
+     */
+    public function isWorkerContext();
 }

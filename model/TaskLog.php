@@ -229,16 +229,12 @@ class TaskLog extends ConfigurableService implements TaskLogInterface
     /**
      * @inheritdoc
      */
-    public function findAvailableByUser($userId, $limit = null, $offset = null, $reportIncluded = false)
+    public function findAvailableByUser($userId, $limit = null, $offset = null)
     {
         $filter = (new TaskLogFilter())
             ->addAvailableFilters($userId)
             ->setLimit(is_null($limit) ? self::DEFAULT_LIMIT : $limit)
             ->setOffset(is_null($offset) ? 0 : $offset);
-
-        if (false === $reportIncluded) {
-            $filter->deselect(TaskLogBrokerInterface::COLUMN_REPORT);
-        }
 
         return $this->getBroker()->search($filter);
     }

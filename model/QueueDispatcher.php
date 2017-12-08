@@ -494,6 +494,8 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
      *
      * It will be deprecated once we have the general GUI for displaying different info of a task for the user.
      *
+     * @deprecated
+     *
      * @param \core_kernel_classes_Resource $resource
      * @return null|\core_kernel_classes_Resource
      */
@@ -507,6 +509,8 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
 
     /**
      * It will be deprecated once we have the general GUI for displaying different info of a task for the user.
+     *
+     * @deprecated
      *
      * @param \core_kernel_classes_Resource $resource
      * @return Report
@@ -539,6 +543,8 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
      * Create task resource in the rdf storage and link placeholder resource to it.
      *
      * It will be deprecated once we have the general GUI for displaying different info of a task for the user.
+     *
+     * @deprecated
      *
      * @param TaskInterface $task
      * @param \core_kernel_classes_Resource|null $resource - placeholder resource to be linked with task.

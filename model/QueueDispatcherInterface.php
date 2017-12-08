@@ -34,6 +34,8 @@ interface QueueDispatcherInterface extends \Countable, LoggerAwareInterface
 {
     const SERVICE_ID = 'taoTaskQueue/taskQueue';
 
+    const FILE_SYSTEM_ID = 'taskQueueStorage';
+
     /**
      * Array of queues
      */

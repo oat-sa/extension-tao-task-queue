@@ -23,6 +23,10 @@ namespace oat\taoTaskQueue\model\Entity;
 use common_report_Report as Report;
 use DateTime;
 use Exception;
+use oat\oatbox\filesystem\Directory;
+use oat\oatbox\filesystem\FileSystemService;
+use oat\oatbox\service\ServiceManager;
+use oat\taoTaskQueue\model\QueueDispatcherInterface;
 use oat\taoTaskQueue\model\TaskLogBroker\TaskLogBrokerInterface;
 use oat\taoTaskQueue\model\ValueObjects\TaskLogCategorizedStatus;
 
@@ -106,7 +110,7 @@ class TaskLogEntity implements TaskLogEntityInterface
             isset($row[TaskLogBrokerInterface::COLUMN_OWNER]) ? $row[TaskLogBrokerInterface::COLUMN_OWNER] : '',
             isset($row[TaskLogBrokerInterface::COLUMN_CREATED_AT]) ? DateTime::createFromFormat('Y-m-d H:i:s', $row[TaskLogBrokerInterface::COLUMN_CREATED_AT], new \DateTimeZone(TIME_ZONE)) : null,
             isset($row[TaskLogBrokerInterface::COLUMN_UPDATED_AT]) ? DateTime::createFromFormat('Y-m-d H:i:s', $row[TaskLogBrokerInterface::COLUMN_UPDATED_AT], new \DateTimeZone(TIME_ZONE)) : null,
-            isset($row[TaskLogBrokerInterface::COLUMN_REPORT]) ? Report::jsonUnserialize($row[TaskLogBrokerInterface::COLUMN_REPORT]) : null
+            Report::jsonUnserialize($row[TaskLogBrokerInterface::COLUMN_REPORT])
         );
     }
 
@@ -184,6 +188,11 @@ class TaskLogEntity implements TaskLogEntityInterface
     }
 
     /**
+     * Returns the file name from the generated report.
+     *
+     * CAUTION: it is not 100% sure that the returned string is really a file name because different reports set different values as data.
+     * So this return value can be any kind of string. Please check the file whether it exist or not before usage.
+     *
      * @return string
      */
     public function getFileNameFromReport()
@@ -196,7 +205,9 @@ class TaskLogEntity implements TaskLogEntityInterface
 
         /** @var Report  $successReport */
         foreach ($this->getReport()->getSuccesses() as $successReport) {
-            if (!is_null($filename = $successReport->getData())) {
+            $data = $successReport->getData();
+            if (is_string($data)) {
+                $filename = $data;
                 break;
             }
         }
@@ -222,8 +233,7 @@ class TaskLogEntity implements TaskLogEntityInterface
             'id' => $this->id,
             'taskName' => $this->taskName,
             'status' => (string) $this->status,
-            'statusLabel' => $this->status->getLabel(),
-            'hasFile' => (bool) $this->getFileNameFromReport()
+            'statusLabel' => $this->status->getLabel()
         ];
 
         // add other fields only if they have values
