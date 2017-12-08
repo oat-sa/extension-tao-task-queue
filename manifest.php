@@ -31,11 +31,11 @@ return array(
     'label' => 'Task Queue',
     'description' => 'TAO specific Task Queue with custom GUI',
     'license' => 'GPL-2.0',
-    'version' => '0.9.0',
+    'version' => '0.10.0',
     'author' => 'Open Assessment Technologies SA',
     'requires' => array(
         'generis' => '>=5.8.0',
-        'tao' => '>=14.8.0'
+        'tao' => '>=14.10.0'
     ),
     'managementRole' => 'http://www.tao.lu/Ontologies/generis.rdf#taoTaskQueueManager',
     'acl' => array(
