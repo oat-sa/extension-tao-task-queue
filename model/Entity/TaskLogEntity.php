@@ -97,7 +97,6 @@ class TaskLogEntity implements TaskLogEntityInterface
     /**
      * @param array $row
      * @return TaskLogEntity
-     * @throws \common_exception_Error
      * @throws Exception
      */
     public static function createFromArray(array $row)

@@ -22,10 +22,12 @@
 namespace oat\taoTaskQueue\scripts\update;
 
 use common_ext_ExtensionUpdater;
+use oat\oatbox\service\ConfigurableService;
 use oat\taoTaskQueue\model\Queue;
 use oat\taoTaskQueue\model\QueueBroker\InMemoryQueueBroker;
 use oat\taoTaskQueue\model\QueueDispatcher;
 use oat\taoTaskQueue\model\QueueDispatcherInterface;
+use oat\taoTaskQueue\model\TaskSelector\WeightStrategy;
 use oat\taoTaskQueue\model\TaskLogBroker\TaskLogBrokerInterface;
 use oat\taoTaskQueue\model\TaskLogInterface;
 use oat\tao\model\ClientLibConfigRegistry;
@@ -89,6 +91,17 @@ class Updater extends common_ext_ExtensionUpdater
         $this->skip('0.5.0', '0.8.1');
 
         if ($this->isVersion('0.8.1')) {
+            /** @var QueueDispatcherInterface|ConfigurableService $queueService */
+            $queueService = $this->getServiceManager()->get(QueueDispatcherInterface::SERVICE_ID);
+
+            $queueService->setTaskSelector(new WeightStrategy());
+
+            $this->getServiceManager()->register(QueueDispatcherInterface::SERVICE_ID, $queueService);
+
+            $this->setVersion('0.9.0');
+        }
+
+        if ($this->isVersion('0.9.0')) {
             //Add an extra controller the backoffice 'controller/main'
             ClientLibConfigRegistry::getRegistry()->register(
                 'controller/main', [
@@ -96,7 +109,7 @@ class Updater extends common_ext_ExtensionUpdater
                 ]
             );
 
-            $this->setVersion('0.9.0');
+            $this->setVersion('0.10.0');
         }
     }
 }

@@ -20,6 +20,7 @@
 
 namespace oat\taoTaskQueue\scripts\tools;
 
+use common_report_Report as Report;
 use oat\oatbox\extension\InstallAction;
 use Aws\Exception\AwsException;
 use oat\taoTaskQueue\model\QueueBroker\InMemoryQueueBroker;
@@ -55,6 +56,10 @@ use Zend\ServiceManager\ServiceLocatorAwareTrait;
  * ```
  * $ sudo -u www-data php index.php 'oat\taoTaskQueue\scripts\tools\InitializeQueue' --broker=sqs --receive=10
  * ```
+ *
+ * - To set a task selector strategy, please provide the FQCN of the wanted strategy
+ * ```
+ * $ sudo -u www-data php index.php 'oat\taoTaskQueue\scripts\tools\InitializeQueue' --strategy="\oat\taoTaskQueue\model\TaskSelector\StrictPriorityStrategy"
  */
 class InitializeQueue extends InstallAction
 {
@@ -67,11 +72,14 @@ class InitializeQueue extends InstallAction
     private $wantedBroker;
     private $persistenceId;
     private $receive;
+    private $strategy;
 
     public function __invoke($params)
     {
         try {
             $this->checkParams($params);
+
+            $report = Report::createInfo('Running command...');
 
             /** @var QueueDispatcher $queueService */
             $queueService = $this->getServiceLocator()->get(QueueDispatcherInterface::SERVICE_ID);
@@ -80,24 +88,33 @@ class InitializeQueue extends InstallAction
 
             // if any new change is wanted on queues
             if (count($params) > 0) {
-                $broker = null;
 
-                switch ($this->wantedBroker) {
-                    case self::BROKER_MEMORY:
-                        $broker = new InMemoryQueueBroker();
-                        break;
+                // BROKER settings
+                if ($this->wantedBroker) {
+                    $broker = null;
 
-                    case self::BROKER_RDS:
-                        $broker = new RdsQueueBroker($this->persistenceId, $this->receive ?: 1);
-                        break;
+                    switch ($this->wantedBroker) {
+                        case self::BROKER_MEMORY:
+                            $broker = new InMemoryQueueBroker();
+                            break;
 
-                    case self::BROKER_SQS:
-                        $broker = new SqsQueueBroker(\common_cache_Cache::SERVICE_ID, $this->receive ?: 1);
-                        break;
+                        case self::BROKER_RDS:
+                            $broker = new RdsQueueBroker($this->persistenceId, $this->receive ?: 1);
+                            break;
+
+                        case self::BROKER_SQS:
+                            $broker = new SqsQueueBroker(\common_cache_Cache::SERVICE_ID, $this->receive ?: 1);
+                            break;
+                    }
+
+                    foreach ($queueService->getQueues() as $queue) {
+                        $queue->setBroker(clone $broker);
+                    }
                 }
 
-                foreach ($queueService->getQueues() as $queue) {
-                    $queue->setBroker(clone $broker);
+                // STRATEGY settings
+                if ($this->strategy) {
+                    $queueService->setTaskSelector($this->strategy);
                 }
 
                 $reRegister = true;
@@ -106,22 +123,25 @@ class InitializeQueue extends InstallAction
             // Create queues
             if (!$queueService->isSync()) {
                 $queueService->initialize();
+                $report->add(Report::createSuccess('Queue(s) initialized.'));
             }
 
             if ($reRegister) {
                 $this->registerService(QueueDispatcherInterface::SERVICE_ID, $queueService);
+                $report->add(Report::createSuccess('Queue service re-registered.'));
             }
 
             // Create task log container
             /** @var TaskLogInterface $taskLog */
             $taskLog = $this->getServiceLocator()->get(TaskLogInterface::SERVICE_ID);
             $taskLog->createContainer();
+            $report->add(Report::createSuccess('Task Log container created.'));
 
-            return \common_report_Report::createSuccess('Initialization successful');
+            return $report;
         } catch (AwsException $e) {
-            return \common_report_Report::createFailure($e->getAwsErrorMessage());
+            return Report::createFailure($e->getAwsErrorMessage());
         } catch (\Exception $e) {
-            return \common_report_Report::createFailure($e->getMessage());
+            return Report::createFailure($e->getMessage());
         }
     }
 
@@ -148,6 +168,14 @@ class InitializeQueue extends InstallAction
 
                 case '--receive':
                     $this->receive = abs((int) $value);
+                    break;
+
+                case '--strategy':
+                    if (!class_exists($value)) {
+                        throw new \InvalidArgumentException('Strategy "'. $value .'" does not exist.');
+                    }
+
+                    $this->strategy = new $value();
                     break;
             }
         }
