@@ -52,6 +52,8 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
     /** @var SelectorStrategyInterface */
     private $selectorStrategy;
 
+    private $propagated = false;
+
     /**
      * QueueDispatcher constructor.
      *
@@ -131,6 +133,18 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
 
     /**
      * @inheritdoc
+     */
+    public function setQueues(array $queues)
+    {
+        $this->propagated = false;
+
+        $this->setOption(self::OPTION_QUEUES, $queues);
+
+        return $this;
+    }
+
+    /**
+     * @inheritdoc
      * @throws \LogicException
      */
     public function addQueue(QueueInterface $queue)
@@ -138,6 +152,8 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
         if ($this->hasQueue($queue->getName())) {
             throw new \LogicException('Queue "'. $queue .'" is already registered.');
         }
+
+        $this->propagated = false;
 
         $queues = $this->getQueues();
         $queues[] = $queue;
@@ -176,9 +192,7 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
      */
     public function getQueues()
     {
-        static $propagated = false;
-
-        if (!$propagated) {
+        if (!$this->propagated) {
             $queues = (array) $this->getOption(self::OPTION_QUEUES);
 
             // propagate the services for the queues first
@@ -186,7 +200,7 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
                 $this->propagateServices($queue);
             });
 
-            $propagated = true;
+            $this->propagated = true;
         }
 
         return $this->getOption(self::OPTION_QUEUES);

@@ -66,6 +66,12 @@ interface QueueDispatcherInterface extends \Countable, LoggerAwareInterface
     public function addQueue(QueueInterface $queue);
 
     /**
+     * @param QueueInterface[] $queues
+     * @return QueueDispatcherInterface
+     */
+    public function setQueues(array $queues);
+
+    /**
      * @param string $queueName
      * @return QueueInterface
      */
