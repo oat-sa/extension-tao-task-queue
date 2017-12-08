@@ -263,7 +263,7 @@ define([
          */
         return makeAbsorbable(component(taskQueue))
             .setTemplate(managerTpl)
-            .on('destroy', function(){
+            .on('destroy listhide', function(){
                 $(document).off('click.task-queue-manager');
             })
             .on('init', function() {
@@ -276,6 +276,19 @@ define([
                         title : __('Background tasks'),
                         emptyText : __('There is currently no background task'),
                     });
+            })
+            .on('listshow', function(){
+                var self = this;
+                var $component = this.getElement();
+                //close the popup when clicking outside of the component
+                $(document).off('click.task-queue-manager').on('click.task-queue-manager', function(e){
+                    if($component.get(0) !== e.target && !$.contains($component.get(0), e.target)){
+                        if(!self.list.is('hidden')){
+                            self.list.hide();
+                            self.trigger('listhide');
+                        }
+                    }
+                });
             })
             .on('render', function() {
 
@@ -296,16 +309,6 @@ define([
                     .addClass('overflown-element')
                     .on('click', function(e){
                     e.stopPropagation();
-                });
-
-                //close the popup when clicking outside of the component
-                $(document).off('click.task-queue-manager').on('click.task-queue-manager', function(e){
-                    if($trigger.get(0) !== e.target && !$.contains($trigger.get(0), e.target)){
-                        if(!self.list.is('hidden')){
-                            self.list.hide();
-                            self.trigger('listhide');
-                        }
-                    }
                 });
 
                 //toggle list visibility
