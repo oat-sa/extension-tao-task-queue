@@ -20,6 +20,7 @@
 
 namespace oat\taoTaskQueue\model;
 
+use oat\taoTaskQueue\model\TaskSelector\SelectorStrategyInterface;
 use oat\taoTaskQueue\model\Task\CallbackTaskInterface;
 use oat\taoTaskQueue\model\Task\TaskInterface;
 use Psr\Log\LoggerAwareInterface;
@@ -49,6 +50,8 @@ interface QueueDispatcherInterface extends \Countable, LoggerAwareInterface
     const OPTION_TASK_TO_QUEUE_ASSOCIATIONS = 'task_to_queue_associations';
 
     const OPTION_TASK_LOG = 'task_log';
+
+    const OPTION_TASK_SELECTOR_STRATEGY = 'task_selector_strategy';
 
     const QUEUE_PREFIX = 'TQ';
 
@@ -96,6 +99,7 @@ interface QueueDispatcherInterface extends \Countable, LoggerAwareInterface
     /**
      * Get a queue randomly using weight.
      *
+     * @deprecated
      * @return QueueInterface
      */
     public function getQueueByWeight();
@@ -193,4 +197,18 @@ interface QueueDispatcherInterface extends \Countable, LoggerAwareInterface
      * @param TaskInterface $task
      * @param \core_kernel_classes_Resource|null $resource Placeholder resource linked to the task
      */
-    public function linkTaskToResource(TaskInterface $task, \core_kernel_classes_Resource $resource = null);}
+    public function linkTaskToResource(TaskInterface $task, \core_kernel_classes_Resource $resource = null);
+
+    /**
+     * @param SelectorStrategyInterface $selectorStrategy
+     * @return QueueDispatcherInterface
+     */
+    public function setTaskSelector(SelectorStrategyInterface $selectorStrategy);
+
+    /**
+     * Seconds for the worker to wait if there is no task.
+     *
+     * @return int
+     */
+    public function getWaitTime();
+}
