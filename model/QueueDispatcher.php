@@ -71,14 +71,11 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
             $this->selectorStrategy = new WeightStrategy();
         } else {
             // using the strategy set in the options
-            if (!is_a($this->getOption(self::OPTION_TASK_SELECTOR_STRATEGY), SelectorStrategyInterface::class, true)) {
+            if (!is_a($this->getOption(self::OPTION_TASK_SELECTOR_STRATEGY), SelectorStrategyInterface::class)) {
                 throw new \common_exception_Error('Task selector must implement ' . SelectorStrategyInterface::class);
             }
 
-            $strategyClass = $this->getOption(self::OPTION_TASK_SELECTOR_STRATEGY);
-
-            /** @var SelectorStrategyInterface $strategy */
-            $this->selectorStrategy = new $strategyClass;
+            $this->selectorStrategy = $this->getOption(self::OPTION_TASK_SELECTOR_STRATEGY);
         }
 
         if (!$this->hasOption(self::OPTION_TASK_LOG) || empty($this->getOption(self::OPTION_TASK_LOG))) {
@@ -283,7 +280,7 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
      */
     public function setTaskSelector(SelectorStrategyInterface $selectorStrategy)
     {
-        $this->setOption(self::OPTION_TASK_SELECTOR_STRATEGY, get_class($selectorStrategy));
+        $this->setOption(self::OPTION_TASK_SELECTOR_STRATEGY, $selectorStrategy);
 
         return $this;
     }

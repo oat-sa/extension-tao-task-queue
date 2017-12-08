@@ -25,8 +25,8 @@ use oat\taoTaskQueue\model\Queue;
 use oat\taoTaskQueue\model\QueueBroker\InMemoryQueueBroker;
 use oat\taoTaskQueue\model\QueueDispatcher;
 use oat\taoTaskQueue\model\QueueDispatcherInterface;
-use oat\taoTaskQueue\model\QueueSelector\WeightStrategy;
 use oat\taoTaskQueue\model\TaskLogInterface;
+use oat\taoTaskQueue\model\TaskSelector\WeightStrategy;
 
 /**
  * Install Action to register task queue service
@@ -43,7 +43,7 @@ class RegisterTaskQueueService extends InstallAction
             ],
             QueueDispatcherInterface::OPTION_TASK_LOG     => TaskLogInterface::SERVICE_ID,
             QueueDispatcherInterface::OPTION_TASK_TO_QUEUE_ASSOCIATIONS => [],
-            QueueDispatcherInterface::OPTION_QUEUE_SELECTOR_STRATEGY => WeightStrategy::class
+            QueueDispatcherInterface::OPTION_TASK_SELECTOR_STRATEGY => new WeightStrategy()
         ]);
 
         $this->registerService(QueueDispatcherInterface::SERVICE_ID, $queueService);

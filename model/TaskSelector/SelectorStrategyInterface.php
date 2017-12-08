@@ -20,6 +20,7 @@
 
 namespace oat\taoTaskQueue\model\TaskSelector;
 
+use oat\oatbox\PhpSerializable;
 use oat\taoTaskQueue\model\QueueInterface;
 use oat\taoTaskQueue\model\Task\TaskInterface;
 
@@ -28,7 +29,7 @@ use oat\taoTaskQueue\model\Task\TaskInterface;
  *
  * @author Gyula Szucs <gyula@taotesting.com>
  */
-interface SelectorStrategyInterface
+interface SelectorStrategyInterface extends PhpSerializable
 {
     /**
      * @param QueueInterface[] $queues

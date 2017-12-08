@@ -21,6 +21,7 @@
 namespace oat\taoTaskQueue\model\TaskSelector;
 
 use oat\oatbox\log\LoggerAwareTrait;
+use oat\oatbox\PhpSerializeStateless;
 use oat\taoTaskQueue\model\QueueInterface;
 use Psr\Log\LoggerAwareInterface;
 
@@ -32,6 +33,7 @@ use Psr\Log\LoggerAwareInterface;
 class WeightStrategy implements SelectorStrategyInterface, LoggerAwareInterface
 {
     use LoggerAwareTrait;
+    use PhpSerializeStateless;
 
     /**
      * @inheritdoc
