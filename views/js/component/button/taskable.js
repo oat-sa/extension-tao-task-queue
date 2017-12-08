@@ -17,12 +17,17 @@
  */
 
 /**
- * Allow to generate an absorbing animation from a target element to the component
+ * Add the task creation capability to a component
  *
  * @example
- * component.absorb($target);//will create an animation
- * component.absorb($target).then(callback);//enables executing the callback after the animation sequence is over
- * component.absorbBurst($target, [0, 500, 1000]).then(callback);//creates 3 successive absorbing animation respectively at 0, 500 and 1000ms
+ * makeTaskable(component)
+ *    .setTaskConfig({
+ *        taskQueue : taskQueue,
+ *        taskCreationUrl : 'the/url/to/task/creation/service',
+ *        taskCreationData : function(){
+ *            return {some: 'data'};
+ *        }
+ *    }).createTask();
  *
  * @author Sam <sam@taotesting.com>
  */
@@ -94,15 +99,21 @@ define([
                         //download if its is a export-typed task
                         taskQueue.download(task.id).then(function(){
                             //immediately archive the finished task as there is no need to display this task in the queue list
-                            taskQueue.archive(task.id).then(function () {
-                                self.trigger('finished', result);
-                                taskQueue.pollAll();
-                            });
+                            return taskQueue.archive(task.id);
+                        }).then(function () {
+                            self.trigger('finished', result);
+                            taskQueue.pollAll();
+                        }).catch(function(err){
+                            self.trigger('error', err);
+                            taskQueue.pollAll();
                         });
                     }else{
                         //immediately archive the finished task as there is no need to display this task in the queue list
-                        taskQueue.archive(task.id).then(function () {
+                        taskQueue.archive(task.id).then(function(){
                             self.trigger('finished', result);
+                            taskQueue.pollAll();
+                        }).catch(function(err){
+                            self.trigger('error', err);
                             taskQueue.pollAll();
                         });
                     }

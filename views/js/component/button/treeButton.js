@@ -80,7 +80,7 @@ define([
     };
 
     /**
-     * Create a button with to create a task
+     * Create a button that will trigger a task creation when clicked
      *
      * @param {Object} config - the component config
      * @param {String} config.icon - the button icon
