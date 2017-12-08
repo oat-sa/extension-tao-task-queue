@@ -18,7 +18,9 @@
  *
  */
 
-namespace oat\taoTaskQueue\model\TaskLog;
+namespace oat\taoTaskQueue\model\TaskLog\Decorator;
+
+use oat\taoTaskQueue\model\TaskLog\TaskLogCollectionInterface;
 
 /**
  * Interface TaskLogCollectionDecorator

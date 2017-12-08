@@ -22,8 +22,10 @@ namespace oat\taoTaskQueue\controller;
 
 use common_session_SessionManager;
 use oat\oatbox\filesystem\FileSystemService;
-use oat\taoTaskQueue\model\Entity\CategoryEntityDecorator;
-use oat\taoTaskQueue\model\TaskLog\CategoryCollectionDecorator;
+use oat\taoTaskQueue\model\Entity\Decorator\CategoryEntityDecorator;
+use oat\taoTaskQueue\model\Entity\Decorator\HasFileEntityDecorator;
+use oat\taoTaskQueue\model\QueueDispatcherInterface;
+use oat\taoTaskQueue\model\TaskLog\Decorator\SimpleManagementCollectionDecorator;
 use oat\taoTaskQueue\model\TaskLogInterface;
 
 /**
@@ -36,7 +38,6 @@ class TaskQueueWebApi extends \tao_actions_CommonModule
     const PARAMETER_TASK_ID = 'taskId';
     const PARAMETER_LIMIT = 'limit';
     const PARAMETER_OFFSET = 'offset';
-    const PARAMETER_REPORT_INCLUDED = 'reportIncluded';
 
     /** @var string */
     private $userId;
@@ -63,7 +64,6 @@ class TaskQueueWebApi extends \tao_actions_CommonModule
         /** @var TaskLogInterface $taskLogService */
         $taskLogService = $this->getServiceManager()->get(TaskLogInterface::SERVICE_ID);
         $limit = $offset = null;
-        $reportIncluded = false;
 
         if ($this->hasRequestParameter(self::PARAMETER_LIMIT)) {
             $limit = (int) $this->getRequestParameter(self::PARAMETER_LIMIT);
@@ -73,15 +73,19 @@ class TaskQueueWebApi extends \tao_actions_CommonModule
             $offset = (int) $this->getRequestParameter(self::PARAMETER_OFFSET);
         }
 
-        if ($this->hasRequestParameter(self::PARAMETER_REPORT_INCLUDED)) {
-            $reportIncluded = (bool) $this->getRequestParameter(self::PARAMETER_REPORT_INCLUDED);
-        }
+        /** @var FileSystemService $fs */
+        $fs = $this->getServiceManager()->get(FileSystemService::SERVICE_ID);
 
-        $collection = $taskLogService->findAvailableByUser($this->userId, $limit, $offset, $reportIncluded);
+        $collection = new SimpleManagementCollectionDecorator(
+            $taskLogService->findAvailableByUser($this->userId, $limit, $offset),
+            $taskLogService,
+            $fs,
+            false
+        );
 
         return $this->returnJson([
             'success' => true,
-            'data' => (new CategoryCollectionDecorator($collection, $taskLogService))->toArray()
+            'data' => $collection->toArray()
         ]);
     }
 
@@ -97,6 +101,9 @@ class TaskQueueWebApi extends \tao_actions_CommonModule
         /** @var TaskLogInterface $taskLogService */
         $taskLogService = $this->getServiceManager()->get(TaskLogInterface::SERVICE_ID);
 
+        /** @var FileSystemService $fs */
+        $fs = $this->getServiceManager()->get(FileSystemService::SERVICE_ID);
+
         try {
             $this->assertTaskIdExists();
 
@@ -107,7 +114,7 @@ class TaskQueueWebApi extends \tao_actions_CommonModule
 
             return $this->returnJson([
                 'success' => true,
-                'data' => (new CategoryEntityDecorator($entity, $taskLogService))->toArray()
+                'data' => (new HasFileEntityDecorator(new CategoryEntityDecorator($entity, $taskLogService), $fs))->toArray()
             ]);
         } catch (\Exception $e) {
             return $this->returnJson([
@@ -179,19 +186,23 @@ class TaskQueueWebApi extends \tao_actions_CommonModule
             $taskLogEntity = $taskLogService->getByIdAndUser($this->getRequestParameter(self::PARAMETER_TASK_ID), $this->userId);
 
             if (!$taskLogEntity->getStatus()->isCompleted()) {
-                throw new \RuntimeException('Task "'. $taskLogEntity->getId() .'" is not downloadable.');
+                throw new \common_Exception('Task "'. $taskLogEntity->getId() .'" is not downloadable.');
             }
 
             $filename = $taskLogEntity->getFileNameFromReport();
 
             if (empty($filename)) {
-                throw new \LogicException('Filename not found in report.');
+                throw new \common_Exception('Filename not found in report.');
             }
 
             /** @var FileSystemService $fileSystem */
             $fileSystem = $this->getServiceManager()->get(FileSystemService::SERVICE_ID);
-            $directory = $fileSystem->getDirectory('taskQueueStorage');
+            $directory = $fileSystem->getDirectory(QueueDispatcherInterface::FILE_SYSTEM_ID);
             $file = $directory->getFile($filename);
+
+            if (!$file->exists()) {
+                throw new \common_exception_NotFound('File not found.');
+            }
 
             header('Set-Cookie: fileDownload=true');
             setcookie('fileDownload', 'true', 0, '/');

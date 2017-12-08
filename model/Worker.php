@@ -34,8 +34,7 @@ final class Worker implements WorkerInterface
     use LoggerAwareTrait;
 
     const WAIT_INTERVAL = 1; // sec
-    const MAX_SLEEPING_TIME = 10; //default sleeping time in sec
-    const MAX_SLEEPING_TIME_FOR_DEDICATED_QUEUE = 30; //working on only one queue, there can be higher sleeping time
+    const MAX_SLEEPING_TIME_FOR_DEDICATED_QUEUE = 30; //max sleeping time if working on only one queue
 
     /**
      * @var QueueDispatcherInterface
@@ -117,7 +116,7 @@ final class Worker implements WorkerInterface
                 if (!$task) {
                     ++$this->iterationsWithOutTask;
                     $waitInterval = $this->getWaitInterval();
-                    $this->logInfo('No task to work on. Sleeping for '. $waitInterval .' sec', $this->logContext);
+                    $this->logInfo('Sleeping for '. $waitInterval .' sec', $this->logContext);
                     usleep($waitInterval * 1000000);
 
                     continue;
@@ -160,6 +159,9 @@ final class Worker implements WorkerInterface
                 $this->logInfo('Task '. $task->getId() .' seems to be processed by another worker.', $this->logContext);
                 return TaskLogInterface::STATUS_UNKNOWN;
             }
+
+            // let the task know that it is called from a worker
+            $task->applyWorkerContext();
 
             // execute the task
             $taskReport = $task();
@@ -286,10 +288,12 @@ final class Worker implements WorkerInterface
      */
     private function getWaitInterval()
     {
-        $waitTime = $this->iterationsWithOutTask * self::WAIT_INTERVAL;
+        if ($this->dedicatedQueue instanceof QueueInterface) {
+            $waitTime = $this->iterationsWithOutTask * self::WAIT_INTERVAL;
 
-        $maxWait = $this->dedicatedQueue instanceof QueueInterface ? self::MAX_SLEEPING_TIME_FOR_DEDICATED_QUEUE : self::MAX_SLEEPING_TIME;
-
-        return min($waitTime, $maxWait);
+            return min($waitTime, self::MAX_SLEEPING_TIME_FOR_DEDICATED_QUEUE);
+        } else {
+            return (int) $this->queueService->getWaitTime();
+        }
     }
 }

@@ -183,6 +183,11 @@ Option "persistence" is required, "receive" (Maximum amount of tasks that can be
  $ sudo -u www-data php index.php 'oat\taoTaskQueue\scripts\tools\InitializeQueue' --broker=sqs --aws-profile=default --receive=10
 ```
 
+- Setting a task selector strategy.
+```bash
+ $ sudo -u www-data php index.php 'oat\taoTaskQueue\scripts\tools\InitializeQueue' --strategy="\oat\taoTaskQueue\model\TaskSelector\StrictPriorityStrategy"
+```
+
 ### Running a worker
 
 To run a worker, use the following command. It will start a worker for running infinitely and iterating over every registered Queues based in their weights.

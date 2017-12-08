@@ -27,6 +27,8 @@ namespace oat\taoTaskQueue\model\Task;
  */
 abstract class AbstractTask implements TaskInterface
 {
+    use WorkerContextAwareTrait;
+
     private $metadata = [];
     private $parameters = [];
 

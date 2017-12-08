@@ -23,9 +23,10 @@ namespace oat\taoTaskQueue\model;
 use common_report_Report as Report;
 use oat\oatbox\service\ServiceManager;
 use oat\taoTaskQueue\model\Entity\TaskLogEntity;
+use oat\taoTaskQueue\model\Task\TaskInterface;
 
 /**
- * Helper trait for legacy REST actions/controllers to operate with task log data for a given task.
+ * Helper trait for actions/controllers to operate with task log data for a given task.
  *
  * @author Gyula Szucs <gyula@taotesting.com>
  */
@@ -35,6 +36,13 @@ trait TaskLogActionTrait
      * @return ServiceManager
      */
     abstract protected function getServiceManager();
+
+    /**
+     * @param array $data
+     * @param int $httpStatus
+     * @return mixed
+     */
+    abstract protected function returnJson($data, $httpStatus = 200);
 
     /**
      * @param string $taskId
@@ -83,6 +91,24 @@ trait TaskLogActionTrait
         $result['report'] = $taskLogEntity->getReport() ? $this->getTaskReport($taskLogEntity) : [];
 
         return array_merge($result, (array) $this->addExtraReturnData($taskLogEntity));
+    }
+
+    /**
+     * Returns task data in a specific data structure required by the front-end component.
+     *
+     * @param TaskInterface $task
+     * @param array         $extraData
+     * @return mixed
+     */
+    protected function returnTaskJson(TaskInterface $task, array $extraData = [])
+    {
+        return $this->returnJson([
+            'success' => true,
+            'data' => [
+                'extra' => $extraData,
+                'task' => $this->getTaskLogReturnData($task->getId())
+            ]
+        ]);
     }
 
     /**

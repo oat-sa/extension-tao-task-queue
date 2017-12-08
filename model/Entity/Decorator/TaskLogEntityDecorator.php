@@ -18,7 +18,9 @@
  *
  */
 
-namespace oat\taoTaskQueue\model\Entity;
+namespace oat\taoTaskQueue\model\Entity\Decorator;
+
+use oat\taoTaskQueue\model\Entity\TaskLogEntityInterface;
 
 /**
  * Interface TaskLogEntityInterface
