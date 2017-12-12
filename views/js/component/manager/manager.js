@@ -161,7 +161,7 @@ define([
                     delete self.taskElements[taskId];
                     self.list.removeElement(listElement);
                     self.trigger('remove', taskId);
-                    self.selfUpdateBadge();
+                    self.trigger('listchange');
                 })
                 .on('report', function(){
                     self.trigger('report', taskId);
@@ -180,7 +180,7 @@ define([
 
             this.list.insertElement(listElement);
             this.taskElements[taskId] = listElement;
-            this.selfUpdateBadge();
+            this.trigger('listchange');
 
             if(animate){
                 this.list.animateInsertion(listElement);
@@ -225,7 +225,7 @@ define([
                 }
                 found.push(id);
             });
-            this.selfUpdateBadge();
+            this.trigger('listchange');
             return this;
         },
 
@@ -240,6 +240,10 @@ define([
             return this;
         },
 
+        /**
+         * Remove all finished element (completed or failed) from the list
+         * @returns {taskQueueManager}
+         */
         removeAllFinished : function removeAllFinished(){
 
             var self = this;
@@ -252,7 +256,28 @@ define([
                 self.trigger('listchange');
             });
 
-            this.trigger('removeallfinished');
+            this.trigger('listclearfinished');
+            return this;
+        },
+
+        /**
+         * Toggle the visibility of the clear all button according to the element status
+         * @returns {taskQueueManager}
+         */
+        toggleClearAllButton : function toggleClearAllButton(){
+            var $clearAllBox = this.getElement().find('.clear-box');
+            var finishedCount = _(this.taskElements).map(function(element){
+                return element.getStatus();
+            }).filter(function(status){
+                return (status === 'completed' || status === 'failed');
+            }).size();
+            if(finishedCount > 0){
+                //show button
+                hider.show($clearAllBox);
+            }else{
+                hider.hide($clearAllBox);
+            }
+            return this;
         }
     };
 
@@ -265,8 +290,10 @@ define([
      * @event remove - Emitted when a list element is removed
      * @event download - Emitted when a list element requests the file download associated to a completed task
      * @event report - Emitted when a list element requests a task report to be displayed
+     * @event listchange - Emitted when the list element list has been updated
      * @event listshow - Emitted when the list is displayed
      * @event listhide - Emitted when the list is hidden
+     * @event listclearfinished - Emitted when all the finished element from the list is removed
      */
     return function taskQueueManagerFactory(config, data) {
 
@@ -307,6 +334,7 @@ define([
             })
             .on('listchange', function(){
                 this.selfUpdateBadge();
+                this.toggleClearAllButton();
             })
             .on('render', function() {
 

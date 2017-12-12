@@ -95,7 +95,7 @@ div.task-listing {
     }
     &.detail-view {
         .box {
-            .task-list {
+            .task-list, .clear-box {
                 display: none;
             }
             .view-detail {

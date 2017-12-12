@@ -291,7 +291,7 @@ define([
                     updatedAtElapsed : 0
                 });
             }
-            taskManager.selfUpdateBadge();
+            taskManager.trigger('listchange');
         };
 
         var updateTaskList = function updateTaskList(){

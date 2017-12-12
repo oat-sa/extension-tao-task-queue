@@ -49,7 +49,7 @@ function ($, taskQueueManagerFactory, taskQueue) {
                 .on('download', function (taskId) {
                     taskQueue.download(taskId);
                 })
-                .on('removeallfinished', function (){
+                .on('listclearfinished', function (){
                     taskQueue
                         .pollAllStop()
                         .archive('all')
