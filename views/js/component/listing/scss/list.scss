@@ -80,6 +80,15 @@ div.task-listing {
             text-align: center;
             border-top: solid 1px $listBorderColor;
             padding: 2px 0;
+            .clear-all{
+                text-decoration: none;
+                color: $uiClickableHoverBg;
+                &:hover{
+                    text-decoration: underline;
+                    color: $info;
+                }
+
+            }
         }
         .empty-placeholder {
             width: 100%;
