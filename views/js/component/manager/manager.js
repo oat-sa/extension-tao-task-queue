@@ -264,7 +264,7 @@ define([
          * Toggle the visibility of the clear all button according to the element status
          * @returns {taskQueueManager}
          */
-        toggleClearAllButton : function toggleClearAllButton(){
+        selfUpdateClearButton : function selfUpdateClearButton(){
             var $clearAllBox = this.getElement().find('.clear-box');
             var finishedCount = _(this.taskElements).map(function(element){
                 return element.getStatus();
@@ -334,7 +334,7 @@ define([
             })
             .on('listchange', function(){
                 this.selfUpdateBadge();
-                this.toggleClearAllButton();
+                this.selfUpdateClearButton();
             })
             .on('render', function() {
 

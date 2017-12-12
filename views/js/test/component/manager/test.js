@@ -269,6 +269,65 @@ define([
             .render($container);
     });
 
+    QUnit.asyncTest('removeAllFinished', function(assert) {
+
+        var $container = $('#qunit-fixture');
+
+        taskQueueManagerFactory({}, _sampleLogCollection)
+            .on('render', function(){
+
+                assert.equal(this.getElement().get(0), $container.find('.task-manager-container').get(0), 'component container found');
+
+                assert.equal(this.getElement().find('.badge-component').length, 1, 'badge component found');
+                assert.ok(this.getElement().find('.badge-component .loader').is(':visible'), 'the loader is on');
+                assert.ok(this.getElement().find('.badge-component .badge').hasClass('badge-warning'), 'the badge is displaying a warning');
+                assert.equal(this.getElement().find('.badge-component .badge').text(), '3', 'the badge value is correct');
+
+                assert.equal(this.getElement().find('.task-listing').length, 1, 'list component found');
+                assert.ok(!this.getElement().find('.task-listing').is(':visible'), 'list starts hidden');
+                assert.equal(this.getElement().find('.task-listing .task-list li').length, 3, 'list has 3 elements');
+
+                this.removeAllFinished();
+
+                assert.ok(this.getElement().find('.badge-component .badge').hasClass('badge-info'), 'the badge is displaying a info');
+                assert.equal(this.getElement().find('.badge-component .badge').text(), '1', 'the badge value is correct');
+
+                QUnit.start();
+            })
+            .render($container);
+    });
+
+    QUnit.asyncTest('clearAll', function(assert) {
+
+        var $container = $('#qunit-fixture');
+
+        taskQueueManagerFactory({}, _sampleLogCollection)
+            .on('render', function(){
+
+                assert.equal(this.getElement().get(0), $container.find('.task-manager-container').get(0), 'component container found');
+
+                assert.equal(this.getElement().find('.badge-component').length, 1, 'badge component found');
+                assert.ok(this.getElement().find('.badge-component .loader').is(':visible'), 'the loader is on');
+                assert.ok(this.getElement().find('.badge-component .badge').hasClass('badge-warning'), 'the badge is displaying a warning');
+                assert.equal(this.getElement().find('.badge-component .badge').text(), '3', 'the badge value is correct');
+
+                assert.equal(this.getElement().find('.task-listing').length, 1, 'list component found');
+                assert.ok(!this.getElement().find('.task-listing').is(':visible'), 'list starts hidden');
+                assert.equal(this.getElement().find('.task-listing .task-list li').length, 3, 'list has 3 elements');
+
+                assert.equal(this.getElement().find('.clear-all').length, 1, 'clear all button found');
+
+                //trigger cleanup
+                this.getElement().find('.clear-all').click();
+
+                assert.ok(this.getElement().find('.badge-component .badge').hasClass('badge-info'), 'the badge is displaying a info');
+                assert.equal(this.getElement().find('.badge-component .badge').text(), '1', 'the badge value is correct');
+
+                QUnit.start();
+            })
+            .render($container);
+    });
+
     QUnit.module('Visual');
 
     QUnit.asyncTest('playground', function(assert) {
