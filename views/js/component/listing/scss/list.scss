@@ -76,6 +76,11 @@ div.task-listing {
                 }
             }
         }
+        .clear-box{
+            text-align: center;
+            border-top: solid 1px $listBorderColor;
+            padding: 2px 0;
+        }
         .empty-placeholder {
             width: 100%;
             position: absolute;

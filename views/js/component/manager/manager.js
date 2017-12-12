@@ -238,6 +238,21 @@ define([
                 this.badge.pulse(3);
             }
             return this;
+        },
+
+        removeAllFinished : function removeAllFinished(){
+
+            var self = this;
+
+            _(this.taskElements).filter(function(element){
+                return (element.getStatus() === 'completed' || element.getStatus() === 'failed');
+            }).forEach(function(element){
+                delete self.taskElements[element.getId()];
+                self.list.removeElement(element);
+                self.trigger('listchange');
+            });
+
+            this.trigger('removeallfinished');
         }
     };
 
@@ -290,6 +305,9 @@ define([
                     }
                 });
             })
+            .on('listchange', function(){
+                this.selfUpdateBadge();
+            })
             .on('render', function() {
 
                 var self = this;
@@ -309,6 +327,10 @@ define([
                     .addClass('overflown-element')
                     .on('click', function(e){
                     e.stopPropagation();
+                });
+
+                this.list.on('clearall', function(){
+                    self.removeAllFinished();
                 });
 
                 //toggle list visibility
