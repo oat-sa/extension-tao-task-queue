@@ -163,7 +163,7 @@ class TaskQueueWebApi extends \tao_actions_CommonModule
             /** @var TaskLogInterface $taskLogService */
             $taskLogService = $this->getServiceManager()->get(TaskLogInterface::SERVICE_ID);
 
-            if ($taskIds === 'all') {
+            if ($taskIds === static::ARCHIVE_ALL) {
                 $filter = (new TaskLogFilter())->availableForArchived($this->userId);
                 $taskLogCollection = $taskLogService->search($filter);
             } else {
