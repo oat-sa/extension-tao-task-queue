@@ -22,7 +22,7 @@ namespace oat\taoTaskQueue\test\model\TaskLog;
 
 use oat\taoTaskQueue\model\Entity\TaskLogEntityInterface;
 use oat\taoTaskQueue\model\TaskLog;
-use oat\taoTaskQueue\model\Entity\CategoryEntityDecorator;
+use oat\taoTaskQueue\model\Entity\Decorator\CategoryEntityDecorator;
 
 class CategoryEntityDecoratorTest extends \PHPUnit_Framework_TestCase
 {

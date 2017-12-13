@@ -37,6 +37,7 @@ interface TaskLogBrokerInterface
     const DEFAULT_CONTAINER_NAME = 'task_log';
 
     const COLUMN_ID = 'id';
+    const COLUMN_PARENT_ID = 'parent_id';
     const COLUMN_TASK_NAME = 'task_name';
     const COLUMN_PARAMETERS = 'parameters';
     const COLUMN_LABEL = 'label';

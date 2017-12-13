@@ -22,7 +22,10 @@ namespace oat\taoTaskQueue\model;
 
 use oat\oatbox\log\LoggerAwareTrait;
 use common_report_Report as Report;
+use oat\taoTaskQueue\model\Task\CallbackTaskInterface;
+use oat\taoTaskQueue\model\Task\RemoteTaskSynchroniserInterface;
 use oat\taoTaskQueue\model\Task\TaskInterface;
+use oat\taoTaskQueue\model\ValueObjects\TaskLogCategorizedStatus;
 
 /**
  * Processes tasks from the queue.
@@ -178,11 +181,42 @@ final class Worker implements WorkerInterface
             $report = Report::createFailure(__('Executing task %s failed', $task->getId()));
         }
 
+        // Initial status
         $status = $report->getType() == Report::TYPE_ERROR || $report->containsError()
             ? TaskLogInterface::STATUS_FAILED
             : TaskLogInterface::STATUS_COMPLETED;
 
-        $this->taskLog->setReport($task->getId(), $report, $status);
+        // Change the status if the task has children
+        if ($task->hasChildren() && $status == TaskLogInterface::STATUS_COMPLETED) {
+            $status = TaskLogInterface::STATUS_CHILD_RUNNING;
+        }
+
+        $cloneCreated = false;
+
+        // if the task is a special sync task: the status of the parent task depends on the status of the remote task.
+        if ($this->isRemoteTaskSynchroniser($task) && $status == TaskLogInterface::STATUS_COMPLETED) {
+            // if the remote task is still in progress, we have to reschedule this task
+            // the RESTApi returns TaskLogCategorizedStatus values
+            if (in_array($this->getRemoteStatus($task), [TaskLogCategorizedStatus::STATUS_CREATED, TaskLogCategorizedStatus::STATUS_IN_PROGRESS])) {
+                if ($this->queueService->count() <= 1) {
+                    //if there is less than or exactly one task in the queue, let's sleep a bit, in order not to regenerate the same task too much
+                    sleep(1);
+                }
+
+                $cloneCreated = $this->queueService->enqueue(clone $task, $task->getLabel());
+            } elseif ($this->getRemoteStatus($task) == TaskLogCategorizedStatus::STATUS_FAILED) {
+                // if the remote task status is failed
+                $status = TaskLogInterface::STATUS_FAILED;
+            }
+        }
+
+        // if we have a new clone of this task, the status of the current task will be STATUS_ARCHIVED
+        $this->taskLog->setReport($task->getId(), $report, false === $cloneCreated ? $status : TaskLogInterface::STATUS_ARCHIVED);
+
+        // Update parent
+        if ($task->hasParent()) {
+            $this->taskLog->updateParent($task->getParentId());
+        }
 
         unset($report);
 
@@ -190,6 +224,24 @@ final class Worker implements WorkerInterface
         $this->queueService->acknowledge($task);
 
         return $status;
+    }
+
+    /**
+     * @param TaskInterface $task
+     * @return bool
+     */
+    private function isRemoteTaskSynchroniser(TaskInterface $task)
+    {
+        return $task instanceof RemoteTaskSynchroniserInterface || ($task instanceof CallbackTaskInterface && $task->getCallable() instanceof RemoteTaskSynchroniserInterface);
+    }
+
+    /**
+     * @param TaskInterface $task
+     * @return mixed
+     */
+    private function getRemoteStatus(TaskInterface $task)
+    {
+        return $task instanceof CallbackTaskInterface ? $task->getCallable()->getRemoteStatus() : $task->getRemoteStatus();
     }
 
     /**

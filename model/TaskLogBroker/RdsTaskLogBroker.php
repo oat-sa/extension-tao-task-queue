@@ -119,6 +119,7 @@ class RdsTaskLogBroker implements TaskLogBrokerInterface, PhpSerializable, Servi
             $table = $toSchema->createTable($this->getTableName());
             $table->addOption('engine', 'InnoDB');
             $table->addColumn(self::COLUMN_ID, 'string', ["notnull" => true, "length" => 255]);
+            $table->addColumn(self::COLUMN_PARENT_ID, 'string', ["notnull" => false, "length" => 255, "default" => null]);
             $table->addColumn(self::COLUMN_TASK_NAME, 'string', ["notnull" => true, "length" => 255]);
             $table->addColumn(self::COLUMN_PARAMETERS, 'text', ["notnull" => false, "default" => null]);
             $table->addColumn(self::COLUMN_LABEL, 'string', ["notnull" => false, "length" => 255]);
@@ -146,6 +147,7 @@ class RdsTaskLogBroker implements TaskLogBrokerInterface, PhpSerializable, Servi
     {
         $this->getPersistence()->insert($this->getTableName(), [
             self::COLUMN_ID   => (string) $task->getId(),
+            self::COLUMN_PARENT_ID  => $task->getParentId() ? (string) $task->getParentId() : null,
             self::COLUMN_TASK_NAME => $task instanceof CallbackTaskInterface && is_object($task->getCallable()) ? get_class($task->getCallable()) : get_class($task),
             self::COLUMN_PARAMETERS => json_encode($task->getParameters()),
             self::COLUMN_LABEL => (string) $label,

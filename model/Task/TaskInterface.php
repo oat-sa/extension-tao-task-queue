@@ -25,14 +25,16 @@ namespace oat\taoTaskQueue\model\Task;
  *
  * @author Gyula Szucs <gyula@taotesting.com>
  */
-interface TaskInterface extends WorkerContextAwareInterface, \JsonSerializable
+interface TaskInterface extends WorkerContextAwareInterface, ChildTaskAwareInterface, \JsonSerializable
 {
     // Fully Qualified Class Name
     const JSON_TASK_CLASS_NAME_KEY = 'taskFqcn';
     const JSON_METADATA_KEY = 'metadata';
     const JSON_METADATA_ID_KEY = '__id__';
+    const JSON_METADATA_PARENT_ID_KEY = '__parent_id__';
     const JSON_METADATA_OWNER_KEY = '__owner__';
     const JSON_METADATA_CREATED_AT_KEY = '__created_at__';
+    const JSON_METADATA_LABEL_KEY = '__label__';
     const JSON_PARAMETERS_KEY = 'parameters';
 
     /**
@@ -57,6 +59,28 @@ interface TaskInterface extends WorkerContextAwareInterface, \JsonSerializable
      * @return string
      */
     public function getId();
+
+    /**
+     * Sets the id of the parent task.
+     *
+     * @param string $taskId
+     * @return TaskInterface
+     */
+    public function setParentId($taskId);
+
+    /**
+     * Is there a parent for the given task?
+     *
+     * @return bool
+     */
+    public function hasParent();
+
+    /**
+     * Gets the id of the parent task.
+     *
+     * @return string
+     */
+    public function getParentId();
 
     /**
      * Set message metadata
@@ -117,4 +141,15 @@ interface TaskInterface extends WorkerContextAwareInterface, \JsonSerializable
      * @return string
      */
     public function getOwner();
+
+    /**
+     * @param string $label
+     * @return TaskInterface
+     */
+    public function setLabel($label);
+
+    /**
+     * @return string
+     */
+    public function getLabel();
 }

@@ -40,7 +40,6 @@ class TaskLogCollection implements TaskLogCollectionInterface
      * @return TaskLogCollection
      *
      * @throws \Exception
-     * @throws \common_exception_Error
      */
     public static function createFromArray(array $rows)
     {

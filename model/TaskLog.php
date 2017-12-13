@@ -178,6 +178,48 @@ class TaskLog extends ConfigurableService implements TaskLogInterface
     /**
      * @inheritdoc
      */
+    public function updateParent($parentTaskId)
+    {
+        try {
+            $filter = (new TaskLogFilter())
+                ->eq(TaskLogBrokerInterface::COLUMN_PARENT_ID, $parentTaskId)
+                ->neq(TaskLogBrokerInterface::COLUMN_STATUS, TaskLogInterface::STATUS_ARCHIVED);
+
+            $children = $this->search($filter);
+
+            if (!$children->isEmpty()) {
+                $processedOnes = 0;
+                $failedOnes = 0;
+                foreach ($children as $child) {
+                    // no need update if any child is still in progress
+                    if ($child->getStatus()->isInProgress() || $child->getStatus()->isCreated()) {
+                        break;
+                    }
+
+                    if ($child->getStatus()->isCompleted() || $child->getStatus()->isFailed()) {
+                        $processedOnes++;
+                    }
+
+                    if ($child->getStatus()->isFailed()) {
+                        $failedOnes++;
+                    }
+                }
+
+                // we can update the parent status if every child has been processed
+                if ($processedOnes == $children->count()) {
+                    $this->setStatus($parentTaskId, $failedOnes > 0 ? self::STATUS_FAILED : self::STATUS_COMPLETED);
+                }
+            }
+        } catch (\Exception $e) {
+            $this->logError('Updating parent task "'. $parentTaskId .'"" failed with MSG: '. $e->getMessage());
+        }
+
+        return $this;
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function search(TaskLogFilter $filter)
     {
         return $this->getBroker()->search($filter);
@@ -331,6 +373,7 @@ class TaskLog extends ConfigurableService implements TaskLogInterface
             self::STATUS_ENQUEUED,
             self::STATUS_DEQUEUED,
             self::STATUS_RUNNING,
+            self::STATUS_CHILD_RUNNING,
             self::STATUS_COMPLETED,
             self::STATUS_FAILED,
             self::STATUS_ARCHIVED
