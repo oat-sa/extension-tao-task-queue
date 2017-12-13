@@ -79,6 +79,7 @@ div.task-listing {
         .clear-box{
             text-align: center;
             border-top: solid 1px $listBorderColor;
+            background: blacken($canvas, 0.03);
             padding: 2px 0;
             .clear-all{
                 text-decoration: none;
