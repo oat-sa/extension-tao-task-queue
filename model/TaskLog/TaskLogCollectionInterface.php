@@ -47,4 +47,9 @@ interface TaskLogCollectionInterface extends \JsonSerializable, \Countable, \Ite
      * @return TaskLogEntity
      */
     public function last();
+
+    /**
+     * @return array
+     */
+    public function getIds();
 }

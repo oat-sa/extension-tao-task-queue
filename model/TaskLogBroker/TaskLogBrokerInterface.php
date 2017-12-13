@@ -25,6 +25,7 @@ use oat\taoTaskQueue\model\Entity\TaskLogEntity;
 use oat\taoTaskQueue\model\Entity\TasksLogsStats;
 use oat\taoTaskQueue\model\Task\TaskInterface;
 use oat\taoTaskQueue\model\TaskLog\TaskLogCollection;
+use oat\taoTaskQueue\model\TaskLog\TaskLogCollectionInterface;
 use oat\taoTaskQueue\model\TaskLog\TaskLogFilter;
 
 /**
@@ -138,4 +139,10 @@ interface TaskLogBrokerInterface
      * @throws \Exception
      */
     public function archive(TaskLogEntity $entity);
+
+    /**
+     * @param TaskLogCollectionInterface $collection
+     * @return int
+     */
+    public function archiveCollection(TaskLogCollectionInterface $collection);
 }

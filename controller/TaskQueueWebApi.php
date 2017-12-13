@@ -26,6 +26,8 @@ use oat\taoTaskQueue\model\Entity\Decorator\CategoryEntityDecorator;
 use oat\taoTaskQueue\model\Entity\Decorator\HasFileEntityDecorator;
 use oat\taoTaskQueue\model\QueueDispatcherInterface;
 use oat\taoTaskQueue\model\TaskLog\Decorator\SimpleManagementCollectionDecorator;
+use oat\taoTaskQueue\model\TaskLog\TaskLogFilter;
+use oat\taoTaskQueue\model\TaskLogBroker\TaskLogBrokerInterface;
 use oat\taoTaskQueue\model\TaskLogInterface;
 
 /**
@@ -38,6 +40,7 @@ class TaskQueueWebApi extends \tao_actions_CommonModule
     const PARAMETER_TASK_ID = 'taskId';
     const PARAMETER_LIMIT = 'limit';
     const PARAMETER_OFFSET = 'offset';
+    const ARCHIVE_ALL = 'all';
 
     /** @var string */
     private $userId;
@@ -145,6 +148,7 @@ class TaskQueueWebApi extends \tao_actions_CommonModule
 
     /**
      * @throws \common_exception_NotImplemented
+     * @throws \Exception
      */
     public function archive()
     {
@@ -152,16 +156,24 @@ class TaskQueueWebApi extends \tao_actions_CommonModule
             throw new \Exception('Only ajax call allowed.');
         }
 
-        try{
+        try {
             $this->assertTaskIdExists();
+            $taskIds = $this->detectTaskIds();
 
             /** @var TaskLogInterface $taskLogService */
             $taskLogService = $this->getServiceManager()->get(TaskLogInterface::SERVICE_ID);
 
-            $taskLogEntity = $taskLogService->getByIdAndUser($this->getRequestParameter(self::PARAMETER_TASK_ID), $this->userId);
+            if ($taskIds === 'all') {
+                $filter = (new TaskLogFilter())->availableForArchived($this->userId);
+                $taskLogCollection = $taskLogService->search($filter);
+            } else {
+                $filter = (new TaskLogFilter())->addAvailableFilters($this->userId)->in(TaskLogBrokerInterface::COLUMN_ID, $taskIds);
+                $taskLogCollection = $taskLogService->search($filter);
+            }
 
+            $hasBeenArchive = $taskLogService->archiveCollection($taskLogCollection);
             return $this->returnJson([
-                'success' => (bool) $taskLogService->archive($taskLogEntity)
+                'success' => (bool)$hasBeenArchive
             ]);
         } catch (\Exception $e) {
             return $this->returnJson([
@@ -230,4 +242,21 @@ class TaskQueueWebApi extends \tao_actions_CommonModule
             throw new \common_exception_MissingParameter(self::PARAMETER_TASK_ID, $this->getRequestURI());
         }
     }
+
+    /**
+     * @return array|string
+     */
+    protected function detectTaskIds()
+    {
+        $taskIdsParams = $this->getRequestParameter(self::PARAMETER_TASK_ID);
+
+        if (is_array($taskIdsParams)) {
+            return $taskIdsParams;
+        } else if ($taskIdsParams === static::ARCHIVE_ALL) {
+            return static::ARCHIVE_ALL;
+        } else {
+            return [$taskIdsParams];
+        }
+    }
+
 }
