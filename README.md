@@ -23,7 +23,7 @@ This is the _**main service**_ to be used for interacting with the queue system.
 
 Tasks can be linked to a specific Queue, meaning they will always be published into that Queue. This can be achieved by two ways:
 - adding the task full name and the queue to OPTION_TASK_TO_QUEUE_ASSOCIATIONS
-- using \oat\taoTaskQueue\model\QueueNameGetterInterface in your Action. You will have the freedom inside of your action in runtime 
+- using `\oat\taoTaskQueue\model\QueueNameGetterInterface` in your Action. You will have the freedom inside of your action in runtime 
 to decide which queue you want your task to be published to. The parameters used by your action are passed to that method.
 
 _Note_: 
@@ -301,6 +301,19 @@ Anyway, the main thing here is that a wrapper class called \oat\taoTaskQueue\mod
 If you want to specify the queue the task should be published to, implement `\oat\taoTaskQueue\model\QueueAssociableInterface` in your action or
 use `$queueService->linkTaskToQueue(CompileDelivery::class, 'queue_name');` in your updater script.
 
+If you want to use the task id or even the entire task object inside of your Action class, you can use `\oat\taoTaskQueue\model\Task\TaskAwareInterface` 
+and `\oat\taoTaskQueue\model\Task\TaskAwareTrait`.
+
+If you want to define parent-child relation between tasks, you can use `\oat\taoTaskQueue\model\Task\ChildTaskAwareInterface` and `\oat\taoTaskQueue\model\Task\ChildTaskAwareTrait`.
+Simply create the new child task as usual inside of your task and save the child id calling `$this->addChildId($childTaskId);` 
+The worker is able to recognise whether the task has children or not and it sets the status of the parent task accordingly.
+Once every child task has been processed, the status of the parent task will be set
+ - to `completed`: if all children have completed status.
+ - to `failed`: if there is at least one failed child.
+ 
+A specific interface named `\oat\taoTaskQueue\model\Task\RemoteTaskSynchroniserInterface` can be used if you want to synchronise the status of your task
+with the status of a remote task. The worker can recognise this interface and run this task until it receives `completed` or `failed` status. 
+
 #### Working with Task Log component
 
 Mostly, it can be used when the queue is used as Sync Queue and you want to get the status and the report for a task:
@@ -365,7 +378,3 @@ Examples
 	 Example: 	 sudo -u www-data php index.php 'oat\taoTaskQueue\scripts\tools\TaskLogUtility' --archive=[taskdId] --force[optional]
 
 ```
-
-## Class Diagram
-
-![Class Diagram](doc/task_queue.png "Task Queue Class Diagram")

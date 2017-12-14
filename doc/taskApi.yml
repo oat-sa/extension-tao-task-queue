@@ -42,6 +42,43 @@ paths:
             description: Unauthorized
             schema:
               $ref: '#/definitions/ErrorModel'
+  /taoTaskQueue/TaskQueueRestApi/getStatus:
+      get:
+          tags:
+            - Get Task Status
+          summary: Get Task Status through API
+          parameters:
+            - name: id
+              in: query
+              description: Task id identifier
+              required: true
+              type: string
+          produces:
+            - application/json
+          responses:
+            '200':
+              description: successful operation
+              schema:
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: string
+                    enum:
+                      - created
+                      - in_progress
+                      - completed
+                      - failed
+                  errorCode:
+                    type: string
+                  errorMsg:
+                   type: string
+            '400':
+              description: Bad request if you send invalid parameters.
+            '401':
+              description: Unauthorized
+              schema:
+                $ref: '#/definitions/ErrorModel'
 definitions:
   TaskLog:
     type: object
@@ -62,6 +99,7 @@ definitions:
       status:
         type: string
         enum:
+        - created
         - in_progress
         - completed
         - failed
