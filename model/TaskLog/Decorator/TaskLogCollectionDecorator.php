@@ -96,13 +96,7 @@ abstract class TaskLogCollectionDecorator implements TaskLogCollectionInterface
      */
     public function getIds()
     {
-        $ids = [];
-        /** @var TaskLogEntityInterface $item */
-        foreach ($this->collection->getIterator() as $item) {
-            $ids[] = $item->getId();
-        }
-
-        return $ids;
+        return $this->collection->getIds();
     }
 
     /**
