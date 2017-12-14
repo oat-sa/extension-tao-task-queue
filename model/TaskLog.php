@@ -280,7 +280,7 @@ class TaskLog extends ConfigurableService implements TaskLogInterface
         $tasksAbleToArchive = [];
 
         /** @var TaskLogEntityInterface $entity */
-        foreach ($collection as $key => $entity) {
+        foreach ($collection as $entity) {
             try{
                 $this->assertCanArchive($entity, $forceArchive);
                 $tasksAbleToArchive[] = $entity;
@@ -292,9 +292,9 @@ class TaskLog extends ConfigurableService implements TaskLogInterface
         $collectionArchived = $this->getBroker()->archiveCollection(new TaskLogCollection($tasksAbleToArchive));
 
         if ($collectionArchived) {
-            /** @var TaskLogEntityInterface $entity */
-            foreach ($collection->getIterator() as $key => $entity) {
-                $this->getServiceManager()->get(EventManager::SERVICE_ID)
+            foreach ($tasksAbleToArchive as $entity) {
+                $this->getServiceManager()
+                    ->get(EventManager::SERVICE_ID)
                     ->trigger(new TaskLogArchivedEvent($entity, $forceArchive));
             }
         }

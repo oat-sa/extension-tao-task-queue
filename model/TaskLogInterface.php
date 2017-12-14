@@ -172,9 +172,10 @@ interface TaskLogInterface extends LoggerAwareInterface
 
     /**
      * @param TaskLogCollectionInterface $collection
+     * @param bool $forceArchive
      * @return bool
      */
-    public function archiveCollection(TaskLogCollectionInterface $collection);
+    public function archiveCollection(TaskLogCollectionInterface $collection, $forceArchive = false);
 
     /**
      * Gets the current broker instance.
