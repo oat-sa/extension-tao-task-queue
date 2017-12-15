@@ -112,9 +112,9 @@ class Updater extends common_ext_ExtensionUpdater
             $this->setVersion('0.10.0');
         }
 
-        $this->skip('0.10.0', '0.11.0');
+        $this->skip('0.10.0', '0.12.0');
 
-        if ($this->isVersion('0.11.0')) {
+        if ($this->isVersion('0.12.0')) {
 
             /** @var $taskLogService TaskLogInterface */
             $taskLogService = $this->getServiceManager()->get(TaskLogInterface::SERVICE_ID);
@@ -137,7 +137,7 @@ class Updater extends common_ext_ExtensionUpdater
                 }
             }
 
-            $this->setVersion('0.12.0');
+            $this->setVersion('0.13.0');
         }
     }
 }

@@ -25,6 +25,7 @@ use oat\taoTaskQueue\model\Entity\TaskLogEntity;
 use oat\taoTaskQueue\model\Entity\TasksLogsStats;
 use oat\taoTaskQueue\model\Task\TaskInterface;
 use oat\taoTaskQueue\model\TaskLog\DataTablePayload;
+use oat\taoTaskQueue\model\TaskLog\TaskLogCollectionInterface;
 use oat\taoTaskQueue\model\TaskLog\TaskLogFilter;
 use oat\taoTaskQueue\model\TaskLogBroker\TaskLogBrokerInterface;
 use oat\taoTaskQueue\model\TaskLog\TaskLogCollection;
@@ -177,6 +178,13 @@ interface TaskLogInterface extends LoggerAwareInterface
      * @throws \Exception
      */
     public function archive(TaskLogEntity $entity, $forceArchive = false);
+
+    /**
+     * @param TaskLogCollectionInterface $collection
+     * @param bool $forceArchive
+     * @return bool
+     */
+    public function archiveCollection(TaskLogCollectionInterface $collection, $forceArchive = false);
 
     /**
      * Gets the current broker instance.

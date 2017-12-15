@@ -207,6 +207,21 @@ class TaskLogFilter
     }
 
     /**
+     * @param $userId
+     * @return $this
+     */
+    public function availableForArchived($userId)
+    {
+        $this->in(TaskLogBrokerInterface::COLUMN_STATUS, [TaskLogInterface::STATUS_FAILED, TaskLogInterface::STATUS_COMPLETED]);
+
+        if ($userId !== TaskLogInterface::SUPER_USER) {
+            $this->eq(TaskLogBrokerInterface::COLUMN_OWNER, $userId);
+        }
+
+        return $this;
+    }
+
+    /**
      * @param QueryBuilder $qb
      * @return QueryBuilder
      */

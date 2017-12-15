@@ -126,6 +126,13 @@ define([
          */
         return component(listApi)
             .setTemplate(listTpl)
+            .on('render', function(){
+                var self = this;
+                this.getElement().find('.clear-all').on('click', function(e){
+                    e.preventDefault();
+                    self.trigger('clearall');
+                });
+            })
             .init(initConfig);
     };
 

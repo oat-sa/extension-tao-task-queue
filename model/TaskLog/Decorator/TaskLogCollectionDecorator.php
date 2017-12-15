@@ -20,6 +20,7 @@
 
 namespace oat\taoTaskQueue\model\TaskLog\Decorator;
 
+use oat\taoTaskQueue\model\Entity\TaskLogEntityInterface;
 use oat\taoTaskQueue\model\TaskLog\TaskLogCollectionInterface;
 
 /**
@@ -88,6 +89,14 @@ abstract class TaskLogCollectionDecorator implements TaskLogCollectionInterface
     public function last()
     {
         return $this->collection->last();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getIds()
+    {
+        return $this->collection->getIds();
     }
 
     /**
