@@ -28,6 +28,7 @@ namespace oat\taoTaskQueue\model\Task;
 abstract class AbstractTask implements TaskInterface
 {
     use WorkerContextAwareTrait;
+    use ChildTaskAwareTrait;
 
     private $metadata = [];
     private $parameters = [];
@@ -51,11 +52,46 @@ abstract class AbstractTask implements TaskInterface
     }
 
     /**
+     * Set a new id and create date.
+     */
+    public function __clone()
+    {
+        $this->setMetadata(self::JSON_METADATA_ID_KEY, \common_Utils::getNewUri());
+        $this->setCreatedAt(new \DateTime('now', new \DateTimeZone(TIME_ZONE)));
+    }
+
+    /**
      * @return string
      */
     public function getId()
     {
         return $this->getMetadata(self::JSON_METADATA_ID_KEY);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setParentId($taskId)
+    {
+        $this->setMetadata(self::JSON_METADATA_PARENT_ID_KEY, (string) $taskId);
+
+        return $this;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function hasParent()
+    {
+        return (bool) $this->getParentId();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getParentId()
+    {
+        return $this->getMetadata(self::JSON_METADATA_PARENT_ID_KEY);
     }
 
     /**
@@ -202,6 +238,24 @@ abstract class AbstractTask implements TaskInterface
     public function getOwner()
     {
         return $this->getMetadata(self::JSON_METADATA_OWNER_KEY);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setLabel($label)
+    {
+        $this->setMetadata(self::JSON_METADATA_LABEL_KEY, (string) $label);
+
+        return $this;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getLabel()
+    {
+        return $this->getMetadata(self::JSON_METADATA_LABEL_KEY);
     }
 
     /**

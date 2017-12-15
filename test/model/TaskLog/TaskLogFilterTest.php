@@ -43,12 +43,13 @@ class TaskLogFilterTest extends \PHPUnit_Framework_TestCase
     {
         $this->assertEquals([
             TaskLogBrokerInterface::COLUMN_ID,
+            TaskLogBrokerInterface::COLUMN_PARENT_ID,
             TaskLogBrokerInterface::COLUMN_TASK_NAME,
             TaskLogBrokerInterface::COLUMN_STATUS,
+            TaskLogBrokerInterface::COLUMN_REPORT,
             TaskLogBrokerInterface::COLUMN_PARAMETERS,
             TaskLogBrokerInterface::COLUMN_LABEL,
             TaskLogBrokerInterface::COLUMN_OWNER,
-            TaskLogBrokerInterface::COLUMN_REPORT,
             TaskLogBrokerInterface::COLUMN_CREATED_AT,
             TaskLogBrokerInterface::COLUMN_UPDATED_AT
         ], $this->filter->getColumns());

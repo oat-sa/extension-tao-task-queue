@@ -89,7 +89,7 @@ interface QueueInterface extends \Countable, LoggerAwareInterface, PhpSerializab
      * Publish a task to the queue.
      *
      * @param TaskInterface $task
-     * @param null|string $label Label for the task
+     * @param null|string   $label Label for the task
      * @return bool Is the task successfully enqueued?
      */
     public function enqueue(TaskInterface $task, $label = null);

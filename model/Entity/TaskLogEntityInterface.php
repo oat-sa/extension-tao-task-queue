@@ -21,6 +21,7 @@
 namespace oat\taoTaskQueue\model\Entity;
 
 use common_report_Report as Report;
+use oat\taoTaskQueue\model\TaskLog\TaskLogCollection;
 use oat\taoTaskQueue\model\ValueObjects\TaskLogCategorizedStatus;
 
 /**
@@ -34,6 +35,11 @@ interface TaskLogEntityInterface extends \JsonSerializable
      * @return string
      */
     public function getId();
+
+    /**
+     * @return string
+     */
+    public function getParentId();
 
     /**
      * @return string

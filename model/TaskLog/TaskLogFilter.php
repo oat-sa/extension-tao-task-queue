@@ -46,6 +46,7 @@ class TaskLogFilter
 
     private $baseColumns = [
         TaskLogBrokerInterface::COLUMN_ID,
+        TaskLogBrokerInterface::COLUMN_PARENT_ID,
         TaskLogBrokerInterface::COLUMN_TASK_NAME,
         TaskLogBrokerInterface::COLUMN_STATUS,
         TaskLogBrokerInterface::COLUMN_REPORT

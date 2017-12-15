@@ -38,6 +38,7 @@ interface TaskLogBrokerInterface
     const DEFAULT_CONTAINER_NAME = 'task_log';
 
     const COLUMN_ID = 'id';
+    const COLUMN_PARENT_ID = 'parent_id';
     const COLUMN_TASK_NAME = 'task_name';
     const COLUMN_PARAMETERS = 'parameters';
     const COLUMN_LABEL = 'label';
@@ -132,11 +133,10 @@ interface TaskLogBrokerInterface
     public function getStats(TaskLogFilter $filter);
 
     /**
+     * Setting the status to archive, the record is kept. (Soft Delete)
+     *
      * @param TaskLogEntity $entity
-     *
      * @return bool
-     *
-     * @throws \Exception
      */
     public function archive(TaskLogEntity $entity);
 
@@ -145,4 +145,12 @@ interface TaskLogBrokerInterface
      * @return int
      */
     public function archiveCollection(TaskLogCollectionInterface $collection);
+
+    /**
+     * Delete the task log by id. (Hard Delete)
+     *
+     * @param string $taskId
+     * @return bool
+     */
+    public function deleteById($taskId);
 }

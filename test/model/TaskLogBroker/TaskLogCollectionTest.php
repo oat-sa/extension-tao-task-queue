@@ -57,6 +57,7 @@ class TaskLogCollectionTest extends \PHPUnit_Framework_TestCase
        return TaskLogCollection::createFromArray([
             [
                 'id' => 'rdf#i1508337970199318643',
+                'parent_id' => 'parentFake0002525',
                 'task_name' => 'Task Name',
                 'label' => 'Task label',
                 'status' => TaskLogInterface::STATUS_COMPLETED,
@@ -73,6 +74,7 @@ class TaskLogCollectionTest extends \PHPUnit_Framework_TestCase
             ],
             [
                 'id' => 'rdf#i15083379701993186432222',
+                'parent_id' => 'parentFake0002525',
                 'task_name' => 'Task Name 2',
                 'label' => 'Task label  2',
                 'status' => TaskLogInterface::STATUS_RUNNING,
@@ -89,6 +91,7 @@ class TaskLogCollectionTest extends \PHPUnit_Framework_TestCase
             ],
            [
                'id' => 'rdf#i150833797019931864322223',
+               'parent_id' => 'parentFake0002525',
                'task_name' => 'Task Name 3',
                'label' => 'Task label  3',
                'status' => TaskLogInterface::STATUS_RUNNING,

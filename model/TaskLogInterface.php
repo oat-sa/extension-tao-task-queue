@@ -50,6 +50,7 @@ interface TaskLogInterface extends LoggerAwareInterface
     const STATUS_ENQUEUED = 'enqueued';
     const STATUS_DEQUEUED = 'dequeued';
     const STATUS_RUNNING = 'running';
+    const STATUS_CHILD_RUNNING = 'child_running';
     const STATUS_COMPLETED = 'completed';
     const STATUS_FAILED = 'failed';
     const STATUS_ARCHIVED = 'archived';
@@ -117,6 +118,14 @@ interface TaskLogInterface extends LoggerAwareInterface
      * @return Report|null
      */
     public function getReport($taskId);
+
+    /**
+     * Updates the parent task.
+     *
+     * @param string $parentTaskId
+     * @return TaskLogInterface
+     */
+    public function updateParent($parentTaskId);
 
     /**
      * @param TaskLogFilter $filter

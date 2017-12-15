@@ -141,15 +141,16 @@ interface QueueDispatcherInterface extends \Countable, LoggerAwareInterface
      * @param callable    $callable
      * @param array       $parameters
      * @param null|string $label Label for the task
+     * @param null|TaskInterface $parent
      * @return CallbackTaskInterface
      */
-    public function createTask(callable $callable, array $parameters = [], $label = null);
+    public function createTask(callable $callable, array $parameters = [], $label = null, TaskInterface $parent = null);
 
     /**
      * Publish a task to a queue.
      *
      * @param TaskInterface $task
-     * @param null|string $label Label for the task
+     * @param null|string   $label Label for the task
      * @return bool Is the task successfully enqueued?
      */
     public function enqueue(TaskInterface $task, $label = null);
@@ -202,7 +203,7 @@ interface QueueDispatcherInterface extends \Countable, LoggerAwareInterface
      *
      * It will be deprecated once we have the general GUI for displaying different info of a task for the user.
      *
-     * @param TaskInterface $task
+     * @param TaskInterface                      $task
      * @param \core_kernel_classes_Resource|null $resource Placeholder resource linked to the task
      */
     public function linkTaskToResource(TaskInterface $task, \core_kernel_classes_Resource $resource = null);

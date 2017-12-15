@@ -53,6 +53,14 @@ abstract class TaskLogEntityDecorator implements TaskLogEntityInterface
     /**
      * @inheritdoc
      */
+    public function getParentId()
+    {
+        return $this->entity->getId();
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function getTaskName()
     {
         return $this->entity->getTaskName();
