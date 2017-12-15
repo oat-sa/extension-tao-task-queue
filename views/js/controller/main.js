@@ -49,6 +49,14 @@ function ($, taskQueueManagerFactory, taskQueue) {
                 .on('download', function (taskId) {
                     taskQueue.download(taskId);
                 })
+                .on('listclearfinished', function (){
+                    taskQueue
+                        .pollAllStop()
+                        .archive('all')
+                        .then(function(){
+                            taskQueue.pollAll();
+                        });
+                })
                 .render($('#taskqueue').parent())
                 .hide();//start hidden to prevent blinking effect
 

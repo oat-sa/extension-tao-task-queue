@@ -29,6 +29,7 @@ use oat\taoTaskQueue\model\QueueDispatcherInterface;
 use oat\taoTaskQueue\model\Task\CallbackTaskInterface;
 use oat\taoTaskQueue\model\Task\TaskInterface;
 use oat\taoTaskQueue\model\TaskLog\TaskLogCollection;
+use oat\taoTaskQueue\model\TaskLog\TaskLogCollectionInterface;
 use oat\taoTaskQueue\model\TaskLog\TaskLogFilter;
 use oat\taoTaskQueue\model\TaskLogInterface;
 use oat\taoTaskQueue\model\ValueObjects\TaskLogCategorizedStatus;
@@ -330,6 +331,36 @@ class RdsTaskLogBroker implements TaskLogBrokerInterface, PhpSerializable, Servi
         }
 
         return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function archiveCollection(TaskLogCollectionInterface $collection)
+    {
+        $this->getPersistence()->getPlatform()->beginTransaction();
+
+        try {
+            $qb = $this->getQueryBuilder()
+                ->update($this->getTableName())
+                ->set(self::COLUMN_STATUS, ':status_new')
+                ->set(self::COLUMN_UPDATED_AT, ':updated_at')
+                ->where(self::COLUMN_ID .' IN(:id)')
+                ->setParameter('id', $collection->getIds(), \Doctrine\DBAL\Connection::PARAM_STR_ARRAY)
+                ->setParameter('status_new', (string) TaskLogInterface::STATUS_ARCHIVED)
+                ->setParameter('updated_at', $this->getPersistence()->getPlatForm()->getNowExpression());
+
+            $exec = $qb->execute();
+            $this->getPersistence()->getPlatform()->commit();
+
+        } catch (\Exception $e) {
+            $this->getPersistence()->getPlatform()->rollBack();
+            $this->logDebug($e->getMessage());
+
+            return false;
+        }
+
+        return $exec;
     }
 
     /**
