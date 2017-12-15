@@ -366,6 +366,31 @@ class RdsTaskLogBroker implements TaskLogBrokerInterface, PhpSerializable, Servi
     }
 
     /**
+     * @inheritdoc
+     */
+    public function deleteById($taskId)
+    {
+        $this->getPersistence()->getPlatform()->beginTransaction();
+
+        try {
+            $qb = $this->getQueryBuilder()
+                ->delete($this->getTableName())
+                ->where(self::COLUMN_ID .' = :id')
+                ->setParameter('id', (string) $taskId);
+
+            $qb->execute();
+            $this->getPersistence()->getPlatform()->commit();
+
+        } catch (\Exception $e) {
+            $this->getPersistence()->getPlatform()->rollBack();
+
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * @return QueryBuilder
      */
     private function getQueryBuilder()

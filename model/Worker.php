@@ -200,7 +200,7 @@ final class Worker implements WorkerInterface
             if (in_array($this->getRemoteStatus($task), [TaskLogCategorizedStatus::STATUS_CREATED, TaskLogCategorizedStatus::STATUS_IN_PROGRESS])) {
                 if ($this->queueService->count() <= 1) {
                     //if there is less than or exactly one task in the queue, let's sleep a bit, in order not to regenerate the same task too much
-                    sleep(1);
+                    sleep(3);
                 }
 
                 $cloneCreated = $this->queueService->enqueue(clone $task, $task->getLabel());
@@ -210,8 +210,13 @@ final class Worker implements WorkerInterface
             }
         }
 
-        // if we have a new clone of this task, the status of the current task will be STATUS_ARCHIVED
-        $this->taskLog->setReport($task->getId(), $report, false === $cloneCreated ? $status : TaskLogInterface::STATUS_ARCHIVED);
+        if (!$cloneCreated) {
+            $this->taskLog->setReport($task->getId(), $report, $status);
+        } else {
+            // if there is a clone, delete the old task log
+            //TODO: once we have the centralized way of cleaning up the log table, this should be refactored
+            $this->taskLog->getBroker()->deleteById($task->getId());
+        }
 
         // Update parent
         if ($task->hasParent()) {

@@ -133,11 +133,10 @@ interface TaskLogBrokerInterface
     public function getStats(TaskLogFilter $filter);
 
     /**
+     * Setting the status to archive, the record is kept. (Soft Delete)
+     *
      * @param TaskLogEntity $entity
-     *
      * @return bool
-     *
-     * @throws \Exception
      */
     public function archive(TaskLogEntity $entity);
 
@@ -146,4 +145,12 @@ interface TaskLogBrokerInterface
      * @return int
      */
     public function archiveCollection(TaskLogCollectionInterface $collection);
+
+    /**
+     * Delete the task log by id. (Hard Delete)
+     *
+     * @param string $taskId
+     * @return bool
+     */
+    public function deleteById($taskId);
 }
