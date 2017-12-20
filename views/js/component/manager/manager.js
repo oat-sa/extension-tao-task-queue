@@ -225,6 +225,13 @@ define([
                 }
                 found.push(id);
             });
+
+            //remove any element from the list that are not found in the new data collection (task has been archived server side)
+            _.forEach(_.difference(_.keys(self.taskElements), found), function(id){
+                self.list.removeElement(self.taskElements[id]);
+                delete self.taskElements[id];
+            });
+
             this.trigger('listchange');
             return this;
         },
