@@ -20,6 +20,7 @@
 
 namespace oat\taoTaskQueue\controller;
 
+use oat\taoTaskQueue\model\Entity\TaskLogEntity;
 use oat\taoTaskQueue\model\TaskLogInterface;
 
 /**
@@ -32,23 +33,43 @@ class TaskQueueRestApi extends \tao_actions_RestController
     const PARAMETER_TASK_ID = 'id';
 
     /**
-     * Get task details by its id, independently from the owner.
+     * Returns the details of a task, independently from the owner.
      */
     public function get()
     {
         try {
-            if (!$this->hasRequestParameter(self::PARAMETER_TASK_ID)) {
-                throw new \common_exception_MissingParameter(self::PARAMETER_TASK_ID, $this->getRequestURI());
-            }
-
-            /** @var TaskLogInterface $taskLogService */
-            $taskLogService = $this->getServiceManager()->get(TaskLogInterface::SERVICE_ID);
-
-            $entity = $taskLogService->getById((string) $this->getRequestParameter(self::PARAMETER_TASK_ID));
-
-            $this->returnSuccess($entity->toArray());
+            $this->returnSuccess($this->getTaskEntity()->toArray());
         } catch (\Exception $e) {
             $this->returnFailure($e);
         }
+    }
+
+    /**
+     * Returns only the status of a task, independently from the owner.
+     */
+    public function getStatus()
+    {
+        try {
+            $this->returnSuccess((string) $this->getTaskEntity()->getStatus());
+        } catch (\Exception $e) {
+            $this->returnFailure($e);
+        }
+    }
+
+    /**
+     * @return TaskLogEntity
+     * @throws \common_exception_MissingParameter
+     * @throws \common_exception_NotFound
+     */
+    private function getTaskEntity()
+    {
+        if (!$this->hasRequestParameter(self::PARAMETER_TASK_ID)) {
+            throw new \common_exception_MissingParameter(self::PARAMETER_TASK_ID, $this->getRequestURI());
+        }
+
+        /** @var TaskLogInterface $taskLogService */
+        $taskLogService = $this->getServiceManager()->get(TaskLogInterface::SERVICE_ID);
+
+        return $taskLogService->getById((string) $this->getRequestParameter(self::PARAMETER_TASK_ID));
     }
 }

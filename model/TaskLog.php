@@ -24,9 +24,12 @@ use common_report_Report as Report;
 use oat\oatbox\event\EventManager;
 use oat\oatbox\service\ConfigurableService;
 use oat\taoTaskQueue\model\Entity\TaskLogEntity;
+use oat\taoTaskQueue\model\Entity\TaskLogEntityInterface;
 use oat\taoTaskQueue\model\Event\TaskLogArchivedEvent;
 use oat\taoTaskQueue\model\Task\TaskInterface;
 use oat\taoTaskQueue\model\TaskLog\DataTablePayload;
+use oat\taoTaskQueue\model\TaskLog\TaskLogCollection;
+use oat\taoTaskQueue\model\TaskLog\TaskLogCollectionInterface;
 use oat\taoTaskQueue\model\TaskLog\TaskLogFilter;
 use oat\taoTaskQueue\model\TaskLogBroker\RdsTaskLogBroker;
 use oat\taoTaskQueue\model\TaskLogBroker\TaskLogBrokerInterface;
@@ -178,6 +181,48 @@ class TaskLog extends ConfigurableService implements TaskLogInterface
     /**
      * @inheritdoc
      */
+    public function updateParent($parentTaskId)
+    {
+        try {
+            $filter = (new TaskLogFilter())
+                ->eq(TaskLogBrokerInterface::COLUMN_PARENT_ID, $parentTaskId)
+                ->neq(TaskLogBrokerInterface::COLUMN_STATUS, TaskLogInterface::STATUS_ARCHIVED);
+
+            $children = $this->search($filter);
+
+            if (!$children->isEmpty()) {
+                $processedOnes = 0;
+                $failedOnes = 0;
+                foreach ($children as $child) {
+                    // no need update if any child is still in progress
+                    if ($child->getStatus()->isInProgress() || $child->getStatus()->isCreated()) {
+                        break;
+                    }
+
+                    if ($child->getStatus()->isCompleted() || $child->getStatus()->isFailed()) {
+                        $processedOnes++;
+                    }
+
+                    if ($child->getStatus()->isFailed()) {
+                        $failedOnes++;
+                    }
+                }
+
+                // we can update the parent status if every child has been processed
+                if ($processedOnes == $children->count()) {
+                    $this->setStatus($parentTaskId, $failedOnes > 0 ? self::STATUS_FAILED : self::STATUS_COMPLETED);
+                }
+            }
+        } catch (\Exception $e) {
+            $this->logError('Updating parent task "'. $parentTaskId .'"" failed with MSG: '. $e->getMessage());
+        }
+
+        return $this;
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function search(TaskLogFilter $filter)
     {
         return $this->getBroker()->search($filter);
@@ -255,9 +300,7 @@ class TaskLog extends ConfigurableService implements TaskLogInterface
      */
     public function archive(TaskLogEntity $entity, $forceArchive = false)
     {
-        if ($entity->getStatus()->isInProgress() && $forceArchive === false) {
-            throw new \Exception('Task cannot be archived because it is in progress.');
-        }
+        $this->assertCanArchive($entity, $forceArchive);
 
         $isArchived = $this->getBroker()->archive($entity);
 
@@ -267,6 +310,38 @@ class TaskLog extends ConfigurableService implements TaskLogInterface
         }
 
         return $isArchived;
+    }
+
+    /**
+     * @param TaskLogCollectionInterface $collection
+     * @param bool $forceArchive
+     * @return bool
+     */
+    public function archiveCollection(TaskLogCollectionInterface $collection, $forceArchive = false)
+    {
+        $tasksAbleToArchive = [];
+
+        /** @var TaskLogEntityInterface $entity */
+        foreach ($collection as $entity) {
+            try{
+                $this->assertCanArchive($entity, $forceArchive);
+                $tasksAbleToArchive[] = $entity;
+            }catch (\Exception $exception) {
+                $this->logDebug('Task Log: ' . $entity->getId(). ' cannot be archived.');
+            }
+        }
+
+        $collectionArchived = $this->getBroker()->archiveCollection(new TaskLogCollection($tasksAbleToArchive));
+
+        if ($collectionArchived) {
+            foreach ($tasksAbleToArchive as $entity) {
+                $this->getServiceManager()
+                    ->get(EventManager::SERVICE_ID)
+                    ->trigger(new TaskLogArchivedEvent($entity, $forceArchive));
+            }
+        }
+
+        return count($collection) === count($tasksAbleToArchive) && $collectionArchived;
     }
 
     /**
@@ -331,6 +406,7 @@ class TaskLog extends ConfigurableService implements TaskLogInterface
             self::STATUS_ENQUEUED,
             self::STATUS_DEQUEUED,
             self::STATUS_RUNNING,
+            self::STATUS_CHILD_RUNNING,
             self::STATUS_COMPLETED,
             self::STATUS_FAILED,
             self::STATUS_ARCHIVED
@@ -338,6 +414,18 @@ class TaskLog extends ConfigurableService implements TaskLogInterface
 
         if (!in_array($status, $statuses)) {
             throw new \InvalidArgumentException('Status "'. $status .'"" is not a valid task queue status.');
+        }
+    }
+
+    /**
+     * @param TaskLogEntityInterface $entity
+     * @param $forceArchive
+     * @throws \Exception
+     */
+    protected function assertCanArchive($entity, $forceArchive)
+    {
+        if ($entity->getStatus()->isInProgress() && $forceArchive === false) {
+            throw new \Exception('Task cannot be archived because it is in progress.');
         }
     }
 }

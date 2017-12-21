@@ -40,13 +40,14 @@ class TaskLogCategorizedStatus
         self::STATUS_IN_PROGRESS => [
             TaskLogInterface::STATUS_DEQUEUED,
             TaskLogInterface::STATUS_RUNNING,
+            TaskLogInterface::STATUS_CHILD_RUNNING
         ],
         self::STATUS_COMPLETED   => [
-            TaskLogInterface::STATUS_COMPLETED,
+            TaskLogInterface::STATUS_COMPLETED
         ],
         self::STATUS_FAILED      => [
             TaskLogInterface::STATUS_FAILED,
-            TaskLogInterface::STATUS_UNKNOWN,
+            TaskLogInterface::STATUS_UNKNOWN
         ]
     );
 
@@ -73,6 +74,7 @@ class TaskLogCategorizedStatus
 
             case TaskLogInterface::STATUS_DEQUEUED:
             case TaskLogInterface::STATUS_RUNNING:
+            case TaskLogInterface::STATUS_CHILD_RUNNING:
                 return TaskLogCategorizedStatus::inProgress();
                 break;
 

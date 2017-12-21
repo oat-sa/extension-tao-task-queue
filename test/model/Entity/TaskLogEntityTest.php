@@ -34,6 +34,7 @@ class TaskLogEntityTest extends \PHPUnit_Framework_TestCase
 
         $entity = TaskLogEntity::createFromArray([
             'id' => 'rdf#i1508337970199318643',
+            'parent_id' => 'parentFake0002525',
             'task_name' => 'Task Name',
             'parameters' => json_encode(['param1' => 'value1', 'param2' => 'value2']),
             'label' => 'Task label',
@@ -75,8 +76,7 @@ class TaskLogEntityTest extends \PHPUnit_Framework_TestCase
                 'message' => 'Running task http://www.taoinstance.dev/ontologies/tao.rdf#i1508337970199318643',
                 'data' => NULL,
                 'children' => []
-            ],
-            'hasFile' => false
+            ]
         ], $entity->jsonSerialize());
     }
 
@@ -84,6 +84,7 @@ class TaskLogEntityTest extends \PHPUnit_Framework_TestCase
     {
         $entity = TaskLogEntity::createFromArray([
             'id' => 'rdf#i1508337970199318643',
+            'parent_id' => 'parentFake0002525',
             'task_name' => 'Task Name',
             'parameters' => json_encode(['param1' => 'value1', 'param2' => 'value2']),
             'label' => 'Task label',

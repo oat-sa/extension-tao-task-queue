@@ -76,6 +76,21 @@ div.task-listing {
                 }
             }
         }
+        .clear-box{
+            text-align: center;
+            border-top: solid 1px $listBorderColor;
+            background: blacken($canvas, 0.03);
+            padding: 2px 0;
+            .clear-all{
+                text-decoration: none;
+                color: $uiClickableHoverBg;
+                &:hover{
+                    text-decoration: underline;
+                    color: $info;
+                }
+
+            }
+        }
         .empty-placeholder {
             width: 100%;
             position: absolute;
@@ -90,7 +105,7 @@ div.task-listing {
     }
     &.detail-view {
         .box {
-            .task-list {
+            .task-list, .clear-box {
                 display: none;
             }
             .view-detail {

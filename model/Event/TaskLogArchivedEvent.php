@@ -21,12 +21,12 @@
 namespace oat\taoTaskQueue\model\Event;
 
 use oat\oatbox\event\Event;
-use oat\taoTaskQueue\model\Entity\TaskLogEntity;
+use oat\taoTaskQueue\model\Entity\TaskLogEntityInterface;
 
 class TaskLogArchivedEvent implements Event
 {
     /**
-     * @var TaskLogEntity
+     * @var TaskLogEntityInterface
      */
     private $taskLogEntity;
     /**
@@ -37,17 +37,17 @@ class TaskLogArchivedEvent implements Event
     /**
      * TaskLogArchivedEvent constructor.
      *
-     * @param TaskLogEntity $taskLogEntity
-     * @param bool          $isForced
+     * @param TaskLogEntityInterface $taskLogEntity
+     * @param bool                   $isForced
      */
-    public function __construct(TaskLogEntity $taskLogEntity, $isForced = false)
+    public function __construct(TaskLogEntityInterface $taskLogEntity, $isForced = false)
     {
         $this->taskLogEntity = $taskLogEntity;
         $this->isForced = $isForced;
     }
 
     /**
-     * @return TaskLogEntity
+     * @return TaskLogEntityInterface
      */
     public function getTaskLogEntity()
     {

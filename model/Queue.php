@@ -176,6 +176,10 @@ class Queue implements QueueInterface, TaskLogAwareInterface
     public function enqueue(TaskInterface $task, $label = null)
     {
         try {
+            if (!is_null($label)) {
+                $task->setLabel($label);
+            }
+
             $isEnqueued = $this->getBroker()->push($task);
 
             if ($isEnqueued) {

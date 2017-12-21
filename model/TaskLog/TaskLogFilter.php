@@ -46,6 +46,7 @@ class TaskLogFilter
 
     private $baseColumns = [
         TaskLogBrokerInterface::COLUMN_ID,
+        TaskLogBrokerInterface::COLUMN_PARENT_ID,
         TaskLogBrokerInterface::COLUMN_TASK_NAME,
         TaskLogBrokerInterface::COLUMN_STATUS,
         TaskLogBrokerInterface::COLUMN_REPORT
@@ -197,6 +198,21 @@ class TaskLogFilter
     public function addAvailableFilters($userId)
     {
         $this->neq(TaskLogBrokerInterface::COLUMN_STATUS, TaskLogInterface::STATUS_ARCHIVED);
+
+        if ($userId !== TaskLogInterface::SUPER_USER) {
+            $this->eq(TaskLogBrokerInterface::COLUMN_OWNER, $userId);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param $userId
+     * @return $this
+     */
+    public function availableForArchived($userId)
+    {
+        $this->in(TaskLogBrokerInterface::COLUMN_STATUS, [TaskLogInterface::STATUS_FAILED, TaskLogInterface::STATUS_COMPLETED]);
 
         if ($userId !== TaskLogInterface::SUPER_USER) {
             $this->eq(TaskLogBrokerInterface::COLUMN_OWNER, $userId);

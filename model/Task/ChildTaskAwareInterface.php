@@ -18,38 +18,34 @@
  *
  */
 
-namespace oat\taoTaskQueue\model\TaskLog;
-use oat\taoTaskQueue\model\Entity\TaskLogEntity;
+namespace oat\taoTaskQueue\model\Task;
 
 /**
- * Interface TaskLogCollectionInterface
+ * Methods to define dependency between tasks.
  *
  * @author Gyula Szucs <gyula@taotesting.com>
  */
-interface TaskLogCollectionInterface extends \JsonSerializable, \Countable, \IteratorAggregate
+interface ChildTaskAwareInterface
 {
     /**
-     * @return array
+     * Adds a new child task.
+     *
+     * @param string $taskId
+     * @return ChildTaskAwareInterface
      */
-    public function toArray();
+    public function addChildId($taskId);
 
     /**
+     * Is there any child task set?
+     *
      * @return bool
      */
-    public function isEmpty();
+    public function hasChildren();
 
     /**
-     * @return TaskLogEntity
+     * Returns the array of child tasks' ids.
+     *
+     * @return string[]
      */
-    public function first();
-
-    /**
-     * @return TaskLogEntity
-     */
-    public function last();
-
-    /**
-     * @return array
-     */
-    public function getIds();
+    public function getChildren();
 }

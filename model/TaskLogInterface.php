@@ -25,6 +25,7 @@ use oat\taoTaskQueue\model\Entity\TaskLogEntity;
 use oat\taoTaskQueue\model\Entity\TasksLogsStats;
 use oat\taoTaskQueue\model\Task\TaskInterface;
 use oat\taoTaskQueue\model\TaskLog\DataTablePayload;
+use oat\taoTaskQueue\model\TaskLog\TaskLogCollectionInterface;
 use oat\taoTaskQueue\model\TaskLog\TaskLogFilter;
 use oat\taoTaskQueue\model\TaskLogBroker\TaskLogBrokerInterface;
 use oat\taoTaskQueue\model\TaskLog\TaskLogCollection;
@@ -49,6 +50,7 @@ interface TaskLogInterface extends LoggerAwareInterface
     const STATUS_ENQUEUED = 'enqueued';
     const STATUS_DEQUEUED = 'dequeued';
     const STATUS_RUNNING = 'running';
+    const STATUS_CHILD_RUNNING = 'child_running';
     const STATUS_COMPLETED = 'completed';
     const STATUS_FAILED = 'failed';
     const STATUS_ARCHIVED = 'archived';
@@ -118,6 +120,14 @@ interface TaskLogInterface extends LoggerAwareInterface
     public function getReport($taskId);
 
     /**
+     * Updates the parent task.
+     *
+     * @param string $parentTaskId
+     * @return TaskLogInterface
+     */
+    public function updateParent($parentTaskId);
+
+    /**
      * @param TaskLogFilter $filter
      * @return TaskLogCollection|TaskLogEntity[]
      */
@@ -168,6 +178,13 @@ interface TaskLogInterface extends LoggerAwareInterface
      * @throws \Exception
      */
     public function archive(TaskLogEntity $entity, $forceArchive = false);
+
+    /**
+     * @param TaskLogCollectionInterface $collection
+     * @param bool $forceArchive
+     * @return bool
+     */
+    public function archiveCollection(TaskLogCollectionInterface $collection, $forceArchive = false);
 
     /**
      * Gets the current broker instance.

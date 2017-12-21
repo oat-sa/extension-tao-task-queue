@@ -21,6 +21,7 @@
 namespace oat\taoTaskQueue\model\TaskLog;
 
 use oat\taoTaskQueue\model\Entity\TaskLogEntity;
+use oat\taoTaskQueue\model\Entity\TaskLogEntityInterface;
 
 class TaskLogCollection implements TaskLogCollectionInterface
 {
@@ -40,7 +41,6 @@ class TaskLogCollection implements TaskLogCollectionInterface
      * @return TaskLogCollection
      *
      * @throws \Exception
-     * @throws \common_exception_Error
      */
     public static function createFromArray(array $rows)
     {
@@ -121,5 +121,19 @@ class TaskLogCollection implements TaskLogCollectionInterface
     public function last()
     {
         return end($this->taskLogs);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getIds()
+    {
+        $ids = [];
+        /** @var TaskLogEntityInterface $item */
+        foreach ($this->taskLogs as $item) {
+            $ids[] = $item->getId();
+        }
+
+        return $ids;
     }
 }

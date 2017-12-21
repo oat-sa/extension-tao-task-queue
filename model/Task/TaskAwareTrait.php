@@ -18,38 +18,33 @@
  *
  */
 
-namespace oat\taoTaskQueue\model\TaskLog;
-use oat\taoTaskQueue\model\Entity\TaskLogEntity;
+namespace oat\taoTaskQueue\model\Task;
 
 /**
- * Interface TaskLogCollectionInterface
+ * TaskAwareInterface
  *
  * @author Gyula Szucs <gyula@taotesting.com>
  */
-interface TaskLogCollectionInterface extends \JsonSerializable, \Countable, \IteratorAggregate
+trait TaskAwareTrait
 {
-    /**
-     * @return array
-     */
-    public function toArray();
+    private $task;
 
     /**
-     * @return bool
+     * @param TaskInterface $task
+     * @return $this
      */
-    public function isEmpty();
+    public function setTask(TaskInterface $task)
+    {
+        $this->task = $task;
+
+        return $this;
+    }
 
     /**
-     * @return TaskLogEntity
+     * @return TaskInterface
      */
-    public function first();
-
-    /**
-     * @return TaskLogEntity
-     */
-    public function last();
-
-    /**
-     * @return array
-     */
-    public function getIds();
+    public function getTask()
+    {
+        return $this->task;
+    }
 }

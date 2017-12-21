@@ -18,38 +18,45 @@
  *
  */
 
-namespace oat\taoTaskQueue\model\TaskLog;
-use oat\taoTaskQueue\model\Entity\TaskLogEntity;
+namespace oat\taoTaskQueue\model\Task;
 
 /**
- * Interface TaskLogCollectionInterface
+ * ChildTaskAwareTrait
  *
  * @author Gyula Szucs <gyula@taotesting.com>
  */
-interface TaskLogCollectionInterface extends \JsonSerializable, \Countable, \IteratorAggregate
+trait ChildTaskAwareTrait
 {
+    private $children = [];
+
     /**
-     * @return array
+     * @param string $taskId
+     * @return $this
      */
-    public function toArray();
+    public function addChildId($taskId)
+    {
+        if (in_array($taskId, $this->children)) {
+            throw new \InvalidArgumentException('Child '. $taskId .' has been added.');
+        }
+
+        $this->children[] = $taskId;
+
+        return $this;
+    }
 
     /**
      * @return bool
      */
-    public function isEmpty();
-
-    /**
-     * @return TaskLogEntity
-     */
-    public function first();
-
-    /**
-     * @return TaskLogEntity
-     */
-    public function last();
+    public function hasChildren()
+    {
+        return !empty($this->children);
+    }
 
     /**
      * @return array
      */
-    public function getIds();
+    public function getChildren()
+    {
+        return $this->children;
+    }
 }

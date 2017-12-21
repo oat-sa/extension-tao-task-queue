@@ -25,6 +25,7 @@ use oat\taoTaskQueue\model\Entity\TaskLogEntity;
 use oat\taoTaskQueue\model\Entity\TasksLogsStats;
 use oat\taoTaskQueue\model\Task\TaskInterface;
 use oat\taoTaskQueue\model\TaskLog\TaskLogCollection;
+use oat\taoTaskQueue\model\TaskLog\TaskLogCollectionInterface;
 use oat\taoTaskQueue\model\TaskLog\TaskLogFilter;
 
 /**
@@ -37,6 +38,7 @@ interface TaskLogBrokerInterface
     const DEFAULT_CONTAINER_NAME = 'task_log';
 
     const COLUMN_ID = 'id';
+    const COLUMN_PARENT_ID = 'parent_id';
     const COLUMN_TASK_NAME = 'task_name';
     const COLUMN_PARAMETERS = 'parameters';
     const COLUMN_LABEL = 'label';
@@ -131,11 +133,24 @@ interface TaskLogBrokerInterface
     public function getStats(TaskLogFilter $filter);
 
     /**
+     * Setting the status to archive, the record is kept. (Soft Delete)
+     *
      * @param TaskLogEntity $entity
-     *
      * @return bool
-     *
-     * @throws \Exception
      */
     public function archive(TaskLogEntity $entity);
+
+    /**
+     * @param TaskLogCollectionInterface $collection
+     * @return int
+     */
+    public function archiveCollection(TaskLogCollectionInterface $collection);
+
+    /**
+     * Delete the task log by id. (Hard Delete)
+     *
+     * @param string $taskId
+     * @return bool
+     */
+    public function deleteById($taskId);
 }

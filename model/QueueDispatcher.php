@@ -314,14 +314,18 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
     /**
      * @inheritdoc
      */
-    public function createTask(callable $callable, array $parameters = [], $label = null)
+    public function createTask(callable $callable, array $parameters = [], $label = null, TaskInterface $parent = null)
     {
         $id = \common_Utils::getNewUri();
-        $owner = $this->getOwner();
+        $owner = $parent ? $parent->getOwner() : $this->getOwner();
 
         $callbackTask = new CallbackTask($id, $owner);
         $callbackTask->setCallable($callable)
             ->setParameter($parameters);
+
+        if ($parent) {
+            $callbackTask->setParentId($parent->getId());
+        }
 
         if ($this->enqueue($callbackTask, $label)) {
             $callbackTask->markAsEnqueued();
@@ -560,7 +564,7 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
      *
      * @deprecated
      *
-     * @param TaskInterface $task
+     * @param TaskInterface                      $task
      * @param \core_kernel_classes_Resource|null $resource - placeholder resource to be linked with task.
      * @return \core_kernel_classes_Resource
      */

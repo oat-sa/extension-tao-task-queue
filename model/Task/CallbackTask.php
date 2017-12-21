@@ -38,12 +38,27 @@ final class CallbackTask extends AbstractTask implements CallbackTaskInterface
         return call_user_func($this->getCallable(), $this->getParameters());
     }
 
+    public function __clone()
+    {
+        if (is_object($this->callable)) {
+            $this->callable = clone $this->callable;
+        }
+
+        $this->enqueued = false;
+
+        parent::__clone();
+    }
+
     /**
      * @param callable $callable
      * @return CallbackTaskInterface
      */
     public function setCallable(callable $callable)
     {
+        if ($callable instanceof TaskAwareInterface) {
+            $callable->setTask($this);
+        }
+
         $this->callable = $callable;
 
         return $this;
@@ -107,5 +122,29 @@ final class CallbackTask extends AbstractTask implements CallbackTaskInterface
         }
 
         return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasChildren()
+    {
+        if ($this->getCallable() instanceof ChildTaskAwareInterface) {
+            return $this->getCallable()->hasChildren();
+        }
+
+        return parent::hasChildren();
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getChildren()
+    {
+        if ($this->getCallable() instanceof ChildTaskAwareInterface) {
+            return $this->getCallable()->getChildren();
+        }
+
+        return parent::getChildren();
     }
 }
