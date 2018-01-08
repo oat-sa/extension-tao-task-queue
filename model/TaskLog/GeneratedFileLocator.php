@@ -18,67 +18,66 @@
  *
  */
 
-namespace oat\taoTaskQueue\model\Entity\Decorator;
+namespace oat\taoTaskQueue\model\TaskLog;
 
 use oat\generis\model\fileReference\FileSerializerException;
 use oat\generis\model\fileReference\UrlFileSerializer;
 use oat\oatbox\filesystem\Directory;
+use oat\oatbox\filesystem\File;
 use oat\oatbox\filesystem\FileSystemService;
 use oat\taoTaskQueue\model\Entity\TaskLogEntityInterface;
 use oat\taoTaskQueue\model\QueueDispatcherInterface;
-use oat\taoTaskQueue\model\TaskLog\GeneratedFileLocator;
 
 /**
- * HasFileEntityDecorator
+ * GeneratedFileLocator
  *
  * @author Gyula Szucs <gyula@taotesting.com>
  */
-class HasFileEntityDecorator extends TaskLogEntityDecorator
+class GeneratedFileLocator
 {
     /**
-     * @var FileSystemService
+     * @var TaskLogEntityInterface
      */
-    private $fileSystemService;
+    private $entity;
 
     /**
      * @var UrlFileSerializer
      */
     private $serializer;
+    /**
+     * @var FileSystemService
+     */
+    private $fileSystemService;
 
     public function __construct(TaskLogEntityInterface $entity, FileSystemService $fileSystemService, UrlFileSerializer $serializer)
     {
-        parent::__construct($entity);
-
-        $this->fileSystemService = $fileSystemService;
+        $this->entity = $entity;
         $this->serializer = $serializer;
+        $this->fileSystemService = $fileSystemService;
     }
 
     /**
-     * @return array
-     */
-    public function jsonSerialize()
-    {
-        return $this->toArray();
-    }
-
-    /**
-     * Add 'hasFile' to the result. Required by our frontend.
-     *
-     * @return array
+     * @return null|File
      * @throws FileSerializerException
      */
-    public function toArray()
+    public function getFile()
     {
-        $result = parent::toArray();
+        $file = null;
 
-        $result['hasFile'] = false;
+        if ($fileName = $this->entity->getFileNameFromReport()) {
 
-        $locator = new GeneratedFileLocator($this, $this->fileSystemService, $this->serializer);
+            if (filter_var($fileName, FILTER_VALIDATE_URL)) {
+                $file = $this->serializer->unserialize($fileName);
+            } else {
+                // using the default storage
+                /** @var Directory $queueStorage */
+                $queueStorage = $this->fileSystemService
+                    ->getDirectory(QueueDispatcherInterface::FILE_SYSTEM_ID);
 
-        if (($file = $locator->getFile()) && $file->exists()) {
-            $result['hasFile'] = true;
+                $file = $queueStorage->getFile($fileName);
+            }
         }
 
-        return $result;
+        return $file instanceof File ? $file : null;
     }
 }

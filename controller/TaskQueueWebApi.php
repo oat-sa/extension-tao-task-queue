@@ -21,11 +21,13 @@
 namespace oat\taoTaskQueue\controller;
 
 use common_session_SessionManager;
+use oat\generis\model\fileReference\UrlFileSerializer;
 use oat\oatbox\filesystem\FileSystemService;
 use oat\taoTaskQueue\model\Entity\Decorator\CategoryEntityDecorator;
 use oat\taoTaskQueue\model\Entity\Decorator\HasFileEntityDecorator;
 use oat\taoTaskQueue\model\QueueDispatcherInterface;
 use oat\taoTaskQueue\model\TaskLog\Decorator\SimpleManagementCollectionDecorator;
+use oat\taoTaskQueue\model\TaskLog\GeneratedFileLocator;
 use oat\taoTaskQueue\model\TaskLog\TaskLogFilter;
 use oat\taoTaskQueue\model\TaskLogBroker\TaskLogBrokerInterface;
 use oat\taoTaskQueue\model\TaskLogInterface;
@@ -56,7 +58,7 @@ class TaskQueueWebApi extends \tao_actions_CommonModule
     }
 
     /**
-     * @throws \common_exception_NotImplemented
+     * @throws \Exception
      */
     public function getAll()
     {
@@ -65,7 +67,7 @@ class TaskQueueWebApi extends \tao_actions_CommonModule
         }
 
         /** @var TaskLogInterface $taskLogService */
-        $taskLogService = $this->getServiceManager()->get(TaskLogInterface::SERVICE_ID);
+        $taskLogService = $this->getServiceLocator()->get(TaskLogInterface::SERVICE_ID);
         $limit = $offset = null;
 
         if ($this->hasRequestParameter(self::PARAMETER_LIMIT)) {
@@ -77,12 +79,13 @@ class TaskQueueWebApi extends \tao_actions_CommonModule
         }
 
         /** @var FileSystemService $fs */
-        $fs = $this->getServiceManager()->get(FileSystemService::SERVICE_ID);
+        $fs = $this->getServiceLocator()->get(FileSystemService::SERVICE_ID);
 
         $collection = new SimpleManagementCollectionDecorator(
             $taskLogService->findAvailableByUser($this->userId, $limit, $offset),
             $taskLogService,
             $fs,
+            $this->propagate(new UrlFileSerializer()),
             false
         );
 
@@ -93,7 +96,7 @@ class TaskQueueWebApi extends \tao_actions_CommonModule
     }
 
     /**
-     * @throws \common_exception_NotImplemented
+     * @throws \Exception
      */
     public function get()
     {
@@ -102,10 +105,10 @@ class TaskQueueWebApi extends \tao_actions_CommonModule
         }
 
         /** @var TaskLogInterface $taskLogService */
-        $taskLogService = $this->getServiceManager()->get(TaskLogInterface::SERVICE_ID);
+        $taskLogService = $this->getServiceLocator()->get(TaskLogInterface::SERVICE_ID);
 
         /** @var FileSystemService $fs */
-        $fs = $this->getServiceManager()->get(FileSystemService::SERVICE_ID);
+        $fs = $this->getServiceLocator()->get(FileSystemService::SERVICE_ID);
 
         try {
             $this->assertTaskIdExists();
@@ -117,7 +120,11 @@ class TaskQueueWebApi extends \tao_actions_CommonModule
 
             return $this->returnJson([
                 'success' => true,
-                'data' => (new HasFileEntityDecorator(new CategoryEntityDecorator($entity, $taskLogService), $fs))->toArray()
+                'data' => (new HasFileEntityDecorator(
+                    new CategoryEntityDecorator($entity, $taskLogService),
+                    $fs,
+                    $this->propagate(new UrlFileSerializer())
+                ))->toArray()
             ]);
         } catch (\Exception $e) {
             return $this->returnJson([
@@ -129,7 +136,9 @@ class TaskQueueWebApi extends \tao_actions_CommonModule
     }
 
     /**
-     * @throws \common_exception_NotImplemented
+     * Gets stats
+     *
+     * @throws \Exception
      */
     public function stats()
     {
@@ -138,7 +147,7 @@ class TaskQueueWebApi extends \tao_actions_CommonModule
         }
 
         /** @var TaskLogInterface $taskLogService */
-        $taskLogService = $this->getServiceManager()->get(TaskLogInterface::SERVICE_ID);
+        $taskLogService = $this->getServiceLocator()->get(TaskLogInterface::SERVICE_ID);
 
         return $this->returnJson([
             'success' => true,
@@ -147,7 +156,6 @@ class TaskQueueWebApi extends \tao_actions_CommonModule
     }
 
     /**
-     * @throws \common_exception_NotImplemented
      * @throws \Exception
      */
     public function archive()
@@ -161,7 +169,7 @@ class TaskQueueWebApi extends \tao_actions_CommonModule
             $taskIds = $this->detectTaskIds();
 
             /** @var TaskLogInterface $taskLogService */
-            $taskLogService = $this->getServiceManager()->get(TaskLogInterface::SERVICE_ID);
+            $taskLogService = $this->getServiceLocator()->get(TaskLogInterface::SERVICE_ID);
 
             if ($taskIds === static::ARCHIVE_ALL) {
                 $filter = (new TaskLogFilter())->availableForArchived($this->userId);
@@ -193,7 +201,7 @@ class TaskQueueWebApi extends \tao_actions_CommonModule
             $this->assertTaskIdExists();
 
             /** @var TaskLogInterface $taskLogService */
-            $taskLogService = $this->getServiceManager()->get(TaskLogInterface::SERVICE_ID);
+            $taskLogService = $this->getServiceLocator()->get(TaskLogInterface::SERVICE_ID);
 
             $taskLogEntity = $taskLogService->getByIdAndUser($this->getRequestParameter(self::PARAMETER_TASK_ID), $this->userId);
 
@@ -201,24 +209,18 @@ class TaskQueueWebApi extends \tao_actions_CommonModule
                 throw new \common_Exception('Task "'. $taskLogEntity->getId() .'" is not downloadable.');
             }
 
-            $filename = $taskLogEntity->getFileNameFromReport();
-
-            if (empty($filename)) {
-                throw new \common_Exception('Filename not found in report.');
-            }
-
             /** @var FileSystemService $fileSystem */
-            $fileSystem = $this->getServiceManager()->get(FileSystemService::SERVICE_ID);
-            $directory = $fileSystem->getDirectory(QueueDispatcherInterface::FILE_SYSTEM_ID);
-            $file = $directory->getFile($filename);
+            $fileSystem = $this->getServiceLocator()->get(FileSystemService::SERVICE_ID);
 
-            if (!$file->exists()) {
+            $locator = new GeneratedFileLocator($taskLogEntity, $fileSystem, $this->propagate(new UrlFileSerializer()));
+
+            if (!($file = $locator->getFile()) || !$file->exists()) {
                 throw new \common_exception_NotFound('File not found.');
             }
 
             header('Set-Cookie: fileDownload=true');
             setcookie('fileDownload', 'true', 0, '/');
-            header('Content-Disposition: attachment; filename="' . $filename . '"');
+            header('Content-Disposition: attachment; filename="' . $file->getBasename() . '"');
             header('Content-Type: ' . $file->getMimeType());
 
             \tao_helpers_Http::returnStream($file->readPsrStream());

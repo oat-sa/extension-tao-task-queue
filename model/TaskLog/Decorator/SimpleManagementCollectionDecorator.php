@@ -20,6 +20,7 @@
 
 namespace oat\taoTaskQueue\model\TaskLog\Decorator;
 
+use oat\generis\model\fileReference\UrlFileSerializer;
 use oat\oatbox\filesystem\FileSystemService;
 use oat\taoTaskQueue\model\Entity\Decorator\CategoryEntityDecorator;
 use oat\taoTaskQueue\model\Entity\Decorator\HasFileEntityDecorator;
@@ -53,7 +54,12 @@ class SimpleManagementCollectionDecorator extends TaskLogCollectionDecorator
      */
     private $reportIncluded;
 
-    public function __construct(TaskLogCollectionInterface $collection, TaskLogInterface $taskLogService, FileSystemService $fileSystemService, $reportIncluded)
+    /**
+     * @var UrlFileSerializer
+     */
+    private $serializer;
+
+    public function __construct(TaskLogCollectionInterface $collection, TaskLogInterface $taskLogService, FileSystemService $fileSystemService, UrlFileSerializer $serializer, $reportIncluded)
     {
         parent::__construct($collection);
 
@@ -61,6 +67,7 @@ class SimpleManagementCollectionDecorator extends TaskLogCollectionDecorator
         $this->collection = $collection;
         $this->taskLogService = $taskLogService;
         $this->reportIncluded = (bool) $reportIncluded;
+        $this->serializer = $serializer;
     }
 
     /**
@@ -71,7 +78,7 @@ class SimpleManagementCollectionDecorator extends TaskLogCollectionDecorator
         $data = [];
 
         foreach ($this->getIterator() as $entity) {
-            $entityData = (new HasFileEntityDecorator(new CategoryEntityDecorator($entity, $this->taskLogService), $this->fileSystemService))->toArray();
+            $entityData = (new HasFileEntityDecorator(new CategoryEntityDecorator($entity, $this->taskLogService), $this->fileSystemService, $this->serializer))->toArray();
 
             if (!$this->reportIncluded && array_key_exists('report', $entityData)) {
                 unset($entityData['report']);
