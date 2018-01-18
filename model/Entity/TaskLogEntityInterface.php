@@ -82,6 +82,11 @@ interface TaskLogEntityInterface extends \JsonSerializable
     public function getStatus();
 
     /**
+     * @return boolean
+     */
+    public function isMasterStatus();
+
+    /**
      * @return string
      */
     public function getFileNameFromReport();

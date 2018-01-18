@@ -314,7 +314,7 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
     /**
      * @inheritdoc
      */
-    public function createTask(callable $callable, array $parameters = [], $label = null, TaskInterface $parent = null)
+    public function createTask(callable $callable, array $parameters = [], $label = null, TaskInterface $parent = null, $masterStatus = false)
     {
         $id = \common_Utils::getNewUri();
         $owner = $parent ? $parent->getOwner() : $this->getOwner();
@@ -326,6 +326,8 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
         if ($parent) {
             $callbackTask->setParentId($parent->getId());
         }
+
+        $callbackTask->setMasterStatus($masterStatus);
 
         if ($this->enqueue($callbackTask, $label)) {
             $callbackTask->markAsEnqueued();

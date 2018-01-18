@@ -189,7 +189,6 @@ class TaskLog extends ConfigurableService implements TaskLogInterface
                 ->neq(TaskLogBrokerInterface::COLUMN_STATUS, TaskLogInterface::STATUS_ARCHIVED);
 
             $children = $this->search($filter);
-
             if (!$children->isEmpty()) {
                 $processedOnes = 0;
                 $failedOnes = 0;
