@@ -47,7 +47,8 @@ class TaskLogEntityTest extends \PHPUnit_Framework_TestCase
                 'message' => 'Running task http://www.taoinstance.dev/ontologies/tao.rdf#i1508337970199318643',
                 'data' => NULL,
                 'children' => []
-            ]
+            ],
+            'master_status' => true
         ]);
 
         $this->assertInstanceOf(TaskLogEntity::class, $entity);
@@ -76,7 +77,8 @@ class TaskLogEntityTest extends \PHPUnit_Framework_TestCase
                 'message' => 'Running task http://www.taoinstance.dev/ontologies/tao.rdf#i1508337970199318643',
                 'data' => NULL,
                 'children' => []
-            ]
+            ],
+            'masterStatus' => true
         ], $entity->jsonSerialize());
     }
 
