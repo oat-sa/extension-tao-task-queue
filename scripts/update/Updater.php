@@ -143,9 +143,7 @@ class Updater extends common_ext_ExtensionUpdater
 
         $this->skip('0.13.0', '0.13.2');
 
-        $this->skip('0.13.2', '0.13.1');
-
-        if ($this->isVersion('0.13.1')) {
+        if ($this->isVersion('0.13.2')) {
 
             /** @var $taskLogService TaskLogInterface */
             $taskLogService = $this->getServiceManager()->get(TaskLogInterface::SERVICE_ID);
