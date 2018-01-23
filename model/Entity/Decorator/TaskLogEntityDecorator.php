@@ -125,6 +125,15 @@ abstract class TaskLogEntityDecorator implements TaskLogEntityInterface
     /**
      * @inheritdoc
      */
+    public function isMasterStatus()
+    {
+        return $this->entity->isMasterStatus();
+    }
+
+
+    /**
+     * @inheritdoc
+     */
     public function getFileNameFromReport()
     {
         return $this->entity->getFileNameFromReport();
