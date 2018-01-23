@@ -62,7 +62,7 @@ class StrictPriorityStrategy implements SelectorStrategyInterface, LoggerAwareIn
 
         $pickedQueue = $this->sortedQueues[$this->nextQueueIndex];
 
-        $this->logInfo('Queue "' . strtoupper($pickedQueue->getName()) . '" picked by StrictPriorityStrategy');
+        $this->logDebug('Queue "' . strtoupper($pickedQueue->getName()) . '" picked by StrictPriorityStrategy');
 
         $task = $pickedQueue->dequeue();
 
