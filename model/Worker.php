@@ -22,6 +22,7 @@ namespace oat\taoTaskQueue\model;
 
 use oat\oatbox\log\LoggerAwareTrait;
 use common_report_Report as Report;
+use oat\taoTaskQueue\model\Entity\TaskLogEntity;
 use oat\taoTaskQueue\model\Task\CallbackTaskInterface;
 use oat\taoTaskQueue\model\Task\RemoteTaskSynchroniserInterface;
 use oat\taoTaskQueue\model\Task\TaskInterface;
@@ -220,7 +221,12 @@ final class Worker implements WorkerInterface
 
         // Update parent
         if ($task->hasParent()) {
-            $this->taskLog->updateParent($task->getParentId());
+            /** @var TaskLogEntity $parentLogTask */
+            $parentLogTask = $this->taskLog->getById($task->getParentId());
+            if (!$parentLogTask->isMasterStatus()) {
+                $this->taskLog->updateParent($task->getParentId());
+            }
+
         }
 
         unset($report);

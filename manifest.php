@@ -23,12 +23,15 @@ use oat\taoTaskQueue\scripts\install\RegisterTaskLogService;
 use oat\taoTaskQueue\scripts\install\RegisterTaskQueueService;
 use oat\taoTaskQueue\scripts\install\SetClientRouterConfig;
 
+/**
+ * Generated using taoDevTools 3.1.1
+ */
 return array(
     'name' => 'taoTaskQueue',
     'label' => 'Task Queue',
     'description' => 'TAO specific Task Queue with custom GUI',
     'license' => 'GPL-2.0',
-    'version' => '0.13.2',
+    'version' => '0.14.1',
     'author' => 'Open Assessment Technologies SA',
     'requires' => array(
         'generis' => '>=5.8.0',

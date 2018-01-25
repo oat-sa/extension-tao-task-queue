@@ -29,6 +29,7 @@ class TaskLogCategorizedStatus
     const STATUS_IN_PROGRESS = 'in_progress';
     const STATUS_COMPLETED = 'completed';
     const STATUS_FAILED = 'failed';
+    const STATUS_ARCHIVED = 'archived';
 
     /** @var  string */
     private $status;
@@ -43,11 +44,15 @@ class TaskLogCategorizedStatus
             TaskLogInterface::STATUS_CHILD_RUNNING
         ],
         self::STATUS_COMPLETED   => [
-            TaskLogInterface::STATUS_COMPLETED
+            TaskLogInterface::STATUS_COMPLETED,
+            TaskLogInterface::STATUS_ARCHIVED
         ],
         self::STATUS_FAILED      => [
             TaskLogInterface::STATUS_FAILED,
             TaskLogInterface::STATUS_UNKNOWN
+        ],
+        self::STATUS_ARCHIVED    => [
+            TaskLogInterface::STATUS_ARCHIVED,
         ]
     );
 
@@ -82,6 +87,10 @@ class TaskLogCategorizedStatus
                 return TaskLogCategorizedStatus::completed();
                 break;
 
+            case TaskLogInterface::STATUS_ARCHIVED:
+                return TaskLogCategorizedStatus::archived();
+                break;
+
             case TaskLogInterface::STATUS_FAILED:
             case TaskLogInterface::STATUS_UNKNOWN:
                 return TaskLogCategorizedStatus::failed();
@@ -98,6 +107,14 @@ class TaskLogCategorizedStatus
     public static function completed()
     {
         return new self(self::STATUS_COMPLETED);
+    }
+
+    /**
+     * @return TaskLogCategorizedStatus
+     */
+    public static function archived()
+    {
+        return new self(self::STATUS_ARCHIVED);
     }
 
     /**
@@ -154,6 +171,14 @@ class TaskLogCategorizedStatus
     public function isFailed()
     {
         return $this->equals(TaskLogCategorizedStatus::failed());
+    }
+
+    /**
+     * @return bool
+     */
+    public function isArchived()
+    {
+        return $this->equals(TaskLogCategorizedStatus::archived());
     }
 
     /**

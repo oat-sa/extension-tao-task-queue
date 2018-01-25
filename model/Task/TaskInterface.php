@@ -32,6 +32,7 @@ interface TaskInterface extends WorkerContextAwareInterface, ChildTaskAwareInter
     const JSON_METADATA_KEY = 'metadata';
     const JSON_METADATA_ID_KEY = '__id__';
     const JSON_METADATA_PARENT_ID_KEY = '__parent_id__';
+    const JSON_METADATA_MASTER_STATUS_KEY = '__master_status__';
     const JSON_METADATA_OWNER_KEY = '__owner__';
     const JSON_METADATA_CREATED_AT_KEY = '__created_at__';
     const JSON_METADATA_LABEL_KEY = '__label__';
@@ -67,6 +68,19 @@ interface TaskInterface extends WorkerContextAwareInterface, ChildTaskAwareInter
      * @return TaskInterface
      */
     public function setParentId($taskId);
+
+    /**
+     * Sets master status for non editable by child task
+     * @param boolean $masterStatus
+     * @return TaskInterface
+     */
+    public function setMasterStatus($masterStatus);
+
+    /**
+     * Is there a status has master privilege
+     * @return boolean
+     */
+    public function isMasterStatus();
 
     /**
      * Is there a parent for the given task?
