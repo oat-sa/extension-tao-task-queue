@@ -116,7 +116,7 @@ class RdsQueueBroker extends AbstractQueueBroker
             $table->addIndex(['created_at', 'visible'], 'IDX_created_at_visible_'. $this->getQueueName());
 
         } catch (SchemaException $e) {
-            $this->logInfo('Schema of '. $this->getTableName() .' table already up to date.');
+            $this->logDebug('Schema of '. $this->getTableName() .' table already up to date.');
         }
 
         $queries = $persistence->getPlatForm()->getMigrateSchemaSql($fromSchema, $schema);
@@ -126,7 +126,7 @@ class RdsQueueBroker extends AbstractQueueBroker
         }
 
         if ($queries) {
-            $this->logInfo('Queue '. $this->getTableName() .' created/updated in RDS.');
+            $this->logDebug('Queue '. $this->getTableName() .' created/updated in RDS.');
         }
     }
 
@@ -188,7 +188,7 @@ class RdsQueueBroker extends AbstractQueueBroker
                     }
                 }
             } else {
-                $this->logInfo('No task in the queue.', $logContext);
+                $this->logDebug('No task in the queue.', $logContext);
             }
 
             $this->getPersistence()->getPlatform()->commit();

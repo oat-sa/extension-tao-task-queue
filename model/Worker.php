@@ -89,12 +89,12 @@ final class Worker implements WorkerInterface
      */
     public function run()
     {
-        $this->logInfo('Starting worker.', $this->logContext);
+        $this->logDebug('Starting worker.', $this->logContext);
 
         while ($this->isRunning()) {
 
             if($this->paused) {
-                $this->logInfo('Paused... ', array_merge($this->logContext, [
+                $this->logDebug('Paused... ', array_merge($this->logContext, [
                     'Iteration' => $this->iterations
                 ]));
                 usleep(self::WAIT_INTERVAL * 1000000);
@@ -108,7 +108,7 @@ final class Worker implements WorkerInterface
             ]);
 
             try{
-                $this->logInfo('Fetching tasks from queue ', $this->logContext);
+                $this->logDebug('Fetching tasks from queue ', $this->logContext);
 
                 // if there is a dedicated queue set, let's do dequeue on that one
                 // otherwise using the built-in strategy to get a new task from any registered queue
@@ -120,7 +120,7 @@ final class Worker implements WorkerInterface
                 if (!$task) {
                     ++$this->iterationsWithOutTask;
                     $waitInterval = $this->getWaitInterval();
-                    $this->logInfo('Sleeping for '. $waitInterval .' sec', $this->logContext);
+                    $this->logDebug('Sleeping for '. $waitInterval .' sec', $this->logContext);
                     usleep($waitInterval * 1000000);
 
                     continue;
@@ -143,7 +143,7 @@ final class Worker implements WorkerInterface
             }
         }
 
-        $this->logInfo('Worker finished.', $this->logContext);
+        $this->logDebug('Worker finished.', $this->logContext);
     }
 
     /**
@@ -154,13 +154,13 @@ final class Worker implements WorkerInterface
         $report = Report::createInfo(__('Running task %s', $task->getId()));
 
         try {
-            $this->logInfo('Processing task '. $task->getId(), $this->logContext);
+            $this->logDebug('Processing task '. $task->getId(), $this->logContext);
 
             $rowsTouched = $this->taskLog->setStatus($task->getId(), TaskLogInterface::STATUS_RUNNING, TaskLogInterface::STATUS_DEQUEUED);
 
             // if the task is being executed by another worker, just return, no report needs to be saved
             if (!$rowsTouched) {
-                $this->logInfo('Task '. $task->getId() .' seems to be processed by another worker.', $this->logContext);
+                $this->logDebug('Task '. $task->getId() .' seems to be processed by another worker.', $this->logContext);
                 return TaskLogInterface::STATUS_UNKNOWN;
             }
 
@@ -323,24 +323,24 @@ final class Worker implements WorkerInterface
         pcntl_signal(SIGUSR2, array($this, 'pauseProcessing'));
         pcntl_signal(SIGCONT, array($this, 'unPauseProcessing'));
 
-        $this->logInfo('Finished setting up signal handlers', $this->logContext);
+        $this->logDebug('Finished setting up signal handlers', $this->logContext);
     }
 
     public function shutdown()
     {
-        $this->logInfo('TERM/INT/QUIT received; shutting down gracefully...', $this->logContext);
+        $this->logDebug('TERM/INT/QUIT received; shutting down gracefully...', $this->logContext);
         $this->shutdown = true;
     }
 
     public function pauseProcessing()
     {
-        $this->logInfo('USR2 received; pausing task processing...', $this->logContext);
+        $this->logDebug('USR2 received; pausing task processing...', $this->logContext);
         $this->paused = true;
     }
 
     public function unPauseProcessing()
     {
-        $this->logInfo('CONT received; resuming task processing...', $this->logContext);
+        $this->logDebug('CONT received; resuming task processing...', $this->logContext);
         $this->paused = false;
     }
 
