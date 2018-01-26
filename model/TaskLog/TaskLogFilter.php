@@ -49,6 +49,7 @@ class TaskLogFilter
         TaskLogBrokerInterface::COLUMN_PARENT_ID,
         TaskLogBrokerInterface::COLUMN_TASK_NAME,
         TaskLogBrokerInterface::COLUMN_STATUS,
+        TaskLogBrokerInterface::COLUMN_MASTER_STATUS,
         TaskLogBrokerInterface::COLUMN_REPORT
     ];
 

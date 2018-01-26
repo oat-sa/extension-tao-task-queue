@@ -81,6 +81,16 @@ abstract class AbstractTask implements TaskInterface
     /**
      * @inheritdoc
      */
+    public function setMasterStatus($masterStatus)
+    {
+        $this->setMetadata(self::JSON_METADATA_MASTER_STATUS_KEY, (int) $masterStatus);
+
+        return $this;
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function hasParent()
     {
         return (bool) $this->getParentId();
@@ -92,6 +102,14 @@ abstract class AbstractTask implements TaskInterface
     public function getParentId()
     {
         return $this->getMetadata(self::JSON_METADATA_PARENT_ID_KEY);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function isMasterStatus()
+    {
+        return (boolean) $this->getMetadata(self::JSON_METADATA_MASTER_STATUS_KEY);
     }
 
     /**

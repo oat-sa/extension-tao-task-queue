@@ -126,7 +126,7 @@ class SqsQueueBroker extends AbstractQueueBroker
 
                 $this->getCache()->put($this->getUrlCacheKey(), $this->queueUrl);
 
-                $this->logInfo('Queue '. $this->queueUrl .' created and cached');
+                $this->logDebug('Queue '. $this->queueUrl .' created and cached');
             } else {
                 $this->logError('Queue '. $this->getQueueNameWithPrefix() .' not created');
             }
@@ -203,7 +203,7 @@ class SqsQueueBroker extends AbstractQueueBroker
             ]);
 
             if (count($result->get('Messages')) > 0) {
-                $this->logInfo('Received '. count($result->get('Messages')) .' messages.', $logContext);
+                $this->logDebug('Received '. count($result->get('Messages')) .' messages.', $logContext);
 
                 foreach ($result->get('Messages') as $message) {
                     $task = $this->unserializeTask($message['Body'], $message['ReceiptHandle'], [
@@ -217,7 +217,7 @@ class SqsQueueBroker extends AbstractQueueBroker
                     }
                 }
             } else {
-                $this->logInfo('No messages in queue.', $logContext);
+                $this->logDebug('No messages in queue.', $logContext);
             }
         } catch (AwsException $e) {
             $this->logError('Popping tasks failed with MSG: '. $e->getAwsErrorMessage(), $logContext);
@@ -258,7 +258,7 @@ class SqsQueueBroker extends AbstractQueueBroker
                 'ReceiptHandle' => $receipt
             ]);
 
-            $this->logInfo('Task deleted from queue.', $logContext);
+            $this->logDebug('Task deleted from queue.', $logContext);
         } catch (AwsException $e) {
             $this->logError('Deleting task failed with MSG: '. $e->getAwsErrorMessage(), $logContext);
         }
@@ -321,7 +321,7 @@ class SqsQueueBroker extends AbstractQueueBroker
 
             if ($this->queueUrl !== null) {
                 $this->getCache()->put($this->queueUrl, $this->getUrlCacheKey());
-                $this->logInfo('Queue url '. $this->queueUrl .' fetched and cached');
+                $this->logDebug('Queue url '. $this->queueUrl .' fetched and cached');
                 return true;
             }
         } catch (AwsException $e) {
