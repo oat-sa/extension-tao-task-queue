@@ -125,6 +125,7 @@ class RdsTaskLogBroker implements TaskLogBrokerInterface, PhpSerializable, Servi
             $table->addColumn(self::COLUMN_PARAMETERS, 'text', ["notnull" => false, "default" => null]);
             $table->addColumn(self::COLUMN_LABEL, 'string', ["notnull" => false, "length" => 255]);
             $table->addColumn(self::COLUMN_STATUS, 'string', ["notnull" => true, "length" => 50]);
+            $table->addColumn(self::COLUMN_MASTER_STATUS, 'boolean', ["default" => 0]);
             $table->addColumn(self::COLUMN_OWNER, 'string', ["notnull" => false, "length" => 255, "default" => null]);
             $table->addColumn(self::COLUMN_REPORT, 'text', ["notnull" => false, "default" => null]);
             $table->addColumn(self::COLUMN_CREATED_AT, 'datetime', ['notnull' => true]);
@@ -155,7 +156,8 @@ class RdsTaskLogBroker implements TaskLogBrokerInterface, PhpSerializable, Servi
             self::COLUMN_STATUS => (string) $status,
             self::COLUMN_OWNER => (string) $task->getOwner(),
             self::COLUMN_CREATED_AT => $task->getCreatedAt()->format('Y-m-d H:i:s'),
-            self::COLUMN_UPDATED_AT => $this->getPersistence()->getPlatForm()->getNowExpression()
+            self::COLUMN_UPDATED_AT => $this->getPersistence()->getPlatForm()->getNowExpression(),
+            self::COLUMN_MASTER_STATUS => (integer) $task->isMasterStatus(),
         ]);
     }
 

@@ -42,7 +42,7 @@ class WeightStrategy implements SelectorStrategyInterface, LoggerAwareInterface
     {
         $pickedQueue = $this->pickQueueByWight($queues);
 
-        $this->logInfo('Queue "' . strtoupper($pickedQueue->getName()) . '" picked by WeightStrategy');
+        $this->logDebug('Queue "' . strtoupper($pickedQueue->getName()) . '" picked by WeightStrategy');
 
         return $pickedQueue->dequeue();
     }

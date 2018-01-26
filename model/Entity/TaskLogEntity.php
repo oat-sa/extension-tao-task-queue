@@ -50,6 +50,9 @@ class TaskLogEntity implements TaskLogEntityInterface
     /** @var TaskLogCategorizedStatus */
     private $status;
 
+    /** @var bool  */
+    private $masterStatus;
+
     /** @var string */
     private $owner;
 
@@ -69,6 +72,7 @@ class TaskLogEntity implements TaskLogEntityInterface
      * @param string                   $parentId
      * @param string                   $taskName
      * @param TaskLogCategorizedStatus $status
+     * @param boolean                  $masterStatus
      * @param array                    $parameters
      * @param string                   $label
      * @param string                   $owner
@@ -86,7 +90,8 @@ class TaskLogEntity implements TaskLogEntityInterface
         $owner,
         DateTime $createdAt = null,
         DateTime $updatedAt = null,
-        Report $report = null
+        Report $report = null,
+        $masterStatus = false
     ) {
         $this->id = $id;
         $this->parentId = $parentId;
@@ -98,6 +103,7 @@ class TaskLogEntity implements TaskLogEntityInterface
         $this->report = $report;
         $this->createdAt = $createdAt;
         $this->updatedAt = $updatedAt;
+        $this->masterStatus = $masterStatus;
     }
 
     /**
@@ -117,7 +123,8 @@ class TaskLogEntity implements TaskLogEntityInterface
             isset($row[TaskLogBrokerInterface::COLUMN_OWNER]) ? $row[TaskLogBrokerInterface::COLUMN_OWNER] : '',
             isset($row[TaskLogBrokerInterface::COLUMN_CREATED_AT]) ? DateTime::createFromFormat('Y-m-d H:i:s', $row[TaskLogBrokerInterface::COLUMN_CREATED_AT], new \DateTimeZone(TIME_ZONE)) : null,
             isset($row[TaskLogBrokerInterface::COLUMN_UPDATED_AT]) ? DateTime::createFromFormat('Y-m-d H:i:s', $row[TaskLogBrokerInterface::COLUMN_UPDATED_AT], new \DateTimeZone(TIME_ZONE)) : null,
-            Report::jsonUnserialize($row[TaskLogBrokerInterface::COLUMN_REPORT])
+            Report::jsonUnserialize($row[TaskLogBrokerInterface::COLUMN_REPORT]),
+            isset($row[TaskLogBrokerInterface::COLUMN_MASTER_STATUS]) ? $row[TaskLogBrokerInterface::COLUMN_MASTER_STATUS] : false
         );
     }
 
@@ -203,6 +210,14 @@ class TaskLogEntity implements TaskLogEntityInterface
     }
 
     /**
+     * @return boolean
+     */
+    public function isMasterStatus()
+    {
+        return (boolean) $this->masterStatus;
+    }
+
+    /**
      * Returns the file name from the generated report.
      *
      * CAUTION: it is not 100% sure that the returned string is really a file name because different reports set different values as data.
@@ -248,6 +263,7 @@ class TaskLogEntity implements TaskLogEntityInterface
             'id' => $this->id,
             'taskName' => $this->taskName,
             'status' => (string) $this->status,
+            'masterStatus' => (boolean) $this->masterStatus,
             'statusLabel' => $this->status->getLabel()
         ];
 
