@@ -121,8 +121,8 @@ class TaskLogEntity implements TaskLogEntityInterface
             isset($row[TaskLogBrokerInterface::COLUMN_PARAMETERS]) ? json_decode($row[TaskLogBrokerInterface::COLUMN_PARAMETERS], true) : [],
             isset($row[TaskLogBrokerInterface::COLUMN_LABEL]) ? $row[TaskLogBrokerInterface::COLUMN_LABEL] : '',
             isset($row[TaskLogBrokerInterface::COLUMN_OWNER]) ? $row[TaskLogBrokerInterface::COLUMN_OWNER] : '',
-            isset($row[TaskLogBrokerInterface::COLUMN_CREATED_AT]) ? DateTime::createFromFormat('Y-m-d H:i:s', $row[TaskLogBrokerInterface::COLUMN_CREATED_AT], new \DateTimeZone(TIME_ZONE)) : null,
-            isset($row[TaskLogBrokerInterface::COLUMN_UPDATED_AT]) ? DateTime::createFromFormat('Y-m-d H:i:s', $row[TaskLogBrokerInterface::COLUMN_UPDATED_AT], new \DateTimeZone(TIME_ZONE)) : null,
+            isset($row[TaskLogBrokerInterface::COLUMN_CREATED_AT]) ? DateTime::createFromFormat('Y-m-d H:i:s', $row[TaskLogBrokerInterface::COLUMN_CREATED_AT], new \DateTimeZone('UTC')) : null,
+            isset($row[TaskLogBrokerInterface::COLUMN_UPDATED_AT]) ? DateTime::createFromFormat('Y-m-d H:i:s', $row[TaskLogBrokerInterface::COLUMN_UPDATED_AT], new \DateTimeZone('UTC')) : null,
             Report::jsonUnserialize($row[TaskLogBrokerInterface::COLUMN_REPORT]),
             isset($row[TaskLogBrokerInterface::COLUMN_MASTER_STATUS]) ? $row[TaskLogBrokerInterface::COLUMN_MASTER_STATUS] : false
         );
@@ -274,12 +274,12 @@ class TaskLogEntity implements TaskLogEntityInterface
 
         if ($this->createdAt instanceof \DateTime) {
             $rs['createdAt'] = $this->createdAt->getTimestamp();
-            $rs['createdAtElapsed'] = (new \DateTime('now', new \DateTimeZone(TIME_ZONE)))->getTimestamp() - $this->createdAt->getTimestamp();
+            $rs['createdAtElapsed'] = (new \DateTime('now', new \DateTimeZone('UTC')))->getTimestamp() - $this->createdAt->getTimestamp();
         }
 
         if ($this->updatedAt instanceof \DateTime) {
             $rs['updatedAt'] = $this->updatedAt->getTimestamp();
-            $rs['updatedAtElapsed'] = (new \DateTime('now', new \DateTimeZone(TIME_ZONE)))->getTimestamp() - $this->updatedAt->getTimestamp();
+            $rs['updatedAtElapsed'] = (new \DateTime('now', new \DateTimeZone('UTC')))->getTimestamp() - $this->updatedAt->getTimestamp();
         }
 
         if ($this->report instanceof Report) {
