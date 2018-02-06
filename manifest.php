@@ -31,7 +31,7 @@ return array(
     'label' => 'Task Queue',
     'description' => 'TAO specific Task Queue with custom GUI',
     'license' => 'GPL-2.0',
-    'version' => '0.14.2',
+    'version' => '0.14.3',
     'author' => 'Open Assessment Technologies SA',
     'requires' => array(
         'generis' => '>=5.8.0',
