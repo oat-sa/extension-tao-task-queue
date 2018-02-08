@@ -83,10 +83,6 @@ class Queue implements QueueInterface, TaskLogAwareInterface
         $this->setWeight($weight);
 
         $this->setBroker($broker);
-
-        if ($this->isSync()) {
-            $this->broker->createQueue();
-        }
     }
 
     /**
