@@ -35,6 +35,17 @@ class InMemoryQueueBroker extends AbstractQueueBroker implements SyncQueueBroker
     private $queue;
 
     /**
+     * @return SplQueue
+     */
+    private function getQueue()
+    {
+        if (is_null($this->queue)) {
+            $this->createQueue();
+        }
+        return $this->queue;
+    }
+
+    /**
      * Initiates the SplQueue
      */
     public function createQueue()
@@ -48,7 +59,7 @@ class InMemoryQueueBroker extends AbstractQueueBroker implements SyncQueueBroker
      */
     public function count()
     {
-        return $this->queue->count();
+        return $this->getQueue()->count();
     }
 
     /**
@@ -57,7 +68,7 @@ class InMemoryQueueBroker extends AbstractQueueBroker implements SyncQueueBroker
      */
     public function push(TaskInterface $task)
     {
-        $this->queue->enqueue($this->serializeTask($task));
+        $this->getQueue()->enqueue($this->serializeTask($task));
 
         return true;
     }
@@ -73,7 +84,7 @@ class InMemoryQueueBroker extends AbstractQueueBroker implements SyncQueueBroker
             return null;
         }
 
-        $task = $this->queue->dequeue();
+        $task = $this->getQueue()->dequeue();
 
         return $this->unserializeTask($task, '');
     }
