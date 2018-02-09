@@ -39,7 +39,7 @@ abstract class AbstractTask implements TaskInterface
     public function __construct($id, $owner)
     {
         $this->setMetadata(self::JSON_METADATA_ID_KEY, $id);
-        $this->setCreatedAt(new \DateTime('now', new \DateTimeZone(TIME_ZONE)));
+        $this->setCreatedAt(new \DateTime('now', new \DateTimeZone('UTC')));
         $this->setOwner($owner);
     }
 
@@ -57,7 +57,7 @@ abstract class AbstractTask implements TaskInterface
     public function __clone()
     {
         $this->setMetadata(self::JSON_METADATA_ID_KEY, \common_Utils::getNewUri());
-        $this->setCreatedAt(new \DateTime('now', new \DateTimeZone(TIME_ZONE)));
+        $this->setCreatedAt(new \DateTime('now', new \DateTimeZone('UTC')));
     }
 
     /**
