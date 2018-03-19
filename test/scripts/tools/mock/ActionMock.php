@@ -24,6 +24,7 @@ namespace oat\taoTaskQueue\test\scripts\tools\mock;
 use oat\oatbox\action\Action;
 use Zend\ServiceManager\ServiceLocatorAwareInterface;
 use Zend\ServiceManager\ServiceLocatorAwareTrait;
+use common_report_Report as Report;
 
 class ActionMock implements Action, ServiceLocatorAwareInterface
 {
