@@ -41,20 +41,20 @@ use Zend\ServiceManager\ServiceLocatorAwareTrait;
  *
  * - Using Sync Queues. Every existing queue will be changed to use InMemoryQueueBroker.
  * ```
- * $ sudo -u www-data php index.php 'oat\taoTaskQueue\scripts\tools\InitializeQueue' --broker=memory
+ * $ sudo -u www-data php index.php 'oat\taoTaskQueue\scripts\tools\InitializeQueue' --queue=myQueue --broker=memory
  * ```
  *
  * - Using RDS Queues. Every existing queue will be changed to use RdsQueueBroker. You can set the following parameters:
  *  - persistence: Required
  *  - receive: Optional (Maximum amount of tasks that can be received when polling the queue)
  * ```
- * $ sudo -u www-data php index.php 'oat\taoTaskQueue\scripts\tools\InitializeQueue' --broker=rds --persistence=default --receive=10
+ * $ sudo -u www-data php index.php 'oat\taoTaskQueue\scripts\tools\InitializeQueue' --queue=myQueue --broker=rds --persistence=default --receive=10
  * ```
  *
  * - Using SQS Queues. Every existing queue will be changed to use SqsQueueBroker. You can set the following parameters:
  *  - receive: Optional (Maximum amount of tasks that can be received when polling the queue)
  * ```
- * $ sudo -u www-data php index.php 'oat\taoTaskQueue\scripts\tools\InitializeQueue' --broker=sqs --receive=10
+ * $ sudo -u www-data php index.php 'oat\taoTaskQueue\scripts\tools\InitializeQueue' --queue=myQueue --broker=sqs --receive=10
  * ```
  *
  * - To set a task selector strategy, please provide the FQCN of the wanted strategy
@@ -72,6 +72,7 @@ class InitializeQueue extends InstallAction
     private $wantedBroker;
     private $persistenceId;
     private $receive;
+    private $queue;
     private $strategy;
 
     public function __invoke($params)
@@ -107,8 +108,13 @@ class InitializeQueue extends InstallAction
                             break;
                     }
 
-                    foreach ($queueService->getQueues() as $queue) {
+                    if (!is_null($this->queue)){
+                        $queue = $queueService->getQueue($this->queue);
                         $queue->setBroker(clone $broker);
+                    } else {
+                        foreach ($queueService->getQueues() as $queue) {
+                            $queue->setBroker(clone $broker);
+                        }
                     }
                 }
 
@@ -168,6 +174,10 @@ class InitializeQueue extends InstallAction
 
                 case '--receive':
                     $this->receive = abs((int) $value);
+                    break;
+
+                case '--queue':
+                    $this->queue = (string) $value;
                     break;
 
                 case '--strategy':
