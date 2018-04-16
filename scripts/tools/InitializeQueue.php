@@ -39,22 +39,22 @@ use Zend\ServiceManager\ServiceLocatorAwareTrait;
  * $ sudo -u www-data php index.php 'oat\taoTaskQueue\scripts\tools\InitializeQueue'
  * ```
  *
- * - Using Sync Queues. Every existing queue will be changed to use InMemoryQueueBroker.
+ * - Using Sync Queues. Every existing queue will be changed to use InMemoryQueueBroker if there is no queue specified.
  * ```
- * $ sudo -u www-data php index.php 'oat\taoTaskQueue\scripts\tools\InitializeQueue' --queue=myQueue --broker=memory
+ * $ sudo -u www-data php index.php 'oat\taoTaskQueue\scripts\tools\InitializeQueue' --broker=memory [--queue=myQueue]
  * ```
  *
- * - Using RDS Queues. Every existing queue will be changed to use RdsQueueBroker. You can set the following parameters:
+ * - Using RDS Queues. Every existing queue will be changed to use RdsQueueBroker if there is no queue specified. You can set the following parameters:
  *  - persistence: Required
  *  - receive: Optional (Maximum amount of tasks that can be received when polling the queue)
  * ```
- * $ sudo -u www-data php index.php 'oat\taoTaskQueue\scripts\tools\InitializeQueue' --queue=myQueue --broker=rds --persistence=default --receive=10
+ * $ sudo -u www-data php index.php 'oat\taoTaskQueue\scripts\tools\InitializeQueue' --broker=rds --persistence=default --receive=10 [--queue=myQueue]
  * ```
  *
- * - Using SQS Queues. Every existing queue will be changed to use SqsQueueBroker. You can set the following parameters:
+ * - Using SQS Queues. Every existing queue will be changed to use SqsQueueBroker if there is no queue specified. You can set the following parameters:
  *  - receive: Optional (Maximum amount of tasks that can be received when polling the queue)
  * ```
- * $ sudo -u www-data php index.php 'oat\taoTaskQueue\scripts\tools\InitializeQueue' --queue=myQueue --broker=sqs --receive=10
+ * $ sudo -u www-data php index.php 'oat\taoTaskQueue\scripts\tools\InitializeQueue' --broker=sqs --receive=10 [--queue=myQueue]
  * ```
  *
  * - To set a task selector strategy, please provide the FQCN of the wanted strategy
