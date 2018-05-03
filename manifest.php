@@ -27,16 +27,15 @@ use oat\taoTaskQueue\scripts\install\SetClientRouterConfig;
  * Generated using taoDevTools 3.1.1
  */
 return [
-    'name'           => 'taoTaskQueue',
-    'label'          => 'Task Queue',
-    'description'    => 'TAO specific Task Queue with custom GUI',
-    'license'        => 'GPL-2.0',
-    'version'        => '0.15.0',
-    'author'         => 'Open Assessment Technologies SA',
-    'requires'       => [
-        'generis'       => '>=5.8.0',
-        'tao'           => '>=14.10.0',
-        'taoBackOffice' => '>=2.1.0'
+    'name' => 'taoTaskQueue',
+    'label' => 'Task Queue',
+    'description' => 'TAO specific Task Queue with custom GUI',
+    'license' => 'GPL-2.0',
+    'version' => '0.17.0',
+    'author' => 'Open Assessment Technologies SA',
+    'requires' => [
+        'generis' => '>=5.8.0',
+        'tao' => '>=14.10.0'
     ],
     'managementRole' => 'http://www.tao.lu/Ontologies/generis.rdf#taoTaskQueueManager',
     'acl'            => [

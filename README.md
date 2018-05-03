@@ -183,6 +183,12 @@ Option "persistence" is required, "receive" (Maximum amount of tasks that can be
  $ sudo -u www-data php index.php 'oat\taoTaskQueue\scripts\tools\InitializeQueue' --broker=sqs --aws-profile=default --receive=10
 ```
 
+- If you want to apply the settings above for a specific queue, you can add `--queue=...` option to the command. In the following case, only `myQueue` will be modified.
+```bash
+ $ sudo -u www-data php index.php 'oat\taoTaskQueue\scripts\tools\InitializeQueue' --queue=myQueue --broker=rds --persistence=default --receive=10
+```
+
+
 - Setting a task selector strategy.
 ```bash
  $ sudo -u www-data php index.php 'oat\taoTaskQueue\scripts\tools\InitializeQueue' --strategy="\oat\taoTaskQueue\model\TaskSelector\StrictPriorityStrategy"
