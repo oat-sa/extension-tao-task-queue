@@ -26,42 +26,42 @@ use oat\taoTaskQueue\scripts\install\SetClientRouterConfig;
 /**
  * Generated using taoDevTools 3.1.1
  */
-return array(
+return [
     'name' => 'taoTaskQueue',
     'label' => 'Task Queue',
     'description' => 'TAO specific Task Queue with custom GUI',
     'license' => 'GPL-2.0',
-    'version' => '0.16.0',
+    'version' => '0.17.0',
     'author' => 'Open Assessment Technologies SA',
-    'requires' => array(
+    'requires' => [
         'generis' => '>=5.8.0',
         'tao' => '>=14.10.0'
-    ),
+    ],
     'managementRole' => 'http://www.tao.lu/Ontologies/generis.rdf#taoTaskQueueManager',
-    'acl' => array(
-        array('grant', 'http://www.tao.lu/Ontologies/generis.rdf#taoTaskQueueManager', array('ext'=>'taoTaskQueue')),
-    ),
-    'install' => array(
+    'acl'            => [
+        ['grant', 'http://www.tao.lu/Ontologies/generis.rdf#taoTaskQueueManager', ['ext' => 'taoTaskQueue']],
+    ],
+    'install'        => [
         'php' => [
             RegisterTaskLogService::class,
             RegisterTaskQueueService::class,
             SetClientRouterConfig::class
         ]
-    ),
-    'uninstall' => array(
-    ),
-    'update' => oat\taoTaskQueue\scripts\update\Updater::class,
-    'routes' => array(
+    ],
+    'uninstall'      => [
+    ],
+    'update'         => oat\taoTaskQueue\scripts\update\Updater::class,
+    'routes'         => [
         '/taoTaskQueue' => 'oat\\taoTaskQueue\\controller'
-    ),
-    'constants' => array(
+    ],
+    'constants'      => [
         # views directory
-        "DIR_VIEWS" => dirname(__FILE__).DIRECTORY_SEPARATOR."views".DIRECTORY_SEPARATOR,
+        "DIR_VIEWS" => dirname(__FILE__) . DIRECTORY_SEPARATOR . "views" . DIRECTORY_SEPARATOR,
 
         #BASE URL (usually the domain root)
-        'BASE_URL' => ROOT_URL.'taoTaskQueue/',
-    ),
-    'extra' => array(
-        'structures' => dirname(__FILE__).DIRECTORY_SEPARATOR.'controller'.DIRECTORY_SEPARATOR.'structures.xml',
-    ),
-);
+        'BASE_URL'  => ROOT_URL . 'taoTaskQueue/',
+    ],
+    'extra'          => [
+        'structures' => dirname(__FILE__) . DIRECTORY_SEPARATOR . 'controller' . DIRECTORY_SEPARATOR . 'structures.xml',
+    ],
+];
