@@ -29,8 +29,8 @@ class TaskLogEntityTest extends \PHPUnit_Framework_TestCase
 {
     public function testEntityCreated()
     {
-        $createdAt = new \DateTime('2017-11-16 14:11:42', new \DateTimeZone(TIME_ZONE));
-        $updatedAt = new \DateTime('2017-11-16 17:12:30', new \DateTimeZone(TIME_ZONE));
+        $createdAt = new \DateTime('2017-11-16 14:11:42', new \DateTimeZone('UTC'));
+        $updatedAt = new \DateTime('2017-11-16 17:12:30', new \DateTimeZone('UTC'));
 
         $entity = TaskLogEntity::createFromArray([
             'id' => 'rdf#i1508337970199318643',
@@ -69,9 +69,9 @@ class TaskLogEntityTest extends \PHPUnit_Framework_TestCase
             'status' => 'completed',
             'statusLabel' => 'Completed',
             'createdAt' => $createdAt->getTimestamp(),
-            'createdAtElapsed' => (new \DateTime('now', new \DateTimeZone(TIME_ZONE)))->getTimestamp() - $createdAt->getTimestamp(),
+            'createdAtElapsed' => (new \DateTime('now', new \DateTimeZone('UTC')))->getTimestamp() - $createdAt->getTimestamp(),
             'updatedAt' => $updatedAt->getTimestamp(),
-            'updatedAtElapsed' => (new \DateTime('now', new \DateTimeZone(TIME_ZONE)))->getTimestamp() - $updatedAt->getTimestamp(),
+            'updatedAtElapsed' => (new \DateTime('now', new \DateTimeZone('UTC')))->getTimestamp() - $updatedAt->getTimestamp(),
             'report' => [
                 'type' => 'info',
                 'message' => 'Running task http://www.taoinstance.dev/ontologies/tao.rdf#i1508337970199318643',

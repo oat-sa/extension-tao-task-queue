@@ -27,13 +27,14 @@ use oat\taoTaskQueue\model\Task\TaskInterface;
 use oat\taoTaskQueue\model\TaskLog\TaskLogCollection;
 use oat\taoTaskQueue\model\TaskLog\TaskLogCollectionInterface;
 use oat\taoTaskQueue\model\TaskLog\TaskLogFilter;
+use Zend\ServiceManager\ServiceLocatorAwareInterface;
 
 /**
  * Interface TaskLogBrokerInterface
  *
  * @author Gyula Szucs <gyula@taotesting.com>
  */
-interface TaskLogBrokerInterface
+interface TaskLogBrokerInterface extends ServiceLocatorAwareInterface
 {
     const DEFAULT_CONTAINER_NAME = 'task_log';
 

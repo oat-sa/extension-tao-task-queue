@@ -34,7 +34,6 @@ use oat\taoTaskQueue\model\TaskLog\TaskLogFilter;
 use oat\taoTaskQueue\model\TaskLogInterface;
 use oat\taoTaskQueue\model\ValueObjects\TaskLogCategorizedStatus;
 use Psr\Log\LoggerAwareInterface;
-use Zend\ServiceManager\ServiceLocatorAwareInterface;
 use Zend\ServiceManager\ServiceLocatorAwareTrait;
 use oat\oatbox\log\LoggerAwareTrait;
 
@@ -43,7 +42,7 @@ use oat\oatbox\log\LoggerAwareTrait;
  *
  * @author Gyula Szucs <gyula@taotesting.com>
  */
-class RdsTaskLogBroker implements TaskLogBrokerInterface, PhpSerializable, ServiceLocatorAwareInterface, LoggerAwareInterface
+class RdsTaskLogBroker implements TaskLogBrokerInterface, PhpSerializable, LoggerAwareInterface
 {
     use ServiceLocatorAwareTrait;
     use LoggerAwareTrait;
