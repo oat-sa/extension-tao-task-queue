@@ -23,6 +23,8 @@ namespace oat\taoTaskQueue\model;
 /**
  * TaskLogAwareTrait
  *
+ * @deprecated Use \oat\tao\model\taskQueue\TaskLog\TaskLogAwareTrait
+ *
  * @author Gyula Szucs <gyula@taotesting.com>
  */
 trait TaskLogAwareTrait

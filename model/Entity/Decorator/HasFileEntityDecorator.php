@@ -22,12 +22,10 @@ namespace oat\taoTaskQueue\model\Entity\Decorator;
 
 use oat\oatbox\filesystem\Directory;
 use oat\oatbox\filesystem\FileSystemService;
-use oat\taoTaskQueue\model\Entity\TaskLogEntityInterface;
-use oat\taoTaskQueue\model\QueueDispatcherInterface;
+use oat\tao\model\taskQueue\QueueDispatcherInterface;
+use oat\tao\model\taskQueue\TaskLog\Entity\EntityInterface;
 
 /**
- * HasFileEntityDecorator
- *
  * @author Gyula Szucs <gyula@taotesting.com>
  */
 class HasFileEntityDecorator extends TaskLogEntityDecorator
@@ -37,7 +35,7 @@ class HasFileEntityDecorator extends TaskLogEntityDecorator
      */
     private $fileSystemService;
 
-    public function __construct(TaskLogEntityInterface $entity, FileSystemService $fileSystemService)
+    public function __construct(EntityInterface $entity, FileSystemService $fileSystemService)
     {
         parent::__construct($entity);
 

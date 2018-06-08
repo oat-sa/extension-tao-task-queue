@@ -23,6 +23,9 @@ namespace oat\taoTaskQueue\test\model\Entity;
 
 use oat\taoTaskQueue\model\Entity\TasksLogsStats;
 
+/**
+ * @deprecated
+ */
 class TasksLogsStatsTest extends \PHPUnit_Framework_TestCase
 {
     public function testCreateStats()

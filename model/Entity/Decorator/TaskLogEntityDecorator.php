@@ -20,24 +20,22 @@
 
 namespace oat\taoTaskQueue\model\Entity\Decorator;
 
-use oat\taoTaskQueue\model\Entity\TaskLogEntityInterface;
+use oat\tao\model\taskQueue\TaskLog\Entity\EntityInterface;
 
 /**
- * Interface TaskLogEntityInterface
- *
  * @author Gyula Szucs <gyula@taotesting.com>
  */
-abstract class TaskLogEntityDecorator implements TaskLogEntityInterface
+abstract class TaskLogEntityDecorator implements EntityInterface
 {
     /**
-     * @var TaskLogEntityInterface
+     * @var EntityInterface
      */
     private $entity;
 
     /**
-     * @param TaskLogEntityInterface $entity
+     * @param EntityInterface $entity
      */
-    public function __construct(TaskLogEntityInterface $entity)
+    public function __construct(EntityInterface $entity)
     {
         $this->entity = $entity;
     }

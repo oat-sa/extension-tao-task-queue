@@ -32,6 +32,8 @@ use Zend\ServiceManager\ServiceLocatorAwareInterface;
 /**
  * Interface TaskLogBrokerInterface
  *
+ * @deprecated Use \oat\tao\model\taskQueue\TaskLog\Broker\TaskLogBrokerInterface
+ *
  * @author Gyula Szucs <gyula@taotesting.com>
  */
 interface TaskLogBrokerInterface extends ServiceLocatorAwareInterface

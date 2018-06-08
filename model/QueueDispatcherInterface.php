@@ -28,10 +28,13 @@ use Psr\Log\LoggerAwareInterface;
 /**
  * Interface QueueDispatcherInterface
  *
+ * @deprecated Use \oat\tao\model\taskQueue\QueueDispatcherInterface
+ *
  * @author Gyula Szucs <gyula@taotesting.com>
  */
 interface QueueDispatcherInterface extends \Countable, LoggerAwareInterface
 {
+    /** @deprecated  */
     const SERVICE_ID = 'taoTaskQueue/taskQueue';
 
     const FILE_SYSTEM_ID = 'taskQueueStorage';

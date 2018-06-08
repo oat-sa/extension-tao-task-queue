@@ -23,6 +23,8 @@ namespace oat\taoTaskQueue\model\Task;
 /**
  * Wrapper class to store callables (even Action instances) in task queue for later execution
  *
+ * @deprecated Use \oat\tao\model\taskQueue\Task\CallbackTask
+ *
  * @author Gyula Szucs <gyula@taotesting.com>
  */
 final class CallbackTask extends AbstractTask implements CallbackTaskInterface

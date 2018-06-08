@@ -40,6 +40,8 @@ use oat\oatbox\log\LoggerAwareTrait;
 /**
  * Storing message logs in RDS.
  *
+ * @deprecated Use \oat\tao\model\taskQueue\TaskLog\Broker\RdsTaskLogBroker
+ *
  * @author Gyula Szucs <gyula@taotesting.com>
  */
 class RdsTaskLogBroker implements TaskLogBrokerInterface, PhpSerializable, LoggerAwareInterface

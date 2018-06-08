@@ -25,6 +25,9 @@ use oat\taoTaskQueue\model\Task\CallbackTask;
 use oat\taoTaskQueue\model\Task\CallbackTaskInterface;
 use oat\taoTaskQueue\model\Task\TaskInterface;
 
+/**
+ * @deprecated
+ */
 class CallbackTaskTest extends \PHPUnit_Framework_TestCase
 {
     /**

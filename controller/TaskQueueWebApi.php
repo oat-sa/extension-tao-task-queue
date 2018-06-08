@@ -22,16 +22,18 @@ namespace oat\taoTaskQueue\controller;
 
 use common_session_SessionManager;
 use oat\oatbox\filesystem\FileSystemService;
+use oat\tao\model\taskQueue\QueueDispatcherInterface;
+use oat\tao\model\taskQueue\TaskLog\Broker\TaskLogBrokerInterface;
+use oat\tao\model\taskQueue\TaskLog\TaskLogFilter;
+use oat\tao\model\taskQueue\TaskLogInterface;
 use oat\taoTaskQueue\model\Entity\Decorator\CategoryEntityDecorator;
 use oat\taoTaskQueue\model\Entity\Decorator\HasFileEntityDecorator;
-use oat\taoTaskQueue\model\QueueDispatcherInterface;
 use oat\taoTaskQueue\model\TaskLog\Decorator\SimpleManagementCollectionDecorator;
-use oat\taoTaskQueue\model\TaskLog\TaskLogFilter;
-use oat\taoTaskQueue\model\TaskLogBroker\TaskLogBrokerInterface;
-use oat\taoTaskQueue\model\TaskLogInterface;
 
 /**
  * API controller to get task queue data from the WEB.
+ *
+ * @deprecated Use \tao_actions_TaskQueueWebApi
  *
  * @author Gyula Szucs <gyula@taotesting.com>
  */
@@ -65,7 +67,7 @@ class TaskQueueWebApi extends \tao_actions_CommonModule
         }
 
         /** @var TaskLogInterface $taskLogService */
-        $taskLogService = $this->getServiceManager()->get(TaskLogInterface::SERVICE_ID);
+        $taskLogService = $this->getServiceLocator()->get(TaskLogInterface::SERVICE_ID);
         $limit = $offset = null;
 
         if ($this->hasRequestParameter(self::PARAMETER_LIMIT)) {
@@ -77,7 +79,7 @@ class TaskQueueWebApi extends \tao_actions_CommonModule
         }
 
         /** @var FileSystemService $fs */
-        $fs = $this->getServiceManager()->get(FileSystemService::SERVICE_ID);
+        $fs = $this->getServiceLocator()->get(FileSystemService::SERVICE_ID);
 
         $collection = new SimpleManagementCollectionDecorator(
             $taskLogService->findAvailableByUser($this->userId, $limit, $offset),
@@ -102,10 +104,10 @@ class TaskQueueWebApi extends \tao_actions_CommonModule
         }
 
         /** @var TaskLogInterface $taskLogService */
-        $taskLogService = $this->getServiceManager()->get(TaskLogInterface::SERVICE_ID);
+        $taskLogService = $this->getServiceLocator()->get(TaskLogInterface::SERVICE_ID);
 
         /** @var FileSystemService $fs */
-        $fs = $this->getServiceManager()->get(FileSystemService::SERVICE_ID);
+        $fs = $this->getServiceLocator()->get(FileSystemService::SERVICE_ID);
 
         try {
             $this->assertTaskIdExists();
@@ -138,7 +140,7 @@ class TaskQueueWebApi extends \tao_actions_CommonModule
         }
 
         /** @var TaskLogInterface $taskLogService */
-        $taskLogService = $this->getServiceManager()->get(TaskLogInterface::SERVICE_ID);
+        $taskLogService = $this->getServiceLocator()->get(TaskLogInterface::SERVICE_ID);
 
         return $this->returnJson([
             'success' => true,
@@ -161,7 +163,7 @@ class TaskQueueWebApi extends \tao_actions_CommonModule
             $taskIds = $this->detectTaskIds();
 
             /** @var TaskLogInterface $taskLogService */
-            $taskLogService = $this->getServiceManager()->get(TaskLogInterface::SERVICE_ID);
+            $taskLogService = $this->getServiceLocator()->get(TaskLogInterface::SERVICE_ID);
 
             if ($taskIds === static::ARCHIVE_ALL) {
                 $filter = (new TaskLogFilter())->availableForArchived($this->userId);
@@ -193,7 +195,7 @@ class TaskQueueWebApi extends \tao_actions_CommonModule
             $this->assertTaskIdExists();
 
             /** @var TaskLogInterface $taskLogService */
-            $taskLogService = $this->getServiceManager()->get(TaskLogInterface::SERVICE_ID);
+            $taskLogService = $this->getServiceLocator()->get(TaskLogInterface::SERVICE_ID);
 
             $taskLogEntity = $taskLogService->getByIdAndUser($this->getRequestParameter(self::PARAMETER_TASK_ID), $this->userId);
 
@@ -208,7 +210,7 @@ class TaskQueueWebApi extends \tao_actions_CommonModule
             }
 
             /** @var FileSystemService $fileSystem */
-            $fileSystem = $this->getServiceManager()->get(FileSystemService::SERVICE_ID);
+            $fileSystem = $this->getServiceLocator()->get(FileSystemService::SERVICE_ID);
             $directory = $fileSystem->getDirectory(QueueDispatcherInterface::FILE_SYSTEM_ID);
             $file = $directory->getFile($filename);
 

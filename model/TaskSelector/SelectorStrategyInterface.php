@@ -27,6 +27,8 @@ use oat\taoTaskQueue\model\Task\TaskInterface;
 /**
  * Interface SelectorStrategyInterface
  *
+ * @deprecated Use \oat\tao\model\taskQueue\Queue\TaskSelector\SelectorStrategyInterface
+ *             
  * @author Gyula Szucs <gyula@taotesting.com>
  */
 interface SelectorStrategyInterface extends PhpSerializable

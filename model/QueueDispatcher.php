@@ -34,6 +34,8 @@ use oat\taoTaskQueue\model\Task\TaskInterface;
 /**
  * Class QueueDispatcher
  *
+ * @deprecated Use \oat\tao\model\taskQueue\QueueDispatcher
+ *
  * @author Gyula Szucs <gyula@taotesting.com>
  */
 class QueueDispatcher extends ConfigurableService implements QueueDispatcherInterface

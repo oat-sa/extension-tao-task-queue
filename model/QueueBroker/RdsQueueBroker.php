@@ -21,10 +21,11 @@
 namespace oat\taoTaskQueue\model\QueueBroker;
 
 use Doctrine\DBAL\Query\QueryBuilder;
-use oat\taoTaskQueue\model\Task\TaskInterface;
 use Doctrine\DBAL\Schema\SchemaException;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
+use oat\tao\model\taskQueue\Queue\Broker\AbstractQueueBroker;
+use oat\tao\model\taskQueue\Task\TaskInterface;
 
 /**
  * Storing messages/tasks in DB.

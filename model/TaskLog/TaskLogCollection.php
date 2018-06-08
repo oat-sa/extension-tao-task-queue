@@ -23,6 +23,9 @@ namespace oat\taoTaskQueue\model\TaskLog;
 use oat\taoTaskQueue\model\Entity\TaskLogEntity;
 use oat\taoTaskQueue\model\Entity\TaskLogEntityInterface;
 
+/**
+ * @deprecated Use \oat\tao\model\taskQueue\TaskLog\TaskLogCollection
+ */
 class TaskLogCollection implements TaskLogCollectionInterface
 {
     /** @var TaskLogEntity[]  */

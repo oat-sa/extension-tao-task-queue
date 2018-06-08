@@ -21,9 +21,9 @@
 namespace oat\taoTaskQueue\scripts\tools;
 
 use oat\oatbox\action\Action;
-use oat\taoTaskQueue\model\QueueDispatcherInterface;
-use oat\taoTaskQueue\model\TaskLogInterface;
-use oat\taoTaskQueue\model\Worker;
+use oat\tao\model\taskQueue\QueueDispatcherInterface;
+use oat\tao\model\taskQueue\TaskLogInterface;
+use oat\taoTaskQueue\model\LongRunningWorker;
 use Zend\ServiceManager\ServiceLocatorAwareInterface;
 use Zend\ServiceManager\ServiceLocatorAwareTrait;
 
@@ -77,23 +77,23 @@ class RunWorker implements Action, ServiceLocatorAwareInterface
             }
         }
 
-        if ($limit > 0 && is_null($queue)) {
-            return \common_report_Report::createFailure('Limit can be used only if a dedicated queue is set.');
-        }
-
         /** @var TaskLogInterface $taskLog */
         $taskLog = $this->getServiceLocator()->get(TaskLogInterface::SERVICE_ID);
 
         // if it is install on windows do not use the signals pcntl (specific for ubuntu).
         $handleSignals = stripos(PHP_OS, 'win') === 0 ? false : true;
 
-        $worker = new Worker($queueService, $taskLog, $handleSignals);
+        try {
+            $worker = new LongRunningWorker($queue ?: $queueService, $taskLog, $handleSignals);
 
-        if ($queue) {
-            $worker->setDedicatedQueue($queue, $limit);
+            if ($limit) {
+                $worker->setMaxIterations($limit);
+            }
+
+            $worker->run();
+        } catch (\Exception $e) {
+            return \common_report_Report::createFailure($e->getMessage());
         }
-
-        $worker->run();
 
         return \common_report_Report::createSuccess('Worker finished');
     }

@@ -22,6 +22,9 @@ namespace oat\taoTaskQueue\model\Entity;
 
 use JsonSerializable;
 
+/**
+ * @deprecated Use \oat\tao\model\taskQueue\TaskLog\TasksLogsStats
+ */
 class TasksLogsStats implements JsonSerializable
 {
     const COMPLETED_TASKS = 'completedtasks';

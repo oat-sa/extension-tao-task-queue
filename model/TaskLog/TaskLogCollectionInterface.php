@@ -24,6 +24,8 @@ use oat\taoTaskQueue\model\Entity\TaskLogEntity;
 /**
  * Interface TaskLogCollectionInterface
  *
+ * @deprecated Use \oat\tao\model\taskQueue\TaskLog\CollectionInterface
+ *
  * @author Gyula Szucs <gyula@taotesting.com>
  */
 interface TaskLogCollectionInterface extends \JsonSerializable, \Countable, \IteratorAggregate

@@ -28,6 +28,8 @@ use Psr\Log\LoggerAwareInterface;
 /**
  * Implements a strategy for selecting a queue randomly taking into account the known weights.
  *
+ * @deprecated Use \oat\tao\model\taskQueue\Queue\TaskSelector\WeightStrategy
+ *
  * @author Gyula Szucs <gyula@taotesting.com>
  */
 class WeightStrategy implements SelectorStrategyInterface, LoggerAwareInterface
