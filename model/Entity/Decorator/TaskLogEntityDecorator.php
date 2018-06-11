@@ -23,6 +23,8 @@ namespace oat\taoTaskQueue\model\Entity\Decorator;
 use oat\tao\model\taskQueue\TaskLog\Entity\EntityInterface;
 
 /**
+ * @deprecated Use \oat\tao\model\taskQueue\TaskLog\Decorator\TaskLogEntityDecorator
+ *
  * @author Gyula Szucs <gyula@taotesting.com>
  */
 abstract class TaskLogEntityDecorator implements EntityInterface

@@ -25,6 +25,8 @@ use oat\tao\model\taskQueue\TaskLog\CollectionInterface;
 /**
  * Interface TaskLogCollectionDecorator
  *
+ * @deprecated Use \oat\tao\model\taskQueue\TaskLog\Decorator\TaskLogCollectionDecorator
+ *
  * @author Gyula Szucs <gyula@taotesting.com>
  */
 abstract class TaskLogCollectionDecorator implements CollectionInterface

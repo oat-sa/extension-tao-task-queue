@@ -26,6 +26,8 @@ use oat\tao\model\taskQueue\QueueDispatcherInterface;
 use oat\tao\model\taskQueue\TaskLog\Entity\EntityInterface;
 
 /**
+ * @deprecated Use \oat\tao\model\taskQueue\TaskLog\Decorator\HasFileEntityDecorator
+ *
  * @author Gyula Szucs <gyula@taotesting.com>
  */
 class HasFileEntityDecorator extends TaskLogEntityDecorator

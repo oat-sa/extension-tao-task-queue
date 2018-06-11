@@ -27,6 +27,8 @@ use oat\tao\model\taskQueue\TaskLogInterface;
 /**
  * CategoryEntityDecorator
  *
+ * @deprecated Use \oat\tao\model\taskQueue\TaskLog\Decorator\CategoryEntityDecorator
+ *
  * @author Gyula Szucs <gyula@taotesting.com>
  */
 class CategoryEntityDecorator extends TaskLogEntityDecorator

@@ -29,6 +29,8 @@ use oat\taoTaskQueue\model\Entity\Decorator\HasFileEntityDecorator;
 /**
  * Containing all necessary modification required by the simple UI component.
  *
+ * @deprecated Use \oat\tao\model\taskQueue\TaskLog\Decorator\SimpleManagementCollectionDecorator
+ *
  * @author Gyula Szucs <gyula@taotesting.com>
  */
 class SimpleManagementCollectionDecorator extends TaskLogCollectionDecorator
