@@ -28,6 +28,7 @@ use oat\taoTaskQueue\model\QueueBroker\InMemoryQueueBroker;
 use oat\taoTaskQueue\model\QueueDispatcher;
 use oat\taoTaskQueue\model\QueueDispatcherInterface;
 use oat\taoTaskQueue\model\TaskLog;
+use oat\taoTaskQueue\model\TaskSelector\StrictPriorityStrategy;
 use oat\taoTaskQueue\model\TaskSelector\WeightStrategy;
 use oat\taoTaskQueue\model\TaskLogBroker\TaskLogBrokerInterface;
 use oat\taoTaskQueue\model\TaskLogInterface;
@@ -200,6 +201,11 @@ class Updater extends common_ext_ExtensionUpdater
                 \oat\tao\model\taskQueue\QueueDispatcher::OPTION_DEFAULT_QUEUE,
                 $oldQueueDispatcher->getOption(QueueDispatcher::OPTION_DEFAULT_QUEUE)
             );
+
+            $taskSelector = $oldQueueDispatcher->getOption(QueueDispatcher::OPTION_TASK_SELECTOR_STRATEGY);
+            if ($taskSelector instanceof StrictPriorityStrategy) {
+                $newQueueDispatcher->setTaskSelector($taskSelector);
+            }
 
             $this->getServiceManager()->register(\oat\tao\model\taskQueue\QueueDispatcher::SERVICE_ID, $newQueueDispatcher);
 

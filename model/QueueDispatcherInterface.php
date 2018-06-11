@@ -20,7 +20,7 @@
 
 namespace oat\taoTaskQueue\model;
 
-use oat\taoTaskQueue\model\TaskSelector\SelectorStrategyInterface;
+use oat\tao\model\taskQueue\Queue\TaskSelector\SelectorStrategyInterface;
 use oat\taoTaskQueue\model\Task\CallbackTaskInterface;
 use oat\taoTaskQueue\model\Task\TaskInterface;
 use Psr\Log\LoggerAwareInterface;
