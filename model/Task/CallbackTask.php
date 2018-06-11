@@ -20,6 +20,12 @@
 
 namespace oat\taoTaskQueue\model\Task;
 
+use oat\tao\model\taskQueue\Task\AbstractTask;
+use oat\tao\model\taskQueue\Task\CallbackTaskInterface;
+use oat\tao\model\taskQueue\Task\ChildTaskAwareInterface;
+use oat\tao\model\taskQueue\Task\TaskAwareInterface;
+use oat\tao\model\taskQueue\Task\WorkerContextAwareInterface;
+
 /**
  * Wrapper class to store callables (even Action instances) in task queue for later execution
  *
