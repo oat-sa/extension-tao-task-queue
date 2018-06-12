@@ -22,6 +22,7 @@ namespace oat\taoTaskQueue\model\TaskSelector;
 
 use oat\oatbox\log\LoggerAwareTrait;
 use oat\oatbox\PhpSerializeStateless;
+use oat\tao\model\taskQueue\Queue\TaskSelector\SelectorStrategyInterface;
 use oat\taoTaskQueue\model\QueueInterface;
 use Psr\Log\LoggerAwareInterface;
 
