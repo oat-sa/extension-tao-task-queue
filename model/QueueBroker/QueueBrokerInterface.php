@@ -26,6 +26,8 @@ use Psr\Log\LoggerAwareInterface;
 /**
  * Interface QueueBrokerInterface
  *
+ * @deprecated Use \oat\tao\model\taskQueue\Queue\Broker\QueueBrokerInterface
+ *
  * @author Gyula Szucs <gyula@taotesting.com>
  */
 interface QueueBrokerInterface extends \Countable, LoggerAwareInterface

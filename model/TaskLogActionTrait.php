@@ -28,6 +28,8 @@ use oat\taoTaskQueue\model\Task\TaskInterface;
 /**
  * Helper trait for actions/controllers to operate with task log data for a given task.
  *
+ * @deprecated Use \oat\tao\model\taskQueue\TaskLogActionTrait
+ *
  * @author Gyula Szucs <gyula@taotesting.com>
  */
 trait TaskLogActionTrait

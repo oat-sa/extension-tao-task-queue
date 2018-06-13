@@ -23,6 +23,8 @@ namespace oat\taoTaskQueue\model\Task;
 /**
  * Class AbstractTask
  *
+ * @deprecated Use \oat\tao\model\taskQueue\Task\AbstractTask
+ *
  * @author Gyula Szucs <gyula@taotesting.com>
  */
 abstract class AbstractTask implements TaskInterface

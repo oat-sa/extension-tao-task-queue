@@ -23,6 +23,8 @@ namespace oat\taoTaskQueue\model\Task;
 /**
  * WorkerContextAwareInterface
  *
+ * @deprecated Use \oat\tao\model\taskQueue\Task\WorkerContextAwareInterface
+ *
  * @author Gyula Szucs <gyula@taotesting.com>
  */
 interface WorkerContextAwareInterface

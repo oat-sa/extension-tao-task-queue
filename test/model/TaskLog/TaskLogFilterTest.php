@@ -24,6 +24,9 @@ use oat\taoTaskQueue\model\TaskLog\TaskLogFilter;
 use oat\taoTaskQueue\model\TaskLogBroker\TaskLogBrokerInterface;
 use oat\taoTaskQueue\model\TaskLogInterface;
 
+/**
+ * @deprecated
+ */
 class TaskLogFilterTest extends \PHPUnit_Framework_TestCase
 {
     /** @var  TaskLogFilter */

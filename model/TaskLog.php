@@ -40,6 +40,8 @@ use oat\oatbox\log\LoggerAwareTrait;
  * - storing every information for a task like dates, status changes, reports etc.
  * - each task has one record in the container identified by its id
  *
+ * @deprecated Use \oat\tao\model\taskQueue\TaskLog
+ *
  * @author Gyula Szucs <gyula@taotesting.com>
  */
 class TaskLog extends ConfigurableService implements TaskLogInterface

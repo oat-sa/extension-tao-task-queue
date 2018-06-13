@@ -23,6 +23,9 @@ namespace oat\taoTaskQueue\model\ValueObjects;
 use Exception;
 use oat\taoTaskQueue\model\TaskLogInterface;
 
+/**
+ * @deprecated Use \oat\tao\model\taskQueue\TaskLog\CategorizedStatus
+ */
 class TaskLogCategorizedStatus
 {
     const STATUS_CREATED = 'created';

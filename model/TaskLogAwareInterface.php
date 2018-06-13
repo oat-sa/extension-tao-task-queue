@@ -23,7 +23,9 @@ namespace oat\taoTaskQueue\model;
 /**
  * Interface TaskLogAwareInterface
  *
- *  @author Gyula Szucs <gyula@taotesting.com>
+ * @deprecated Use \oat\tao\model\taskQueue\TaskLog\TaskLogAwareInterface
+ *
+ * @author Gyula Szucs <gyula@taotesting.com>
  */
 interface TaskLogAwareInterface
 {

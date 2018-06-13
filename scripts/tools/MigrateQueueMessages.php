@@ -22,8 +22,8 @@ namespace oat\taoTaskQueue\scripts\tools;
 
 use oat\oatbox\action\Action;
 use oat\oatbox\task\Task;
-use oat\taoTaskQueue\model\QueueDispatcher;
-use oat\taoTaskQueue\model\QueueDispatcherInterface;
+use oat\tao\model\taskQueue\QueueDispatcher;
+use oat\tao\model\taskQueue\QueueDispatcherInterface;
 use oat\Taskqueue\JsonTask;
 use oat\Taskqueue\Persistence\RdsQueue;
 use Zend\ServiceManager\ServiceLocatorAwareInterface;

@@ -23,6 +23,8 @@ namespace oat\taoTaskQueue\model\Task;
 /**
  * TaskAwareInterface
  *
+ * @deprecated Use \oat\tao\model\taskQueue\Task\TaskAwareTrait
+ *
  * @author Gyula Szucs <gyula@taotesting.com>
  */
 trait TaskAwareTrait

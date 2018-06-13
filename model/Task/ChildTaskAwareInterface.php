@@ -23,6 +23,8 @@ namespace oat\taoTaskQueue\model\Task;
 /**
  * Methods to define dependency between tasks.
  *
+ * @deprecated Use \oat\tao\model\taskQueue\Task\ChildTaskAwareInterface
+ *
  * @author Gyula Szucs <gyula@taotesting.com>
  */
 interface ChildTaskAwareInterface

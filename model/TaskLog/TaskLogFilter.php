@@ -25,6 +25,9 @@ use Doctrine\DBAL\Query\QueryBuilder;
 use oat\taoTaskQueue\model\TaskLogBroker\TaskLogBrokerInterface;
 use oat\taoTaskQueue\model\TaskLogInterface;
 
+/**
+ * @deprecated Use \oat\tao\model\taskQueue\TaskLog\TaskLogFilter
+ */
 class TaskLogFilter
 {
     const OP_EQ  = '=';

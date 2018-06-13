@@ -23,12 +23,12 @@ namespace oat\taoTaskQueue\scripts\tools;
 use common_report_Report as Report;
 use oat\oatbox\extension\InstallAction;
 use Aws\Exception\AwsException;
-use oat\taoTaskQueue\model\QueueBroker\InMemoryQueueBroker;
+use oat\oatbox\service\ConfigurableService;
+use oat\tao\model\taskQueue\Queue\Broker\InMemoryQueueBroker;
+use oat\tao\model\taskQueue\QueueDispatcherInterface;
+use oat\tao\model\taskQueue\TaskLogInterface;
 use oat\taoTaskQueue\model\QueueBroker\RdsQueueBroker;
 use oat\taoTaskQueue\model\QueueBroker\SqsQueueBroker;
-use oat\taoTaskQueue\model\QueueDispatcher;
-use oat\taoTaskQueue\model\QueueDispatcherInterface;
-use oat\taoTaskQueue\model\TaskLogInterface;
 use Zend\ServiceManager\ServiceLocatorAwareTrait;
 
 /**
@@ -82,7 +82,7 @@ class InitializeQueue extends InstallAction
 
             $report = Report::createInfo('Running command...');
 
-            /** @var QueueDispatcher $queueService */
+            /** @var QueueDispatcherInterface|ConfigurableService $queueService */
             $queueService = $this->getServiceLocator()->get(QueueDispatcherInterface::SERVICE_ID);
 
             $reRegister = false;
@@ -144,8 +144,6 @@ class InitializeQueue extends InstallAction
             $report->add(Report::createSuccess('Task Log container created.'));
 
             return $report;
-        } catch (AwsException $e) {
-            return Report::createFailure($e->getAwsErrorMessage());
         } catch (\Exception $e) {
             return Report::createFailure($e->getMessage());
         }

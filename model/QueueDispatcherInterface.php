@@ -20,7 +20,7 @@
 
 namespace oat\taoTaskQueue\model;
 
-use oat\taoTaskQueue\model\TaskSelector\SelectorStrategyInterface;
+use oat\tao\model\taskQueue\Queue\TaskSelector\SelectorStrategyInterface;
 use oat\taoTaskQueue\model\Task\CallbackTaskInterface;
 use oat\taoTaskQueue\model\Task\TaskInterface;
 use Psr\Log\LoggerAwareInterface;
@@ -28,10 +28,13 @@ use Psr\Log\LoggerAwareInterface;
 /**
  * Interface QueueDispatcherInterface
  *
+ * @deprecated Use \oat\tao\model\taskQueue\QueueDispatcherInterface
+ *
  * @author Gyula Szucs <gyula@taotesting.com>
  */
 interface QueueDispatcherInterface extends \Countable, LoggerAwareInterface
 {
+    /** @deprecated  */
     const SERVICE_ID = 'taoTaskQueue/taskQueue';
 
     const FILE_SYSTEM_ID = 'taskQueueStorage';

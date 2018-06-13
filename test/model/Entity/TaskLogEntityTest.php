@@ -25,6 +25,9 @@ use oat\taoTaskQueue\model\Entity\TaskLogEntity;
 use oat\taoTaskQueue\model\TaskLogInterface;
 use oat\taoTaskQueue\model\ValueObjects\TaskLogCategorizedStatus;
 
+/**
+ * @deprecated
+ */
 class TaskLogEntityTest extends \PHPUnit_Framework_TestCase
 {
     public function testEntityCreated()

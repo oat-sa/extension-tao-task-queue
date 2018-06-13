@@ -25,7 +25,7 @@ use oat\generis\model\OntologyAwareTrait;
 use oat\oatbox\service\ConfigurableService;
 use oat\oatbox\log\LoggerAwareTrait;
 use oat\oatbox\task\Task;
-use oat\taoTaskQueue\model\TaskSelector\SelectorStrategyInterface;
+use oat\tao\model\taskQueue\Queue\TaskSelector\SelectorStrategyInterface;
 use oat\taoTaskQueue\model\TaskSelector\WeightStrategy;
 use oat\taoTaskQueue\model\Task\CallbackTask;
 use oat\taoTaskQueue\model\Task\CallbackTaskInterface;
@@ -33,6 +33,8 @@ use oat\taoTaskQueue\model\Task\TaskInterface;
 
 /**
  * Class QueueDispatcher
+ *
+ * @deprecated Use \oat\tao\model\taskQueue\QueueDispatcher
  *
  * @author Gyula Szucs <gyula@taotesting.com>
  */

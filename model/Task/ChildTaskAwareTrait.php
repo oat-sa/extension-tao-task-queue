@@ -23,6 +23,8 @@ namespace oat\taoTaskQueue\model\Task;
 /**
  * ChildTaskAwareTrait
  *
+ * @deprecated Use \oat\tao\model\taskQueue\Task\ChildTaskAwareTrait
+ *
  * @author Gyula Szucs <gyula@taotesting.com>
  */
 trait ChildTaskAwareTrait

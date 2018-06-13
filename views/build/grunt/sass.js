@@ -15,8 +15,6 @@ module.exports = function(grunt) {
     sass.taotaskqueuecomponents.files[root + 'js/component/listing/css/element.css'] = root + 'js/component/listing/scss/element.scss';
     sass.taotaskqueuecomponents.files[root + 'js/component/listing/css/list.css'] = root + 'js/component/listing/scss/list.scss';
     sass.taotaskqueuecomponents.files[root + 'js/component/listing/css/report.css'] = root + 'js/component/listing/scss/report.scss';
-    sass.taotaskqueuecomponents.files[root + 'js/component/button/css/taskable.css'] = root + 'js/component/button/scss/taskable.scss';
-    sass.taotaskqueuecomponents.files[root + 'js/component/button/css/treeButton.css'] = root + 'js/component/button/scss/treeButton.scss';
 
     watch.taotaskqueuesass = {
         files : [root + 'scss/**/*.scss'],

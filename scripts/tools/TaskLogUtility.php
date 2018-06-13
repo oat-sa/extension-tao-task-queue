@@ -22,10 +22,10 @@ namespace oat\taoTaskQueue\scripts\tools;
 
 use oat\oatbox\action\Action;
 use oat\oatbox\filesystem\FileSystemService;
+use oat\tao\model\taskQueue\TaskLogInterface;
 use oat\taoTaskQueue\model\Entity\Decorator\CategoryEntityDecorator;
 use oat\taoTaskQueue\model\Entity\Decorator\HasFileEntityDecorator;
 use oat\taoTaskQueue\model\TaskLog\Decorator\SimpleManagementCollectionDecorator;
-use oat\taoTaskQueue\model\TaskLogInterface;
 use Zend\ServiceManager\ServiceLocatorAwareInterface;
 use Zend\ServiceManager\ServiceLocatorAwareTrait;
 

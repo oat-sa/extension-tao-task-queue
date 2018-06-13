@@ -20,9 +20,8 @@
 
 namespace oat\taoTaskQueue\model;
 
-
-use oat\taoTaskQueue\model\QueueBroker\QueueBrokerInterface;
 use oat\oatbox\log\LoggerAwareTrait;
+use oat\tao\model\taskQueue\Queue\Broker\QueueBrokerInterface;
 use oat\taoTaskQueue\model\QueueBroker\SyncQueueBrokerInterface;
 use oat\taoTaskQueue\model\Task\TaskInterface;
 use Zend\ServiceManager\ServiceLocatorAwareInterface;
@@ -30,6 +29,8 @@ use Zend\ServiceManager\ServiceLocatorAwareTrait;
 
 /**
  * Queue Service
+ *
+ * @deprecated Use \oat\tao\model\taskQueue\Queue
  *
  * @author Gyula Szucs <gyula@taotesting.com>
  */
@@ -159,7 +160,7 @@ class Queue implements QueueInterface, TaskLogAwareInterface
      *
      * @return QueueBrokerInterface
      */
-    protected function getBroker()
+    public function getBroker()
     {
         $this->broker->setServiceLocator($this->getServiceLocator());
 

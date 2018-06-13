@@ -30,6 +30,9 @@ use oat\taoTaskQueue\model\QueueDispatcherInterface;
 use oat\taoTaskQueue\model\TaskLogBroker\TaskLogBrokerInterface;
 use oat\taoTaskQueue\model\ValueObjects\TaskLogCategorizedStatus;
 
+/**
+ * @deprecated Use \oat\tao\model\taskQueue\TaskLog\Entity\TaskLogEntity
+ */
 class TaskLogEntity implements TaskLogEntityInterface
 {
     /** @var string */

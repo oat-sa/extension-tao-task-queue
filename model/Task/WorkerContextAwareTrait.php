@@ -24,6 +24,8 @@ namespace oat\taoTaskQueue\model\Task;
 /**
  * WorkerContextAwareInterface
  *
+ * @deprecated Use \oat\tao\model\taskQueue\Task\WorkerContextAwareTrait
+ *
  * @author Gyula Szucs <gyula@taotesting.com>
  */
 trait WorkerContextAwareTrait

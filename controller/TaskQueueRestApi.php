@@ -20,11 +20,14 @@
 
 namespace oat\taoTaskQueue\controller;
 
-use oat\taoTaskQueue\model\Entity\TaskLogEntity;
-use oat\taoTaskQueue\model\TaskLogInterface;
+use oat\tao\model\taskQueue\TaskLog\Entity\EntityInterface;
+use oat\tao\model\taskQueue\TaskLogInterface;
+
 
 /**
  * RestAPI controller to get data from task queue
+ *
+ * @deprecated Use \tao_actions_TaskQueue
  *
  * @author Gyula Szucs <gyula@taotesting.com>
  */
@@ -57,7 +60,7 @@ class TaskQueueRestApi extends \tao_actions_RestController
     }
 
     /**
-     * @return TaskLogEntity
+     * @return EntityInterface
      * @throws \common_exception_MissingParameter
      * @throws \common_exception_NotFound
      */
@@ -68,7 +71,7 @@ class TaskQueueRestApi extends \tao_actions_RestController
         }
 
         /** @var TaskLogInterface $taskLogService */
-        $taskLogService = $this->getServiceManager()->get(TaskLogInterface::SERVICE_ID);
+        $taskLogService = $this->getServiceLocator()->get(TaskLogInterface::SERVICE_ID);
 
         return $taskLogService->getById((string) $this->getRequestParameter(self::PARAMETER_TASK_ID));
     }

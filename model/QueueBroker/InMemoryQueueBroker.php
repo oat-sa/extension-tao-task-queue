@@ -20,10 +20,13 @@
 
 namespace oat\taoTaskQueue\model\QueueBroker;
 
-use oat\taoTaskQueue\model\Task\TaskInterface;
+use oat\tao\model\taskQueue\Queue\Broker\AbstractQueueBroker;
+use oat\tao\model\taskQueue\Task\TaskInterface;
 
 /**
  * Stores tasks in memory. It accomplishes Sync Queue mechanism.
+ *
+ * @deprecated Use \oat\tao\model\taskQueue\Queue\Broker\InMemoryQueueBroker
  *
  * @author Gyula Szucs <gyula@taotesting.com>
  */
@@ -35,7 +38,7 @@ class InMemoryQueueBroker extends AbstractQueueBroker implements SyncQueueBroker
     private $queue;
 
     /**
-     * @return SplQueue
+     * @return \SplQueue
      */
     private function getQueue()
     {

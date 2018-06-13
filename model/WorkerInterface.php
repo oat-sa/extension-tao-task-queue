@@ -26,6 +26,8 @@ use Psr\Log\LoggerAwareInterface;
 /**
  * Interface WorkerInterface
  *
+ * @deprecated Use \oat\tao\model\taskQueue\Worker\WorkerInterface
+ *
  * @author Gyula Szucs <gyula@taotesting.com>
  */
 interface WorkerInterface extends LoggerAwareInterface

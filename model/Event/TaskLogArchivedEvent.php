@@ -23,6 +23,9 @@ namespace oat\taoTaskQueue\model\Event;
 use oat\oatbox\event\Event;
 use oat\taoTaskQueue\model\Entity\TaskLogEntityInterface;
 
+/**
+ * @deprecated Use \oat\tao\model\taskQueue\Event\TaskLogArchivedEvent
+ */
 class TaskLogArchivedEvent implements Event
 {
     /**

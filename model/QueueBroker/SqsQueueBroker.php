@@ -23,7 +23,8 @@ namespace oat\taoTaskQueue\model\QueueBroker;
 use Aws\Exception\AwsException;
 use Aws\Sqs\SqsClient;
 use oat\awsTools\AwsClient;
-use oat\taoTaskQueue\model\Task\TaskInterface;
+use oat\tao\model\taskQueue\Queue\Broker\AbstractQueueBroker;
+use oat\tao\model\taskQueue\Task\TaskInterface;
 
 /**
  * Storing messages/tasks on AWS SQS.
@@ -131,7 +132,7 @@ class SqsQueueBroker extends AbstractQueueBroker
                 $this->logError('Queue '. $this->getQueueNameWithPrefix() .' not created');
             }
         } catch (AwsException $e) {
-            $this->logError('Creating queue '. $this->getQueueNameWithPrefix() .' failed with MSG: '. $e->getAwsErrorMessage());
+            $this->logError('Creating queue '. $this->getQueueNameWithPrefix() .' failed with MSG: '. $e->getMessage());
 
             if(PHP_SAPI == 'cli'){
                 throw $e;

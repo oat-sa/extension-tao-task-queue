@@ -20,11 +20,14 @@
 
 namespace oat\taoTaskQueue\model\Entity\Decorator;
 
-use oat\taoTaskQueue\model\Entity\TaskLogEntityInterface;
-use oat\taoTaskQueue\model\TaskLogInterface;
+use oat\tao\model\taskQueue\TaskLog\Entity\EntityInterface;
+use oat\tao\model\taskQueue\TaskLogInterface;
+
 
 /**
  * CategoryEntityDecorator
+ *
+ * @deprecated Use \oat\tao\model\taskQueue\TaskLog\Decorator\CategoryEntityDecorator
  *
  * @author Gyula Szucs <gyula@taotesting.com>
  */
@@ -35,7 +38,7 @@ class CategoryEntityDecorator extends TaskLogEntityDecorator
      */
     private $taskLogService;
 
-    public function __construct(TaskLogEntityInterface $entity, TaskLogInterface $taskLogService)
+    public function __construct(EntityInterface $entity, TaskLogInterface $taskLogService)
     {
         parent::__construct($entity);
 

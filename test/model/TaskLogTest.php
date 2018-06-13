@@ -27,6 +27,9 @@ use oat\taoTaskQueue\model\TaskLog;
 use oat\taoTaskQueue\model\TaskLog\TaskLogCollection;
 use oat\taoTaskQueue\model\TaskLogBroker\TaskLogBrokerInterface;
 
+/**
+ * @deprecated
+ */
 class TaskLogTest extends \PHPUnit_Framework_TestCase
 {
     /**
