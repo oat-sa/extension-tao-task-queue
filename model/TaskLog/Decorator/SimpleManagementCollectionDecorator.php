@@ -21,20 +21,22 @@
 namespace oat\taoTaskQueue\model\TaskLog\Decorator;
 
 use oat\oatbox\filesystem\FileSystemService;
+use oat\tao\model\taskQueue\TaskLog\CollectionInterface;
+use oat\tao\model\taskQueue\TaskLogInterface;
 use oat\taoTaskQueue\model\Entity\Decorator\CategoryEntityDecorator;
 use oat\taoTaskQueue\model\Entity\Decorator\HasFileEntityDecorator;
-use oat\taoTaskQueue\model\TaskLog\TaskLogCollectionInterface;
-use oat\taoTaskQueue\model\TaskLogInterface;
 
 /**
  * Containing all necessary modification required by the simple UI component.
+ *
+ * @deprecated Use \oat\tao\model\taskQueue\TaskLog\Decorator\SimpleManagementCollectionDecorator
  *
  * @author Gyula Szucs <gyula@taotesting.com>
  */
 class SimpleManagementCollectionDecorator extends TaskLogCollectionDecorator
 {
     /**
-     * @var TaskLogCollectionInterface
+     * @var CollectionInterface
      */
     private $collection;
 
@@ -53,7 +55,7 @@ class SimpleManagementCollectionDecorator extends TaskLogCollectionDecorator
      */
     private $reportIncluded;
 
-    public function __construct(TaskLogCollectionInterface $collection, TaskLogInterface $taskLogService, FileSystemService $fileSystemService, $reportIncluded)
+    public function __construct(CollectionInterface $collection, TaskLogInterface $taskLogService, FileSystemService $fileSystemService, $reportIncluded)
     {
         parent::__construct($collection);
 

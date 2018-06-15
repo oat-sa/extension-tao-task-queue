@@ -35,6 +35,8 @@ use Zend\ServiceManager\ServiceLocatorAwareTrait;
 /**
  * Class AbstractQueueBroker
  *
+ * @deprecated Use \oat\tao\model\taskQueue\Queue\Broker\AbstractQueueBroker
+ *
  * @author Gyula Szucs <gyula@taotesting.com>
  */
 abstract class AbstractQueueBroker implements QueueBrokerInterface, PhpSerializable, ServiceLocatorAwareInterface

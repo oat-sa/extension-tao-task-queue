@@ -19,6 +19,9 @@
  */
 namespace oat\taoTaskQueue\model\Task;
 
+/**
+ * @deprecated Use \oat\tao\model\taskQueue\Task\TaskFactory
+ */
 class TaskFactory
 {
     /**

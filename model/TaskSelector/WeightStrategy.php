@@ -22,11 +22,14 @@ namespace oat\taoTaskQueue\model\TaskSelector;
 
 use oat\oatbox\log\LoggerAwareTrait;
 use oat\oatbox\PhpSerializeStateless;
+use oat\tao\model\taskQueue\Queue\TaskSelector\SelectorStrategyInterface;
 use oat\taoTaskQueue\model\QueueInterface;
 use Psr\Log\LoggerAwareInterface;
 
 /**
  * Implements a strategy for selecting a queue randomly taking into account the known weights.
+ *
+ * @deprecated Use \oat\tao\model\taskQueue\Queue\TaskSelector\WeightStrategy
  *
  * @author Gyula Szucs <gyula@taotesting.com>
  */

@@ -20,79 +20,15 @@
 
 namespace oat\taoTaskQueue\model\Entity;
 
-use common_report_Report as Report;
-use oat\taoTaskQueue\model\TaskLog\TaskLogCollection;
-use oat\taoTaskQueue\model\ValueObjects\TaskLogCategorizedStatus;
+use oat\tao\model\taskQueue\TaskLog\Entity\EntityInterface;
 
 /**
  * Interface TaskLogEntityInterface
  *
+ * @deprecated Use \oat\tao\model\taskQueue\TaskLog\Entity\EntityInterface
+ *
  * @author Gyula Szucs <gyula@taotesting.com>
  */
-interface TaskLogEntityInterface extends \JsonSerializable
+interface TaskLogEntityInterface extends EntityInterface
 {
-    /**
-     * @return string
-     */
-    public function getId();
-
-    /**
-     * @return string
-     */
-    public function getParentId();
-
-    /**
-     * @return string
-     */
-    public function getTaskName();
-
-    /**
-     * @return array
-     */
-    public function getParameters();
-
-    /**
-     * @return string
-     */
-    public function getLabel();
-
-    /**
-     * @return string
-     */
-    public function getOwner();
-
-    /**
-     * @return Report|null
-     */
-    public function getReport();
-
-    /**
-     * @return \DateTime|null
-     */
-    public function getCreatedAt();
-
-    /**
-     * @return \DateTime|null
-     */
-    public function getUpdatedAt();
-
-    /**
-     * @return TaskLogCategorizedStatus
-     */
-    public function getStatus();
-
-    /**
-     * @return boolean
-     */
-    public function isMasterStatus();
-
-    /**
-     * @return string
-     */
-    public function getFileNameFromReport();
-
-    /**
-     * @return array
-     */
-    public function toArray();
 }

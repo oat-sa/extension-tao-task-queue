@@ -34,10 +34,13 @@ use Psr\Log\LoggerAwareInterface;
 /**
  * Interface TaskLogInterface
  *
+ * @deprecated Use \oat\tao\model\taskQueue\TaskLogInterface
+ *
  * @author Gyula Szucs <gyula@taotesting.com>
  */
 interface TaskLogInterface extends LoggerAwareInterface
 {
+    /** @deprecated  */
     const SERVICE_ID = 'taoTaskQueue/taskLog';
 
     const OPTION_TASK_LOG_BROKER = 'task_log_broker';

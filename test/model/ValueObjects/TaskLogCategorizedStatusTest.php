@@ -23,6 +23,9 @@ namespace oat\taoTaskQueue\test\model\ValueObjects;
 
 use oat\taoTaskQueue\model\ValueObjects\TaskLogCategorizedStatus;
 
+/**
+ * @deprecated
+ */
 class TaskLogCategorizedStatusTest extends \PHPUnit_Framework_TestCase
 {
     /**

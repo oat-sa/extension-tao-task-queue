@@ -27,6 +27,8 @@ use oat\taoTaskQueue\model\Queue;
 use oat\taoTaskQueue\model\QueueBroker\InMemoryQueueBroker;
 use oat\taoTaskQueue\model\QueueDispatcher;
 use oat\taoTaskQueue\model\QueueDispatcherInterface;
+use oat\taoTaskQueue\model\TaskLog;
+use oat\taoTaskQueue\model\TaskSelector\StrictPriorityStrategy;
 use oat\taoTaskQueue\model\TaskSelector\WeightStrategy;
 use oat\taoTaskQueue\model\TaskLogBroker\TaskLogBrokerInterface;
 use oat\taoTaskQueue\model\TaskLogInterface;
@@ -170,5 +172,67 @@ class Updater extends common_ext_ExtensionUpdater
         }
 
         $this->skip('0.14.0', '0.16.0');
+
+        if ($this->isVersion('0.16.0')) {
+            // saving the current old queue configs into the new queue service
+            /** @var QueueDispatcherInterface|ConfigurableService $oldQueueDispatcher */
+            $oldQueueDispatcher = $this->getServiceManager()->get(QueueDispatcher::SERVICE_ID);
+
+            /** @var \oat\tao\model\taskQueue\QueueDispatcher|ConfigurableService $newQueueDispatcher */
+            $newQueueDispatcher = $this->getServiceManager()->get(\oat\tao\model\taskQueue\QueueDispatcher::SERVICE_ID);
+
+            $newQueues = [];
+            foreach ($oldQueueDispatcher->getQueues() as $oldQueue) {
+                $broker = $oldQueue->isSync()
+                    ? new \oat\tao\model\taskQueue\Queue\Broker\InMemoryQueueBroker(1)
+                    : $oldQueue->getBroker();
+
+                $newQueues[] = new \oat\tao\model\taskQueue\Queue($oldQueue->getName(), $broker, $oldQueue->getWeight());
+            }
+
+            $newQueueDispatcher->setQueues($newQueues);
+
+            $newQueueDispatcher->setOption(
+                \oat\tao\model\taskQueue\QueueDispatcher::OPTION_TASK_TO_QUEUE_ASSOCIATIONS,
+                $oldQueueDispatcher->getLinkedTasks()
+            );
+
+            $newQueueDispatcher->setOption(
+                \oat\tao\model\taskQueue\QueueDispatcher::OPTION_DEFAULT_QUEUE,
+                $oldQueueDispatcher->getOption(QueueDispatcher::OPTION_DEFAULT_QUEUE)
+            );
+
+            $taskSelector = $oldQueueDispatcher->getOption(QueueDispatcher::OPTION_TASK_SELECTOR_STRATEGY);
+            if ($taskSelector instanceof StrictPriorityStrategy) {
+                $newQueueDispatcher->setTaskSelector($taskSelector);
+            }
+
+            $this->getServiceManager()->register(\oat\tao\model\taskQueue\QueueDispatcher::SERVICE_ID, $newQueueDispatcher);
+
+            // saving the current old task log conf into the new one
+            /** @var $oldTaskLog|ConfigurableService TaskLogInterface */
+            $oldTaskLog = $this->getServiceManager()->get(TaskLog::SERVICE_ID);
+            $newTaskLog = $this->getServiceManager()->get(\oat\tao\model\taskQueue\TaskLog::SERVICE_ID);
+
+            $newTaskLog->setOption(
+                \oat\tao\model\taskQueue\TaskLog::OPTION_TASK_TO_CATEGORY_ASSOCIATIONS,
+                $oldTaskLog->getOption(TaskLog::OPTION_TASK_TO_CATEGORY_ASSOCIATIONS)
+            );
+
+            $this->getServiceManager()->register(\oat\tao\model\taskQueue\TaskLog::SERVICE_ID, $newTaskLog);
+
+            // unregister old services
+            $this->getServiceManager()->unregister(QueueDispatcher::SERVICE_ID);
+            $this->getServiceManager()->unregister(TaskLogInterface::SERVICE_ID);
+
+            $this->setVersion('0.17.0');
+
+            // extension can be unregistered, if only sync queues are used
+            if($oldQueueDispatcher->isSync()) {
+                /** @var \common_ext_ExtensionsManager $extensionManager */
+                $extensionManager = $this->getServiceManager()->get(\common_ext_ExtensionsManager::SERVICE_ID);
+                $extensionManager->unregisterExtension($this->getExtension());
+            }
+        }
     }
 }

@@ -21,14 +21,15 @@
 namespace oat\taoTaskQueue\model;
 
 use oat\oatbox\PhpSerializable;
-use oat\taoTaskQueue\model\QueueBroker\QueueBrokerInterface;
-use oat\taoTaskQueue\model\Task\CallbackTask;
+use oat\tao\model\taskQueue\Queue\Broker\QueueBrokerInterface;
 use oat\taoTaskQueue\model\Task\TaskInterface;
 use Psr\Log\LoggerAwareInterface;
 use Zend\ServiceManager\ServiceLocatorAwareInterface;
 
 /**
  * Interface QueueInterface
+ *
+ * @deprecated Use \oat\tao\model\taskQueue\QueueInterface
  *
  * @author Gyula Szucs <gyula@taotesting.com>
  */
@@ -129,4 +130,9 @@ interface QueueInterface extends \Countable, LoggerAwareInterface, PhpSerializab
      * @return QueueInterface
      */
     public function setBroker(QueueBrokerInterface $broker);
+
+    /**
+     * @return QueueBrokerInterface
+     */
+    public function getBroker();
 }

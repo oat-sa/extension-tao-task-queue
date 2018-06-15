@@ -23,6 +23,8 @@ namespace oat\taoTaskQueue\model\Task;
 /**
  * TaskAwareInterface
  *
+ * @deprecated Use \oat\tao\model\taskQueue\Task\TaskAwareInterface
+ *
  * @author Gyula Szucs <gyula@taotesting.com>
  */
 interface TaskAwareInterface

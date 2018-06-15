@@ -21,10 +21,10 @@
 namespace oat\taoTaskQueue\scripts\tools;
 
 use common_report_Report as Report;
+use oat\tao\model\taskQueue\QueueDispatcherInterface;
 use Zend\ServiceManager\ServiceLocatorAwareTrait;
 use Zend\ServiceManager\ServiceLocatorAwareInterface;
 use oat\oatbox\action\Action;
-use oat\taoTaskQueue\model\QueueDispatcherInterface;
 
 /**
  * Class AddTaskToQueue

@@ -23,6 +23,8 @@ namespace oat\taoTaskQueue\model\Task;
 /**
  * CallableTaskInterface
  *
+ * @deprecated Use \oat\tao\model\taskQueue\Task\CallbackTaskInterface
+ *
  * @author Gyula Szucs <gyula@taotesting.com>
  */
 interface CallbackTaskInterface extends TaskInterface

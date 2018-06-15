@@ -31,6 +31,8 @@ use oat\taoTaskQueue\model\ValueObjects\TaskLogCategorizedStatus;
 /**
  * Processes tasks from the queue.
  *
+ * @deprecated Use \oat\taoTaskQueue\model\LongRunningWorker
+ *             
  * @author Gyula Szucs <gyula@taotesting.com>
  */
 final class Worker implements WorkerInterface

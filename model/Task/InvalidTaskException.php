@@ -21,6 +21,9 @@ namespace oat\taoTaskQueue\model\Task;
 
 use Exception;
 
+/**
+ * @deprecated Use \oat\tao\model\taskQueue\Task\InvalidTaskException
+ */
 class InvalidTaskException extends Exception
 {
 

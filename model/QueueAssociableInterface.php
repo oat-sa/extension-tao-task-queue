@@ -23,6 +23,8 @@ namespace oat\taoTaskQueue\model;
 /**
  * An interface for any task to internally have the logic of selecting the queue where the task should be published to.
  *
+ * @deprecated Use \oat\tao\model\taskQueue\Task\QueueAssociableInterface
+ *
  * @author Gyula Szucs <gyula@taotesting.com>
  */
 interface QueueAssociableInterface

@@ -20,25 +20,26 @@
 
 namespace oat\taoTaskQueue\model\TaskLog\Decorator;
 
-use oat\taoTaskQueue\model\Entity\TaskLogEntityInterface;
-use oat\taoTaskQueue\model\TaskLog\TaskLogCollectionInterface;
+use oat\tao\model\taskQueue\TaskLog\CollectionInterface;
 
 /**
  * Interface TaskLogCollectionDecorator
  *
+ * @deprecated Use \oat\tao\model\taskQueue\TaskLog\Decorator\TaskLogCollectionDecorator
+ *
  * @author Gyula Szucs <gyula@taotesting.com>
  */
-abstract class TaskLogCollectionDecorator implements TaskLogCollectionInterface
+abstract class TaskLogCollectionDecorator implements CollectionInterface
 {
     /**
-     * @var TaskLogCollectionInterface
+     * @var CollectionInterface
      */
     private $collection;
 
     /**
-     * @param TaskLogCollectionInterface $collection
+     * @param CollectionInterface $collection
      */
-    public function __construct(TaskLogCollectionInterface $collection)
+    public function __construct(CollectionInterface $collection)
     {
         $this->collection = $collection;
     }

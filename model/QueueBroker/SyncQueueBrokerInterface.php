@@ -23,6 +23,8 @@ namespace oat\taoTaskQueue\model\QueueBroker;
 /**
  * Interface SyncQueueBrokerInterface
  *
+ * @deprecated Use \oat\tao\model\taskQueue\Queue\Broker\SyncQueueBrokerInterface
+ *
  * @author Gyula Szucs <gyula@taotesting.com>
  */
 interface SyncQueueBrokerInterface
