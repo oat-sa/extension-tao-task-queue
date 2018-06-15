@@ -225,10 +225,12 @@ class Updater extends common_ext_ExtensionUpdater
             $this->getServiceManager()->unregister(QueueDispatcher::SERVICE_ID);
             $this->getServiceManager()->unregister(TaskLogInterface::SERVICE_ID);
 
-            $this->setVersion('0.17.0');
+            $this->setVersion('0.17.1');
 
             // extension can be unregistered, if only sync queues are used
             if($oldQueueDispatcher->isSync()) {
+                ClientLibConfigRegistry::getRegistry()->remove('controller/main');
+
                 /** @var \common_ext_ExtensionsManager $extensionManager */
                 $extensionManager = $this->getServiceManager()->get(\common_ext_ExtensionsManager::SERVICE_ID);
                 $extensionManager->unregisterExtension($this->getExtension());
