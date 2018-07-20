@@ -20,6 +20,7 @@
 
 namespace oat\taoTaskQueue\model\Entity\Decorator;
 
+use oat\tao\model\taskQueue\TaskLog\Decorator\TaskLogEntityDecorator;
 use oat\tao\model\taskQueue\TaskLog\Entity\EntityInterface;
 use oat\tao\model\taskQueue\TaskLogInterface;
 
