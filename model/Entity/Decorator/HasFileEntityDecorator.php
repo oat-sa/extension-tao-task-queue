@@ -23,6 +23,7 @@ namespace oat\taoTaskQueue\model\Entity\Decorator;
 use oat\oatbox\filesystem\Directory;
 use oat\oatbox\filesystem\FileSystemService;
 use oat\tao\model\taskQueue\QueueDispatcherInterface;
+use oat\tao\model\taskQueue\TaskLog\Decorator\TaskLogEntityDecorator;
 use oat\tao\model\taskQueue\TaskLog\Entity\EntityInterface;
 
 /**
