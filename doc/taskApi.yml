@@ -89,7 +89,7 @@ definitions:
     properties:
       id:
         type: string
-        example: 'https://nccersso.taocloud.org/nccer.rdf#i150764040443513560'
+        example: 'http://tao.lu/tao.rdf#i150764040443513560'
       taskName:
         type: string
         example: PrintOrder

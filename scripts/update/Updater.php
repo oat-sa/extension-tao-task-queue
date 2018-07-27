@@ -236,5 +236,7 @@ class Updater extends common_ext_ExtensionUpdater
                 $extensionManager->unregisterExtension($this->getExtension());
             }
         }
+
+        $this->skip('0.17.1', '0.17.3');
     }
 }
