@@ -14,6 +14,7 @@
     <div class="action-group action-bottom">
         <span data-role="notify" class="icon-preview" title="{{__ "notify me when done"}}"/>
         <span data-role="download" class="icon-download" title="{{__ "download"}}"/>
+        <span data-role="redirect" class="icon-preview" title="{{__ "go to resource"}}"/>
         <span data-role="report" class="icon-document" title="{{__ "see report"}}"/>
     </div>
 </div>
