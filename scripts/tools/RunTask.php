@@ -28,13 +28,14 @@ use oat\tao\model\taskQueue\Worker\OneTimeTask;
 use common_report_Report as Report;
 
 /**
- * $ sudo -u www-data php index.php 'oat\taoTaskQueue\scripts\tools\RunWorker'
+ * $ sudo -u www-data php index.php 'oat\taoTaskQueue\scripts\tools\RunTask' -t <some_task_serialized_and_base64encoded>
  */
 
 class RunTask extends ScriptAction
 {
     /**
      * @return Report
+     * @throws \Exception
      */
     protected function run()
     {
@@ -65,7 +66,7 @@ class RunTask extends ScriptAction
                 'longPrefix'  => 'task',
                 'cast'        => 'string',
                 'required'    => true,
-                'description' => 'Task Json to run.'
+                'description' => 'Task json-base64encoded to run.'
             ]
         ];
     }

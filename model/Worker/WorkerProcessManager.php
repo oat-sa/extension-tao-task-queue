@@ -72,6 +72,9 @@ class WorkerProcessManager extends ConfigurableService
         $this->processes[$pid] = $process;
     }
 
+    /**
+     * @return bool
+     */
     public function canRun()
     {
         $this->logInfo('No of process workers running: '. count($this->processes));
@@ -90,7 +93,7 @@ class WorkerProcessManager extends ConfigurableService
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getCommand()
     {
@@ -104,13 +107,13 @@ class WorkerProcessManager extends ConfigurableService
     {
         $free = shell_exec('free');
         $free = (string)trim($free);
-        $free_arr = explode("\n", $free);
-        $mem = explode(" ", $free_arr[1]);
-        $mem = array_filter($mem);
-        $mem = array_merge($mem);
-        $memory_usage = $mem[2]/$mem[1]*100;
+        $freeArray = explode("\n", $free);
+        $memory = explode(" ", $freeArray[1]);
+        $memory = array_filter($memory);
+        $memory = array_merge($memory);
+        $memoryUsage = $memory[2]/$memory[1]*100;
 
-        return $memory_usage;
+        return $memoryUsage;
     }
 
     /**
