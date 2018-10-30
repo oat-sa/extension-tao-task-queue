@@ -90,6 +90,8 @@ class WorkerProcessManager extends ConfigurableService
 
         $this->logInfo('Limit Of memory and Cpu exceeded waiting for task to finish.
         Current memory usage:'.$memoryUsage.' Cpu usage:'.$cpuUsage);
+
+        return false;
     }
 
     /**
@@ -156,5 +158,13 @@ class WorkerProcessManager extends ConfigurableService
     public function setLimitOfMemory($limitOfMemory)
     {
         $this->limitOfMemory = $limitOfMemory;
+    }
+
+    /**
+     * @return Process[]
+     */
+    public function getProcesses()
+    {
+        return $this->processes;
     }
 }
