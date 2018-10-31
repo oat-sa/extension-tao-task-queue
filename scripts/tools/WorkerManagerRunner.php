@@ -38,6 +38,10 @@ class WorkerManagerRunner extends ScriptAction
      */
     protected function run()
     {
+        if (stripos(PHP_OS, 'win') === 0) {
+           throw new \Exception('The WorkerManagerRunner only works on linux');
+        }
+
         /** @var WorkerProcessManager $workerManager */
         $workerManager = $this->getServiceLocator()->get(WorkerProcessManager::SERVICE_ID);
         $workerManager->setLimitOfCpu($this->getOption('limitOfCpu'));
