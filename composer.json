@@ -27,7 +27,8 @@
     "minimum-stability": "dev",
     "require": {
         "php" : ">=5.5",
-        "oat-sa/oatbox-extension-installer": "~1.1||dev-master"
+        "oat-sa/oatbox-extension-installer": "~1.1||dev-master",
+        "react/child-process": "^0.5.2"
     },
     "autoload": {
         "psr-4": {
