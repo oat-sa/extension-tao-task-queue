@@ -33,6 +33,7 @@ use oat\taoTaskQueue\model\TaskSelector\WeightStrategy;
 use oat\taoTaskQueue\model\TaskLogBroker\TaskLogBrokerInterface;
 use oat\taoTaskQueue\model\TaskLogInterface;
 use oat\tao\model\ClientLibConfigRegistry;
+use oat\taoTaskQueue\model\Worker\WorkerProcessManager;
 
 /**
  * Class Updater
@@ -237,6 +238,16 @@ class Updater extends common_ext_ExtensionUpdater
             }
         }
 
-        $this->skip('0.17.1', '0.17.3');
+        $this->skip('0.17.1', '1.0.0');
+
+        if ($this->isVersion('1.0.0')) {
+            $workerProcessManager = new WorkerProcessManager([
+                WorkerProcessManager::OPTION_TASK_COMMAND => 'php index.php "\oat\taoTaskQueue\scripts\tools\RunTask"'
+            ]);
+
+            $this->getServiceManager()->register(WorkerProcessManager::SERVICE_ID, $workerProcessManager);
+
+            $this->setVersion('1.1.0');
+        }
     }
 }
