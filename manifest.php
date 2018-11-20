@@ -34,7 +34,8 @@ return array(
     'version' => '1.3.0',
     'author' => 'Open Assessment Technologies SA',
     'requires' => array(
-        'generis' => '>=5.8.0',
+        'generis' => '>=7.1.0',
+        'taoScheduler' => '>=0.8.0',
         'tao' => '>=21.5.0'
     ),
     'managementRole' => 'http://www.tao.lu/Ontologies/generis.rdf#taoTaskQueueManager',
