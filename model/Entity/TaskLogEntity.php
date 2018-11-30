@@ -23,17 +23,14 @@ namespace oat\taoTaskQueue\model\Entity;
 use common_report_Report as Report;
 use DateTime;
 use Exception;
-use oat\oatbox\filesystem\Directory;
-use oat\oatbox\filesystem\FileSystemService;
-use oat\oatbox\service\ServiceManager;
-use oat\taoTaskQueue\model\QueueDispatcherInterface;
+use oat\tao\model\taskQueue\TaskLog\Entity\TaskLogEntity as BaseTaskLogEntity;
 use oat\taoTaskQueue\model\TaskLogBroker\TaskLogBrokerInterface;
 use oat\taoTaskQueue\model\ValueObjects\TaskLogCategorizedStatus;
 
 /**
  * @deprecated Use \oat\tao\model\taskQueue\TaskLog\Entity\TaskLogEntity
  */
-class TaskLogEntity implements TaskLogEntityInterface
+class TaskLogEntity extends BaseTaskLogEntity implements TaskLogEntityInterface
 {
     /** @var string */
     private $id;
