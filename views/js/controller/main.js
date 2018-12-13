@@ -49,6 +49,9 @@ function ($, taskQueueManagerFactory, taskQueue) {
                 .on('download', function (taskId) {
                     taskQueue.download(taskId);
                 })
+                .on('redirect', function (taskId) {
+                    taskQueue.redirect(taskId);
+                })
                 .on('listclearfinished', function (){
                     taskQueue
                         .pollAllStop()

@@ -19,6 +19,8 @@
  *
  */
 
+use oat\taoTaskQueue\scripts\install\RegisterTaskLogService;
+use oat\taoTaskQueue\scripts\install\RegisterTaskQueueService;
 use oat\taoTaskQueue\scripts\install\SetClientRouterConfig;
 
 /**
@@ -29,11 +31,11 @@ return array(
     'label' => 'Task Queue',
     'description' => 'Extended Task Queue functionalities with custom GUI',
     'license' => 'GPL-2.0',
-    'version' => '1.2.1',
+    'version' => '1.3.0',
     'author' => 'Open Assessment Technologies SA',
     'requires' => array(
         'generis' => '>=5.8.0',
-        'tao' => '>=21.5.0'
+        'tao' => '>=22.5.0'
     ),
     'managementRole' => 'http://www.tao.lu/Ontologies/generis.rdf#taoTaskQueueManager',
     'acl' => array(
