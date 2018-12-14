@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: TAO 3.2.0-sprint60\n"
-"PO-Revision-Date: 2017-10-05T10:54:45\n"
+"Project-Id-Version: TAO 3.3.0-sprint91\n"
+"PO-Revision-Date: 2018-12-14T14:07:35\n"
 "Last-Translator: TAO Translation Team <translation@tao.lu>\n"
 "MIME-Version: 1.0\n"
 "Language: en-US\n"
@@ -13,14 +13,83 @@ msgstr ""
 "X-Poedit-KeywordsList: __\n"
 "X-Poedit-SearchPath-0: .\n"
 
-msgid "Hello World"
+msgid "Background tasks"
+msgstr ""
+
+msgid "Clear all finished"
+msgstr ""
+
+msgid "Clear all finished tasks"
+msgstr ""
+
+msgid "close report"
+msgstr ""
+
+msgid "Completed"
+msgstr ""
+
+msgid "Completed %s"
+msgstr ""
+
+msgid "download"
+msgstr ""
+
+msgid "Executing task %s failed"
+msgstr ""
+
+msgid "Failed"
+msgstr ""
+
+msgid "Failed %s"
+msgstr ""
+
+msgid "go to resource"
+msgstr ""
+
+msgid "In Progress"
+msgstr ""
+
+msgid "No report available"
+msgstr ""
+
+msgid "notify me when done"
+msgstr ""
+
+msgid "Queued"
+msgstr ""
+
+msgid "remove"
+msgstr ""
+
+msgid "Resource is not the task placeholder"
+msgstr ""
+
+msgid "Running task %s"
+msgstr ""
+
+msgid "see report"
+msgstr ""
+
+msgid "Started %s"
+msgstr ""
+
+msgid "Task is in \'%s\' state"
+msgstr ""
+
+msgid "Task not returned any report."
 msgstr ""
 
 #, tao-public
-msgid "TAO specific Task Queue solution with custom GUI"
+msgid "Task Queue"
 msgstr ""
 
 #, tao-public
-msgid "Template"
+msgid "taskqueue"
+msgstr ""
+
+msgid "The list is currently empty."
+msgstr ""
+
+msgid "There is currently no background task"
 msgstr ""
 
