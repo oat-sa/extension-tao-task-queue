@@ -117,6 +117,7 @@ define([
             updatedAtElapsed :26,
             hasFile: false,
             category: 'import',
+            redirectUrl: 'http://tao.local/taoBackOffice/Redirector/redirectTaskToInstance?taskId=http%3A%2F%2Ftao%2Ftao.rdf%23i15366738451441107',
             report : {
                 type : 'success',
                 message : 'completed task rdf#i1508337970199318643',
@@ -145,8 +146,8 @@ define([
         },
         {
             id: 'rdf#i1508337970190342',
-            taskName: 'Task Name 2',
-            taskLabel: 'Task label 2',
+            taskName: 'Task Name 3',
+            taskLabel: 'Task label 3',
             status: 'failed',
             owner: 'userId',
             createdAt: '1512124107',
@@ -211,6 +212,8 @@ define([
         { title : 'selfUpdateBadge' },
         { title : 'loadData' },
         { title : 'pulse' },
+        { title : 'showList' },
+        { title : 'hideList' },
     ]).test('Instance API ', function(data, assert) {
         var instance = taskQueueManagerFactory();
         assert.equal(typeof instance[data.title], 'function', 'The taskQueueManager exposes the method "' + data.title);
@@ -264,6 +267,33 @@ define([
             .on('listhide', function(){
 
                 assert.ok(true, 'list hidden');
+                QUnit.start();
+            })
+            .render($container);
+    });
+
+    QUnit.asyncTest('show / hide list', function(assert) {
+
+        var $container = $('#qunit-fixture');
+
+        QUnit.expect(5);
+
+        taskQueueManagerFactory({}, _sampleLogCollection)
+            .on('render', function(){
+                assert.ok(!this.getElement().find('.task-listing .task-list').is(':visible'), 'the list is hidden by default');
+
+                this.showList();
+            })
+            .on('listshow', function(){
+                assert.ok(true, 'listshown event has been triggered');
+                assert.ok(this.getElement().find('.task-listing .task-list').is(':visible'), 'the list is visible');
+
+                this.hideList();
+            })
+            .on('listhide', function(){
+                assert.ok(true, 'listhidden event has been triggered');
+                assert.ok(!this.getElement().find('.task-listing .task-list').is(':visible'), 'the list has been hidden');
+
                 QUnit.start();
             })
             .render($container);

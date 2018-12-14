@@ -19,6 +19,7 @@ define([
     'jquery',
     'lodash',
     'i18n',
+    'layout/loading-bar',
     'ui/hider',
     'ui/component',
     'ui/badge/badge',
@@ -30,7 +31,7 @@ define([
     'taoTaskQueue/component/listing/list',
     'tpl!taoTaskQueue/component/manager/tpl/manager',
     'css!taoTaskQueue/component/manager/css/manager'
-], function ($, _, __, hider, component, badgeFactory, makeAlignable, makeAbsorbable, makePulsable, listElementFactory, reportElementFactory, taskListFactory, managerTpl) {
+], function ($, _, __, loadingBar, hider, component, badgeFactory, makeAlignable, makeAbsorbable, makePulsable, listElementFactory, reportElementFactory, taskListFactory, managerTpl) {
     'use strict';
 
     /**
@@ -168,6 +169,13 @@ define([
                 })
                 .on('download', function(){
                     self.trigger('download', taskId);
+                })
+                .on('redirect', function(){
+                    loadingBar.start();
+
+                    self.hideList();
+
+                    self.trigger('redirect', taskId);
                 });
 
 
@@ -248,6 +256,32 @@ define([
         },
 
         /**
+         * Show the list component
+         * @event listshow - Emitted when the list is displayed
+         * @returns {taskQueueManager} - self for chaining
+         */
+        showList : function showList() {
+            if (this.list) {
+                this.list.show();
+                this.trigger('listshow');
+            }
+            return this;
+        },
+
+        /**
+         * Hide the list component
+         * @event listhide - Emitted when the list is hidden
+         * @returns {taskQueueManager} - self for chaining
+         */
+        hideList : function hideList() {
+            if (this.list) {
+                this.list.hide();
+                this.trigger('listhide');
+            }
+            return this;
+        },
+
+        /**
          * Remove all finished element (completed or failed) from the list
          * @returns {taskQueueManager}
          */
@@ -297,9 +331,8 @@ define([
      * @event remove - Emitted when a list element is removed
      * @event download - Emitted when a list element requests the file download associated to a completed task
      * @event report - Emitted when a list element requests a task report to be displayed
+     * @event redirect - Emitted when a list element requests a redirection to the created resource
      * @event listchange - Emitted when the list element list has been updated
-     * @event listshow - Emitted when the list is displayed
-     * @event listhide - Emitted when the list is hidden
      * @event listclearfinished - Emitted when all the finished element from the list is removed
      */
     return function taskQueueManagerFactory(config, data) {
@@ -333,8 +366,7 @@ define([
                 $(document).off('click.task-queue-manager').on('click.task-queue-manager', function(e){
                     if($component.get(0) !== e.target && !$.contains($component.get(0), e.target)){
                         if(!self.list.is('hidden')){
-                            self.list.hide();
-                            self.trigger('listhide');
+                            self.hideList();
                         }
                     }
                 });
@@ -361,8 +393,8 @@ define([
                 this.list.getElement()
                     .addClass('overflown-element')
                     .on('click', function(e){
-                    e.stopPropagation();
-                });
+                        e.stopPropagation();
+                    });
 
                 this.list.on('clearall', function(){
                     self.removeAllFinished();
@@ -371,11 +403,9 @@ define([
                 //toggle list visibility
                 $trigger.on('click', function(){
                     if(self.list.is('hidden')){
-                        self.list.show();
-                        self.trigger('listshow');
+                        self.showList();
                     }else{
-                        self.list.hide();
-                        self.trigger('listhide');
+                        self.hideList();
                     }
                 });
 
