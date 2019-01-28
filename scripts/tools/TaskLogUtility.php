@@ -46,7 +46,8 @@ class TaskLogUtility implements Action, ServiceLocatorAwareInterface
     private $argGetTask;
     private $argHelp;
     private $argArchive;
-    private $argArchiveForce = false;
+    private $argCancel;
+    private $argForce = false;
     private $argLimit;
     private $argOffset;
     private $examples = [
@@ -70,6 +71,11 @@ class TaskLogUtility implements Action, ServiceLocatorAwareInterface
             'title' => 'Archive a Task Log',
             'description' => 'Archive a task log',
             'example' => 'sudo -u www-data php index.php \'oat\taoTaskQueue\scripts\tools\TaskLogUtility\' --archive=[taskdId] --force[optional]'
+        ],
+        [
+            'title' => 'Cancel a Task Log',
+            'description' => 'Cancel a task log',
+            'example' => 'sudo -u www-data php index.php \'oat\taoTaskQueue\scripts\tools\TaskLogUtility\' --cancel=[taskdId] --force[optional]'
         ]
     ];
 
@@ -113,7 +119,12 @@ class TaskLogUtility implements Action, ServiceLocatorAwareInterface
 
             if ($this->argArchive) {
                 $task = $taskLog->getByIdAndUser($this->argArchive, TaskLogInterface::SUPER_USER);
-                return \common_report_Report::createSuccess('Archived: ' .  $taskLog->archive($task, $this->argArchiveForce));
+                return \common_report_Report::createSuccess('Archived: ' .  $taskLog->archive($task, $this->argForce));
+            }
+
+            if ($this->argCancel) {
+                $task = $taskLog->getByIdAndUser($this->argCancel, TaskLogInterface::SUPER_USER);
+                return \common_report_Report::createSuccess('Cancelled: ' .  $taskLog->cancel($task, $this->argForce));
             }
 
             if ($this->argHelp) {
@@ -124,9 +135,17 @@ class TaskLogUtility implements Action, ServiceLocatorAwareInterface
         } catch (\Exception $exception) {
 
             $message = $exception->getMessage();
-            if ($this->argArchive) {
-                $message .= "\nPlease use --force to force archive of an in-progress task.";
+
+            if (!$this->argForce) {
+                if ($this->argArchive) {
+                    $message .= "\nPlease use --force to force archive of an in-progress task.";
+                }
+
+                if ($this->argCancel) {
+                    $message .= "\nPlease use --force to force cancellation of a created task.";
+                }
             }
+
             return \common_report_Report::createFailure($message);
         }
     }
@@ -179,11 +198,18 @@ class TaskLogUtility implements Action, ServiceLocatorAwareInterface
                     }
                     break;
 
-                case '--force':
-                    if (!isset($this->argArchive)) {
-                        throw new \Exception('--archive=[taskId] argument must be set');
+                case '--cancel':
+                    $this->argCancel = $value;
+                    if (!isset($this->argCancel)) {
+                        throw new \Exception('--cancel=[taskId] argument must be set');
                     }
-                    $this->argArchiveForce = true;
+                    break;
+
+                case '--force':
+                    if (!isset($this->argArchive) && !isset($this->argCancel)) {
+                        throw new \Exception('--archive=[taskId] or --cancel=[taskId] argument must be set');
+                    }
+                    $this->argForce = true;
 
                     break;
 
