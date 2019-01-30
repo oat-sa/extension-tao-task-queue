@@ -93,7 +93,7 @@ class WorkerProcessManagerTest extends \PHPUnit_Framework_TestCase
     {
         $workerManager = new WorkerProcessManager();
 
-        $this->assertInternalType('float', $workerManager->getMemoryUsage());
+        $this->assertInternalType('numeric', $workerManager->getMemoryUsage());
     }
 
     public function testGetCpuUsage()
