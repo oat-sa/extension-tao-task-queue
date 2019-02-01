@@ -113,7 +113,9 @@ class WorkerProcessManager extends ConfigurableService
         $memory = explode(" ", $freeArray[1]);
         $memory = array_filter($memory);
         $memory = array_merge($memory);
-        $memoryUsage = $memory[2]/$memory[1]*100;
+        $memoryUsage = $memory[1] > 0
+            ? $memory[2]/$memory[1]*100
+            : 0;
 
         return $memoryUsage;
     }

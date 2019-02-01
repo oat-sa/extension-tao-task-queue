@@ -166,5 +166,7 @@ Examples
  4. Archive a Task Log
 	 Description: 	 Archive a task log
 	 Example: 	 sudo -u www-data php index.php 'oat\taoTaskQueue\scripts\tools\TaskLogUtility' --archive=[taskdId] --force[optional]
-
+ 5. Cancel a Task Log
+	 Description: 	 Cancel a task log
+	 Example: 	 sudo -u www-data php index.php 'oat\taoTaskQueue\scripts\tools\TaskLogUtility' --cancel=[taskdId] --force[optional]
 ```
