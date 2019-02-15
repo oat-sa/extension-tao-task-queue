@@ -89,7 +89,25 @@ final class LongRunningWorker extends AbstractWorker
             try{
                 $this->logDebug('Fetching tasks from queue ', $this->getLogContext());
 
+                $persistenceDriver = \common_persistence_Manager::getPersistence('default')->getDriver();
+
+                // the previous iteration could switch us to the slave,
+                // while we need the master, because the queue broker itself may be of RDS type and may use sql locks.
+                // So before do dequeue, we have to switch to the master
+                if ($persistenceDriver instanceof \common_persistence_sql_dbal_Driver) {
+                    $persistenceDriver->getPlatForm()->switchToMaster();
+                }
+
+                // when RDS broker: the transaction starts!
                 $task = $this->queuer->dequeue();
+                // when RDS broker: the transaction ends!
+
+                // here is a guarantee there is no running transactions. So the switch is allowed
+
+                // after dequeue, we can use the slave
+                if ($persistenceDriver instanceof \common_persistence_sql_dbal_Driver) {
+                    $persistenceDriver->getPlatForm()->switchToSlave();
+                }
 
                 // if no task to process, sleep for the specified time and continue.
                 if (!$task) {
