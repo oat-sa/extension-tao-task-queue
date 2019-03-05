@@ -39,7 +39,7 @@ class RestTask extends \tao_actions_CommonModule
 
     /**
      * @inheritdoc
-     * @security("hidden")
+     * @security("hide")
      */
     public function __construct()
     {
