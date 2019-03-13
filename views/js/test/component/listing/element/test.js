@@ -15,70 +15,70 @@
  *
  * Copyright (c) 2017 (original work) Open Assessment Technologies SA ;
  */
-define( [
-    
+define([
+
     'jquery',
     'lodash',
     'taoTaskQueue/component/listing/element'
-], function(  $, _, taskElementFactory ) {
+], function($, _, taskElementFactory) {
     'use strict';
 
-    QUnit.module( 'API' );
+    QUnit.module('API');
 
-    QUnit.test( 'module', function( assert ) {
-        assert.expect( 3 );
+    QUnit.test('module', function(assert) {
+        assert.expect(3);
 
-        assert.equal( typeof taskElementFactory, 'function', 'The taskElementFactory module exposes a function' );
-        assert.equal( typeof taskElementFactory(), 'object', 'The taskElementFactory produces an object' );
-        assert.notStrictEqual( taskElementFactory(), taskElementFactory(), 'The taskElementFactory provides a different object on each call' );
-    } );
+        assert.equal(typeof taskElementFactory, 'function', 'The taskElementFactory module exposes a function');
+        assert.equal(typeof taskElementFactory(), 'object', 'The taskElementFactory produces an object');
+        assert.notStrictEqual(taskElementFactory(), taskElementFactory(), 'The taskElementFactory provides a different object on each call');
+    });
 
-    QUnit.cases.init( [
-        { title: 'init' },
-        { title: 'destroy' },
-        { title: 'render' },
-        { title: 'show' },
-        { title: 'hide' },
-        { title: 'enable' },
-        { title: 'disable' },
-        { title: 'is' },
-        { title: 'setState' },
-        { title: 'getContainer' },
-        { title: 'getElement' },
-        { title: 'getTemplate' },
-        { title: 'setTemplate' }
-    ] ).test( 'Component API ', function( data, assert ) {
+    QUnit.cases.init([
+        {title: 'init'},
+        {title: 'destroy'},
+        {title: 'render'},
+        {title: 'show'},
+        {title: 'hide'},
+        {title: 'enable'},
+        {title: 'disable'},
+        {title: 'is'},
+        {title: 'setState'},
+        {title: 'getContainer'},
+        {title: 'getElement'},
+        {title: 'getTemplate'},
+        {title: 'setTemplate'}
+    ]).test('Component API ', function(data, assert) {
         var instance = taskElementFactory();
-        assert.equal( typeof instance[ data.title ], 'function', 'The element exposes the component method "' + data.title );
-    } );
+        assert.equal(typeof instance[data.title], 'function', 'The element exposes the component method "' + data.title);
+    });
 
-    QUnit.cases.init( [
-        { title: 'on' },
-        { title: 'off' },
-        { title: 'trigger' },
-        { title: 'before' },
-        { title: 'after' }
-    ] ).test( 'Eventifier API ', function( data, assert ) {
+    QUnit.cases.init([
+        {title: 'on'},
+        {title: 'off'},
+        {title: 'trigger'},
+        {title: 'before'},
+        {title: 'after'}
+    ]).test('Eventifier API ', function(data, assert) {
         var instance = taskElementFactory();
-        assert.equal( typeof instance[ data.title ], 'function', 'The element exposes the eventifier method "' + data.title );
-    } );
+        assert.equal(typeof instance[data.title], 'function', 'The element exposes the eventifier method "' + data.title);
+    });
 
-    QUnit.cases.init( [
-        { title: 'getId' },
-        { title: 'getStatus' },
-        { title: 'getData' },
-        { title: 'update' },
-        { title: 'highlight' },
-        { title: 'setStatus' },
-        { title: 'getData' }
-    ] ).test( 'Instance API ', function( data, assert ) {
+    QUnit.cases.init([
+        {title: 'getId'},
+        {title: 'getStatus'},
+        {title: 'getData'},
+        {title: 'update'},
+        {title: 'highlight'},
+        {title: 'setStatus'},
+        {title: 'getData'}
+    ]).test('Instance API ', function(data, assert) {
         var instance = taskElementFactory();
-        assert.equal( typeof instance[ data.title ], 'function', 'The element exposes the method "' + data.title );
-    } );
+        assert.equal(typeof instance[data.title], 'function', 'The element exposes the method "' + data.title);
+    });
 
-    QUnit.test( 'getId and getData', function( assert ) {
+    QUnit.test('getId and getData', function(assert) {
         var ready = assert.async();
-        var $container = $( '#qunit-fixture' );
+        var $container = $('#qunit-fixture');
         var data = {
             id: 'rdf#i1508337970199318643',
             taskName: 'Task Name',
@@ -88,7 +88,7 @@ define( [
             createdAt: '1512120107',
             updatedAt: '1512121107',
             createdAtElapsed: 601,
-            updatedAtElapsed:26,
+            updatedAtElapsed: 26,
             hasFile: true,
             category: 'import',
             report: {
@@ -99,23 +99,23 @@ define( [
             }
         };
 
-        assert.expect( 3 );
+        assert.expect(3);
 
-        taskElementFactory( {}, data )
-            .on( 'render', function() {
-                assert.deepEqual( this.getData(), data, 'get data correct' );
-                assert.equal( this.getId(), data.id, 'get id correct' );
-                assert.equal( this.getStatus(), data.status, 'get status correct' );
+        taskElementFactory({}, data)
+            .on('render', function() {
+                assert.deepEqual(this.getData(), data, 'get data correct');
+                assert.equal(this.getId(), data.id, 'get id correct');
+                assert.equal(this.getStatus(), data.status, 'get status correct');
                 ready();
-            } )
-            .render( $container );
-    } );
+            })
+            .render($container);
+    });
 
-    QUnit.module( 'Behavior' );
+    QUnit.module('Behavior');
 
-    QUnit.test( 'rendering and update', function( assert ) {
+    QUnit.test('rendering and update', function(assert) {
         var ready = assert.async();
-        var $container = $( '#qunit-fixture' );
+        var $container = $('#qunit-fixture');
         var data = {
             id: 'rdf#i1508337970199318643',
             taskName: 'Task Name',
@@ -125,7 +125,7 @@ define( [
             createdAt: '1512120107',
             updatedAt: '1512121107',
             createdAtElapsed: 601,
-            updatedAtElapsed:26,
+            updatedAtElapsed: 26,
             hasFile: true,
             category: 'import',
             report: {
@@ -136,29 +136,29 @@ define( [
             }
         };
 
-        assert.expect( 7 );
+        assert.expect(7);
 
-        taskElementFactory( {}, data )
-            .on( 'render', function() {
+        taskElementFactory({}, data)
+            .on('render', function() {
                 var $component = this.getElement();
-                assert.ok( true );
+                assert.ok(true);
 
-                assert.equal( $component.find( '.label' ).text(), 'Task label', 'the task label is correct' );
-                assert.equal( $component.find( '.time' ).text(), 'Started 10 minutes ago', 'the task label is correct' );
-                assert.ok( $component.find( '.shape > span' ).hasClass( 'icon-import' ), 'icon correct' );
+                assert.equal($component.find('.label').text(), 'Task label', 'the task label is correct');
+                assert.equal($component.find('.time').text(), 'Started 10 minutes ago', 'the task label is correct');
+                assert.ok($component.find('.shape > span').hasClass('icon-import'), 'icon correct');
 
                 assert.ok(!$component.find('[data-role="download"]').is(':visible'));
                 assert.ok(!$component.find('[data-role="report"]').is(':visible'));
                 assert.ok(!$component.find('[data-role="remove"]').is(':visible'));
 
                 ready();
-            } )
-            .render( $container );
-    } );
+            })
+            .render($container);
+    });
 
-    QUnit.test( 'render unknown category', function( assert ) {
+    QUnit.test('render unknown category', function(assert) {
         var ready = assert.async();
-        var $container = $( '#qunit-fixture' );
+        var $container = $('#qunit-fixture');
         var data = {
             id: 'rdf#i1508337970199318643',
             taskName: 'Task Name',
@@ -168,67 +168,67 @@ define( [
             createdAt: '1512120107',
             updatedAt: '1512121107',
             createdAtElapsed: 601,
-            updatedAtElapsed:26,
+            updatedAtElapsed: 26,
             hasFile: true,
             category: 'unknown',
             report: null
         };
 
-        assert.expect( 23 );
+        assert.expect(23);
 
-        taskElementFactory( {}, data )
-            .on( 'render', function() {
+        taskElementFactory({}, data)
+            .on('render', function() {
                 var $component = this.getElement();
-                assert.ok( true );
+                assert.ok(true);
 
-                assert.equal( $component.find( '.label' ).text(), 'Task label', 'the task label is correct' );
-                assert.equal( $component.find( '.time' ).text(), 'Started 10 minutes ago', 'the task time is correct' );
-                assert.ok( $component.find( '.shape > span' ).hasClass( 'icon-property-advanced' ), 'unknown icon correct' );
+                assert.equal($component.find('.label').text(), 'Task label', 'the task label is correct');
+                assert.equal($component.find('.time').text(), 'Started 10 minutes ago', 'the task time is correct');
+                assert.ok($component.find('.shape > span').hasClass('icon-property-advanced'), 'unknown icon correct');
 
-                assert.ok( !$component.find( '[data-role="download"]' ).is( ':visible' ) );
-                assert.ok( !$component.find( '[data-role="report"]' ).is( ':visible' ) );
-                assert.ok( !$component.find( '[data-role="remove"]' ).is( ':visible' ) );
+                assert.ok(!$component.find('[data-role="download"]').is(':visible'));
+                assert.ok(!$component.find('[data-role="report"]').is(':visible'));
+                assert.ok(!$component.find('[data-role="remove"]').is(':visible'));
 
-                this.update( {
+                this.update({
                     status: 'in_progress'
-                } );
+                });
 
-                assert.equal( $component.find( '.label' ).text(), 'Task label', 'the task label is correct' );
-                assert.equal( $component.find( '.time' ).text(), 'Started 10 minutes ago', 'the task time is correct' );
-                assert.ok( $component.find( '.shape > span' ).hasClass( 'icon-property-advanced' ), 'unknown icon correct' );
+                assert.equal($component.find('.label').text(), 'Task label', 'the task label is correct');
+                assert.equal($component.find('.time').text(), 'Started 10 minutes ago', 'the task time is correct');
+                assert.ok($component.find('.shape > span').hasClass('icon-property-advanced'), 'unknown icon correct');
 
-                assert.ok( !$component.find( '[data-role="download"]' ).is( ':visible' ) );
-                assert.ok( !$component.find( '[data-role="report"]' ).is( ':visible' ) );
-                assert.ok( !$component.find( '[data-role="remove"]' ).is( ':visible' ) );
+                assert.ok(!$component.find('[data-role="download"]').is(':visible'));
+                assert.ok(!$component.find('[data-role="report"]').is(':visible'));
+                assert.ok(!$component.find('[data-role="remove"]').is(':visible'));
 
-                this.update( {
+                this.update({
                     status: 'failed'
-                } );
+                });
 
-                assert.ok( $component.find( '[data-role="download"]' ).is( ':visible' ) );
-                assert.ok( $component.find( '[data-role="report"]' ).is( ':visible' ) );
-                assert.ok( $component.find( '[data-role="remove"]' ).is( ':visible' ) );
-                assert.equal( $component.find( '.time' ).text(), 'Failed a few seconds ago', 'the task label is correct' );
-                assert.ok( $component.find( '.shape > span' ).hasClass( 'icon-result-nok' ), 'icon correct' );
+                assert.ok($component.find('[data-role="download"]').is(':visible'));
+                assert.ok($component.find('[data-role="report"]').is(':visible'));
+                assert.ok($component.find('[data-role="remove"]').is(':visible'));
+                assert.equal($component.find('.time').text(), 'Failed a few seconds ago', 'the task label is correct');
+                assert.ok($component.find('.shape > span').hasClass('icon-result-nok'), 'icon correct');
 
-                this.update( {
+                this.update({
                     status: 'completed'
-                } );
+                });
 
-                assert.ok( $component.find( '[data-role="download"]' ).is( ':visible' ) );
-                assert.ok( $component.find( '[data-role="report"]' ).is( ':visible' ) );
-                assert.ok( $component.find( '[data-role="remove"]' ).is( ':visible' ) );
-                assert.equal( $component.find( '.time' ).text(), 'Completed a few seconds ago', 'the task label is correct' );
-                assert.ok( $component.find( '.shape > span' ).hasClass( 'icon-result-ok' ), 'icon correct' );
+                assert.ok($component.find('[data-role="download"]').is(':visible'));
+                assert.ok($component.find('[data-role="report"]').is(':visible'));
+                assert.ok($component.find('[data-role="remove"]').is(':visible'));
+                assert.equal($component.find('.time').text(), 'Completed a few seconds ago', 'the task label is correct');
+                assert.ok($component.find('.shape > span').hasClass('icon-result-ok'), 'icon correct');
 
                 ready();
-            } )
-            .render( $container );
-    } );
+            })
+            .render($container);
+    });
 
-    QUnit.test( 'Events', function( assert ) {
+    QUnit.test('Events', function(assert) {
         var ready = assert.async();
-        var $container = $( '#qunit-fixture' );
+        var $container = $('#qunit-fixture');
         var data = {
             id: 'rdf#i1508337970199318643',
             taskName: 'Task Name',
@@ -238,40 +238,40 @@ define( [
             createdAt: '1512120107',
             updatedAt: '1512121107',
             createdAtElapsed: 601,
-            updatedAtElapsed:26,
+            updatedAtElapsed: 26,
             hasFile: true,
             category: 'import',
             report: null
         };
 
-        assert.expect( 3 );
+        assert.expect(3);
 
-        taskElementFactory( {}, data )
-            .on( 'download', function() {
-                assert.ok( true, 'download requested' );
-            } )
-            .on( 'report', function() {
-                assert.ok( true, 'report requested' );
-            } )
-            .on( 'report', function() {
-                assert.ok( true, 'remove requested' );
-            } )
-            .on( 'render', function() {
+        taskElementFactory({}, data)
+            .on('download', function() {
+                assert.ok(true, 'download requested');
+            })
+            .on('report', function() {
+                assert.ok(true, 'report requested');
+            })
+            .on('report', function() {
+                assert.ok(true, 'remove requested');
+            })
+            .on('render', function() {
                 var $component = this.getElement();
-                $component.find( '[data-role="download"]' ).click();
-                $component.find( '[data-role="report"]' ).click();
-                $component.find( '[data-role="remove"]' ).click();
+                $component.find('[data-role="download"]').click();
+                $component.find('[data-role="report"]').click();
+                $component.find('[data-role="remove"]').click();
 
                 ready();
-            } )
-            .render( $container );
-    } );
+            })
+            .render($container);
+    });
 
-    QUnit.module( 'Visual' );
+    QUnit.module('Visual');
 
-    QUnit.test( 'visual test', function( assert ) {
+    QUnit.test('visual test', function(assert) {
         var ready = assert.async();
-        var $container = $( '#visual' );
+        var $container = $('#visual');
         var data = {
             id: 'rdf#i1508337970199318643',
             taskName: 'Task Name',
@@ -281,7 +281,7 @@ define( [
             createdAt: '1512120107',
             updatedAt: '1512121107',
             createdAtElapsed: 601,
-            updatedAtElapsed:26,
+            updatedAtElapsed: 26,
             hasFile: true,
             category: 'import',
             report: {
@@ -292,12 +292,12 @@ define( [
             }
         };
 
-        taskElementFactory( {}, data )
-            .on( 'render', function() {
-                assert.ok( true );
+        taskElementFactory({}, data)
+            .on('render', function() {
+                assert.ok(true);
                 ready();
-            } )
-            .render( $container );
-    } );
+            })
+            .render($container);
+    });
 
-} );
+});
