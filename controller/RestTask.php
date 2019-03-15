@@ -22,6 +22,7 @@ namespace oat\taoTaskQueue\controller;
 
 use common_session_SessionManager;
 use oat\oatbox\filesystem\FileSystemService;
+use oat\tao\model\routing\AnnotationReader\security;
 use oat\taoTaskQueue\model\TaskLogInterface;
 
 /**
@@ -38,6 +39,7 @@ class RestTask extends \tao_actions_CommonModule
 
     /**
      * @inheritdoc
+     * @security("hide")
      */
     public function __construct()
     {
