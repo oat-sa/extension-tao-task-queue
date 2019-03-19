@@ -22,6 +22,7 @@ namespace oat\taoTaskQueue\controller;
 
 use common_session_SessionManager;
 use oat\oatbox\filesystem\FileSystemService;
+use oat\tao\model\routing\AnnotationReader\security;
 use oat\tao\model\taskQueue\QueueDispatcherInterface;
 use oat\tao\model\taskQueue\TaskLog\Broker\TaskLogBrokerInterface;
 use oat\tao\model\taskQueue\TaskLog\TaskLogFilter;
@@ -49,6 +50,7 @@ class TaskQueueWebApi extends \tao_actions_CommonModule
 
     /**
      * @inheritdoc
+     * @security("hide")
      */
     public function __construct()
     {
