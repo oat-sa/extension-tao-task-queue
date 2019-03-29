@@ -16,6 +16,7 @@
  * Copyright (c) 2017 (original work) Open Assessment Technologies SA ;
  */
 define([
+
     'jquery',
     'lodash',
     'ui/component',
@@ -26,50 +27,50 @@ define([
     QUnit.module('API');
 
     QUnit.test('module', function(assert) {
-        QUnit.expect(3);
+        assert.expect(3);
 
-        assert.equal(typeof taskListFactory, 'function', "The taskListFactory module exposes a function");
-        assert.equal(typeof taskListFactory(), 'object', "The taskListFactory produces an object");
-        assert.notStrictEqual(taskListFactory(), taskListFactory(), "The taskListFactory provides a different object on each call");
+        assert.equal(typeof taskListFactory, 'function', 'The taskListFactory module exposes a function');
+        assert.equal(typeof taskListFactory(), 'object', 'The taskListFactory produces an object');
+        assert.notStrictEqual(taskListFactory(), taskListFactory(), 'The taskListFactory provides a different object on each call');
     });
 
-    QUnit.cases([
-        { title : 'init' },
-        { title : 'destroy' },
-        { title : 'render' },
-        { title : 'show' },
-        { title : 'hide' },
-        { title : 'enable' },
-        { title : 'disable' },
-        { title : 'is' },
-        { title : 'setState' },
-        { title : 'getContainer' },
-        { title : 'getElement' },
-        { title : 'getTemplate' },
-        { title : 'setTemplate' },
+    QUnit.cases.init([
+        {title: 'init'},
+        {title: 'destroy'},
+        {title: 'render'},
+        {title: 'show'},
+        {title: 'hide'},
+        {title: 'enable'},
+        {title: 'disable'},
+        {title: 'is'},
+        {title: 'setState'},
+        {title: 'getContainer'},
+        {title: 'getElement'},
+        {title: 'getTemplate'},
+        {title: 'setTemplate'}
     ]).test('Component API ', function(data, assert) {
         var instance = taskListFactory();
         assert.equal(typeof instance[data.title], 'function', 'The list exposes the component method "' + data.title);
     });
 
-    QUnit.cases([
-        { title : 'on' },
-        { title : 'off' },
-        { title : 'trigger' },
-        { title : 'before' },
-        { title : 'after' },
+    QUnit.cases.init([
+        {title: 'on'},
+        {title: 'off'},
+        {title: 'trigger'},
+        {title: 'before'},
+        {title: 'after'}
     ]).test('Eventifier API ', function(data, assert) {
         var instance = taskListFactory();
         assert.equal(typeof instance[data.title], 'function', 'The list exposes the eventifier method "' + data.title);
     });
 
-    QUnit.cases([
-        { title : 'removeElement' },
-        { title : 'insertElement' },
-        { title : 'setDetail' },
-        { title : 'hideDetail' },
-        { title : 'scrollToTop' },
-        { title : 'animateInsertion' },
+    QUnit.cases.init([
+        {title: 'removeElement'},
+        {title: 'insertElement'},
+        {title: 'setDetail'},
+        {title: 'hideDetail'},
+        {title: 'scrollToTop'},
+        {title: 'animateInsertion'}
     ]).test('Instance API ', function(data, assert) {
         var instance = taskListFactory();
         assert.equal(typeof instance[data.title], 'function', 'The list exposes the method "' + data.title);
@@ -77,20 +78,21 @@ define([
 
     QUnit.module('Methods');
 
-    QUnit.asyncTest('insert and remove', function(assert) {
+    QUnit.test('insert and remove', function(assert) {
+        var ready = assert.async();
         var $container = $('#qunit-fixture');
         taskListFactory()
-            .on('render', function(){
-                var dummyListFactory = function dummyListFactory(){
+            .on('render', function() {
+                var dummyListFactory = function dummyListFactory() {
                     var id;
-                    if(!dummyListFactory.idCounter){
+                    if (!dummyListFactory.idCounter) {
                         dummyListFactory.idCounter = 0;
                     }
                     dummyListFactory.idCounter++;
                     id = dummyListFactory.idCounter;
 
                     return componentFactory({
-                        getId : function(){
+                        getId: function() {
                             return id;
                         }
                     }).setTemplate(function(){
@@ -119,25 +121,26 @@ define([
                 assert.equal(this.getElement().find('.task-list li[data-id=3]').length, 1, 'found the element');
                 assert.equal(this.getElement().find('.task-list li[data-id=4]').length, 1, 'found the element');
 
-                QUnit.start();
+                ready();
             })
             .render($container);
     });
 
-    QUnit.asyncTest('set and hide details', function(assert) {
+    QUnit.test('set and hide details', function(assert) {
+        var ready = assert.async();
         var $container = $('#qunit-fixture');
         taskListFactory()
-            .on('render', function(){
-                var dummyListFactory = function dummyListFactory(){
+            .on('render', function() {
+                var dummyListFactory = function dummyListFactory() {
                     var id;
-                    if(!dummyListFactory.idCounter){
+                    if (!dummyListFactory.idCounter) {
                         dummyListFactory.idCounter = 0;
                     }
                     dummyListFactory.idCounter++;
                     id = dummyListFactory.idCounter;
 
                     return componentFactory({
-                        getId : function(){
+                        getId: function() {
                             return id;
                         }
                     }).setTemplate(function(){
@@ -155,7 +158,7 @@ define([
                 assert.ok(!this.getElement().find('.view-detail').is(':visible'), 'detail hidden');
                 assert.ok(this.getElement().find('.task-list').is(':visible'), 'list shown');
 
-                QUnit.start();
+                ready();
             })
             .render($container);
     });
