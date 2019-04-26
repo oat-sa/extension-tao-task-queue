@@ -20,6 +20,7 @@
 
 namespace oat\taoTaskQueue\scripts\tools;
 
+use DateTime;
 use oat\oatbox\action\Action;
 use oat\tao\model\taskQueue\QueueDispatcherInterface;
 use oat\tao\model\taskQueue\TaskLogInterface;
@@ -94,8 +95,7 @@ class RunWorker implements Action, ServiceLocatorAwareInterface
         } catch (\Exception $e) {
             return \common_report_Report::createFailure($e->getMessage());
         }
-
-        return \common_report_Report::createSuccess('Worker finished');
+        return \common_report_Report::createSuccess('Worker finished at ' . (new DateTime('now'))->format(DateTime::ATOM));
     }
 }
 
