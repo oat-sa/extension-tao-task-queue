@@ -74,7 +74,7 @@ final class LongRunningWorker extends AbstractWorker
      */
     public function run()
     {
-        $this->logDebug('Starting LongRunningWorker.', $this->getLogContext());
+        $this->logInfo('Starting LongRunningWorker.', $this->getLogContext());
 
         while ($this->isRunning()) {
 
@@ -118,7 +118,7 @@ final class LongRunningWorker extends AbstractWorker
             }
         }
 
-        $this->logDebug('LongRunningWorker finished.', $this->getLogContext());
+        $this->logInfo('LongRunningWorker finished.', $this->getLogContext());
     }
 
     /**
@@ -177,24 +177,24 @@ final class LongRunningWorker extends AbstractWorker
         pcntl_signal(SIGUSR2, array($this, 'pauseProcessing'));
         pcntl_signal(SIGCONT, array($this, 'unPauseProcessing'));
 
-        $this->logDebug('Finished setting up signal handlers', $this->getLogContext());
+        $this->logInfo('Finished setting up signal handlers', $this->getLogContext());
     }
 
     public function shutdown()
     {
-        $this->logDebug('TERM/INT/QUIT received; shutting down gracefully...', $this->getLogContext());
+        $this->logInfo('TERM/INT/QUIT received; shutting down gracefully...', $this->getLogContext());
         $this->shutdown = true;
     }
 
     public function pauseProcessing()
     {
-        $this->logDebug('USR2 received; pausing task processing...', $this->getLogContext());
+        $this->logInfo('USR2 received; pausing task processing...', $this->getLogContext());
         $this->paused = true;
     }
 
     public function unPauseProcessing()
     {
-        $this->logDebug('CONT received; resuming task processing...', $this->getLogContext());
+        $this->logInfo('CONT received; resuming task processing...', $this->getLogContext());
         $this->paused = false;
     }
 
