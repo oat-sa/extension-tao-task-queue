@@ -22,7 +22,7 @@
 define([
     'jquery',
     'taoTaskQueue/component/manager/manager',
-    'core/taskQueue/taskQueue'
+    'ui/taskQueue/taskQueue'
 ],
 function ($, taskQueueManagerFactory, taskQueue) {
     'use strict';
