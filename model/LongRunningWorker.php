@@ -43,16 +43,12 @@ final class LongRunningWorker extends AbstractWorker
     private $paused;
     private $iterationsWithOutTask = 0;
     private $handleSignals;
+    private $sigHandlersRegistered = false;
 
     public function __construct(QueuerInterface $queuer, TaskLogInterface $taskLog, $handleSignals = true)
     {
         parent::__construct($queuer, $taskLog);
-
         $this->handleSignals = $handleSignals;
-
-        if ($handleSignals) {
-            $this->registerSigHandlers();
-        }
     }
 
     protected function getLogContext()
@@ -74,6 +70,7 @@ final class LongRunningWorker extends AbstractWorker
      */
     public function run()
     {
+        $this->registerSigHandlers();
         $this->logInfo('Starting LongRunningWorker.', $this->getLogContext());
 
         while ($this->isRunning()) {
@@ -164,20 +161,24 @@ final class LongRunningWorker extends AbstractWorker
      */
     private function registerSigHandlers()
     {
-        if (!function_exists('pcntl_signal')) {
-            $this->logError('Please make sure that "pcntl" is enabled.', $this->getLogContext());
-            throw new \RuntimeException('Please make sure that "pcntl" is enabled.');
+        if ($this->handleSignals && !$this->sigHandlersRegistered) {
+            if (!function_exists('pcntl_signal')) {
+                $this->logError('Please make sure that "pcntl" is enabled.', $this->getLogContext());
+                throw new \RuntimeException('Please make sure that "pcntl" is enabled.');
+            }
+
+            declare(ticks = 1);
+
+            pcntl_signal(SIGTERM, array($this, 'shutdown'));
+            pcntl_signal(SIGINT, array($this, 'shutdown'));
+            pcntl_signal(SIGQUIT, array($this, 'shutdown'));
+            pcntl_signal(SIGUSR2, array($this, 'pauseProcessing'));
+            pcntl_signal(SIGCONT, array($this, 'unPauseProcessing'));
+
+            $this->sigHandlersRegistered = true;
+
+            $this->logInfo('Finished setting up signal handlers', $this->getLogContext());
         }
-
-        declare(ticks = 1);
-
-        pcntl_signal(SIGTERM, array($this, 'shutdown'));
-        pcntl_signal(SIGINT, array($this, 'shutdown'));
-        pcntl_signal(SIGQUIT, array($this, 'shutdown'));
-        pcntl_signal(SIGUSR2, array($this, 'pauseProcessing'));
-        pcntl_signal(SIGCONT, array($this, 'unPauseProcessing'));
-
-        $this->logInfo('Finished setting up signal handlers', $this->getLogContext());
     }
 
     public function shutdown()
