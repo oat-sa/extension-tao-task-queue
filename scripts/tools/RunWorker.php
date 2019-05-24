@@ -86,6 +86,7 @@ class RunWorker implements Action, ServiceLocatorAwareInterface
 
         try {
             $worker = new LongRunningWorker($queue ?: $queueService, $taskLog, $handleSignals);
+            $worker->setServiceLocator($this->getServiceLocator());
 
             if ($limit) {
                 $worker->setMaxIterations($limit);
