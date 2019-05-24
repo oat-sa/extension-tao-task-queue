@@ -34,7 +34,7 @@ class WorkerProcessManager extends ConfigurableService
     const OPTION_TASK_COMMAND = 'task_command';
 
     /** @var Process[] */
-    private $processes;
+    private $processes = [];
 
     /** @var integer */
     private $limitOfCpu;
