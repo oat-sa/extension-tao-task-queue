@@ -34,7 +34,7 @@ function ($, taskQueueManagerFactory, taskQueue) {
     return {
         start() {
 
-            var taskManager = taskQueueManagerFactory({
+            const taskManager = taskQueueManagerFactory({
                 replace: true
             })
             .on('remove', taskId => taskQueue.archive(taskId) )
@@ -56,12 +56,12 @@ function ($, taskQueueManagerFactory, taskQueue) {
             //listen to events started by the task queue model
             taskQueue
                 .on('taskcreated', data => {
-                    if(taskManager.list.is('hidden')){
+                    if (taskManager.list.is('hidden')) {
                         taskManager.absorbBurst(data.sourceDom, [0, 300, 600]).then( () => {
                             taskManager.addNewTask(data.task);
                             taskQueue.pollAll();
                         });
-                    }else{
+                    } else {
                         taskManager.addNewTask(data.task, true);
                         taskQueue.pollAll();
                     }
