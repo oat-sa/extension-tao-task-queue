@@ -76,7 +76,7 @@ final class LongRunningWorker extends AbstractWorker
         while ($this->isRunning()) {
 
             if($this->paused) {
-                $this->logDebug('Paused... ', $this->getLogContext());
+                $this->logInfo('Worker paused... ', $this->getLogContext());
                 usleep(self::WAIT_INTERVAL * 1000000);
                 continue;
             }
@@ -92,7 +92,7 @@ final class LongRunningWorker extends AbstractWorker
                 if (!$task) {
                     ++$this->iterationsWithOutTask;
                     $waitInterval = $this->getWaitInterval();
-                    $this->logDebug('Sleeping for '. $waitInterval .' sec', $this->getLogContext());
+                    $this->logInfo('No tasks found. Sleeping for '. $waitInterval .' sec', $this->getLogContext());
                     usleep($waitInterval * 1000000);
 
                     continue;
