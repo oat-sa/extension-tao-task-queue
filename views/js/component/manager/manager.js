@@ -185,7 +185,6 @@ define([
                 }
                 this.list.scrollToTop();
             }
-
             this.list.insertElement(listElement);
             this.taskElements[taskId] = listElement;
             this.trigger('listchange');
@@ -218,6 +217,9 @@ define([
         loadData : function loadData(tasksData){
             var self = this;
             var found = [];
+            if (tasksData.length) {
+                tasksData = tasksData.reverse();
+            }
             _.forEach(tasksData, function(entry){
                 var id = entry.id;
                 if(self.taskElements[id]){
