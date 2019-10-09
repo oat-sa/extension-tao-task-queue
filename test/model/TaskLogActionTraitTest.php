@@ -25,8 +25,9 @@ use oat\taoTaskQueue\model\Entity\TaskLogEntity;
 use oat\taoTaskQueue\model\TaskLog;
 use oat\taoTaskQueue\model\TaskLogActionTrait;
 use oat\taoTaskQueue\model\ValueObjects\TaskLogCategorizedStatus;
+use oat\generis\test\TestCase;
 
-class TaskLogActionTraitTest extends \PHPUnit_Framework_TestCase
+class TaskLogActionTraitTest extends TestCase
 {
     public function testGetTaskLogEntityWhenOnlyTaskIdIsProvidedThenGetTheDefaultUser()
     {

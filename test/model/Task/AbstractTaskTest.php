@@ -22,11 +22,12 @@ namespace oat\taoTaskQueue\test\model\Task;
 
 use oat\taoTaskQueue\model\Task\AbstractTask;
 use oat\taoTaskQueue\model\Task\TaskInterface;
+use oat\generis\test\TestCase;
 
 /**
  * @deprecated
  */
-class AbstractTaskTest extends \PHPUnit_Framework_TestCase
+class AbstractTaskTest extends TestCase
 {
     /**
      * @var AbstractTask

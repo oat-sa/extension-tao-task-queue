@@ -23,8 +23,9 @@ use oat\taoTaskQueue\model\Worker\WorkerProcessManager;
 use React\ChildProcess\Process;
 use React\Stream\ReadableStreamInterface;
 use React\Stream\WritableStreamInterface;
+use oat\generis\test\TestCase;
 
-class WorkerProcessManagerTest extends \PHPUnit_Framework_TestCase
+class WorkerProcessManagerTest extends TestCase
 {
     public function testAddProcess()
     {

@@ -22,11 +22,12 @@ namespace oat\taoTaskQueue\test\model\ValueObjects;
 
 
 use oat\taoTaskQueue\model\ValueObjects\TaskLogCategorizedStatus;
+use oat\generis\test\TestCase;
 
 /**
  * @deprecated
  */
-class TaskLogCategorizedStatusTest extends \PHPUnit_Framework_TestCase
+class TaskLogCategorizedStatusTest extends TestCase
 {
     /**
      * @throws \Exception
