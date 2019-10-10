@@ -22,11 +22,12 @@ namespace oat\taoTaskQueue\model\TaskLogBroker;
 
 use oat\taoTaskQueue\model\TaskLog\TaskLogCollection;
 use oat\taoTaskQueue\model\TaskLogInterface;
+use oat\generis\test\TestCase;
 
 /**
  * @deprecated
  */
-class TaskLogCollectionTest extends \PHPUnit_Framework_TestCase
+class TaskLogCollectionTest extends TestCase
 {
     /**
      * @throws \Exception
