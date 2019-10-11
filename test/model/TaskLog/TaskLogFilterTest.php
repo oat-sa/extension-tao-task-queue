@@ -23,11 +23,12 @@ namespace oat\taoTaskQueue\test\model\TaskLog;
 use oat\taoTaskQueue\model\TaskLog\TaskLogFilter;
 use oat\taoTaskQueue\model\TaskLogBroker\TaskLogBrokerInterface;
 use oat\taoTaskQueue\model\TaskLogInterface;
+use oat\generis\test\TestCase;
 
 /**
  * @deprecated
  */
-class TaskLogFilterTest extends \PHPUnit_Framework_TestCase
+class TaskLogFilterTest extends TestCase
 {
     /** @var  TaskLogFilter */
     private $filter;

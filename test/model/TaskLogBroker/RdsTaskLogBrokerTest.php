@@ -22,11 +22,12 @@ namespace oat\taoTaskQueue\test\model\TaskLogBroker;
 
 use oat\oatbox\service\ServiceManager;
 use oat\taoTaskQueue\model\TaskLogBroker\RdsTaskLogBroker;
+use oat\generis\test\TestCase;
 
 /**
  * @deprecated
  */
-class RdsTaskLogBrokerTest extends \PHPUnit_Framework_TestCase
+class RdsTaskLogBrokerTest extends TestCase
 {
     /**
      * @expectedException \InvalidArgumentException

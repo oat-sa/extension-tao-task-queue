@@ -24,11 +24,12 @@ use common_report_Report as Report;
 use oat\taoTaskQueue\model\Entity\TaskLogEntity;
 use oat\taoTaskQueue\model\TaskLogInterface;
 use oat\taoTaskQueue\model\ValueObjects\TaskLogCategorizedStatus;
+use oat\generis\test\TestCase;
 
 /**
  * @deprecated
  */
-class TaskLogEntityTest extends \PHPUnit_Framework_TestCase
+class TaskLogEntityTest extends TestCase
 {
     public function testEntityCreated()
     {

@@ -22,11 +22,12 @@ namespace oat\taoTaskQueue\test\model\Entity;
 
 
 use oat\taoTaskQueue\model\Entity\TasksLogsStats;
+use oat\generis\test\TestCase;
 
 /**
  * @deprecated
  */
-class TasksLogsStatsTest extends \PHPUnit_Framework_TestCase
+class TasksLogsStatsTest extends TestCase
 {
     public function testCreateStats()
     {
