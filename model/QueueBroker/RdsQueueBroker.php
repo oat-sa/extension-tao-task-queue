@@ -21,9 +21,10 @@
 namespace oat\taoTaskQueue\model\QueueBroker;
 
 use Doctrine\DBAL\Query\QueryBuilder;
-use Doctrine\DBAL\Schema\SchemaException;
-use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
+use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\SchemaException;
+use oat\generis\Helper\UuidPrimaryKeyTrait;
 use oat\tao\model\taskQueue\Queue\Broker\AbstractQueueBroker;
 use oat\tao\model\taskQueue\Task\TaskInterface;
 
@@ -34,6 +35,8 @@ use oat\tao\model\taskQueue\Task\TaskInterface;
  */
 class RdsQueueBroker extends AbstractQueueBroker
 {
+    use UuidPrimaryKeyTrait;
+
     private $persistenceId;
 
     /**
@@ -109,9 +112,9 @@ class RdsQueueBroker extends AbstractQueueBroker
             }
             $table = $schema->createTable($this->getTableName());
             $table->addOption('engine', 'InnoDB');
-            $table->addColumn('id', 'integer', ["autoincrement" => true, "notnull" => true, "unsigned" => true]);
+            $table->addColumn('id', 'string', ['length' => 36]);
             $table->addColumn('message', 'text', ["notnull" => true]);
-            $table->addColumn('visible', 'boolean', ["default" => 1]);
+            $table->addColumn('visible', 'boolean', []);
             $table->addColumn('created_at', 'datetime', ['notnull' => true]);
             $table->setPrimaryKey(['id']);
             $table->addIndex(['created_at', 'visible'], 'IDX_created_at_visible_'. $this->getQueueName());
@@ -140,8 +143,10 @@ class RdsQueueBroker extends AbstractQueueBroker
     public function push(TaskInterface $task)
     {
         return (bool) $this->getPersistence()->insert($this->getTableName(), [
+            'id' => $this->getUniquePrimaryKey(),
             'message' => $this->serializeTask($task),
-            'created_at' => $this->getPersistence()->getPlatForm()->getNowExpression()
+            'created_at' => $this->getPersistence()->getPlatForm()->getNowExpression(),
+            'visible' => true,
         ]);
     }
 
