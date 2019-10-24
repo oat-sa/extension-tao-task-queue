@@ -20,13 +20,17 @@
 
 namespace oat\taoTaskQueue\model\QueueBroker;
 
+use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\SchemaException;
+use Exception;
+use InvalidArgumentException;
 use oat\generis\Helper\UuidPrimaryKeyTrait;
 use oat\tao\model\taskQueue\Queue\Broker\AbstractQueueBroker;
 use oat\tao\model\taskQueue\Task\TaskInterface;
+use PDO;
 
 /**
  * Storing messages/tasks in DB.
@@ -55,7 +59,7 @@ class RdsQueueBroker extends AbstractQueueBroker
         parent::__construct($receiveTasks);
 
         if (empty($persistenceId)) {
-            throw new \InvalidArgumentException("Persistence id needs to be set for ". __CLASS__);
+            throw new InvalidArgumentException("Persistence id needs to be set for ". __CLASS__);
         }
 
         $this->persistenceId = $persistenceId;
@@ -176,14 +180,15 @@ class RdsQueueBroker extends AbstractQueueBroker
              */
             $sql = $qb->getSQL() .' '. $this->getPersistence()->getPlatForm()->getWriteLockSQL();
 
-            if ($dbResult = $this->getPersistence()->query($sql, ['visible' => 1])->fetchAll(\PDO::FETCH_ASSOC)) {
+            if ($dbResult = $this->getPersistence()->query($sql, ['visible' => true])->fetchAll(PDO::FETCH_ASSOC)) {
 
                 // set the received messages to invisible for other workers
                 $qb = $this->getQueryBuilder()
                     ->update($this->getTableName())
                     ->set('visible', ':visible')
-                    ->where('id IN ('. implode(',', array_column($dbResult, 'id')) .')')
-                    ->setParameter('visible', 0);
+                    ->where('id IN (:ids)')
+                    ->setParameter('visible', false, ParameterType::BOOLEAN)
+                    ->setParameter('ids',   implode(',', array_column($dbResult, 'id')), ParameterType::STRING);
 
                 $qb->execute();
 
@@ -198,7 +203,7 @@ class RdsQueueBroker extends AbstractQueueBroker
             }
 
             $this->getPersistence()->getPlatform()->commit();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->getPersistence()->getPlatform()->rollBack();
             $this->logError('Popping tasks failed with MSG: '. $e->getMessage(), $logContext);
         }
@@ -229,10 +234,10 @@ class RdsQueueBroker extends AbstractQueueBroker
                 ->delete($this->getTableName())
                 ->where('id = :id')
                 ->andWhere('visible = :visible')
-                ->setParameter('id', (int) $id)
-                ->setParameter('visible', 0)
+                ->setParameter('id',  $id)
+                ->setParameter('visible', false, ParameterType::BOOLEAN)
                 ->execute();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logError('Deleting task failed with MSG: '. $e->getMessage(), $logContext);
         }
     }
@@ -247,10 +252,10 @@ class RdsQueueBroker extends AbstractQueueBroker
                 ->select('COUNT(id)')
                 ->from($this->getTableName())
                 ->andWhere('visible = :visible')
-                ->setParameter('visible', 1);
+                ->setParameter('visible', true, ParameterType::BOOLEAN);
 
             return (int) $qb->execute()->fetchColumn();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logError('Counting tasks failed with MSG: '. $e->getMessage());
         }
 
