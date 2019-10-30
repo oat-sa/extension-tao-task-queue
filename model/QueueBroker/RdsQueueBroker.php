@@ -20,6 +20,7 @@
 
 namespace oat\taoTaskQueue\model\QueueBroker;
 
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
@@ -188,7 +189,7 @@ class RdsQueueBroker extends AbstractQueueBroker
                     ->set('visible', ':visible')
                     ->where('id IN (:ids)')
                     ->setParameter('visible', false, ParameterType::BOOLEAN)
-                    ->setParameter('ids',   implode(',', array_column($dbResult, 'id')), ParameterType::STRING);
+                    ->setParameter('ids', array_column($dbResult, 'id'), Connection::PARAM_STR_ARRAY);
 
                 $qb->execute();
 
