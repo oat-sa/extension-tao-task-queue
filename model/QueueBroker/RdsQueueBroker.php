@@ -28,6 +28,7 @@ use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\SchemaException;
 use Exception;
 use InvalidArgumentException;
+use Google\Cloud\Spanner\Transaction;
 use oat\generis\Helper\UuidPrimaryKeyTrait;
 use oat\tao\model\taskQueue\Queue\Broker\AbstractQueueBroker;
 use oat\tao\model\taskQueue\Task\TaskInterface;
@@ -163,7 +164,7 @@ class RdsQueueBroker extends AbstractQueueBroker
         $logContext = ['Queue' => $this->getQueueNameWithPrefix()];
 
         try {
-            $messages = $this->extractTasksFromQueue($logContext);
+            $messages = $this->extractTasksFromQueue();
         } catch (Exception $e) {
             $this->logError('Popping tasks failed with MSG: ' . $e->getMessage(), $logContext);
         }
@@ -185,10 +186,8 @@ class RdsQueueBroker extends AbstractQueueBroker
         }
     }
 
-    public function extractTasksFromQueue(array $logContext)
+    public function extractTasksFromQueue()
     {
-        $messages = [];
-
         $selectVisibleTasksQb = $this->getQueryBuilder()
             ->select('id, message')
             ->from($this->getTableName())
@@ -208,25 +207,17 @@ class RdsQueueBroker extends AbstractQueueBroker
             ->where('id IN (:ids)')
             ->setParameter('visible', false, ParameterType::BOOLEAN);
         
-        $closure = function($persistence) use ($selectVisibleTasksSql, $consumeTasksQb) {
-            $persistence->getPlatform()->beginTransaction();
-            try {
-                $messages = $persistence->query($selectVisibleTasksSql)->fetchAll(PDO::FETCH_ASSOC);
+        return $this->getPersistence()->transactional(
+            static function(Transaction $transaction) use ($selectVisibleTasksSql, $consumeTasksQb) {
+                $messages = $transaction->execute($selectVisibleTasksSql)->fetchAll(PDO::FETCH_ASSOC);
                 if ($messages) {
                     $consumeTasksQb->setParameter('ids', array_column($messages, 'id'), Connection::PARAM_STR_ARRAY);
-                    $persistence->query($consumeTasksQb->getSQL());
+                    $transaction->executeUpdate($consumeTasksQb->getSQL());
+                    $transaction->commit();
                 }
-
-                $persistence->getPlatform()->commit();
-            } catch (Exception $e) {
-                $persistence->getPlatform()->rollBack();
-                throw $e;
+                return $messages;
             }
-            
-            return $messages;
-        };
-
-        return $closure($this->getPersistence());
+        );
     }
         
     /**
