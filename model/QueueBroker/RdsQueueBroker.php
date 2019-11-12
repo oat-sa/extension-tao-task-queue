@@ -163,11 +163,14 @@ class RdsQueueBroker extends AbstractQueueBroker
 
         $messages = $this->extractTasksFromQueue($logContext);
 
-        if (!count($messages)) {
+        // Checks message presence.
+        if (count($messages) === 0) {
             $this->logDebug('No task in the queue.', $logContext);
             return;
         }
-
+        $this->logDebug('Received ' . count($messages) . ' messages.', $logContext);
+        
+        // Pushes messages to prefetch.
         foreach ($messages as $message) {
             $task = $this->unserializeTask($message['message'], $message['id'], $logContext);
             if ($task) {
@@ -181,36 +184,32 @@ class RdsQueueBroker extends AbstractQueueBroker
     {
         $messages = [];
 
-        $this->getPersistence()->getPlatform()->beginTransaction();
+        $selectVisibleTasksQb = $this->getQueryBuilder()
+            ->select('id, message')
+            ->from($this->getTableName())
+            ->andWhere('visible = :visible')
+            ->setParameter('visible', true, ParameterType::BOOLEAN)
+            ->orderBy('created_at')
+            ->setMaxResults($this->getNumberOfTasksToReceive());
+
+        // SELECT ... FOR UPDATE is used for locking
+        // @see https://dev.mysql.com/doc/refman/5.6/en/innodb-locking-reads.html
+        $selectVisibleTasksSql = $selectVisibleTasksQb->getSQL() .' '. $this->getPersistence()->getPlatForm()->getWriteLockSQL();
+
+        // set the received messages to invisible for other workers
+        $consumeTasksQb = $this->getQueryBuilder()
+            ->update($this->getTableName())
+            ->set('visible', ':visible')
+            ->where('id IN (:ids)')
+            ->setParameter('visible', false, ParameterType::BOOLEAN);
+        
         try {
-            $qb = $this->getQueryBuilder()
-                ->select('id, message')
-                ->from($this->getTableName())
-                ->andWhere('visible = :visible')
-                ->orderBy('created_at')
-                ->setMaxResults($this->getNumberOfTasksToReceive());
-
-            /**
-             * SELECT ... FOR UPDATE is used for locking
-             *
-             * @see https://dev.mysql.com/doc/refman/5.6/en/innodb-locking-reads.html
-             */
-            $sql = $qb->getSQL() .' '. $this->getPersistence()->getPlatForm()->getWriteLockSQL();
-            $messages = $this->getPersistence()->query($sql, ['visible' => true])->fetchAll(PDO::FETCH_ASSOC);
+            $this->getPersistence()->getPlatform()->beginTransaction();
+            
+            $messages = $this->getPersistence()->query($selectVisibleTasksSql)->fetchAll(PDO::FETCH_ASSOC);
             if ($messages) {
-
-                // set the received messages to invisible for other workers
-                $qb = $this->getQueryBuilder()
-                    ->update($this->getTableName())
-                    ->set('visible', ':visible')
-                    ->where('id IN (:ids)')
-                    ->setParameter('visible', false, ParameterType::BOOLEAN)
-                    ->setParameter('ids',   implode(',', array_column($messages, 'id')), ParameterType::STRING);
-
-                $qb->execute();
-
-            } else {
-                $this->logDebug('No task in the queue.', $logContext);
+                $consumeTasksQb->setParameter('ids',   implode(',', array_column($messages, 'id')), ParameterType::STRING);
+                $this->getPersistence()->query($consumeTasksQb->getSQL());
             }
 
             $this->getPersistence()->getPlatform()->commit();
