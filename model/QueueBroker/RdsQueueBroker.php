@@ -162,7 +162,11 @@ class RdsQueueBroker extends AbstractQueueBroker
     {
         $logContext = ['Queue' => $this->getQueueNameWithPrefix()];
 
-        $messages = $this->extractTasksFromQueue($logContext);
+        try {
+            $messages = $this->extractTasksFromQueue($logContext);
+        } catch (Exception $e) {
+            $this->logError('Popping tasks failed with MSG: ' . $e->getMessage(), $logContext);
+        }
 
         // Checks message presence.
         if (count($messages) === 0) {
@@ -204,10 +208,9 @@ class RdsQueueBroker extends AbstractQueueBroker
             ->where('id IN (:ids)')
             ->setParameter('visible', false, ParameterType::BOOLEAN);
         
-        $closure = function($persistence) use ($selectVisibleTasksSql, $consumeTasksQb, $logContext) {
+        $closure = function($persistence) use ($selectVisibleTasksSql, $consumeTasksQb) {
+            $persistence->getPlatform()->beginTransaction();
             try {
-                $persistence->getPlatform()->beginTransaction();
-
                 $messages = $persistence->query($selectVisibleTasksSql)->fetchAll(PDO::FETCH_ASSOC);
                 if ($messages) {
                     $consumeTasksQb->setParameter('ids', array_column($messages, 'id'), Connection::PARAM_STR_ARRAY);
@@ -217,12 +220,13 @@ class RdsQueueBroker extends AbstractQueueBroker
                 $persistence->getPlatform()->commit();
             } catch (Exception $e) {
                 $persistence->getPlatform()->rollBack();
-                $this->logError('Popping tasks failed with MSG: ' . $e->getMessage(), $logContext);
+                throw $e;
             }
+            
+            return $messages;
         };
-        $closure($this->getPersistence());
 
-        return $messages;
+        return $closure($this->getPersistence());
     }
         
     /**
