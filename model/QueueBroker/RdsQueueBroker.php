@@ -20,6 +20,7 @@
 
 namespace oat\taoTaskQueue\model\QueueBroker;
 
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
@@ -203,24 +204,27 @@ class RdsQueueBroker extends AbstractQueueBroker
             ->where('id IN (:ids)')
             ->setParameter('visible', false, ParameterType::BOOLEAN);
         
-        try {
-            $this->getPersistence()->getPlatform()->beginTransaction();
-            
-            $messages = $this->getPersistence()->query($selectVisibleTasksSql)->fetchAll(PDO::FETCH_ASSOC);
-            if ($messages) {
-                $consumeTasksQb->setParameter('ids',   implode(',', array_column($messages, 'id')), ParameterType::STRING);
-                $this->getPersistence()->query($consumeTasksQb->getSQL());
-            }
+        $closure = function($persistence) use ($selectVisibleTasksSql, $consumeTasksQb, $logContext) {
+            try {
+                $persistence->getPlatform()->beginTransaction();
 
-            $this->getPersistence()->getPlatform()->commit();
-        } catch (Exception $e) {
-            $this->getPersistence()->getPlatform()->rollBack();
-            $this->logError('Popping tasks failed with MSG: '. $e->getMessage(), $logContext);
-        }
+                $messages = $persistence->query($selectVisibleTasksSql)->fetchAll(PDO::FETCH_ASSOC);
+                if ($messages) {
+                    $consumeTasksQb->setParameter('ids', array_column($messages, 'id'), Connection::PARAM_STR_ARRAY);
+                    $persistence->query($consumeTasksQb->getSQL());
+                }
+
+                $persistence->getPlatform()->commit();
+            } catch (Exception $e) {
+                $persistence->getPlatform()->rollBack();
+                $this->logError('Popping tasks failed with MSG: ' . $e->getMessage(), $logContext);
+            }
+        };
+        $closure($this->getPersistence());
 
         return $messages;
     }
-    
+        
     /**
      * Delete the message after being processed by the worker.
      *
