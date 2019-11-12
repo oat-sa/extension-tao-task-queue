@@ -159,12 +159,29 @@ class RdsQueueBroker extends AbstractQueueBroker
      */
     protected function doPop()
     {
+        $logContext = ['Queue' => $this->getQueueNameWithPrefix()];
+
+        $messages = $this->extractTasksFromQueue($logContext);
+
+        if (!count($messages)) {
+            $this->logDebug('No task in the queue.', $logContext);
+            return;
+        }
+
+        foreach ($messages as $message) {
+            $task = $this->unserializeTask($message['message'], $message['id'], $logContext);
+            if ($task) {
+                $task->setMetadata('RdsMessageId', $message['id']);
+                $this->pushPreFetchedMessage($task);
+            }
+        }
+    }
+
+    public function extractTasksFromQueue(array $logContext)
+    {
+        $messages = [];
+
         $this->getPersistence()->getPlatform()->beginTransaction();
-
-        $logContext = [
-            'Queue' => $this->getQueueNameWithPrefix()
-        ];
-
         try {
             $qb = $this->getQueryBuilder()
                 ->select('id, message')
@@ -179,8 +196,8 @@ class RdsQueueBroker extends AbstractQueueBroker
              * @see https://dev.mysql.com/doc/refman/5.6/en/innodb-locking-reads.html
              */
             $sql = $qb->getSQL() .' '. $this->getPersistence()->getPlatForm()->getWriteLockSQL();
-
-            if ($dbResult = $this->getPersistence()->query($sql, ['visible' => true])->fetchAll(PDO::FETCH_ASSOC)) {
+            $messages = $this->getPersistence()->query($sql, ['visible' => true])->fetchAll(PDO::FETCH_ASSOC);
+            if ($messages) {
 
                 // set the received messages to invisible for other workers
                 $qb = $this->getQueryBuilder()
@@ -188,16 +205,10 @@ class RdsQueueBroker extends AbstractQueueBroker
                     ->set('visible', ':visible')
                     ->where('id IN (:ids)')
                     ->setParameter('visible', false, ParameterType::BOOLEAN)
-                    ->setParameter('ids',   implode(',', array_column($dbResult, 'id')), ParameterType::STRING);
+                    ->setParameter('ids',   implode(',', array_column($messages, 'id')), ParameterType::STRING);
 
                 $qb->execute();
 
-                foreach ($dbResult as $row) {
-                    if ($task = $this->unserializeTask($row['message'], $row['id'], $logContext)) {
-                        $task->setMetadata('RdsMessageId', $row['id']);
-                        $this->pushPreFetchedMessage($task);
-                    }
-                }
             } else {
                 $this->logDebug('No task in the queue.', $logContext);
             }
@@ -207,8 +218,10 @@ class RdsQueueBroker extends AbstractQueueBroker
             $this->getPersistence()->getPlatform()->rollBack();
             $this->logError('Popping tasks failed with MSG: '. $e->getMessage(), $logContext);
         }
-    }
 
+        return $messages;
+    }
+    
     /**
      * Delete the message after being processed by the worker.
      *
