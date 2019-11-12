@@ -314,28 +314,21 @@ class RdsTaskLogBroker implements TaskLogBrokerInterface, PhpSerializable, Logge
      */
     public function archive(TaskLogEntity $entity)
     {
-        $this->getPersistence()->getPlatform()->beginTransaction();
+        $qb = $this->getQueryBuilder()
+            ->update($this->getTableName())
+            ->set(self::COLUMN_STATUS, ':status_new')
+            ->set(self::COLUMN_UPDATED_AT, ':updated_at')
+            ->where(self::COLUMN_ID .' = :id')
+            ->setParameter('id', (string) $entity->getId())
+            ->setParameter('status_new', (string) TaskLogInterface::STATUS_ARCHIVED)
+            ->setParameter('updated_at', $this->getPersistence()->getPlatForm()->getNowExpression());
 
         try {
-            $qb = $this->getQueryBuilder()
-                ->update($this->getTableName())
-                ->set(self::COLUMN_STATUS, ':status_new')
-                ->set(self::COLUMN_UPDATED_AT, ':updated_at')
-                ->where(self::COLUMN_ID .' = :id')
-                ->setParameter('id', (string) $entity->getId())
-                ->setParameter('status_new', (string) TaskLogInterface::STATUS_ARCHIVED)
-                ->setParameter('updated_at', $this->getPersistence()->getPlatForm()->getNowExpression());
-
-            $qb->execute();
-            $this->getPersistence()->getPlatform()->commit();
-
+            return $qb->execute();
         } catch (\Exception $e) {
-            $this->getPersistence()->getPlatform()->rollBack();
-
+            $this->logDebug($e->getMessage());
             return false;
         }
-
-        return true;
     }
 
     /**
@@ -343,29 +336,21 @@ class RdsTaskLogBroker implements TaskLogBrokerInterface, PhpSerializable, Logge
      */
     public function archiveCollection(TaskLogCollectionInterface $collection)
     {
-        $this->getPersistence()->getPlatform()->beginTransaction();
+        $qb = $this->getQueryBuilder()
+            ->update($this->getTableName())
+            ->set(self::COLUMN_STATUS, ':status_new')
+            ->set(self::COLUMN_UPDATED_AT, ':updated_at')
+            ->where(self::COLUMN_ID .' IN(:id)')
+            ->setParameter('id', $collection->getIds(), \Doctrine\DBAL\Connection::PARAM_STR_ARRAY)
+            ->setParameter('status_new', (string) TaskLogInterface::STATUS_ARCHIVED)
+            ->setParameter('updated_at', $this->getPersistence()->getPlatForm()->getNowExpression());
 
         try {
-            $qb = $this->getQueryBuilder()
-                ->update($this->getTableName())
-                ->set(self::COLUMN_STATUS, ':status_new')
-                ->set(self::COLUMN_UPDATED_AT, ':updated_at')
-                ->where(self::COLUMN_ID .' IN(:id)')
-                ->setParameter('id', $collection->getIds(), \Doctrine\DBAL\Connection::PARAM_STR_ARRAY)
-                ->setParameter('status_new', (string) TaskLogInterface::STATUS_ARCHIVED)
-                ->setParameter('updated_at', $this->getPersistence()->getPlatForm()->getNowExpression());
-
-            $exec = $qb->execute();
-            $this->getPersistence()->getPlatform()->commit();
-
+            return $qb->execute();
         } catch (\Exception $e) {
-            $this->getPersistence()->getPlatform()->rollBack();
             $this->logDebug($e->getMessage());
-
             return false;
         }
-
-        return $exec;
     }
 
     /**
@@ -373,24 +358,17 @@ class RdsTaskLogBroker implements TaskLogBrokerInterface, PhpSerializable, Logge
      */
     public function deleteById($taskId)
     {
-        $this->getPersistence()->getPlatform()->beginTransaction();
+        $qb = $this->getQueryBuilder()
+            ->delete($this->getTableName())
+            ->where(self::COLUMN_ID .' = :id')
+            ->setParameter('id', (string) $taskId);
 
         try {
-            $qb = $this->getQueryBuilder()
-                ->delete($this->getTableName())
-                ->where(self::COLUMN_ID .' = :id')
-                ->setParameter('id', (string) $taskId);
-
-            $qb->execute();
-            $this->getPersistence()->getPlatform()->commit();
-
+            return $qb->execute();
         } catch (\Exception $e) {
-            $this->getPersistence()->getPlatform()->rollBack();
-
+            $this->logDebug($e->getMessage());
             return false;
         }
-
-        return true;
     }
 
     /**
