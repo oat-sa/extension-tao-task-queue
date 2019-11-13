@@ -111,10 +111,17 @@ class RdsQueueBroker extends AbstractQueueBroker
         /** @var Schema $schema */
         $schema = $schemaManager->createSchema();
         $fromSchema = clone $schema;
+
+        if (in_array($this->getTableName(), $schemaManager->getTables())) {
+            $schema->dropTable($this->getTableName());
+        }
+        $queries = $persistence->getPlatForm()->getMigrateSchemaSql($fromSchema, $schema);
+
+        foreach ($queries as $query) {
+            $persistence->exec($query);
+        }
+
         try {
-            if (in_array($this->getTableName(), $schemaManager->getTables())) {
-                $schema->dropTable($this->getTableName());
-            }
             $table = $schema->createTable($this->getTableName());
             $table->addOption('engine', 'InnoDB');
             $table->addColumn('id', 'string', ['length' => 36]);
