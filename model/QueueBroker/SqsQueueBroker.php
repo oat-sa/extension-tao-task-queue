@@ -224,7 +224,7 @@ class SqsQueueBroker extends AbstractQueueBroker
             $this->logError('Popping tasks failed with MSG: '. $e->getAwsErrorMessage(), $logContext);
         }
     }
-    
+
     /**
      * @param TaskInterface $task
      */
