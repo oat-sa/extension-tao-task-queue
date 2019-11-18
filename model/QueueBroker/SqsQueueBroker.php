@@ -190,34 +190,10 @@ class SqsQueueBroker extends AbstractQueueBroker
             $this->createQueue();
         }
 
-        $logContext = ['QueueUrl' => $this->queueUrl];
+        $logContext = [
+            'QueueUrl' => $this->queueUrl
+        ];
 
-        $messages = $this->extractTasksFromQueue($logContext);
-
-        if (!count($messages)) {
-            $this->logDebug('No messages in queue.', $logContext);
-            return;
-        }
-
-        $this->logDebug('Received ' . count($messages) . ' messages.', $logContext);
-
-        foreach ($messages as $message) {
-            $task = $this->unserializeTask($message['Body'], $message['ReceiptHandle'], ['SqsMessageId' => $message['MessageId']]);
-            if ($task) {
-                $task->setMetadata('SqsMessageId', $message['MessageId']);
-                $task->setMetadata('ReceiptHandle', $message['ReceiptHandle']);
-                $this->pushPreFetchedMessage($task);
-            }
-        }
-    }
-
-    /**
-     * @param array $logContext
-     *
-     * @return array
-     */
-    public function extractTasksFromQueue(array $logContext)
-    {
         try {
             $result = $this->getClient()->receiveMessage([
                 'AttributeNames' => [], //nothing
@@ -226,10 +202,26 @@ class SqsQueueBroker extends AbstractQueueBroker
                 'QueueUrl' => $this->queueUrl,
                 'WaitTimeSeconds' => 20 //retrieving messages with Long Polling
             ]);
-            return $result->get('Messages');
+
+            if (count($result->get('Messages')) > 0) {
+                $this->logDebug('Received '. count($result->get('Messages')) .' messages.', $logContext);
+
+                foreach ($result->get('Messages') as $message) {
+                    $task = $this->unserializeTask($message['Body'], $message['ReceiptHandle'], [
+                        'SqsMessageId' => $message['MessageId']
+                    ]);
+
+                    if ($task) {
+                        $task->setMetadata('SqsMessageId', $message['MessageId']);
+                        $task->setMetadata('ReceiptHandle', $message['ReceiptHandle']);
+                        $this->pushPreFetchedMessage($task);
+                    }
+                }
+            } else {
+                $this->logDebug('No messages in queue.', $logContext);
+            }
         } catch (AwsException $e) {
             $this->logError('Popping tasks failed with MSG: '. $e->getAwsErrorMessage(), $logContext);
-            return [];
         }
     }
     
