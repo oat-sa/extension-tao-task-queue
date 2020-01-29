@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -56,6 +57,6 @@ class RunWorkerTest extends TestCase
         $worker->setServiceLocator($sl);
         $report = $worker->__invoke(["--queue=unitQueue", "--limit=1"]);
         $this->assertInstanceOf(\common_report_Report::class, $report, 'Returned report must be as expected.');
-        $this->assertEquals(\common_report_Report::TYPE_SUCCESS,$report->getType());
+        $this->assertEquals(\common_report_Report::TYPE_SUCCESS, $report->getType());
     }
 }

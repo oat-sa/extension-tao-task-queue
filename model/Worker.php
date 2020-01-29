@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -32,7 +33,7 @@ use oat\taoTaskQueue\model\ValueObjects\TaskLogCategorizedStatus;
  * Processes tasks from the queue.
  *
  * @deprecated Use \oat\taoTaskQueue\model\LongRunningWorker
- *             
+ *
  * @author Gyula Szucs <gyula@taotesting.com>
  */
 final class Worker implements WorkerInterface
@@ -94,8 +95,7 @@ final class Worker implements WorkerInterface
         $this->logDebug('Starting worker.', $this->logContext);
 
         while ($this->isRunning()) {
-
-            if($this->paused) {
+            if ($this->paused) {
                 $this->logDebug('Paused... ', array_merge($this->logContext, [
                     'Iteration' => $this->iterations
                 ]));
@@ -109,7 +109,7 @@ final class Worker implements WorkerInterface
                 'Iteration' => $this->iterations
             ]);
 
-            try{
+            try {
                 $this->logDebug('Fetching tasks from queue ', $this->logContext);
 
                 // if there is a dedicated queue set, let's do dequeue on that one
@@ -122,7 +122,7 @@ final class Worker implements WorkerInterface
                 if (!$task) {
                     ++$this->iterationsWithOutTask;
                     $waitInterval = $this->getWaitInterval();
-                    $this->logDebug('Sleeping for '. $waitInterval .' sec', $this->logContext);
+                    $this->logDebug('Sleeping for ' . $waitInterval . ' sec', $this->logContext);
                     usleep($waitInterval * 1000000);
 
                     continue;
@@ -132,7 +132,7 @@ final class Worker implements WorkerInterface
                 $this->iterationsWithOutTask = 0;
 
                 if (!$task instanceof TaskInterface) {
-                    $this->logWarning('The received queue item ('. $task .') not processable.', $this->logContext);
+                    $this->logWarning('The received queue item (' . $task . ') not processable.', $this->logContext);
                     continue;
                 }
 
@@ -140,7 +140,7 @@ final class Worker implements WorkerInterface
 
                 unset($task);
             } catch (\Exception $e) {
-                $this->logError('Fetching data from queue failed with MSG: '. $e->getMessage(), $this->logContext);
+                $this->logError('Fetching data from queue failed with MSG: ' . $e->getMessage(), $this->logContext);
                 continue;
             }
         }
@@ -156,13 +156,13 @@ final class Worker implements WorkerInterface
         $report = Report::createInfo(__('Running task %s', $task->getId()));
 
         try {
-            $this->logDebug('Processing task '. $task->getId(), $this->logContext);
+            $this->logDebug('Processing task ' . $task->getId(), $this->logContext);
 
             $rowsTouched = $this->taskLog->setStatus($task->getId(), TaskLogInterface::STATUS_RUNNING, TaskLogInterface::STATUS_DEQUEUED);
 
             // if the task is being executed by another worker, just return, no report needs to be saved
             if (!$rowsTouched) {
-                $this->logDebug('Task '. $task->getId() .' seems to be processed by another worker.', $this->logContext);
+                $this->logDebug('Task ' . $task->getId() . ' seems to be processed by another worker.', $this->logContext);
                 return TaskLogInterface::STATUS_UNKNOWN;
             }
 
@@ -173,14 +173,14 @@ final class Worker implements WorkerInterface
             $taskReport = $task();
 
             if (!$taskReport instanceof Report) {
-                $this->logWarning('Task '. $task->getId() .' should return a report object.', $this->logContext);
+                $this->logWarning('Task ' . $task->getId() . ' should return a report object.', $this->logContext);
                 $taskReport = Report::createInfo(__('Task not returned any report.'));
             }
 
             $report->add($taskReport);
             unset($taskReport, $rowsTouched);
         } catch (\Exception $e) {
-            $this->logError('Executing task '. $task->getId() .' failed with MSG: '. $e->getMessage(), $this->logContext);
+            $this->logError('Executing task ' . $task->getId() . ' failed with MSG: ' . $e->getMessage(), $this->logContext);
             $report = Report::createFailure(__('Executing task %s failed', $task->getId()));
         }
 
@@ -228,7 +228,6 @@ final class Worker implements WorkerInterface
             if (!$parentLogTask->isMasterStatus()) {
                 $this->taskLog->updateParent($task->getParentId());
             }
-
         }
 
         unset($report);
@@ -317,13 +316,13 @@ final class Worker implements WorkerInterface
             throw new \RuntimeException('Please make sure that "pcntl" is enabled.');
         }
 
-        declare(ticks = 1);
+        declare(ticks=1);
 
-        pcntl_signal(SIGTERM, array($this, 'shutdown'));
-        pcntl_signal(SIGINT, array($this, 'shutdown'));
-        pcntl_signal(SIGQUIT, array($this, 'shutdown'));
-        pcntl_signal(SIGUSR2, array($this, 'pauseProcessing'));
-        pcntl_signal(SIGCONT, array($this, 'unPauseProcessing'));
+        pcntl_signal(SIGTERM, [$this, 'shutdown']);
+        pcntl_signal(SIGINT, [$this, 'shutdown']);
+        pcntl_signal(SIGQUIT, [$this, 'shutdown']);
+        pcntl_signal(SIGUSR2, [$this, 'pauseProcessing']);
+        pcntl_signal(SIGCONT, [$this, 'unPauseProcessing']);
 
         $this->logDebug('Finished setting up signal handlers', $this->logContext);
     }

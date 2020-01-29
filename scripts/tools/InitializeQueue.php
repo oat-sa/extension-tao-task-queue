@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -89,7 +90,6 @@ class InitializeQueue extends InstallAction
 
             // if any new change is wanted on queues
             if (count($params) > 0) {
-
                 // BROKER settings
                 if ($this->wantedBroker) {
                     $broker = null;
@@ -108,7 +108,7 @@ class InitializeQueue extends InstallAction
                             break;
                     }
 
-                    if (!is_null($this->queue)){
+                    if (!is_null($this->queue)) {
                         $queue = $queueService->getQueue($this->queue);
                         $queue->setBroker(clone $broker);
                     } else {
@@ -160,7 +160,7 @@ class InitializeQueue extends InstallAction
             switch ($option) {
                 case '--broker':
                     if (!in_array($value, [self::BROKER_MEMORY, self::BROKER_RDS, self::BROKER_SQS])) {
-                        throw new \InvalidArgumentException('Broker "'. $value .'" is not a valid broker option. Valid options: '. implode(', ', [self::BROKER_MEMORY, self::BROKER_RDS, self::BROKER_SQS]));
+                        throw new \InvalidArgumentException('Broker "' . $value . '" is not a valid broker option. Valid options: ' . implode(', ', [self::BROKER_MEMORY, self::BROKER_RDS, self::BROKER_SQS]));
                     }
 
                     $this->wantedBroker = $value;
@@ -180,7 +180,7 @@ class InitializeQueue extends InstallAction
 
                 case '--strategy':
                     if (!class_exists($value)) {
-                        throw new \InvalidArgumentException('Strategy "'. $value .'" does not exist.');
+                        throw new \InvalidArgumentException('Strategy "' . $value . '" does not exist.');
                     }
 
                     $this->strategy = new $value();
@@ -193,4 +193,3 @@ class InitializeQueue extends InstallAction
         }
     }
 }
-

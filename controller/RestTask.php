@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -135,7 +136,7 @@ class RestTask extends \tao_actions_CommonModule
             throw new \Exception('Only ajax call allowed.');
         }
 
-        try{
+        try {
             $this->assertTaskIdExists();
 
             /** @var TaskLogInterface $taskLogService */
@@ -160,7 +161,7 @@ class RestTask extends \tao_actions_CommonModule
      */
     public function download()
     {
-        try{
+        try {
             $this->assertTaskIdExists();
 
             /** @var TaskLogInterface $taskLogService */
@@ -169,7 +170,7 @@ class RestTask extends \tao_actions_CommonModule
             $taskLogEntity = $taskLogService->getByIdAndUser($this->getRequestParameter(self::PARAMETER_TASK_ID), $this->userId);
 
             if (!$taskLogEntity->getStatus()->isCompleted()) {
-                throw new \RuntimeException('Task "'. $taskLogEntity->getId() .'" is not downloadable.');
+                throw new \RuntimeException('Task "' . $taskLogEntity->getId() . '" is not downloadable.');
             }
 
             $filename = $taskLogEntity->getFileNameFromReport();
@@ -190,7 +191,6 @@ class RestTask extends \tao_actions_CommonModule
 
             \tao_helpers_Http::returnStream($file->readPsrStream());
             exit();
-
         } catch (\Exception $e) {
             return $this->returnJson([
                 'success' => false,
