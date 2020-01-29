@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -58,7 +59,8 @@ class TaskLogUtilityTest extends TestCase
         $output = $this->subject->__invoke(['--help']);
 
         $this->assertInstanceOf(common_report_Report::class, $output);
-        $this->assertEquals("Examples
+        $this->assertEquals(
+            "Examples
  1. Stats
 	 Description: 	 Return stats about the tasks logs statuses
 	 Example: 	 sudo -u www-data php index.php 'oat\\taoTaskQueue\scripts\\tools\TaskLogUtility' --stats

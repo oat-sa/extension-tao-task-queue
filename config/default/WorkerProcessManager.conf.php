@@ -1,6 +1,5 @@
 <?php
 
-
 use oat\taoTaskQueue\model\Worker\WorkerProcessManager;
 
 return new WorkerProcessManager([

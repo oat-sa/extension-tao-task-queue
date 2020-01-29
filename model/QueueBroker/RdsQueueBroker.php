@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -52,7 +53,7 @@ class RdsQueueBroker extends AbstractQueueBroker
         parent::__construct($receiveTasks);
 
         if (empty($persistenceId)) {
-            throw new \InvalidArgumentException("Persistence id needs to be set for ". __CLASS__);
+            throw new \InvalidArgumentException("Persistence id needs to be set for " . __CLASS__);
         }
 
         $this->persistenceId = $persistenceId;
@@ -60,11 +61,11 @@ class RdsQueueBroker extends AbstractQueueBroker
 
     public function __toPhpCode()
     {
-        return 'new '. get_called_class() .'('
+        return 'new ' . get_called_class() . '('
             . \common_Utils::toHumanReadablePhpString($this->persistenceId)
             . ', '
             . \common_Utils::toHumanReadablePhpString($this->getNumberOfTasksToReceive())
-            .')';
+            . ')';
     }
 
     /**
@@ -114,10 +115,9 @@ class RdsQueueBroker extends AbstractQueueBroker
             $table->addColumn('visible', 'boolean', ["default" => 1]);
             $table->addColumn('created_at', 'datetime', ['notnull' => true]);
             $table->setPrimaryKey(['id']);
-            $table->addIndex(['created_at', 'visible'], 'IDX_created_at_visible_'. $this->getQueueName());
-
+            $table->addIndex(['created_at', 'visible'], 'IDX_created_at_visible_' . $this->getQueueName());
         } catch (SchemaException $e) {
-            $this->logDebug('Schema of '. $this->getTableName() .' table already up to date.');
+            $this->logDebug('Schema of ' . $this->getTableName() . ' table already up to date.');
         }
 
         $queries = $persistence->getPlatForm()->getMigrateSchemaSql($fromSchema, $schema);
@@ -127,7 +127,7 @@ class RdsQueueBroker extends AbstractQueueBroker
         }
 
         if ($queries) {
-            $this->logDebug('Queue '. $this->getTableName() .' created/updated in RDS.');
+            $this->logDebug('Queue ' . $this->getTableName() . ' created/updated in RDS.');
         }
     }
 
@@ -169,15 +169,14 @@ class RdsQueueBroker extends AbstractQueueBroker
              *
              * @see https://dev.mysql.com/doc/refman/5.6/en/innodb-locking-reads.html
              */
-            $sql = $qb->getSQL() .' '. $this->getPersistence()->getPlatForm()->getWriteLockSQL();
+            $sql = $qb->getSQL() . ' ' . $this->getPersistence()->getPlatForm()->getWriteLockSQL();
 
             if ($dbResult = $this->getPersistence()->query($sql, ['visible' => 1])->fetchAll(\PDO::FETCH_ASSOC)) {
-
                 // set the received messages to invisible for other workers
                 $qb = $this->getQueryBuilder()
                     ->update($this->getTableName())
                     ->set('visible', ':visible')
-                    ->where('id IN ('. implode(',', array_column($dbResult, 'id')) .')')
+                    ->where('id IN (' . implode(',', array_column($dbResult, 'id')) . ')')
                     ->setParameter('visible', 0);
 
                 $qb->execute();
@@ -195,7 +194,7 @@ class RdsQueueBroker extends AbstractQueueBroker
             $this->getPersistence()->getPlatform()->commit();
         } catch (\Exception $e) {
             $this->getPersistence()->getPlatform()->rollBack();
-            $this->logError('Popping tasks failed with MSG: '. $e->getMessage(), $logContext);
+            $this->logError('Popping tasks failed with MSG: ' . $e->getMessage(), $logContext);
         }
     }
 
@@ -228,7 +227,7 @@ class RdsQueueBroker extends AbstractQueueBroker
                 ->setParameter('visible', 0)
                 ->execute();
         } catch (\Exception $e) {
-            $this->logError('Deleting task failed with MSG: '. $e->getMessage(), $logContext);
+            $this->logError('Deleting task failed with MSG: ' . $e->getMessage(), $logContext);
         }
     }
 
@@ -246,7 +245,7 @@ class RdsQueueBroker extends AbstractQueueBroker
 
             return (int) $qb->execute()->fetchColumn();
         } catch (\Exception $e) {
-            $this->logError('Counting tasks failed with MSG: '. $e->getMessage());
+            $this->logError('Counting tasks failed with MSG: ' . $e->getMessage());
         }
 
         return 0;

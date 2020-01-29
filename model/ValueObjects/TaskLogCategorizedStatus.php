@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -37,7 +38,7 @@ class TaskLogCategorizedStatus
     /** @var  string */
     private $status;
 
-    public static $categorizeMapping = array(
+    public static $categorizeMapping = [
         self::STATUS_CREATED => [
             TaskLogInterface::STATUS_ENQUEUED
         ],
@@ -57,7 +58,7 @@ class TaskLogCategorizedStatus
         self::STATUS_ARCHIVED    => [
             TaskLogInterface::STATUS_ARCHIVED,
         ]
-    );
+    ];
 
     /**
      * @param $status
@@ -157,7 +158,7 @@ class TaskLogCategorizedStatus
      */
     public function isInProgress()
     {
-       return $this->equals(TaskLogCategorizedStatus::inProgress());
+        return $this->equals(TaskLogCategorizedStatus::inProgress());
     }
 
     /**
@@ -191,7 +192,7 @@ class TaskLogCategorizedStatus
      */
     public function equals(TaskLogCategorizedStatus $logStatus)
     {
-       return $this->status === $logStatus->status;
+        return $this->status === $logStatus->status;
     }
 
     /**

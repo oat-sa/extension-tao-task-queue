@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -133,7 +134,6 @@ class TaskLogUtility implements Action, ServiceLocatorAwareInterface
 
             return \common_report_Report::createSuccess($this->commandOutput($this->examples));
         } catch (\Exception $exception) {
-
             $message = $exception->getMessage();
 
             if (!$this->argForce) {
@@ -216,7 +216,6 @@ class TaskLogUtility implements Action, ServiceLocatorAwareInterface
                 case '--help':
                     $this->argHelp = true;
                     break;
-
             }
         }
     }
@@ -229,8 +228,7 @@ class TaskLogUtility implements Action, ServiceLocatorAwareInterface
     private function commandOutput(array $data)
     {
         $string = 'Examples';
-        foreach ($data as $key => $example)
-        {
+        foreach ($data as $key => $example) {
             $string .= sprintf("\n %s. %s", ++$key, $example['title']);
             $string .= sprintf("\n\t Description: \t %s", $example['description']);
             $string .= sprintf("\n\t Example: \t %s", $example['example']);
