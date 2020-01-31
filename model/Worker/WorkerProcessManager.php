@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -49,20 +50,20 @@ class WorkerProcessManager extends ConfigurableService
     {
         $pid = $process->getPid();
 
-        $process->stdout->on('data', function ($status) use ($pid)  {
-            $this->logInfo('Process: '. $pid .' status:'. $status);
+        $process->stdout->on('data', function ($status) use ($pid) {
+            $this->logInfo('Process: ' . $pid . ' status:' . $status);
         });
 
-        $process->stdout->on('end', function () use ($pid)  {
-            $this->logInfo('Process: '. $pid .' ended');
+        $process->stdout->on('end', function () use ($pid) {
+            $this->logInfo('Process: ' . $pid . ' ended');
         });
 
-        $process->stdout->on('error', function (Exception $e) use ($pid)  {
-            $this->logError('Process: '. $pid .' error. ' . $e->getMessage());
+        $process->stdout->on('error', function (Exception $e) use ($pid) {
+            $this->logError('Process: ' . $pid . ' error. ' . $e->getMessage());
         });
 
-        $process->stdout->on('close', function () use ($pid)  {
-            $this->logInfo('Process: '. $pid .' closed.');
+        $process->stdout->on('close', function () use ($pid) {
+            $this->logInfo('Process: ' . $pid . ' closed.');
 
             unset($this->processes[$pid]);
         });
@@ -77,19 +78,20 @@ class WorkerProcessManager extends ConfigurableService
      */
     public function canRun()
     {
-        $this->logInfo('No of process workers running: '. count($this->processes));
+        $this->logInfo('No of process workers running: ' . count($this->processes));
 
         $memoryUsage = $this->getMemoryUsage();
         $cpuUsage    = $this->getCpuUsage();
 
-        if ($memoryUsage < $this->limitOfMemory
+        if (
+            $memoryUsage < $this->limitOfMemory
             && $cpuUsage < $this->limitOfCpu
         ) {
             return true;
         }
 
         $this->logInfo('Limit Of memory and Cpu exceeded waiting for task to finish.
-        Current memory usage:'.$memoryUsage.' Cpu usage:'.$cpuUsage);
+        Current memory usage:' . $memoryUsage . ' Cpu usage:' . $cpuUsage);
 
         return false;
     }
@@ -114,7 +116,7 @@ class WorkerProcessManager extends ConfigurableService
         $memory = array_filter($memory);
         $memory = array_merge($memory);
         $memoryUsage = $memory[1] > 0
-            ? $memory[2]/$memory[1]*100
+            ? $memory[2] / $memory[1] * 100
             : 0;
 
         return $memoryUsage;

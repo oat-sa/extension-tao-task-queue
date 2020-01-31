@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,6 +18,7 @@
  * Copyright (c) 2018 (original work) Open Assessment Technologies SA (under the project TAO-PRODUCT);
  *
  */
+
 namespace oat\taoTaskQueue\scripts\tools;
 
 use oat\oatbox\extension\script\ScriptAction;
@@ -39,7 +41,7 @@ class WorkerManagerRunner extends ScriptAction
     protected function run()
     {
         if (stripos(PHP_OS, 'win') === 0) {
-           throw new \Exception('The WorkerManagerRunner only works on linux');
+            throw new \Exception('The WorkerManagerRunner only works on linux');
         }
 
         /** @var WorkerProcessManager $workerManager */
@@ -59,7 +61,7 @@ class WorkerManagerRunner extends ScriptAction
                 if ($task !== null) {
                     $cmd = $workerManager->getCommand();
                     $taskJson = base64_encode($taskSerializer->serialize($task));
-                    $cmd = 'cd '.ROOT_PATH.' && '.$cmd.' -t '.$taskJson;
+                    $cmd = 'cd ' . ROOT_PATH . ' && ' . $cmd . ' -t ' . $taskJson;
 
                     $process = new \React\ChildProcess\Process($cmd);
                     $process->start($loop);

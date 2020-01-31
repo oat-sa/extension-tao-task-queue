@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -193,7 +194,7 @@ class TaskQueueWebApi extends \tao_actions_CommonModule
      */
     public function download()
     {
-        try{
+        try {
             $this->assertTaskIdExists();
 
             /** @var TaskLogInterface $taskLogService */
@@ -202,7 +203,7 @@ class TaskQueueWebApi extends \tao_actions_CommonModule
             $taskLogEntity = $taskLogService->getByIdAndUser($this->getRequestParameter(self::PARAMETER_TASK_ID), $this->userId);
 
             if (!$taskLogEntity->getStatus()->isCompleted()) {
-                throw new \common_Exception('Task "'. $taskLogEntity->getId() .'" is not downloadable.');
+                throw new \common_Exception('Task "' . $taskLogEntity->getId() . '" is not downloadable.');
             }
 
             $filename = $taskLogEntity->getFileNameFromReport();
@@ -227,7 +228,6 @@ class TaskQueueWebApi extends \tao_actions_CommonModule
 
             \tao_helpers_Http::returnStream($file->readPsrStream());
             exit();
-
         } catch (\Exception $e) {
             return $this->returnJson([
                 'success' => false,
@@ -256,11 +256,10 @@ class TaskQueueWebApi extends \tao_actions_CommonModule
 
         if (is_array($taskIdsParams)) {
             return $taskIdsParams;
-        } else if ($taskIdsParams === static::ARCHIVE_ALL) {
+        } elseif ($taskIdsParams === static::ARCHIVE_ALL) {
             return static::ARCHIVE_ALL;
         } else {
             return [$taskIdsParams];
         }
     }
-
 }

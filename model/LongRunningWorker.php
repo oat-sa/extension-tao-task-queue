@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -74,8 +75,7 @@ final class LongRunningWorker extends AbstractWorker
         $this->logInfo('Starting LongRunningWorker.', $this->getLogContext());
 
         while ($this->isRunning()) {
-
-            if($this->paused) {
+            if ($this->paused) {
                 $this->logInfo('Worker paused... ', $this->getLogContext());
                 usleep(self::WAIT_INTERVAL * 1000000);
                 continue;
@@ -83,7 +83,7 @@ final class LongRunningWorker extends AbstractWorker
 
             ++$this->iterations;
 
-            try{
+            try {
                 $this->logDebug('Fetching tasks from queue ', $this->getLogContext());
 
                 $task = $this->queuer->dequeue();
@@ -92,7 +92,7 @@ final class LongRunningWorker extends AbstractWorker
                 if (!$task) {
                     ++$this->iterationsWithOutTask;
                     $waitInterval = $this->getWaitInterval();
-                    $this->logInfo('No tasks found. Sleeping for '. $waitInterval .' sec', $this->getLogContext());
+                    $this->logInfo('No tasks found. Sleeping for ' . $waitInterval . ' sec', $this->getLogContext());
                     usleep($waitInterval * 1000000);
 
                     continue;
@@ -102,7 +102,7 @@ final class LongRunningWorker extends AbstractWorker
                 $this->iterationsWithOutTask = 0;
 
                 if (!$task instanceof TaskInterface) {
-                    $this->logWarning('The received queue item ('. $task .') not processable.', $this->getLogContext());
+                    $this->logWarning('The received queue item (' . $task . ') not processable.', $this->getLogContext());
                     continue;
                 }
 
@@ -110,7 +110,7 @@ final class LongRunningWorker extends AbstractWorker
 
                 unset($task);
             } catch (\Exception $e) {
-                $this->logError('Fetching data from queue failed with MSG: '. $e->getMessage(), $this->getLogContext());
+                $this->logError('Fetching data from queue failed with MSG: ' . $e->getMessage(), $this->getLogContext());
                 continue;
             }
         }
@@ -167,13 +167,13 @@ final class LongRunningWorker extends AbstractWorker
                 throw new \RuntimeException('Please make sure that "pcntl" is enabled.');
             }
 
-            declare(ticks = 1);
+            declare(ticks=1);
 
-            pcntl_signal(SIGTERM, array($this, 'shutdown'));
-            pcntl_signal(SIGINT, array($this, 'shutdown'));
-            pcntl_signal(SIGQUIT, array($this, 'shutdown'));
-            pcntl_signal(SIGUSR2, array($this, 'pauseProcessing'));
-            pcntl_signal(SIGCONT, array($this, 'unPauseProcessing'));
+            pcntl_signal(SIGTERM, [$this, 'shutdown']);
+            pcntl_signal(SIGINT, [$this, 'shutdown']);
+            pcntl_signal(SIGQUIT, [$this, 'shutdown']);
+            pcntl_signal(SIGUSR2, [$this, 'pauseProcessing']);
+            pcntl_signal(SIGCONT, [$this, 'unPauseProcessing']);
 
             $this->sigHandlersRegistered = true;
 
@@ -210,7 +210,7 @@ final class LongRunningWorker extends AbstractWorker
             $waitTime = $this->iterationsWithOutTask * self::WAIT_INTERVAL;
 
             return min($waitTime, self::MAX_SLEEPING_TIME_FOR_DEDICATED_QUEUE);
-        } else if ($this->queuer instanceof QueueDispatcherInterface) {
+        } elseif ($this->queuer instanceof QueueDispatcherInterface) {
             return (int) $this->queuer->getWaitTime();
         } else {
             return self::WAIT_INTERVAL;

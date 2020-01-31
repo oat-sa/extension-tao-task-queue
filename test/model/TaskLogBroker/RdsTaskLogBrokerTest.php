@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -88,7 +89,7 @@ class RdsTaskLogBrokerTest extends TestCase
 
         $bound = $tableNameCaller->bindTo($broker, $broker);
 
-        $this->assertEquals($prefix .'_'. $containerName, $bound());
+        $this->assertEquals($prefix . '_' . $containerName, $bound());
     }
 
     public function testGetTableNameWhenContainerNameIsNotSuppliedByOptionThenTableNameShouldHaveADefaultValue()
@@ -104,6 +105,6 @@ class RdsTaskLogBrokerTest extends TestCase
 
         $bound = $tableNameCaller->bindTo($broker, $broker);
 
-        $this->assertEquals($prefix .'_'. $defaultName, $bound());
+        $this->assertEquals($prefix . '_' . $defaultName, $bound());
     }
 }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -61,7 +62,7 @@ abstract class AbstractQueueBroker implements QueueBrokerInterface, PhpSerializa
 
     public function __toPhpCode()
     {
-        return 'new '. get_called_class() .'('. \common_Utils::toHumanReadablePhpString($this->numberOfTasksToReceive) .')';
+        return 'new ' . get_called_class() . '(' . \common_Utils::toHumanReadablePhpString($this->numberOfTasksToReceive) . ')';
     }
 
     /**
@@ -143,9 +144,7 @@ abstract class AbstractQueueBroker implements QueueBrokerInterface, PhpSerializa
             }
 
             return $task;
-
         } catch (\Exception $e) {
-
             $this->doDelete($idForDeletion, $logContext);
 
             return null;
@@ -167,7 +166,8 @@ abstract class AbstractQueueBroker implements QueueBrokerInterface, PhpSerializa
      */
     protected function assertValidJson($basicData)
     {
-        if ( ($basicData !== null
+        if (
+            ($basicData !== null
             && json_last_error() === JSON_ERROR_NONE
             && isset($basicData[TaskInterface::JSON_TASK_CLASS_NAME_KEY])) === false
         ) {
@@ -191,10 +191,9 @@ abstract class AbstractQueueBroker implements QueueBrokerInterface, PhpSerializa
 
             $task->setCallable($callable);
         } catch (ResolutionException $e) {
-
             $this->logError('Callable/Action class ' . $task->getCallable() . ' does not exist', $logContext);
 
-            throw new \Exception;
+            throw new \Exception();
         }
     }
 

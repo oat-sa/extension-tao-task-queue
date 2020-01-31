@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,6 +18,7 @@
  * Copyright (c) 2017 (original work) Open Assessment Technologies SA
  *
  */
+
 namespace oat\taoTaskQueue\scripts\install;
 
 use oat\oatbox\extension\InstallAction;
@@ -31,7 +33,8 @@ class SetClientRouterConfig extends InstallAction
     public function __invoke($params)
     {
         ClientLibConfigRegistry::getRegistry()->register(
-            'controller/main', [
+            'controller/main',
+            [
                 'extraRoutes' => ['taoTaskQueue/Main/index']
             ]
         );

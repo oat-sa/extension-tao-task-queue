@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -59,7 +60,7 @@ class SqsQueueBroker extends AbstractQueueBroker
         parent::__construct($receiveTasks);
 
         if (empty($cacheServiceId)) {
-            throw new \InvalidArgumentException("Cache Service needs to be set for ". __CLASS__);
+            throw new \InvalidArgumentException("Cache Service needs to be set for " . __CLASS__);
         }
 
         $this->cacheId = $cacheServiceId;
@@ -67,11 +68,11 @@ class SqsQueueBroker extends AbstractQueueBroker
 
     public function __toPhpCode()
     {
-        return 'new '. get_called_class() .'('
+        return 'new ' . get_called_class() . '('
             . \common_Utils::toHumanReadablePhpString($this->cacheId)
             . ', '
             . \common_Utils::toHumanReadablePhpString($this->getNumberOfTasksToReceive())
-            .')';
+            . ')';
     }
 
     /**
@@ -81,7 +82,7 @@ class SqsQueueBroker extends AbstractQueueBroker
     {
         if (is_null($this->client)) {
             if (!$this->getServiceLocator()->has(self::DEFAULT_AWS_CLIENT_KEY)) {
-                throw new \RuntimeException('Unable to load driver for '. __CLASS__ .', most likely generis/awsClient.conf.php does not exist.');
+                throw new \RuntimeException('Unable to load driver for ' . __CLASS__ . ', most likely generis/awsClient.conf.php does not exist.');
             }
 
             /** @var AwsClient $awsClient */
@@ -127,14 +128,14 @@ class SqsQueueBroker extends AbstractQueueBroker
 
                 $this->getCache()->put($this->getUrlCacheKey(), $this->queueUrl);
 
-                $this->logDebug('Queue '. $this->queueUrl .' created and cached');
+                $this->logDebug('Queue ' . $this->queueUrl . ' created and cached');
             } else {
-                $this->logError('Queue '. $this->getQueueNameWithPrefix() .' not created');
+                $this->logError('Queue ' . $this->getQueueNameWithPrefix() . ' not created');
             }
         } catch (AwsException $e) {
-            $this->logError('Creating queue '. $this->getQueueNameWithPrefix() .' failed with MSG: '. $e->getMessage());
+            $this->logError('Creating queue ' . $this->getQueueNameWithPrefix() . ' failed with MSG: ' . $e->getMessage());
 
-            if(PHP_SAPI == 'cli'){
+            if (PHP_SAPI == 'cli') {
                 throw $e;
             }
         }
@@ -172,7 +173,7 @@ class SqsQueueBroker extends AbstractQueueBroker
                 $this->logError('Message seems not received by SQS.', $logContext);
             }
         } catch (AwsException $e) {
-            $this->logError('Pushing message failed with MSG: '. $e->getAwsErrorMessage(), $logContext);
+            $this->logError('Pushing message failed with MSG: ' . $e->getAwsErrorMessage(), $logContext);
         }
 
         return false;
@@ -204,7 +205,7 @@ class SqsQueueBroker extends AbstractQueueBroker
             ]);
 
             if (count($result->get('Messages')) > 0) {
-                $this->logDebug('Received '. count($result->get('Messages')) .' messages.', $logContext);
+                $this->logDebug('Received ' . count($result->get('Messages')) . ' messages.', $logContext);
 
                 foreach ($result->get('Messages') as $message) {
                     $task = $this->unserializeTask($message['Body'], $message['ReceiptHandle'], [
@@ -221,7 +222,7 @@ class SqsQueueBroker extends AbstractQueueBroker
                 $this->logDebug('No messages in queue.', $logContext);
             }
         } catch (AwsException $e) {
-            $this->logError('Popping tasks failed with MSG: '. $e->getAwsErrorMessage(), $logContext);
+            $this->logError('Popping tasks failed with MSG: ' . $e->getAwsErrorMessage(), $logContext);
         }
     }
 
@@ -261,7 +262,7 @@ class SqsQueueBroker extends AbstractQueueBroker
 
             $this->logDebug('Task deleted from queue.', $logContext);
         } catch (AwsException $e) {
-            $this->logError('Deleting task failed with MSG: '. $e->getAwsErrorMessage(), $logContext);
+            $this->logError('Deleting task failed with MSG: ' . $e->getAwsErrorMessage(), $logContext);
         }
     }
 
@@ -285,7 +286,7 @@ class SqsQueueBroker extends AbstractQueueBroker
                 return (int) $result['Attributes']['ApproximateNumberOfMessages'];
             }
         } catch (AwsException $e) {
-            $this->logError('Counting tasks failed with MSG: '. $e->getAwsErrorMessage());
+            $this->logError('Counting tasks failed with MSG: ' . $e->getAwsErrorMessage());
         }
 
         return 0;
@@ -317,16 +318,16 @@ class SqsQueueBroker extends AbstractQueueBroker
             if ($result->hasKey('QueueUrl')) {
                 $this->queueUrl = $result->get('QueueUrl');
             } else {
-                $this->logError('Queue url for'. $this->getQueueNameWithPrefix() .' not fetched');
+                $this->logError('Queue url for' . $this->getQueueNameWithPrefix() . ' not fetched');
             }
 
             if ($this->queueUrl !== null) {
                 $this->getCache()->put($this->queueUrl, $this->getUrlCacheKey());
-                $this->logDebug('Queue url '. $this->queueUrl .' fetched and cached');
+                $this->logDebug('Queue url ' . $this->queueUrl . ' fetched and cached');
                 return true;
             }
         } catch (AwsException $e) {
-            $this->logWarning('Fetching queue url for '. $this->getQueueNameWithPrefix() .' failed. MSG: '. $e->getAwsErrorMessage());
+            $this->logWarning('Fetching queue url for ' . $this->getQueueNameWithPrefix() . ' failed. MSG: ' . $e->getAwsErrorMessage());
         }
 
         return false;
@@ -337,7 +338,7 @@ class SqsQueueBroker extends AbstractQueueBroker
      */
     private function getUrlCacheKey()
     {
-        return $this->getQueueNameWithPrefix() .'_url';
+        return $this->getQueueNameWithPrefix() . '_url';
     }
 
     /**

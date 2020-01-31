@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -58,7 +59,7 @@ class AddTaskToQueue implements Action, ServiceLocatorAwareInterface
             return Report::createFailure('Action in not instance of ' . Action::class);
         }
 
-        $actionInstance = new $action;
+        $actionInstance = new $action();
         /** @var QueueDispatcherInterface $queueDispatcher */
         $queueDispatcher = $this->getServiceLocator()->get(QueueDispatcherInterface::SERVICE_ID);
         $queueDispatcher->createTask($actionInstance, $params, $action);
