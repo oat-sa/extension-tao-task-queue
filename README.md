@@ -83,14 +83,8 @@ try {
 }
 ```
 
-### Running Commands
-
-Please make sure that you're on the tao root folder before run the commands:
-
-```bash
- $ cd /path/to/your/tao/instance
-```
-
+__Note__: 
+> Before run the commands, please make sure that you're on the tao root folder:
 
 ### Initializing the queues and the task log container
 
