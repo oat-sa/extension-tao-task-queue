@@ -83,6 +83,15 @@ try {
 }
 ```
 
+### Running Commands
+
+Please make sure that you're on the tao root folder before run the commands:
+
+```bash
+ $ cd /path/to/your/tao/instance
+```
+
+
 ### Initializing the queues and the task log container
 
 You can run this script if you want to be sure that the required queues and the task log container are created.
