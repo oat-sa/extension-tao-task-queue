@@ -84,7 +84,7 @@ try {
 ```
 
 __Note__: 
-> Before run the commands, please make sure that you're on the tao root folder:
+> Before run the commands, please make sure that you're on the tao root folder.
 
 ### Initializing the queues and the task log container
 
