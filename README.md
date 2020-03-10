@@ -83,6 +83,9 @@ try {
 }
 ```
 
+__Note__: 
+> Before run the commands, please make sure that you're on the tao root folder.
+
 ### Initializing the queues and the task log container
 
 You can run this script if you want to be sure that the required queues and the task log container are created.
