@@ -251,6 +251,6 @@ class Updater extends common_ext_ExtensionUpdater
             $this->setVersion('1.1.0');
         }
 
-        $this->skip('1.1.0', '5.0.1');
+        $this->skip('1.1.0', '5.0.2');
     }
 }
