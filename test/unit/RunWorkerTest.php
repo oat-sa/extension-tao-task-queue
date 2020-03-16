@@ -20,7 +20,9 @@
 
 namespace oat\taoTaskQueue\test\unit;
 
+use common_report_Report;
 use oat\generis\test\TestCase;
+use oat\oatbox\session\SessionService;
 use oat\taoSync\model\OfflineMachineChecksService;
 use oat\taoTaskQueue\scripts\tools\RunWorker;
 use oat\tao\model\taskQueue\QueueDispatcherInterface;
@@ -36,6 +38,7 @@ class RunWorkerTest extends TestCase
      */
     public function testGetReport()
     {
+        $sessionService = $this->createMock(SessionService::class);
         $task = $this->prophesize(TaskInterface::class);
         $queue = $this->prophesize(QueueInterface::class);
         $queue->getNumberOfTasksToReceive()->willReturn(1);
@@ -46,17 +49,17 @@ class RunWorkerTest extends TestCase
         $dispatch->getQueue('unitQueue')->willReturn($queue->reveal());
         $tasklog = $this->prophesize(TaskLogInterface::class);
         $log = $this->prophesize(LoggerService::class);
-        
         $sl = $this->getServiceLocatorMock([
             QueueDispatcherInterface::SERVICE_ID => $dispatch->reveal(),
             TaskLogInterface::SERVICE_ID => $tasklog->reveal(),
-            LoggerService::SERVICE_ID => $log->reveal()
+            LoggerService::SERVICE_ID => $log->reveal(),
+            SessionService::class=>$sessionService
         ]);
-        
+
         $worker = new RunWorker();
         $worker->setServiceLocator($sl);
         $report = $worker->__invoke(["--queue=unitQueue", "--limit=1"]);
-        $this->assertInstanceOf(\common_report_Report::class, $report, 'Returned report must be as expected.');
-        $this->assertEquals(\common_report_Report::TYPE_SUCCESS, $report->getType());
+        $this->assertInstanceOf(common_report_Report::class, $report, 'Returned report must be as expected.');
+        $this->assertEquals(common_report_Report::TYPE_SUCCESS, $report->getType());
     }
 }

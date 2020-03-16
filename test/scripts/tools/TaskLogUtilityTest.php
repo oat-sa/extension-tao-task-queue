@@ -39,7 +39,7 @@ class TaskLogUtilityTest extends TestCase
     /** @var TaskLogInterface */
     private $taskLogMock;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 

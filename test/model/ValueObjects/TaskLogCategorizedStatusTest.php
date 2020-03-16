@@ -21,6 +21,7 @@
 
 namespace oat\taoTaskQueue\test\model\ValueObjects;
 
+use Exception;
 use oat\taoTaskQueue\model\ValueObjects\TaskLogCategorizedStatus;
 use oat\generis\test\TestCase;
 
@@ -30,7 +31,7 @@ use oat\generis\test\TestCase;
 class TaskLogCategorizedStatusTest extends TestCase
 {
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testCreateWithValidStatus()
     {
@@ -39,16 +40,16 @@ class TaskLogCategorizedStatusTest extends TestCase
     }
 
     /**
-     * @expectedException \Exception
-     * @throws \Exception
+     * @throws Exception
      */
     public function testCreateWithInvalidStatus()
     {
+        $this->expectException(Exception::class);
         TaskLogCategorizedStatus::createFromString('some invalid status');
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testStatusAreMappedCorrectly()
     {
@@ -72,7 +73,7 @@ class TaskLogCategorizedStatusTest extends TestCase
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testStatusEquals()
     {

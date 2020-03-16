@@ -63,7 +63,7 @@ class TaskLogEntityTest extends TestCase
         $this->assertInstanceOf(\DateTime::class, $entity->getUpdatedAt());
         $this->assertInternalType('string', $entity->getId());
         $this->assertInternalType('string', $entity->getTaskName());
-        $this->assertInternalType('array', $entity->getParameters());
+        $this->assertIsArray( $entity->getParameters());
         $this->assertInternalType('string', $entity->getLabel());
         $this->assertInternalType('string', $entity->getOwner());
 
