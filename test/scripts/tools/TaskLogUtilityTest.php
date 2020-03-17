@@ -93,9 +93,9 @@ class TaskLogUtilityTest extends TestCase
         $output = $this->subject->__invoke(['--stats']);
 
         $this->assertInstanceOf(common_report_Report::class, $output);
-        $this->assertContains('"numberOfTasksCompleted": 1', $output->getMessage());
-        $this->assertContains('"numberOfTasksFailed": 2', $output->getMessage());
-        $this->assertContains('"numberOfTasksInProgress": 3', $output->getMessage());
+        $this->assertStringContainsString('"numberOfTasksCompleted": 1', $output->getMessage());
+        $this->assertStringContainsString('"numberOfTasksFailed": 2', $output->getMessage());
+        $this->assertStringContainsString('"numberOfTasksInProgress": 3', $output->getMessage());
     }
 
     public function testFindAvailableByUser()
@@ -127,9 +127,9 @@ class TaskLogUtilityTest extends TestCase
         $output = $this->subject->__invoke(['--get-task=id']);
 
         $this->assertInstanceOf(common_report_Report::class, $output);
-        $this->assertContains('"id": "id"', $output->getMessage());
-        $this->assertContains('"taskName": "name"', $output->getMessage());
-        $this->assertContains('"status": "' . CategorizedStatus::created() . '"', $output->getMessage());
+        $this->assertStringContainsString('"id": "id"', $output->getMessage());
+        $this->assertStringContainsString('"taskName": "name"', $output->getMessage());
+        $this->assertStringContainsString('"status": "' . CategorizedStatus::created() . '"', $output->getMessage());
     }
 
     public function testArchive()

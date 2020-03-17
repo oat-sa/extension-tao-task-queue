@@ -96,13 +96,13 @@ class WorkerProcessManagerTest extends TestCase
     {
         $workerManager = new WorkerProcessManager();
 
-        $this->assertInternalType('numeric', $workerManager->getMemoryUsage());
+        $this->assertIsNumeric($workerManager->getMemoryUsage());
     }
 
     public function testGetCpuUsage()
     {
         $workerManager = new WorkerProcessManager();
 
-        $this->assertInternalType('float', $workerManager->getCpuUsage());
+        $this->assertIsFloat($workerManager->getCpuUsage());
     }
 }
