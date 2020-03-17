@@ -21,6 +21,7 @@
 
 namespace oat\taoTaskQueue\test\model\TaskLogBroker;
 
+use InvalidArgumentException;
 use oat\oatbox\service\ServiceManager;
 use oat\taoTaskQueue\model\TaskLogBroker\RdsTaskLogBroker;
 use oat\generis\test\TestCase;
@@ -30,11 +31,9 @@ use oat\generis\test\TestCase;
  */
 class RdsTaskLogBrokerTest extends TestCase
 {
-    /**
-     * @expectedException \InvalidArgumentException
-     */
     public function testTaskLogBrokerServiceShouldThrowExceptionWhenPersistenceOptionIsEmpty()
     {
+        $this->expectException(InvalidArgumentException::class);
         new RdsTaskLogBroker('');
     }
 
