@@ -49,7 +49,7 @@ class TaskLogCollectionTest extends TestCase
     {
         $collection = $this->createCollection();
 
-        $this->assertisarray($collection->jsonSerialize());
+        $this->assertIsArray($collection->jsonSerialize());
     }
 
     /**
