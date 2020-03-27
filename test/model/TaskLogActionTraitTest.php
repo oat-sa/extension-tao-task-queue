@@ -21,6 +21,7 @@
 
 namespace oat\taoTaskQueue\test\model;
 
+use common_exception_BadRequest;
 use oat\oatbox\service\ServiceManager;
 use oat\taoTaskQueue\model\Entity\TaskLogEntity;
 use oat\taoTaskQueue\model\TaskLog;
@@ -165,11 +166,9 @@ class TaskLogActionTraitTest extends TestCase
         return $taskLogEntityMock;
     }
 
-    /**
-     * @expectedException \common_exception_BadRequest
-     */
     public function testGetTaskLogReturnDataWhenTaskTypeIsProvidedButTheTaskIdBelongsToDifferentTypeOfTaskThenThrowException()
     {
+        $this->expectException(common_exception_BadRequest::class);
         $taskLogEntityMock = $this->getTaskLogEntityMock();
 
         $taskLogEntityMock->expects($this->once())
