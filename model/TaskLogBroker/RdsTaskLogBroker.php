@@ -20,9 +20,11 @@
 
 namespace oat\taoTaskQueue\model\TaskLogBroker;
 
-use oat\oatbox\PhpSerializable;
 use common_report_Report as Report;
 use Doctrine\DBAL\Query\QueryBuilder;
+use Google\Cloud\Spanner\Transaction;
+use oat\oatbox\log\LoggerAwareTrait;
+use oat\oatbox\PhpSerializable;
 use oat\taoTaskQueue\model\Entity\TaskLogEntity;
 use oat\taoTaskQueue\model\Entity\TasksLogsStats;
 use oat\taoTaskQueue\model\QueueDispatcherInterface;
@@ -35,7 +37,6 @@ use oat\taoTaskQueue\model\TaskLogInterface;
 use oat\taoTaskQueue\model\ValueObjects\TaskLogCategorizedStatus;
 use Psr\Log\LoggerAwareInterface;
 use Zend\ServiceManager\ServiceLocatorAwareTrait;
-use oat\oatbox\log\LoggerAwareTrait;
 
 /**
  * Storing message logs in RDS.
@@ -314,28 +315,21 @@ class RdsTaskLogBroker implements TaskLogBrokerInterface, PhpSerializable, Logge
      */
     public function archive(TaskLogEntity $entity)
     {
-        $this->getPersistence()->getPlatform()->beginTransaction();
+        $qb = $this->getQueryBuilder()
+            ->update($this->getTableName())
+            ->set(self::COLUMN_STATUS, ':status_new')
+            ->set(self::COLUMN_UPDATED_AT, ':updated_at')
+            ->where(self::COLUMN_ID .' = :id')
+            ->setParameter('id', (string) $entity->getId())
+            ->setParameter('status_new', (string) TaskLogInterface::STATUS_ARCHIVED)
+            ->setParameter('updated_at', $this->getPersistence()->getPlatForm()->getNowExpression());
 
         try {
-            $qb = $this->getQueryBuilder()
-                ->update($this->getTableName())
-                ->set(self::COLUMN_STATUS, ':status_new')
-                ->set(self::COLUMN_UPDATED_AT, ':updated_at')
-                ->where(self::COLUMN_ID .' = :id')
-                ->setParameter('id', (string) $entity->getId())
-                ->setParameter('status_new', (string) TaskLogInterface::STATUS_ARCHIVED)
-                ->setParameter('updated_at', $this->getPersistence()->getPlatForm()->getNowExpression());
-
-            $qb->execute();
-            $this->getPersistence()->getPlatform()->commit();
-
+            return $qb->execute();
         } catch (\Exception $e) {
-            $this->getPersistence()->getPlatform()->rollBack();
-
+            $this->logDebug($e->getMessage());
             return false;
         }
-
-        return true;
     }
 
     /**
@@ -343,29 +337,28 @@ class RdsTaskLogBroker implements TaskLogBrokerInterface, PhpSerializable, Logge
      */
     public function archiveCollection(TaskLogCollectionInterface $collection)
     {
-        $this->getPersistence()->getPlatform()->beginTransaction();
+        $qb = $this->getQueryBuilder()
+            ->update($this->getTableName())
+            ->set(self::COLUMN_STATUS, ':status_new')
+            ->set(self::COLUMN_UPDATED_AT, ':updated_at')
+            ->where(self::COLUMN_ID .' IN(:id)')
+            ->setParameter('id', $collection->getIds(), \Doctrine\DBAL\Connection::PARAM_STR_ARRAY)
+            ->setParameter('status_new', (string) TaskLogInterface::STATUS_ARCHIVED)
+            ->setParameter('updated_at', $this->getPersistence()->getPlatForm()->getNowExpression());
+        $query = $qb->getSQL();
 
         try {
-            $qb = $this->getQueryBuilder()
-                ->update($this->getTableName())
-                ->set(self::COLUMN_STATUS, ':status_new')
-                ->set(self::COLUMN_UPDATED_AT, ':updated_at')
-                ->where(self::COLUMN_ID .' IN(:id)')
-                ->setParameter('id', $collection->getIds(), \Doctrine\DBAL\Connection::PARAM_STR_ARRAY)
-                ->setParameter('status_new', (string) TaskLogInterface::STATUS_ARCHIVED)
-                ->setParameter('updated_at', $this->getPersistence()->getPlatForm()->getNowExpression());
-
-            $exec = $qb->execute();
-            $this->getPersistence()->getPlatform()->commit();
-
+            return $this->getPersistence()->getPlatForm()->transactional(
+                static function(Transaction $transaction) use ($query) {
+                    $result = $transaction->execute($query);
+                    $transaction->commit();
+                    return $result;
+                }
+            );
         } catch (\Exception $e) {
-            $this->getPersistence()->getPlatform()->rollBack();
             $this->logDebug($e->getMessage());
-
             return false;
         }
-
-        return $exec;
     }
 
     /**
@@ -373,24 +366,17 @@ class RdsTaskLogBroker implements TaskLogBrokerInterface, PhpSerializable, Logge
      */
     public function deleteById($taskId)
     {
-        $this->getPersistence()->getPlatform()->beginTransaction();
+        $qb = $this->getQueryBuilder()
+            ->delete($this->getTableName())
+            ->where(self::COLUMN_ID .' = :id')
+            ->setParameter('id', (string) $taskId);
 
         try {
-            $qb = $this->getQueryBuilder()
-                ->delete($this->getTableName())
-                ->where(self::COLUMN_ID .' = :id')
-                ->setParameter('id', (string) $taskId);
-
-            $qb->execute();
-            $this->getPersistence()->getPlatform()->commit();
-
+            return $qb->execute();
         } catch (\Exception $e) {
-            $this->getPersistence()->getPlatform()->rollBack();
-
+            $this->logDebug($e->getMessage());
             return false;
         }
-
-        return true;
     }
 
     /**

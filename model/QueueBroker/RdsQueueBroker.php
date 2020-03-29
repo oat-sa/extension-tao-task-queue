@@ -28,6 +28,7 @@ use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\SchemaException;
 use Exception;
 use InvalidArgumentException;
+use Google\Cloud\Spanner\Transaction;
 use oat\generis\Helper\UuidPrimaryKeyTrait;
 use oat\tao\model\taskQueue\Queue\Broker\AbstractQueueBroker;
 use oat\tao\model\taskQueue\Task\TaskInterface;
@@ -167,56 +168,65 @@ class RdsQueueBroker extends AbstractQueueBroker
      */
     protected function doPop()
     {
-        $this->getPersistence()->getPlatform()->beginTransaction();
-
-        $logContext = [
-            'Queue' => $this->getQueueNameWithPrefix()
-        ];
+        $logContext = ['Queue' => $this->getQueueNameWithPrefix()];
 
         try {
-            $qb = $this->getQueryBuilder()
-                ->select('id, message')
-                ->from($this->getTableName())
-                ->andWhere('visible = :visible')
-                ->orderBy('created_at')
-                ->setMaxResults($this->getNumberOfTasksToReceive());
-
-            /**
-             * SELECT ... FOR UPDATE is used for locking
-             *
-             * @see https://dev.mysql.com/doc/refman/5.6/en/innodb-locking-reads.html
-             */
-            $sql = $qb->getSQL() .' '. $this->getPersistence()->getPlatForm()->getWriteLockSQL();
-
-            if ($dbResult = $this->getPersistence()->query($sql, ['visible' => true])->fetchAll(PDO::FETCH_ASSOC)) {
-
-                // set the received messages to invisible for other workers
-                $qb = $this->getQueryBuilder()
-                    ->update($this->getTableName())
-                    ->set('visible', ':visible')
-                    ->where('id IN (:ids)')
-                    ->setParameter('visible', false, ParameterType::BOOLEAN)
-                    ->setParameter('ids', array_column($dbResult, 'id'), Connection::PARAM_STR_ARRAY);
-
-                $qb->execute();
-
-                foreach ($dbResult as $row) {
-                    if ($task = $this->unserializeTask($row['message'], $row['id'], $logContext)) {
-                        $task->setMetadata('RdsMessageId', $row['id']);
-                        $this->pushPreFetchedMessage($task);
-                    }
-                }
-            } else {
-                $this->logDebug('No task in the queue.', $logContext);
-            }
-
-            $this->getPersistence()->getPlatform()->commit();
+            $messages = $this->extractTasksFromQueue();
         } catch (Exception $e) {
-            $this->getPersistence()->getPlatform()->rollBack();
-            $this->logError('Popping tasks failed with MSG: '. $e->getMessage(), $logContext);
+            $this->logError('Popping tasks failed with MSG: ' . $e->getMessage(), $logContext);
+        }
+
+        // Checks message presence.
+        if (count($messages) === 0) {
+            $this->logDebug('No task in the queue.', $logContext);
+            return;
+        }
+        $this->logDebug('Received ' . count($messages) . ' messages.', $logContext);
+        
+        // Pushes messages to prefetch.
+        foreach ($messages as $message) {
+            $task = $this->unserializeTask($message['message'], $message['id'], $logContext);
+            if ($task) {
+                $task->setMetadata('RdsMessageId', $message['id']);
+                $this->pushPreFetchedMessage($task);
+            }
         }
     }
 
+    public function extractTasksFromQueue()
+    {
+        $selectVisibleTasksQb = $this->getQueryBuilder()
+            ->select('id, message')
+            ->from($this->getTableName())
+            ->andWhere('visible = :visible')
+            ->setParameter('visible', true, ParameterType::BOOLEAN)
+            ->orderBy('created_at')
+            ->setMaxResults($this->getNumberOfTasksToReceive());
+
+        // SELECT ... FOR UPDATE is used for locking
+        // @see https://dev.mysql.com/doc/refman/5.6/en/innodb-locking-reads.html
+        $selectVisibleTasksSql = $selectVisibleTasksQb->getSQL() .' '. $this->getPersistence()->getPlatForm()->getWriteLockSQL();
+
+        // set the received messages to invisible for other workers
+        $consumeTasksQb = $this->getQueryBuilder()
+            ->update($this->getTableName())
+            ->set('visible', ':visible')
+            ->where('id IN (:ids)')
+            ->setParameter('visible', false, ParameterType::BOOLEAN);
+        
+        return $this->getPersistence()->transactional(
+            static function(Transaction $transaction) use ($selectVisibleTasksSql, $consumeTasksQb) {
+                $messages = $transaction->execute($selectVisibleTasksSql)->fetchAll(PDO::FETCH_ASSOC);
+                if ($messages) {
+                    $consumeTasksQb->setParameter('ids', array_column($messages, 'id'), Connection::PARAM_STR_ARRAY);
+                    $transaction->executeUpdate($consumeTasksQb->getSQL());
+                    $transaction->commit();
+                }
+                return $messages;
+            }
+        );
+    }
+        
     /**
      * Delete the message after being processed by the worker.
      *
