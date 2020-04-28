@@ -21,18 +21,12 @@
 
 namespace oat\taoTaskQueue\model\QueueBroker;
 
-use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Query\QueryBuilder;
-use Doctrine\DBAL\Schema\AbstractSchemaManager;
-use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\SchemaException;
-use Exception;
-use InvalidArgumentException;
-use oat\generis\Helper\UuidPrimaryKeyTrait;
+use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use oat\tao\model\taskQueue\Queue\Broker\AbstractQueueBroker;
 use oat\tao\model\taskQueue\Task\TaskInterface;
-use PDO;
 
 /**
  * Storing messages/tasks in DB.
@@ -41,8 +35,6 @@ use PDO;
  */
 class RdsQueueBroker extends AbstractQueueBroker
 {
-    use UuidPrimaryKeyTrait;
-
     private $persistenceId;
 
     /**
@@ -61,7 +53,7 @@ class RdsQueueBroker extends AbstractQueueBroker
         parent::__construct($receiveTasks);
 
         if (empty($persistenceId)) {
-            throw new InvalidArgumentException("Persistence id needs to be set for ". __CLASS__);
+            throw new \InvalidArgumentException("Persistence id needs to be set for " . __CLASS__);
         }
 
         $this->persistenceId = $persistenceId;
@@ -69,11 +61,11 @@ class RdsQueueBroker extends AbstractQueueBroker
 
     public function __toPhpCode()
     {
-        return 'new '. get_called_class() .'('
+        return 'new ' . get_called_class() . '('
             . \common_Utils::toHumanReadablePhpString($this->persistenceId)
             . ', '
             . \common_Utils::toHumanReadablePhpString($this->getNumberOfTasksToReceive())
-            .')';
+            . ')';
     }
 
     /**
@@ -112,28 +104,20 @@ class RdsQueueBroker extends AbstractQueueBroker
         /** @var Schema $schema */
         $schema = $schemaManager->createSchema();
         $fromSchema = clone $schema;
-
-        if (in_array($this->getTableName(), $schemaManager->getTables())) {
-            $schema->dropTable($this->getTableName());
-        }
-        $queries = $persistence->getPlatForm()->getMigrateSchemaSql($fromSchema, $schema);
-
-        foreach ($queries as $query) {
-            $persistence->exec($query);
-        }
-
         try {
+            if (in_array($this->getTableName(), $schemaManager->getTables())) {
+                $schema->dropTable($this->getTableName());
+            }
             $table = $schema->createTable($this->getTableName());
             $table->addOption('engine', 'InnoDB');
-            $table->addColumn('id', 'string', ['length' => 36]);
+            $table->addColumn('id', 'integer', ["autoincrement" => true, "notnull" => true, "unsigned" => true]);
             $table->addColumn('message', 'text', ["notnull" => true]);
-            $table->addColumn('visible', 'boolean', []);
+            $table->addColumn('visible', 'boolean', ["default" => 1]);
             $table->addColumn('created_at', 'datetime', ['notnull' => true]);
             $table->setPrimaryKey(['id']);
-            $table->addIndex(['created_at', 'visible'], 'IDX_created_at_visible_'. $this->getQueueName());
-
+            $table->addIndex(['created_at', 'visible'], 'IDX_created_at_visible_' . $this->getQueueName());
         } catch (SchemaException $e) {
-            $this->logDebug('Schema of '. $this->getTableName() .' table already up to date.');
+            $this->logDebug('Schema of ' . $this->getTableName() . ' table already up to date.');
         }
 
         $queries = $persistence->getPlatForm()->getMigrateSchemaSql($fromSchema, $schema);
@@ -143,7 +127,7 @@ class RdsQueueBroker extends AbstractQueueBroker
         }
 
         if ($queries) {
-            $this->logDebug('Queue '. $this->getTableName() .' created/updated in RDS.');
+            $this->logDebug('Queue ' . $this->getTableName() . ' created/updated in RDS.');
         }
     }
 
@@ -156,10 +140,8 @@ class RdsQueueBroker extends AbstractQueueBroker
     public function push(TaskInterface $task)
     {
         return (bool) $this->getPersistence()->insert($this->getTableName(), [
-            'id' => $this->getUniquePrimaryKey(),
             'message' => $this->serializeTask($task),
-            'created_at' => $this->getPersistence()->getPlatForm()->getNowExpression(),
-            'visible' => true,
+            'created_at' => $this->getPersistence()->getPlatForm()->getNowExpression()
         ]);
     }
 
@@ -187,17 +169,15 @@ class RdsQueueBroker extends AbstractQueueBroker
              *
              * @see https://dev.mysql.com/doc/refman/5.6/en/innodb-locking-reads.html
              */
-            $sql = $qb->getSQL() .' '. $this->getPersistence()->getPlatForm()->getWriteLockSQL();
+            $sql = $qb->getSQL() . ' ' . $this->getPersistence()->getPlatForm()->getWriteLockSQL();
 
-            if ($dbResult = $this->getPersistence()->query($sql, ['visible' => true])->fetchAll(PDO::FETCH_ASSOC)) {
-
+            if ($dbResult = $this->getPersistence()->query($sql, ['visible' => 1])->fetchAll(\PDO::FETCH_ASSOC)) {
                 // set the received messages to invisible for other workers
                 $qb = $this->getQueryBuilder()
                     ->update($this->getTableName())
                     ->set('visible', ':visible')
-                    ->where('id IN (:ids)')
-                    ->setParameter('visible', false, ParameterType::BOOLEAN)
-                    ->setParameter('ids', array_column($dbResult, 'id'), Connection::PARAM_STR_ARRAY);
+                    ->where('id IN (' . implode(',', array_column($dbResult, 'id')) . ')')
+                    ->setParameter('visible', 0);
 
                 $qb->execute();
 
@@ -212,9 +192,9 @@ class RdsQueueBroker extends AbstractQueueBroker
             }
 
             $this->getPersistence()->getPlatform()->commit();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->getPersistence()->getPlatform()->rollBack();
-            $this->logError('Popping tasks failed with MSG: '. $e->getMessage(), $logContext);
+            $this->logError('Popping tasks failed with MSG: ' . $e->getMessage(), $logContext);
         }
     }
 
@@ -243,11 +223,11 @@ class RdsQueueBroker extends AbstractQueueBroker
                 ->delete($this->getTableName())
                 ->where('id = :id')
                 ->andWhere('visible = :visible')
-                ->setParameter('id',  $id)
-                ->setParameter('visible', false, ParameterType::BOOLEAN)
+                ->setParameter('id', (int) $id)
+                ->setParameter('visible', 0)
                 ->execute();
-        } catch (Exception $e) {
-            $this->logError('Deleting task failed with MSG: '. $e->getMessage(), $logContext);
+        } catch (\Exception $e) {
+            $this->logError('Deleting task failed with MSG: ' . $e->getMessage(), $logContext);
         }
     }
 
@@ -261,11 +241,11 @@ class RdsQueueBroker extends AbstractQueueBroker
                 ->select('COUNT(id)')
                 ->from($this->getTableName())
                 ->andWhere('visible = :visible')
-                ->setParameter('visible', true, ParameterType::BOOLEAN);
+                ->setParameter('visible', 1);
 
             return (int) $qb->execute()->fetchColumn();
-        } catch (Exception $e) {
-            $this->logError('Counting tasks failed with MSG: '. $e->getMessage());
+        } catch (\Exception $e) {
+            $this->logError('Counting tasks failed with MSG: ' . $e->getMessage());
         }
 
         return 0;

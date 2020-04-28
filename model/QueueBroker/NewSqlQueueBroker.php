@@ -15,12 +15,15 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2017 (original work) Open Assessment Technologies SA (under the project TAO-PRODUCT);
+ * Copyright (c) 2020 (original work) Open Assessment Technologies SA (under the project TAO-PRODUCT);
  *
  */
 
+declare(strict_types=1);
+
 namespace oat\taoTaskQueue\model\QueueBroker;
 
+use common_persistence_SqlPersistence;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Query\QueryBuilder;
@@ -30,38 +33,31 @@ use Doctrine\DBAL\Schema\SchemaException;
 use Exception;
 use InvalidArgumentException;
 use oat\generis\Helper\UuidPrimaryKeyTrait;
+use oat\generis\persistence\PersistenceManager;
 use oat\tao\model\taskQueue\Queue\Broker\AbstractQueueBroker;
 use oat\tao\model\taskQueue\Task\TaskInterface;
-use PDO;
+use oat\taoTaskQueue\model\QueueBroker\storage\NewSqlSchema;
 
 /**
  * Storing messages/tasks in DB.
  *
  * @author Gyula Szucs <gyula@taotesting.com>
  */
-class RdsQueueBroker extends AbstractQueueBroker
+class NewSqlQueueBroker extends AbstractQueueBroker
 {
     use UuidPrimaryKeyTrait;
 
     private $persistenceId;
 
-    /**
-     * @var \common_persistence_SqlPersistence
-     */
+    /** @var common_persistence_SqlPersistence */
     protected $persistence;
 
-    /**
-     * RdsQueueBroker constructor.
-     *
-     * @param string $persistenceId
-     * @param int $receiveTasks
-     */
-    public function __construct($persistenceId, $receiveTasks = 1)
+    public function __construct(string $persistenceId, int $receiveTasks = 1)
     {
         parent::__construct($receiveTasks);
 
         if (empty($persistenceId)) {
-            throw new \InvalidArgumentException("Persistence id needs to be set for " . __CLASS__);
+            throw new InvalidArgumentException("Persistence id needs to be set for " . __CLASS__);
         }
 
         $this->persistenceId = $persistenceId;
@@ -76,24 +72,18 @@ class RdsQueueBroker extends AbstractQueueBroker
             . ')';
     }
 
-    /**
-     * @return \common_persistence_SqlPersistence
-     */
-    protected function getPersistence()
+    protected function getPersistence(): ?common_persistence_SqlPersistence
     {
-        if (is_null($this->persistence)) {
-            $this->persistence = $this->getServiceLocator()
-                ->get(\common_persistence_Manager::SERVICE_ID)
+        if ($this->persistence === null) {
+            $this->getServiceLocator()
+                ->get(PersistenceManager::SERVICE_ID)
                 ->getPersistenceById($this->persistenceId);
         }
 
         return $this->persistence;
     }
 
-    /**
-     * @return string
-     */
-    protected function getTableName()
+    private function getTableName(): string
     {
         return strtolower($this->getQueueNameWithPrefix());
     }
@@ -123,14 +113,9 @@ class RdsQueueBroker extends AbstractQueueBroker
         }
 
         try {
-            $table = $schema->createTable($this->getTableName());
-            $table->addOption('engine', 'InnoDB');
-            $table->addColumn('id', 'string', ['length' => 36]);
-            $table->addColumn('message', 'text', ["notnull" => true]);
-            $table->addColumn('visible', 'boolean', []);
-            $table->addColumn('created_at', 'datetime', ['notnull' => true]);
-            $table->setPrimaryKey(['id']);
-            $table->addIndex(['created_at', 'visible'], 'IDX_created_at_visible_' . $this->getQueueName());
+            $this->getSchemaProvider($schema)
+                ->setQueueName($this->getQueueName())
+                ->getSchema($schema, $this->getTableName());
         } catch (SchemaException $e) {
             $this->logDebug('Schema of ' . $this->getTableName() . ' table already up to date.');
         }
@@ -146,6 +131,11 @@ class RdsQueueBroker extends AbstractQueueBroker
         }
     }
 
+    public function getSchemaProvider(Schema $schema): NewSqlSchema
+    {
+        return $this->getServiceLocator()->get(NewSqlSchema::class);
+    }
+
     /**
      * Insert a new task into the queue table.
      *
@@ -154,7 +144,7 @@ class RdsQueueBroker extends AbstractQueueBroker
      */
     public function push(TaskInterface $task)
     {
-        return (bool) $this->getPersistence()->insert($this->getTableName(), [
+        return (bool)$this->getPersistence()->insert($this->getTableName(), [
             'id' => $this->getUniquePrimaryKey(),
             'message' => $this->serializeTask($task),
             'created_at' => $this->getPersistence()->getPlatForm()->getNowExpression(),
@@ -231,7 +221,7 @@ class RdsQueueBroker extends AbstractQueueBroker
 
     /**
      * @param string $id
-     * @param array  $logContext
+     * @param array $logContext
      * @return int
      */
     protected function doDelete($id, array $logContext = [])
@@ -241,7 +231,7 @@ class RdsQueueBroker extends AbstractQueueBroker
                 ->delete($this->getTableName())
                 ->where('id = :id')
                 ->andWhere('visible = :visible')
-                ->setParameter('id',  $id)
+                ->setParameter('id', $id)
                 ->setParameter('visible', false, ParameterType::BOOLEAN)
                 ->execute();
         } catch (\Exception $e) {
@@ -261,7 +251,7 @@ class RdsQueueBroker extends AbstractQueueBroker
                 ->andWhere('visible = :visible')
                 ->setParameter('visible', true, ParameterType::BOOLEAN);
 
-            return (int) $qb->execute()->fetchColumn();
+            return (int)$qb->execute()->fetchColumn();
         } catch (\Exception $e) {
             $this->logError('Counting tasks failed with MSG: ' . $e->getMessage());
         }

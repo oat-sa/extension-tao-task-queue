@@ -20,6 +20,8 @@
  *
  */
 
+use oat\taoTaskQueue\scripts\install\RegisterTaskLogService;
+use oat\taoTaskQueue\scripts\install\RegisterTaskQueueService;
 use oat\taoTaskQueue\scripts\install\SetClientRouterConfig;
 
 /**
