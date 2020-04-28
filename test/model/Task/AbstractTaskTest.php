@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,6 +21,7 @@
 
 namespace oat\taoTaskQueue\test\model\Task;
 
+use InvalidArgumentException;
 use oat\taoTaskQueue\model\Task\AbstractTask;
 use oat\taoTaskQueue\model\Task\TaskInterface;
 use oat\generis\test\TestCase;
@@ -36,14 +38,14 @@ class AbstractTaskTest extends TestCase
     private $fakeId = 'ADFA23234sdfsdf';
     private $fakeOwner = 'FakeOwner';
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->abstractTaskMock = $this->getMockBuilder(AbstractTask::class)
             ->setConstructorArgs([$this->fakeId, $this->fakeOwner])
             ->getMockForAbstractClass();
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         $this->abstractTaskMock = null;
     }
@@ -82,19 +84,15 @@ class AbstractTaskTest extends TestCase
         $this->assertEquals('bar', $this->abstractTaskMock->getMetadata('foo'));
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     */
     public function testSetMetadataWhenKeyIsInvalidThenThrowException()
     {
+        $this->expectException(InvalidArgumentException::class);
         $this->abstractTaskMock->setMetadata(new \stdClass());
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     */
     public function testGetMetadataWhenKeyIsInvalidThenThrowException()
     {
+        $this->expectException(InvalidArgumentException::class);
         $this->abstractTaskMock->getMetadata(new \stdClass());
     }
 
@@ -132,19 +130,15 @@ class AbstractTaskTest extends TestCase
         $this->assertEquals('bar', $this->abstractTaskMock->getParameter('foo'));
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     */
     public function testSetParameterWhenKeyIsInvalidThenThrowException()
     {
+        $this->expectException(InvalidArgumentException::class);
         $this->abstractTaskMock->setParameter(new \stdClass());
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     */
     public function testGetParameterWhenKeyIsInvalidThenThrowException()
     {
+        $this->expectException(InvalidArgumentException::class);
         $this->abstractTaskMock->getParameter(new \stdClass());
     }
 
@@ -193,7 +187,7 @@ class AbstractTaskTest extends TestCase
 
     public function testToStringWorks()
     {
-        $this->assertEquals('TASK '. get_class($this->abstractTaskMock) .' ['. $this->fakeId .']', (string) $this->abstractTaskMock);
+        $this->assertEquals('TASK ' . get_class($this->abstractTaskMock) . ' [' . $this->fakeId . ']', (string) $this->abstractTaskMock);
     }
 
     public function testOwnerShouldBeGeneratedInConstructor()

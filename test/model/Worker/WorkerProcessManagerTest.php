@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,6 +18,7 @@
  * Copyright (c) 2017 (original work) Open Assessment Technologies SA (under the project TAO-PRODUCT);
  *
  */
+
 namespace oat\taoTaskQueue\test\model\Worker;
 
 use oat\taoTaskQueue\model\Worker\WorkerProcessManager;
@@ -34,12 +36,12 @@ class WorkerProcessManagerTest extends TestCase
         $process1 = $this->getMockBuilder(Process::class)->disableOriginalConstructor()->getMock();
         $process1
             ->method('getPid')->willReturn(1);
-        $process1->stdout =$this->getMockBuilder(ReadableStreamInterface::class)->disableOriginalConstructor()->getMock();
-        $process1->stdin =$this->getMockBuilder(WritableStreamInterface::class)->disableOriginalConstructor()->getMock();
+        $process1->stdout = $this->getMockBuilder(ReadableStreamInterface::class)->disableOriginalConstructor()->getMock();
+        $process1->stdin = $this->getMockBuilder(WritableStreamInterface::class)->disableOriginalConstructor()->getMock();
 
         $process2 = $this->getMockBuilder(Process::class)->disableOriginalConstructor()->getMock();
-        $process2->stdout =$this->getMockBuilder(ReadableStreamInterface::class)->disableOriginalConstructor()->getMock();
-        $process2->stdin =$this->getMockBuilder(WritableStreamInterface::class)->disableOriginalConstructor()->getMock();
+        $process2->stdout = $this->getMockBuilder(ReadableStreamInterface::class)->disableOriginalConstructor()->getMock();
+        $process2->stdin = $this->getMockBuilder(WritableStreamInterface::class)->disableOriginalConstructor()->getMock();
         $process1
             ->method('getPid')->willReturn(2);
         $workerManager->addProcess($process1);
@@ -94,13 +96,13 @@ class WorkerProcessManagerTest extends TestCase
     {
         $workerManager = new WorkerProcessManager();
 
-        $this->assertInternalType('numeric', $workerManager->getMemoryUsage());
+        $this->assertIsNumeric($workerManager->getMemoryUsage());
     }
 
     public function testGetCpuUsage()
     {
         $workerManager = new WorkerProcessManager();
 
-        $this->assertInternalType('float', $workerManager->getCpuUsage());
+        $this->assertIsFloat($workerManager->getCpuUsage());
     }
 }

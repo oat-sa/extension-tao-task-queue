@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -28,7 +29,7 @@ use oat\taoTaskQueue\model\TaskLogBroker\TaskLogBrokerInterface;
  * Helper class for handling js datatable request.
  *
  * @deprecated Use \oat\tao\model\taskQueue\TaskLog\DataTablePayload
- *             
+ *
  * @author Gyula Szucs <gyula@taotesting.com>
  */
 class DataTablePayload implements DataTablePayloadInterface, \Countable

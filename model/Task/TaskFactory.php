@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,6 +18,7 @@
  * Copyright (c) 2017 (original work) Open Assessment Technologies SA (under the project TAO-PRODUCT);
  *
  */
+
 namespace oat\taoTaskQueue\model\Task;
 
 /**
@@ -34,8 +36,7 @@ class TaskFactory
     {
         $className = $basicData[TaskInterface::JSON_TASK_CLASS_NAME_KEY];
 
-        if (class_exists($className) && is_subclass_of($className, TaskInterface::class))
-        {
+        if (class_exists($className) && is_subclass_of($className, TaskInterface::class)) {
             $metaData = $basicData[TaskInterface::JSON_METADATA_KEY];
 
             /** @var TaskInterface $task */
@@ -50,7 +51,6 @@ class TaskFactory
             return $task;
         }
 
-        throw new InvalidTaskException;
+        throw new InvalidTaskException();
     }
-
 }

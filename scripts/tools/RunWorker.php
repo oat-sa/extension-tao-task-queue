@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -99,4 +100,3 @@ class RunWorker implements Action, ServiceLocatorAwareInterface
         return \common_report_Report::createSuccess('Worker finished at ' . (new DateTime('now'))->format(DateTime::ATOM));
     }
 }
-

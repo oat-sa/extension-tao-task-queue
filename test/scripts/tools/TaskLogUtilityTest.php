@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -38,7 +39,7 @@ class TaskLogUtilityTest extends TestCase
     /** @var TaskLogInterface */
     private $taskLogMock;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -58,7 +59,8 @@ class TaskLogUtilityTest extends TestCase
         $output = $this->subject->__invoke(['--help']);
 
         $this->assertInstanceOf(common_report_Report::class, $output);
-        $this->assertEquals("Examples
+        $this->assertEquals(
+            "Examples
  1. Stats
 	 Description: 	 Return stats about the tasks logs statuses
 	 Example: 	 sudo -u www-data php index.php 'oat\\taoTaskQueue\scripts\\tools\TaskLogUtility' --stats
@@ -91,9 +93,9 @@ class TaskLogUtilityTest extends TestCase
         $output = $this->subject->__invoke(['--stats']);
 
         $this->assertInstanceOf(common_report_Report::class, $output);
-        $this->assertContains('"numberOfTasksCompleted": 1', $output->getMessage());
-        $this->assertContains('"numberOfTasksFailed": 2', $output->getMessage());
-        $this->assertContains('"numberOfTasksInProgress": 3', $output->getMessage());
+        $this->assertStringContainsString('"numberOfTasksCompleted": 1', $output->getMessage());
+        $this->assertStringContainsString('"numberOfTasksFailed": 2', $output->getMessage());
+        $this->assertStringContainsString('"numberOfTasksInProgress": 3', $output->getMessage());
     }
 
     public function testFindAvailableByUser()
@@ -125,9 +127,9 @@ class TaskLogUtilityTest extends TestCase
         $output = $this->subject->__invoke(['--get-task=id']);
 
         $this->assertInstanceOf(common_report_Report::class, $output);
-        $this->assertContains('"id": "id"', $output->getMessage());
-        $this->assertContains('"taskName": "name"', $output->getMessage());
-        $this->assertContains('"status": "' . CategorizedStatus::created() . '"', $output->getMessage());
+        $this->assertStringContainsString('"id": "id"', $output->getMessage());
+        $this->assertStringContainsString('"taskName": "name"', $output->getMessage());
+        $this->assertStringContainsString('"status": "' . CategorizedStatus::created() . '"', $output->getMessage());
     }
 
     public function testArchive()

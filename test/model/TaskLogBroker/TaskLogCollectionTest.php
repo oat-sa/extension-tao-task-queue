@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -48,7 +49,7 @@ class TaskLogCollectionTest extends TestCase
     {
         $collection = $this->createCollection();
 
-        $this->assertInternalType('array', $collection->jsonSerialize());
+        $this->assertIsArray($collection->jsonSerialize());
     }
 
     /**
@@ -58,7 +59,7 @@ class TaskLogCollectionTest extends TestCase
      */
     protected function createCollection()
     {
-       return TaskLogCollection::createFromArray([
+        return TaskLogCollection::createFromArray([
             [
                 'id' => 'rdf#i1508337970199318643',
                 'parent_id' => 'parentFake0002525',
@@ -72,7 +73,7 @@ class TaskLogCollectionTest extends TestCase
                 'report' => [
                     'type' => 'info',
                     'message' => 'Running task rdf#i1508337970199318643',
-                    'data' => NULL,
+                    'data' => null,
                     'children' => []
                 ],
             ],
@@ -89,11 +90,11 @@ class TaskLogCollectionTest extends TestCase
                 'report' => [
                     'type' => 'info',
                     'message' => 'Running task #i15083379701993186432222',
-                    'data' => NULL,
+                    'data' => null,
                     'children' => []
                 ],
             ],
-           [
+            [
                'id' => 'rdf#i150833797019931864322223',
                'parent_id' => 'parentFake0002525',
                'task_name' => 'Task Name 3',
@@ -106,10 +107,10 @@ class TaskLogCollectionTest extends TestCase
                'report' => [
                    'type' => 'info',
                    'message' => 'Running task #i15083379701993186433333',
-                   'data' => NULL,
+                   'data' => null,
                    'children' => []
                ],
-           ],
+            ],
         ]);
     }
 }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -99,13 +100,13 @@ class Queue implements QueueInterface, TaskLogAwareInterface
      */
     public function __toPhpCode()
     {
-        return 'new '. get_called_class() .'('
+        return 'new ' . get_called_class() . '('
             . \common_Utils::toHumanReadablePhpString($this->getName())
-            .', '
+            . ', '
             . \common_Utils::toHumanReadablePhpString($this->getBroker())
-            .', '
+            . ', '
             . \common_Utils::toHumanReadablePhpString($this->getWeight())
-            .')';
+            . ')';
     }
 
     /**
@@ -186,7 +187,7 @@ class Queue implements QueueInterface, TaskLogAwareInterface
 
             return $isEnqueued;
         } catch (\Exception $e) {
-            $this->logError('Enqueueing '. $task .' failed with MSG: '. $e->getMessage());
+            $this->logError('Enqueueing ' . $task . ' failed with MSG: ' . $e->getMessage());
         }
 
         return false;

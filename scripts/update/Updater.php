@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -47,7 +48,6 @@ class Updater extends common_ext_ExtensionUpdater
         $this->skip('0.1.0', '0.1.2');
 
         if ($this->isVersion('0.1.2')) {
-
             $queueService = new QueueDispatcher([
                 QueueDispatcherInterface::OPTION_QUEUES       => [
                     new Queue('queue', new InMemoryQueueBroker())
@@ -107,7 +107,8 @@ class Updater extends common_ext_ExtensionUpdater
         if ($this->isVersion('0.9.0')) {
             //Add an extra controller the backoffice 'controller/main'
             ClientLibConfigRegistry::getRegistry()->register(
-                'controller/main', [
+                'controller/main',
+                [
                     'extraRoutes' => ['taoTaskQueue/Main/index']
                 ]
             );
@@ -229,7 +230,7 @@ class Updater extends common_ext_ExtensionUpdater
             $this->setVersion('0.17.1');
 
             // extension can be unregistered, if only sync queues are used
-            if($oldQueueDispatcher->isSync()) {
+            if ($oldQueueDispatcher->isSync()) {
                 ClientLibConfigRegistry::getRegistry()->remove('controller/main');
 
                 /** @var \common_ext_ExtensionsManager $extensionManager */
@@ -250,6 +251,6 @@ class Updater extends common_ext_ExtensionUpdater
             $this->setVersion('1.1.0');
         }
 
-        $this->skip('1.1.0', '5.0.0');
+        $this->skip('1.1.0', '5.1.0');
     }
 }

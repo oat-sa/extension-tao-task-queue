@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -50,23 +51,20 @@ class MigrateQueueMessages implements Action, ServiceLocatorAwareInterface
             $queueService = $this->getServiceLocator()->get(QueueDispatcherInterface::SERVICE_ID);
 
             /** @var JsonTask $queueItem */
-            foreach ($oldRdsQueue as $queueItem)
-            {
+            foreach ($oldRdsQueue as $queueItem) {
                 $label = $queueItem->getLabel();
                 $invokeString = $queueItem->getInvocable();
                 $parameters = $queueItem->getParameters();
 
                 $queueService->setOwner($queueItem->getOwner());
-                $queueService->createTask(new $invokeString, $parameters, $label);
+                $queueService->createTask(new $invokeString(), $parameters, $label);
 
                 $oldRdsQueue->updateTaskStatus($queueItem->getId(), Task::STATUS_ARCHIVED);
                 $count++;
             }
 
-            return \common_report_Report::createSuccess('Imported with success: '. $count);
-
+            return \common_report_Report::createSuccess('Imported with success: ' . $count);
         } catch (\Exception $exception) {
-
             $message = $exception->getMessage();
             return \common_report_Report::createFailure($message);
         }
