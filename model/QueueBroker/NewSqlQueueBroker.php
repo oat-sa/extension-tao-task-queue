@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace oat\taoTaskQueue\model\QueueBroker;
 
+use common_persistence_Manager;
 use common_persistence_SqlPersistence;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;
@@ -37,6 +38,7 @@ use oat\generis\persistence\PersistenceManager;
 use oat\tao\model\taskQueue\Queue\Broker\AbstractQueueBroker;
 use oat\tao\model\taskQueue\Task\TaskInterface;
 use oat\taoTaskQueue\model\QueueBroker\storage\NewSqlSchema;
+use Throwable;
 
 /**
  * Storing messages/tasks in DB.
@@ -74,9 +76,9 @@ class NewSqlQueueBroker extends AbstractQueueBroker
 
     protected function getPersistence(): ?common_persistence_SqlPersistence
     {
-        if ($this->persistence === null) {
-            $this->getServiceLocator()
-                ->get(PersistenceManager::SERVICE_ID)
+        if (is_null($this->persistence)) {
+            $this->persistence = $this->getServiceLocator()
+                ->get(common_persistence_Manager::SERVICE_ID)
                 ->getPersistenceById($this->persistenceId);
         }
 
@@ -116,7 +118,7 @@ class NewSqlQueueBroker extends AbstractQueueBroker
             $this->getSchemaProvider($schema)
                 ->setQueueName($this->getQueueName())
                 ->getSchema($schema, $this->getTableName());
-        } catch (SchemaException $e) {
+        } catch (Throwable $e) {
             $this->logDebug('Schema of ' . $this->getTableName() . ' table already up to date.');
         }
 

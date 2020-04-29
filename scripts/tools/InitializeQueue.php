@@ -28,6 +28,7 @@ use oat\oatbox\service\ConfigurableService;
 use oat\tao\model\taskQueue\Queue\Broker\InMemoryQueueBroker;
 use oat\tao\model\taskQueue\QueueDispatcherInterface;
 use oat\tao\model\taskQueue\TaskLogInterface;
+use oat\taoTaskQueue\model\QueueBroker\NewSqlQueueBroker;
 use oat\taoTaskQueue\model\QueueBroker\RdsQueueBroker;
 use oat\taoTaskQueue\model\QueueBroker\SqsQueueBroker;
 use Zend\ServiceManager\ServiceLocatorAwareTrait;
@@ -66,9 +67,17 @@ class InitializeQueue extends InstallAction
 {
     use ServiceLocatorAwareTrait;
 
-    const BROKER_MEMORY = 'memory';
-    const BROKER_RDS = 'rds';
-    const BROKER_SQS = 'sqs';
+    public const BROKER_MEMORY = 'memory';
+    public const BROKER_RDS = 'rds';
+    public const BROKER_NEW_SQL = 'newsql';
+    public const BROKER_SQS = 'sqs';
+
+    public const AVAILABLE_BROKERS = [
+        self::BROKER_MEMORY,
+        self::BROKER_RDS,
+        self::BROKER_NEW_SQL,
+        self::BROKER_SQS,
+    ];
 
     private $wantedBroker;
     private $persistenceId;
@@ -101,6 +110,10 @@ class InitializeQueue extends InstallAction
 
                         case self::BROKER_RDS:
                             $broker = new RdsQueueBroker($this->persistenceId, $this->receive ?: 1);
+                            break;
+
+                        case self::BROKER_NEW_SQL:
+                            $broker = new NewSqlQueueBroker($this->persistenceId, $this->receive ?: 1);
                             break;
 
                         case self::BROKER_SQS:
@@ -159,8 +172,8 @@ class InitializeQueue extends InstallAction
 
             switch ($option) {
                 case '--broker':
-                    if (!in_array($value, [self::BROKER_MEMORY, self::BROKER_RDS, self::BROKER_SQS])) {
-                        throw new \InvalidArgumentException('Broker "' . $value . '" is not a valid broker option. Valid options: ' . implode(', ', [self::BROKER_MEMORY, self::BROKER_RDS, self::BROKER_SQS]));
+                    if (!in_array($value, self::AVAILABLE_BROKERS)) {
+                        throw new \InvalidArgumentException('Broker "' . $value . '" is not a valid broker option. Valid options: ' . implode(', ', self::AVAILABLE_BROKERS));
                     }
 
                     $this->wantedBroker = $value;
