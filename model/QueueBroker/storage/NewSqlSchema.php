@@ -28,10 +28,10 @@ use oat\oatbox\service\ConfigurableService;
 
 class NewSqlSchema extends ConfigurableService
 {
-    const ID = 'id';
-    const MESSAGE = 'message';
-    const VISIBLE = 'visible';
-    const CREATED_AT = 'created_at';
+    private const ID = 'id';
+    private const MESSAGE = 'message';
+    private const VISIBLE = 'visible';
+    private const CREATED_AT = 'created_at';
 
     /** @var string */
     private $queueName;
