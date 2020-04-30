@@ -33,7 +33,6 @@ use Doctrine\DBAL\Schema\Schema;
 use Exception;
 use InvalidArgumentException;
 use oat\generis\Helper\UuidPrimaryKeyTrait;
-use oat\generis\persistence\PersistenceManager;
 use oat\tao\model\taskQueue\Queue\Broker\AbstractQueueBroker;
 use oat\tao\model\taskQueue\Task\TaskInterface;
 use oat\taoTaskQueue\model\QueueBroker\storage\NewSqlSchema;
