@@ -30,7 +30,6 @@ use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Schema;
-use Doctrine\DBAL\Schema\SchemaException;
 use Exception;
 use InvalidArgumentException;
 use oat\generis\Helper\UuidPrimaryKeyTrait;
