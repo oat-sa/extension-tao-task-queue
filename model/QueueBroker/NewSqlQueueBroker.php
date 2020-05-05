@@ -76,7 +76,7 @@ class NewSqlQueueBroker extends AbstractQueueBroker
      *
      * @inheritdoc
      */
-    public function createQueue()
+    public function createQueue(): void
     {
         $persistence = $this->getPersistence();
         /** @var AbstractSchemaManager $schemaManager */
@@ -101,7 +101,7 @@ class NewSqlQueueBroker extends AbstractQueueBroker
     /**
      * Insert a new task into the queue table.
      */
-    public function push(TaskInterface $task)
+    public function push(TaskInterface $task): bool
     {
         return (bool)$this->getPersistence()->insert($this->getTableName(), [
             'id' => $this->getUniquePrimaryKey(),
@@ -116,7 +116,7 @@ class NewSqlQueueBroker extends AbstractQueueBroker
      *
      * @param TaskInterface $task
      */
-    public function delete(TaskInterface $task)
+    public function delete(TaskInterface $task): void
     {
         $this->doDelete($task->getMetadata('NewSqlMessageId'), [
             'InternalMessageId' => $task->getId(),
@@ -145,7 +145,7 @@ class NewSqlQueueBroker extends AbstractQueueBroker
     /**
      * @inheritDoc
      */
-    protected function doPop()
+    protected function doPop(): void
     {
         $this->getPersistence()->getPlatform()->beginTransaction();
 
@@ -175,7 +175,7 @@ class NewSqlQueueBroker extends AbstractQueueBroker
      * @param array $logContext
      * @return int
      */
-    protected function doDelete($id, array $logContext = [])
+    protected function doDelete($id, array $logContext = []): void
     {
         try {
             $this->getQueryBuilder()
@@ -195,10 +195,7 @@ class NewSqlQueueBroker extends AbstractQueueBroker
         return $this->getServiceLocator()->get(NewSqlSchema::class);
     }
 
-    /**
-     * @return QueryBuilder
-     */
-    private function getQueryBuilder()
+    private function getQueryBuilder(): QueryBuilder
     {
         return $this->getPersistence()->getPlatform()->getQueryBuilder();
     }
