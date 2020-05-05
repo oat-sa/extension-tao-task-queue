@@ -67,12 +67,12 @@ class InitializeQueue extends InstallAction
 {
     use ServiceLocatorAwareTrait;
 
-    public const BROKER_MEMORY = 'memory';
-    public const BROKER_RDS = 'rds';
-    public const BROKER_NEW_SQL = 'newsql';
-    public const BROKER_SQS = 'sqs';
+    private const BROKER_MEMORY = 'memory';
+    private const BROKER_RDS = 'rds';
+    private const BROKER_NEW_SQL = 'newsql';
+    private const BROKER_SQS = 'sqs';
 
-    public const AVAILABLE_BROKERS = [
+    private const AVAILABLE_BROKERS = [
         self::BROKER_MEMORY,
         self::BROKER_RDS,
         self::BROKER_NEW_SQL,
