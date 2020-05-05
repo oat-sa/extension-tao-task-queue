@@ -37,7 +37,7 @@ class BrokerFactory extends ConfigurableService
     public const BROKER_NEW_SQL = 'newsql';
     public const BROKER_SQS = 'sqs';
 
-    public function create(string $brokerId, string $persistenceId, int $capacity = 1): QueueBrokerInterface
+    public function create(string $brokerId, string $persistenceId = null, int $capacity = 1): QueueBrokerInterface
     {
         switch ($brokerId) {
             case self::BROKER_MEMORY:
