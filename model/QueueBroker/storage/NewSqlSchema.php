@@ -53,12 +53,7 @@ class NewSqlSchema extends ConfigurableService
         $table->addColumn(self::VISIBLE, 'boolean', []);
         $table->addColumn(self::CREATED_AT, 'datetime', ['notnull' => true]);
         $table->setPrimaryKey([self::ID]);
-        $table->addIndex([self::CREATED_AT, self::VISIBLE], 'IDX_created_at_visible_' . $this->getQueueName());
-    }
-
-    private function getQueueName(): string
-    {
-        return $this->queueName;
+        $table->addIndex([self::CREATED_AT, self::VISIBLE], 'IDX_created_at_visible_' . $this->queueName);
     }
 
     public function setQueueName(string $queueName): self
