@@ -26,6 +26,7 @@ use oat\oatbox\extension\InstallAction;
 use Aws\Exception\AwsException;
 use oat\oatbox\service\ConfigurableService;
 use oat\tao\model\taskQueue\Queue\Broker\InMemoryQueueBroker;
+use oat\tao\model\taskQueue\Queue\TaskSelector\SelectorStrategyInterface;
 use oat\tao\model\taskQueue\QueueDispatcherInterface;
 use oat\tao\model\taskQueue\TaskLogInterface;
 use oat\taoTaskQueue\model\QueueBroker\NewSqlQueueBroker;
@@ -79,10 +80,15 @@ class InitializeQueue extends InstallAction
         self::BROKER_SQS,
     ];
 
+    /** @var string */
     private $wantedBroker;
+    /** @var string */
     private $persistenceId;
+    /** @var int */
     private $receive;
+    /** @var string */
     private $queue;
+    /** @var SelectorStrategyInterface */
     private $strategy;
 
     public function __invoke($params)
