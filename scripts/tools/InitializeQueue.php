@@ -173,7 +173,12 @@ class InitializeQueue extends InstallAction
             switch ($option) {
                 case '--broker':
                     if (!in_array($value, self::AVAILABLE_BROKERS)) {
-                        throw new \InvalidArgumentException('Broker "' . $value . '" is not a valid broker option. Valid options: ' . implode(', ', self::AVAILABLE_BROKERS));
+                        throw new \InvalidArgumentException(
+                            sprintf('Broker "%s" is not a valid broker option. Valid options: %s',
+                                $value,
+                                implode(', ', self::AVAILABLE_BROKERS)
+                            )
+                        );
                     }
 
                     $this->wantedBroker = $value;
@@ -201,7 +206,13 @@ class InitializeQueue extends InstallAction
             }
         }
 
-        if ($this->wantedBroker == self::BROKER_RDS && !$this->persistenceId) {
+        $this->validateBrokersWithPersistance();
+    }
+
+    private function validateBrokersWithPersistance(): void
+    {
+        if (in_array($this->wantedBroker, [self::BROKER_RDS, self::BROKER_NEW_SQL], true)
+            && !$this->persistenceId) {
             throw new \InvalidArgumentException('Persistence id (--persistence=...) needs to be set for RDS.');
         }
     }

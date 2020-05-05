@@ -19,8 +19,9 @@
  *
  */
 
-namespace oat\taoTaskQueue\model\QueueBroker\storage;
+declare(strict_types=1);
 
+namespace oat\taoTaskQueue\model\QueueBroker\storage;
 
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
@@ -36,9 +37,6 @@ class NewSqlSchema extends ConfigurableService
     /** @var string */
     private $queueName;
 
-    /**
-     * @inheritDoc
-     */
     public function getSchema(Schema $schema, string $tableName): Schema
     {
         /** @var Table */
@@ -48,7 +46,7 @@ class NewSqlSchema extends ConfigurableService
         return $schema;
     }
 
-    private function createTable(Table $table)
+    private function createTable(Table $table): void
     {
         $table->addColumn(self::ID, 'string', ['length' => 36]);
         $table->addColumn(self::MESSAGE, 'text', ["notnull" => true]);
