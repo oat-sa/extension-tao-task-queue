@@ -243,7 +243,7 @@ class NewSqlQueueBroker extends AbstractQueueBroker
         $qb = $this->getQueryBuilder()
             ->select('id, message')
             ->from($this->getTableName())
-            ->andWhere('visible = :visible')
+            ->where('visible = :visible')
             ->orderBy('created_at')
             ->setMaxResults($this->getNumberOfTasksToReceive());
 
@@ -252,7 +252,7 @@ class NewSqlQueueBroker extends AbstractQueueBroker
          */
         $sql = $qb->getSQL() . ' ' . $this->getPersistence()->getPlatForm()->getWriteLockSQL();
 
-        return $this->getPersistence()->query($sql, ['visible' => 1])->fetchAll(PDO::FETCH_ASSOC);
+        return $this->getPersistence()->query($sql, ['visible' => true])->fetchAll(PDO::FETCH_ASSOC);
     }
 
     private function getLogContext(): array
