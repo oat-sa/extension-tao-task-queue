@@ -22,6 +22,7 @@
 namespace oat\taoTaskQueue\scripts\tools;
 
 use common_report_Report as Report;
+use InvalidArgumentException;
 use oat\oatbox\extension\InstallAction;
 use oat\oatbox\service\ConfigurableService;
 use oat\tao\model\taskQueue\Queue\TaskSelector\SelectorStrategyInterface;
@@ -127,7 +128,7 @@ class InitializeQueue extends InstallAction
             switch ($option) {
                 case '--broker':
                     if (!in_array($value, self::AVAILABLE_BROKERS)) {
-                        throw new \InvalidArgumentException(
+                        throw new InvalidArgumentException(
                             sprintf('Broker "%s" is not a valid broker option. Valid options: %s',
                                 $value,
                                 implode(', ', self::AVAILABLE_BROKERS)
@@ -152,7 +153,7 @@ class InitializeQueue extends InstallAction
 
                 case '--strategy':
                     if (!class_exists($value)) {
-                        throw new \InvalidArgumentException('Strategy "' . $value . '" does not exist.');
+                        throw new InvalidArgumentException('Strategy "' . $value . '" does not exist.');
                     }
 
                     $this->strategy = new $value();
@@ -167,7 +168,7 @@ class InitializeQueue extends InstallAction
     {
         if (in_array($this->wantedBroker, [BrokerFactory::BROKER_RDS, BrokerFactory::BROKER_NEW_SQL], true)
             && !$this->persistenceId) {
-            throw new \InvalidArgumentException('Persistence id (--persistence=...) needs to be set for RDS.');
+            throw new InvalidArgumentException('Persistence id (--persistence=...) needs to be set for RDS.');
         }
     }
 
