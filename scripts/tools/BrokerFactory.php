@@ -22,6 +22,7 @@
 namespace oat\taoTaskQueue\scripts\tools;
 
 use common_cache_Cache;
+use InvalidArgumentException;
 use oat\oatbox\service\ConfigurableService;
 use oat\tao\model\taskQueue\Queue\Broker\InMemoryQueueBroker;
 use oat\tao\model\taskQueue\Queue\Broker\QueueBrokerInterface;
@@ -50,6 +51,6 @@ class BrokerFactory extends ConfigurableService
                 return new SqsQueueBroker(common_cache_Cache::SERVICE_ID, $capacity);
         }
 
-        throw new \InvalidArgumentException(sprintf('Broker %s is not supported', $brokerId));
+        throw new InvalidArgumentException(sprintf('Broker %s is not supported', $brokerId));
     }
 }
