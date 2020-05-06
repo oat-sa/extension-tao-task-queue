@@ -21,10 +21,12 @@
 
 namespace oat\taoTaskQueue\test\scripts\tools;
 
+use InvalidArgumentException;
 use oat\generis\test\TestCase;
 use oat\tao\model\taskQueue\Queue\Broker\InMemoryQueueBroker;
 use oat\taoTaskQueue\model\QueueBroker\NewSqlQueueBroker;
 use oat\taoTaskQueue\model\QueueBroker\RdsQueueBroker;
+use oat\taoTaskQueue\model\QueueBroker\SqsQueueBroker;
 use oat\taoTaskQueue\scripts\tools\BrokerFactory;
 
 class BrokerFactoryTest extends TestCase
@@ -49,15 +51,34 @@ class BrokerFactoryTest extends TestCase
         $this->assertInstanceOf(RdsQueueBroker::class, $test);
     }
 
+    public function testCreateRDSWithError(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->subject->create(BrokerFactory::BROKER_RDS);
+    }
+
     public function testCreateNewSql(): void
     {
         $test = $this->subject->create(BrokerFactory::BROKER_NEW_SQL, 'default');
         $this->assertInstanceOf(NewSqlQueueBroker::class, $test);
     }
 
+    public function testCreateNewSqlWithException(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->subject->create(BrokerFactory::BROKER_NEW_SQL);
+    }
+
     public function testCreateSqs(): void
     {
-        $test = $this->subject->create(BrokerFactory::BROKER_SQS, null, 1);
-        $this->assertInstanceOf(NewSqlQueueBroker::class, $test);
+        $test = $this->subject->create(BrokerFactory::BROKER_SQS);
+        $this->assertInstanceOf(SqsQueueBroker::class, $test);
+    }
+
+    public function testBogusQueue(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->subject->create('bogus');
+        $this->expectErrorMessage('Broker bogus is not supported');
     }
 }

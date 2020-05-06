@@ -160,16 +160,6 @@ class InitializeQueue extends InstallAction
                     break;
             }
         }
-
-        $this->validateBrokersWithPersistence();
-    }
-
-    private function validateBrokersWithPersistence(): void
-    {
-        if (in_array($this->wantedBroker, [BrokerFactory::BROKER_RDS, BrokerFactory::BROKER_NEW_SQL], true)
-            && !$this->persistenceId) {
-            throw new InvalidArgumentException('Persistence id (--persistence=...) needs to be set for RDS.');
-        }
     }
 
     private function registerBroker(array $params, QueueDispatcherInterface $queueService): bool

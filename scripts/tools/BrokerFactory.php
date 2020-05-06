@@ -40,6 +40,8 @@ class BrokerFactory extends ConfigurableService
 
     public function create(string $brokerId, string $persistenceId = null, int $capacity = 1): QueueBrokerInterface
     {
+        $this->validateBrokersWithPersistence($brokerId, $persistenceId);
+
         switch ($brokerId) {
             case self::BROKER_MEMORY:
                 return new InMemoryQueueBroker();
@@ -52,5 +54,13 @@ class BrokerFactory extends ConfigurableService
         }
 
         throw new InvalidArgumentException(sprintf('Broker %s is not supported', $brokerId));
+    }
+
+    private function validateBrokersWithPersistence(string $brokerId, string $persistenceId = null): void
+    {
+        if (in_array($brokerId, [self::BROKER_RDS, self::BROKER_NEW_SQL], true)
+            && empty($persistenceId)) {
+            throw new InvalidArgumentException('Persistence id (--persistence=...) needs to be set for SQL.');
+        }
     }
 }
