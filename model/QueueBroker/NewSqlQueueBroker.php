@@ -26,6 +26,7 @@ namespace oat\taoTaskQueue\model\QueueBroker;
 use common_persistence_Manager;
 use common_persistence_SqlPersistence;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
@@ -45,6 +46,7 @@ class NewSqlQueueBroker extends AbstractQueueBroker
 {
     use UuidPrimaryKeyTrait;
 
+    /** @var string */
     private $persistenceId;
 
     /** @var common_persistence_SqlPersistence */
@@ -111,11 +113,6 @@ class NewSqlQueueBroker extends AbstractQueueBroker
         ]);
     }
 
-    /**
-     * Delete the message after being processed by the worker.
-     *
-     * @param TaskInterface $task
-     */
     public function delete(TaskInterface $task): void
     {
         $this->doDelete($task->getMetadata('NewSqlMessageId'), [
@@ -170,11 +167,6 @@ class NewSqlQueueBroker extends AbstractQueueBroker
         }
     }
 
-    /**
-     * @param string $id
-     * @param array $logContext
-     * @return int
-     */
     protected function doDelete($id, array $logContext = []): void
     {
         try {
