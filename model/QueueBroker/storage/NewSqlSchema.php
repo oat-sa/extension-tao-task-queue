@@ -56,7 +56,7 @@ class NewSqlSchema extends ConfigurableService
     private function createTable(Table $table): void
     {
         $table->addColumn(self::ID, 'string', ['length' => 36]);
-        $table->addColumn(self::MESSAGE, 'text', ["notnull" => true]);
+        $table->addColumn(self::MESSAGE, 'text', ['notnull' => true]);
         $table->addColumn(self::VISIBLE, 'boolean', []);
         $table->addColumn(self::CREATED_AT, 'datetime', ['notnull' => true]);
         $table->setPrimaryKey([self::ID]);
