@@ -26,7 +26,6 @@ namespace oat\taoTaskQueue\model\QueueBroker;
 use common_persistence_Manager;
 use common_persistence_SqlPersistence;
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
