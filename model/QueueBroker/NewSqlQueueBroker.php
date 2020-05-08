@@ -130,7 +130,7 @@ class NewSqlQueueBroker extends AbstractQueueBroker
                 ->setParameter('visible', true, ParameterType::BOOLEAN)
                 ->execute()
                 ->fetchColumn();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logError('Counting tasks failed with MSG: ' . $e->getMessage());
         }
 
@@ -176,7 +176,7 @@ class NewSqlQueueBroker extends AbstractQueueBroker
                 ->setParameter('id', $id)
                 ->setParameter('visible', false, ParameterType::BOOLEAN)
                 ->execute();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logError('Deleting task failed with MSG: ' . $e->getMessage(), $logContext);
         }
     }
