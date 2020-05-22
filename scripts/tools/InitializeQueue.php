@@ -15,21 +15,19 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2017 (original work) Open Assessment Technologies SA (under the project TAO-PRODUCT);
+ * Copyright (c) 2017 - 2020 (original work) Open Assessment Technologies SA (under the project TAO-PRODUCT);
  *
  */
 
 namespace oat\taoTaskQueue\scripts\tools;
 
 use common_report_Report as Report;
+use InvalidArgumentException;
 use oat\oatbox\extension\InstallAction;
-use Aws\Exception\AwsException;
 use oat\oatbox\service\ConfigurableService;
-use oat\tao\model\taskQueue\Queue\Broker\InMemoryQueueBroker;
+use oat\tao\model\taskQueue\Queue\TaskSelector\SelectorStrategyInterface;
 use oat\tao\model\taskQueue\QueueDispatcherInterface;
 use oat\tao\model\taskQueue\TaskLogInterface;
-use oat\taoTaskQueue\model\QueueBroker\RdsQueueBroker;
-use oat\taoTaskQueue\model\QueueBroker\SqsQueueBroker;
 use Zend\ServiceManager\ServiceLocatorAwareTrait;
 
 /**
@@ -66,14 +64,22 @@ class InitializeQueue extends InstallAction
 {
     use ServiceLocatorAwareTrait;
 
-    const BROKER_MEMORY = 'memory';
-    const BROKER_RDS = 'rds';
-    const BROKER_SQS = 'sqs';
+    private const AVAILABLE_BROKERS = [
+        BrokerFactory::BROKER_MEMORY,
+        BrokerFactory::BROKER_RDS,
+        BrokerFactory::BROKER_NEW_SQL,
+        BrokerFactory::BROKER_SQS,
+    ];
 
+    /** @var string */
     private $wantedBroker;
+    /** @var string */
     private $persistenceId;
+    /** @var int */
     private $receive;
+    /** @var string */
     private $queue;
+    /** @var SelectorStrategyInterface */
     private $strategy;
 
     public function __invoke($params)
@@ -86,45 +92,7 @@ class InitializeQueue extends InstallAction
             /** @var QueueDispatcherInterface|ConfigurableService $queueService */
             $queueService = $this->getServiceLocator()->get(QueueDispatcherInterface::SERVICE_ID);
 
-            $reRegister = false;
-
-            // if any new change is wanted on queues
-            if (count($params) > 0) {
-                // BROKER settings
-                if ($this->wantedBroker) {
-                    $broker = null;
-
-                    switch ($this->wantedBroker) {
-                        case self::BROKER_MEMORY:
-                            $broker = new InMemoryQueueBroker();
-                            break;
-
-                        case self::BROKER_RDS:
-                            $broker = new RdsQueueBroker($this->persistenceId, $this->receive ?: 1);
-                            break;
-
-                        case self::BROKER_SQS:
-                            $broker = new SqsQueueBroker(\common_cache_Cache::SERVICE_ID, $this->receive ?: 1);
-                            break;
-                    }
-
-                    if (!is_null($this->queue)) {
-                        $queue = $queueService->getQueue($this->queue);
-                        $queue->setBroker(clone $broker);
-                    } else {
-                        foreach ($queueService->getQueues() as $queue) {
-                            $queue->setBroker(clone $broker);
-                        }
-                    }
-                }
-
-                // STRATEGY settings
-                if ($this->strategy) {
-                    $queueService->setTaskSelector($this->strategy);
-                }
-
-                $reRegister = true;
-            }
+            $registerBroker = $this->registerBroker($params, $queueService);
 
             // Create queues
             if (!$queueService->isSync()) {
@@ -132,7 +100,7 @@ class InitializeQueue extends InstallAction
                 $report->add(Report::createSuccess('Queue(s) initialized.'));
             }
 
-            if ($reRegister) {
+            if ($registerBroker) {
                 $this->registerService(QueueDispatcherInterface::SERVICE_ID, $queueService);
                 $report->add(Report::createSuccess('Queue service re-registered.'));
             }
@@ -159,8 +127,13 @@ class InitializeQueue extends InstallAction
 
             switch ($option) {
                 case '--broker':
-                    if (!in_array($value, [self::BROKER_MEMORY, self::BROKER_RDS, self::BROKER_SQS])) {
-                        throw new \InvalidArgumentException('Broker "' . $value . '" is not a valid broker option. Valid options: ' . implode(', ', [self::BROKER_MEMORY, self::BROKER_RDS, self::BROKER_SQS]));
+                    if (!in_array($value, self::AVAILABLE_BROKERS)) {
+                        throw new InvalidArgumentException(
+                            sprintf('Broker "%s" is not a valid broker option. Valid options: %s',
+                                $value,
+                                implode(', ', self::AVAILABLE_BROKERS)
+                            )
+                        );
                     }
 
                     $this->wantedBroker = $value;
@@ -180,16 +153,48 @@ class InitializeQueue extends InstallAction
 
                 case '--strategy':
                     if (!class_exists($value)) {
-                        throw new \InvalidArgumentException('Strategy "' . $value . '" does not exist.');
+                        throw new InvalidArgumentException('Strategy "' . $value . '" does not exist.');
                     }
 
                     $this->strategy = new $value();
                     break;
             }
         }
+    }
 
-        if ($this->wantedBroker == self::BROKER_RDS && !$this->persistenceId) {
-            throw new \InvalidArgumentException('Persistence id (--persistence=...) needs to be set for RDS.');
+    private function registerBroker(array $params, QueueDispatcherInterface $queueService): bool
+    {
+        $reRegister = false;
+        // if any new change is wanted on queues
+        if (count($params) > 0) {
+            // BROKER settings
+            if ($this->wantedBroker) {
+                $brokerFactory = $this->getBrokerFactory();
+                $broker = $brokerFactory->create($this->wantedBroker, $this->persistenceId, $this->receive ?: 1);
+
+                if (!is_null($this->queue)) {
+                    $queue = $queueService->getQueue($this->queue);
+                    $queue->setBroker(clone $broker);
+                } else {
+                    foreach ($queueService->getQueues() as $queue) {
+                        $queue->setBroker(clone $broker);
+                    }
+                }
+            }
+
+            // STRATEGY settings
+            if ($this->strategy) {
+                $queueService->setTaskSelector($this->strategy);
+            }
+
+            $reRegister = true;
         }
+
+        return $reRegister;
+    }
+
+    private function getBrokerFactory(): BrokerFactory
+    {
+        return $this->getServiceLocator()->get(BrokerFactory::class);
     }
 }
