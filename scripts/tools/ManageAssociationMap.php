@@ -124,7 +124,7 @@ class ManageAssociationMap extends ScriptAction
         return $initializer;
     }
 
-    protected function getQueueDispatcher(): \oat\oatbox\service\ConfigurableService
+    protected function getQueueDispatcher(): QueueDispatcher
     {
         return $this->getServiceLocator()->get(QueueDispatcher::SERVICE_ID);
     }
