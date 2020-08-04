@@ -22,9 +22,12 @@ declare(strict_types=1);
 
 namespace oat\taoTaskQueue\scripts\tools;
 
+use common_Exception;
+use common_exception_Error;
 use InvalidArgumentException;
 use oat\oatbox\action\Action;
 use oat\oatbox\extension\script\ScriptAction;
+use oat\oatbox\service\exception\InvalidServiceManagerException;
 use oat\tao\model\taskQueue\Queue;
 use oat\tao\model\taskQueue\QueueDispatcher;
 use oat\tao\model\taskQueue\QueueDispatcherInterface;
@@ -61,7 +64,7 @@ class ManageAssociationMap extends ScriptAction
 
     protected function provideDescription()
     {
-        // TODO: Implement provideDescription() method.
+        return 'Command will define association for a task to specific queue.';
     }
 
     protected function provideUsage()
@@ -75,29 +78,7 @@ class ManageAssociationMap extends ScriptAction
 
     protected function run()
     {
-        $queue = $this->getOption('queue');
-        $targetClass = $this->getTargetClass();
-
-        /** @var QueueDispatcher $queueService */
-        $queueService = $this->getServiceManager()->get(QueueDispatcher::SERVICE_ID);
-        $existingQueues = $queueService->getOption(QueueDispatcherInterface::OPTION_QUEUES);
-        $newQueue = new Queue($queue, new RdsQueueBroker('default', 1), 30);
-        $existingOptions = $queueService->getOptions();
-        $existingOptions[QueueDispatcherInterface::OPTION_QUEUES] = array_unique(
-            array_merge($existingQueues, [$newQueue])
-        );
-        $existingAssociations = $queueService->getOption(QueueDispatcherInterface::OPTION_TASK_TO_QUEUE_ASSOCIATIONS);
-        $existingOptions[QueueDispatcherInterface::OPTION_TASK_TO_QUEUE_ASSOCIATIONS] = array_merge(
-            $existingAssociations,
-            [$targetClass => $queue]
-        );
-        $queueService->setOptions($existingOptions);
-
-        $this->getServiceManager()->register(QueueDispatcherInterface::SERVICE_ID, $queueService);
-
-        $initializer = new InitializeQueue();
-        $this->propagate($initializer);
-
+        $initializer = $this->addTaskQueueAssociations();
         return $initializer([]);
     }
 
@@ -112,4 +93,40 @@ class ManageAssociationMap extends ScriptAction
             sprintf('Task must extend %s', Action::class)
         );
     }
+
+    /**
+     * @throws common_Exception
+     * @throws common_exception_Error
+     * @throws InvalidServiceManagerException
+     */
+    protected function addTaskQueueAssociations(): InitializeQueue
+    {
+        $queue = $this->getOption('queue');
+        $targetClass = $this->getTargetClass();
+
+        $existingQueues = $this->getQueueDispatcher()->getOption(QueueDispatcherInterface::OPTION_QUEUES);
+        $newQueue = new Queue($queue, new RdsQueueBroker('default', 1), 30);
+        $existingOptions = $this->getQueueDispatcher()->getOptions();
+        $existingOptions[QueueDispatcherInterface::OPTION_QUEUES] = array_unique(
+            array_merge($existingQueues, [$newQueue])
+        );
+        $existingAssociations = $this->getQueueDispatcher()->getOption(QueueDispatcherInterface::OPTION_TASK_TO_QUEUE_ASSOCIATIONS);
+        $existingOptions[QueueDispatcherInterface::OPTION_TASK_TO_QUEUE_ASSOCIATIONS] = array_merge(
+            $existingAssociations,
+            [$targetClass => $queue]
+        );
+        $this->getQueueDispatcher()->setOptions($existingOptions);
+
+        $this->getServiceManager()->register(QueueDispatcherInterface::SERVICE_ID, $this->getQueueDispatcher());
+
+        $initializer = new InitializeQueue();
+        $this->propagate($initializer);
+        return $initializer;
+    }
+
+    protected function getQueueDispatcher(): \oat\oatbox\service\ConfigurableService
+    {
+        return $this->getServiceLocator()->get(QueueDispatcher::SERVICE_ID);
+    }
+
 }
