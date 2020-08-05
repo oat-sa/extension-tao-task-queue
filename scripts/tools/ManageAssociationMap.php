@@ -128,5 +128,4 @@ class ManageAssociationMap extends ScriptAction
     {
         return $this->getServiceLocator()->get(QueueDispatcher::SERVICE_ID);
     }
-
 }
