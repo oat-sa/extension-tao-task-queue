@@ -99,7 +99,7 @@ class ManageAssociationMap extends ScriptAction
      * @throws common_exception_Error
      * @throws InvalidServiceManagerException
      */
-    protected function addTaskQueueAssociations(): InitializeQueue
+    private function addTaskQueueAssociations(): InitializeQueue
     {
         $queue = $this->getOption('queue');
         $targetClass = $this->getTargetClass();
