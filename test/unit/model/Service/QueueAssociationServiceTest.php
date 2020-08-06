@@ -26,12 +26,10 @@ use oat\generis\test\MockObject;
 use oat\generis\test\TestCase;
 use oat\oatbox\log\LoggerService;
 use oat\oatbox\service\ServiceManager;
-use oat\oatbox\task\TaskInterface\TaskQueue;
 use oat\tao\model\taskQueue\QueueDispatcher;
 use oat\tao\model\taskQueue\QueueDispatcherInterface;
 use oat\taoMediaManager\model\relation\task\MediaToMediaRelationMigrationTask;
 use oat\taoTaskQueue\model\Service\QueueAssociationService;
-use Prophecy\Argument;
 
 class QueueAssociationServiceTest extends TestCase
 {
@@ -97,7 +95,7 @@ class QueueAssociationServiceTest extends TestCase
         $this->queueDispatcherMock
             ->expects($this->once())
             ->method('setOptions')
-            ->withAnyParameters();
+            ->with($this->arrayHasKey('queues'));
 
         $this->queueDispatcherMock
             ->expects($this->once())
