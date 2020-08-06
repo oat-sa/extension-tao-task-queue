@@ -107,10 +107,9 @@ class QueueAssociationServiceTest extends TestCase
         $this->subject->addTaskQueueAssociations(MediaToMediaRelationMigrationTask::class, 'newQueueName');
     }
 
-    public function testInvokeWithWrongClassName()
+    public function testInvokeWithWrongClassName(): void
     {
         $this->expectException(InvalidArgumentException::class);
         $this->subject->addTaskQueueAssociations('wrongClass', 'newQueueName');
-
     }
 }

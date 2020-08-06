@@ -63,7 +63,7 @@ class QueueAssociationService extends ConfigurableService
             return $taskClass;
         }
         throw new InvalidArgumentException(
-            sprintf('Task must extend %s', Action::class)
+            sprintf('%s - Task must extend %s', $taskClass, Action::class)
         );
     }
 
