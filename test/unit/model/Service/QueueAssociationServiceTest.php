@@ -54,7 +54,8 @@ class QueueAssociationServiceTest extends TestCase
 
         $this->serviceManagerMock = $this->createMock(ServiceManager::class);
         $services = [
-            QueueDispatcher::SERVICE_ID => $this->queueDispatcherMock
+            QueueDispatcher::SERVICE_ID => $this->queueDispatcherMock,
+            LoggerService::SERVICE_ID => $this->logger
         ];
 
         $this->serviceManagerMock
