@@ -52,40 +52,28 @@ class QueueAssociationServiceTest extends TestCase
         $this->queueDispatcherMock = $this->createMock(QueueDispatcher::class);
         $this->logger = $this->createMock(LoggerService::class);
         $this->subject = new QueueAssociationService();
+
         $this->serviceManagerMock = $this->createMock(ServiceManager::class);
+        $services = [
+            QueueDispatcher::SERVICE_ID => $this->queueDispatcherMock
+        ];
 
         $this->serviceManagerMock
             ->method('get')
-            ->withConsecutive(
-                [
-                    QueueDispatcher::SERVICE_ID
-                ],
-                [
-                    QueueDispatcher::SERVICE_ID
-                ],
-                [
-                    QueueDispatcher::SERVICE_ID
-                ],
-                [
-                    QueueDispatcher::SERVICE_ID
-                ],
-                [
-                    QueueDispatcher::SERVICE_ID
-                ]
-            )
-            ->willReturnOnConsecutiveCalls(
-                $this->queueDispatcherMock,
-                $this->queueDispatcherMock,
-                $this->queueDispatcherMock,
-                $this->queueDispatcherMock,
-                $this->queueDispatcherMock
-            );
+            ->willReturnCallback(function ($id) use ($services) {
+                return $services[$id];
+            });
+
 
         $this->subject->setServiceLocator($this->serviceManagerMock);
     }
 
     public function testAddTaskQueueAssociations(): void
     {
+        $this->serviceManagerMock
+            ->expects($this->once())
+            ->method('register');
+
         $this->queueDispatcherMock
             ->method('getOption')
             ->withConsecutive(
@@ -108,7 +96,8 @@ class QueueAssociationServiceTest extends TestCase
 
         $this->queueDispatcherMock
             ->expects($this->once())
-            ->method('setOptions');
+            ->method('setOptions')
+            ->withAnyParameters();
 
         $this->queueDispatcherMock
             ->expects($this->once())
