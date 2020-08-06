@@ -29,8 +29,8 @@ use oat\oatbox\log\LoggerService;
 use oat\oatbox\service\ServiceManager;
 use oat\tao\model\taskQueue\QueueDispatcher;
 use oat\tao\model\taskQueue\QueueDispatcherInterface;
-use oat\taoMediaManager\model\relation\task\MediaToMediaRelationMigrationTask;
 use oat\taoTaskQueue\model\Service\QueueAssociationService;
+use oat\taoTaskQueue\scripts\tools\AddTaskToQueue;
 
 class QueueAssociationServiceTest extends TestCase
 {
@@ -104,7 +104,7 @@ class QueueAssociationServiceTest extends TestCase
             ->method('getOptions')
             ->willReturn([]);
 
-        $this->subject->addTaskQueueAssociations(MediaToMediaRelationMigrationTask::class, 'newQueueName');
+        $this->subject->addTaskQueueAssociations(AddTaskToQueue::class, 'newQueueName');
     }
 
     public function testInvokeWithWrongClassName(): void
