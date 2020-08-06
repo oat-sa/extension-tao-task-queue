@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace oat\taoTaskQueue\test\unit\model\Service;
 
+use InvalidArgumentException;
 use oat\generis\test\MockObject;
 use oat\generis\test\TestCase;
 use oat\oatbox\log\LoggerService;
@@ -103,5 +104,12 @@ class QueueAssociationServiceTest extends TestCase
             ->willReturn([]);
 
         $this->subject->addTaskQueueAssociations(MediaToMediaRelationMigrationTask::class, 'newQueueName');
+    }
+
+    public function testInvokeWithWrongClassName()
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->subject->addTaskQueueAssociations('wrongClass', 'newQueueName');
+
     }
 }
