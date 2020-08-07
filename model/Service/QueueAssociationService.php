@@ -33,7 +33,7 @@ use oat\taoTaskQueue\scripts\tools\InitializeQueue;
 
 class QueueAssociationService extends ConfigurableService
 {
-    public function addTaskQueueAssociations(string $taskClass, string $queue): InitializeQueue
+    public function associate(string $taskClass, string $queue): InitializeQueue
     {
         $targetClass = $this->getTargetClass($taskClass);
 

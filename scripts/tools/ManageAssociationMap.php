@@ -22,15 +22,8 @@ declare(strict_types=1);
 
 namespace oat\taoTaskQueue\scripts\tools;
 
-use common_Exception;
-use common_exception_Error;
-use InvalidArgumentException;
 use oat\oatbox\action\Action;
 use oat\oatbox\extension\script\ScriptAction;
-use oat\tao\model\taskQueue\Queue;
-use oat\tao\model\taskQueue\QueueDispatcher;
-use oat\tao\model\taskQueue\QueueDispatcherInterface;
-use oat\taoTaskQueue\model\QueueBroker\RdsQueueBroker;
 use oat\taoTaskQueue\model\Service\QueueAssociationService;
 use Zend\ServiceManager\ServiceLocatorAwareTrait;
 
@@ -79,7 +72,7 @@ class ManageAssociationMap extends ScriptAction
     protected function run()
     {
         $initializer = $this->getQueueAssociationService()
-            ->addTaskQueueAssociations(
+            ->associate(
                 $this->getOption('taskClass'),
                 $queue = $this->getOption('queue')
             );

@@ -104,12 +104,12 @@ class QueueAssociationServiceTest extends TestCase
             ->method('getOptions')
             ->willReturn([]);
 
-        $this->subject->addTaskQueueAssociations(AddTaskToQueue::class, 'newQueueName');
+        $this->subject->associate(AddTaskToQueue::class, 'newQueueName');
     }
 
     public function testInvokeWithWrongClassName(): void
     {
         $this->expectException(InvalidArgumentException::class);
-        $this->subject->addTaskQueueAssociations('wrongClass', 'newQueueName');
+        $this->subject->associate('wrongClass', 'newQueueName');
     }
 }
