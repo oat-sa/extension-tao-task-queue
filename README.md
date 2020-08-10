@@ -141,6 +141,13 @@ You can limit the iteration of the worker. It can be used only on a dedicated qu
  $ sudo -u www-data php index.php 'oat\taoTaskQueue\scripts\tools\RunWorker' --queue=standard --limit=5
 ```
 
+If you want to associate specyfic task to new queue you can use this command:
+```bash
+ $ sudo -u www-data php index.php 'oat\taoTaskQueue\scripts\tools\ManageAssociationMap' \
+      -t  '{ you fully qualified task class name }' -q queue-name
+```
+Next time when defined task will be created, it will be assign to specified queue. 
+
 ## Rest API
 The task log reports can be viewed/consume using the Application Programming Interface (API).
 In order to use it please check the swagger file in (doc/taskApi.yml).
