@@ -21,6 +21,7 @@
 
 namespace oat\taoTaskQueue\model\Entity;
 
+use common_exception_Error;
 use common_report_Report as Report;
 use DateTime;
 use Exception;
@@ -109,10 +110,11 @@ class TaskLogEntity extends BaseTaskLogEntity implements TaskLogEntityInterface
 
     /**
      * @param array $row
+     * @param string $dateFormat
      * @return TaskLogEntity
-     * @throws Exception
+     * @throws common_exception_Error
      */
-    public static function createFromArray(array $row)
+    public static function createFromArray(array $row, string $dateFormat = 'Y-m-d H:i:s')
     {
         return new self(
             $row[TaskLogBrokerInterface::COLUMN_ID],
@@ -122,8 +124,8 @@ class TaskLogEntity extends BaseTaskLogEntity implements TaskLogEntityInterface
             isset($row[TaskLogBrokerInterface::COLUMN_PARAMETERS]) ? json_decode($row[TaskLogBrokerInterface::COLUMN_PARAMETERS], true) : [],
             isset($row[TaskLogBrokerInterface::COLUMN_LABEL]) ? $row[TaskLogBrokerInterface::COLUMN_LABEL] : '',
             isset($row[TaskLogBrokerInterface::COLUMN_OWNER]) ? $row[TaskLogBrokerInterface::COLUMN_OWNER] : '',
-            isset($row[TaskLogBrokerInterface::COLUMN_CREATED_AT]) ? DateTime::createFromFormat('Y-m-d H:i:s', $row[TaskLogBrokerInterface::COLUMN_CREATED_AT], new \DateTimeZone('UTC')) : null,
-            isset($row[TaskLogBrokerInterface::COLUMN_UPDATED_AT]) ? DateTime::createFromFormat('Y-m-d H:i:s', $row[TaskLogBrokerInterface::COLUMN_UPDATED_AT], new \DateTimeZone('UTC')) : null,
+            isset($row[TaskLogBrokerInterface::COLUMN_CREATED_AT]) ? DateTime::createFromFormat($dateFormat, $row[TaskLogBrokerInterface::COLUMN_CREATED_AT], new \DateTimeZone('UTC')) : null,
+            isset($row[TaskLogBrokerInterface::COLUMN_UPDATED_AT]) ? DateTime::createFromFormat($dateFormat, $row[TaskLogBrokerInterface::COLUMN_UPDATED_AT], new \DateTimeZone('UTC')) : null,
             Report::jsonUnserialize($row[TaskLogBrokerInterface::COLUMN_REPORT]),
             isset($row[TaskLogBrokerInterface::COLUMN_MASTER_STATUS]) ? $row[TaskLogBrokerInterface::COLUMN_MASTER_STATUS] : false
         );
