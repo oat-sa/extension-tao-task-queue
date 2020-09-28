@@ -31,7 +31,7 @@ return array(
     'label' => 'Task Queue',
     'description' => 'Extended Task Queue functionalities with custom GUI',
     'license' => 'GPL-2.0',
-    'version' => '5.0.0',
+    'version' => '5.0.0.1',
     'author' => 'Open Assessment Technologies SA',
     'requires' => array(
         'generis' => '>=12.5.0',
