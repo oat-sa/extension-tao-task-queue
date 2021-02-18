@@ -23,7 +23,6 @@ namespace oat\taoTaskQueue\test\unit;
 use common_report_Report;
 use oat\generis\test\TestCase;
 use oat\oatbox\session\SessionService;
-use oat\taoSync\model\OfflineMachineChecksService;
 use oat\taoTaskQueue\scripts\tools\RunWorker;
 use oat\tao\model\taskQueue\QueueDispatcherInterface;
 use oat\tao\model\taskQueue\TaskLogInterface;
