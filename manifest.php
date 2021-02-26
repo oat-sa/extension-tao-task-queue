@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -16,12 +15,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  * Copyright (c) 2017 (original work) Open Assessment Technologies SA;
- *
- *
  */
 
-use oat\taoTaskQueue\scripts\install\RegisterTaskLogService;
-use oat\taoTaskQueue\scripts\install\RegisterTaskQueueService;
 use oat\taoTaskQueue\scripts\install\SetClientRouterConfig;
 
 /**
@@ -49,13 +44,10 @@ return [
         '/taoTaskQueue' => 'oat\\taoTaskQueue\\controller'
     ],
     'constants' => [
-        # views directory
-        "DIR_VIEWS" => dirname(__FILE__) . DIRECTORY_SEPARATOR . "views" . DIRECTORY_SEPARATOR,
-
-        #BASE URL (usually the domain root)
+        "DIR_VIEWS" => __DIR__ . DIRECTORY_SEPARATOR . "views" . DIRECTORY_SEPARATOR,
         'BASE_URL' => ROOT_URL . 'taoTaskQueue/',
     ],
     'extra' => [
-        'structures' => dirname(__FILE__) . DIRECTORY_SEPARATOR . 'controller' . DIRECTORY_SEPARATOR . 'structures.xml',
+        'structures' => __DIR__ . DIRECTORY_SEPARATOR . 'controller' . DIRECTORY_SEPARATOR . 'structures.xml',
     ],
 ];
