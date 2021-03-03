@@ -187,8 +187,6 @@ class RdsQueueBroker extends AbstractQueueBroker
                         $this->pushPreFetchedMessage($task);
                     }
                 }
-            } else {
-                $this->logDebug('No task in the queue.', $logContext);
             }
 
             $this->getPersistence()->getPlatform()->commit();

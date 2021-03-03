@@ -84,15 +84,12 @@ final class LongRunningWorker extends AbstractWorker
             ++$this->iterations;
 
             try {
-                $this->logDebug('Fetching tasks from queue ', $this->getLogContext());
-
                 $task = $this->queuer->dequeue();
 
                 // if no task to process, sleep for the specified time and continue.
                 if (!$task) {
                     ++$this->iterationsWithOutTask;
                     $waitInterval = $this->getWaitInterval();
-                    $this->logDebug('No tasks found. Sleeping for ' . $waitInterval . ' sec', $this->getLogContext());
                     usleep($waitInterval * 1000000);
 
                     continue;
