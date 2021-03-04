@@ -19,9 +19,6 @@
 
 use oat\taoTaskQueue\scripts\install\SetClientRouterConfig;
 
-/**
- * Generated using taoDevTools 3.1.1
- */
 return [
     'name' => 'taoTaskQueue',
     'label' => 'Task Queue',
@@ -34,14 +31,11 @@ return [
     ],
     'install' => [
         'php' => [
-            SetClientRouterConfig::class
-        ]
+            SetClientRouterConfig::class,
+        ],
     ],
-    'uninstall' => [
-    ],
-    'update' => oat\taoTaskQueue\scripts\update\Updater::class,
     'routes' => [
-        '/taoTaskQueue' => 'oat\\taoTaskQueue\\controller'
+        '/taoTaskQueue' => 'oat\\taoTaskQueue\\controller',
     ],
     'constants' => [
         "DIR_VIEWS" => __DIR__ . DIRECTORY_SEPARATOR . "views" . DIRECTORY_SEPARATOR,
