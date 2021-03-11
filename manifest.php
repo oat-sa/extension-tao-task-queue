@@ -18,6 +18,7 @@
  */
 
 use oat\taoTaskQueue\scripts\install\SetClientRouterConfig;
+use oat\taoTaskQueue\scripts\update\Updater;
 
 return [
     'name' => 'taoTaskQueue',
@@ -34,6 +35,7 @@ return [
             SetClientRouterConfig::class,
         ],
     ],
+    'update' => Updater::class,
     'routes' => [
         '/taoTaskQueue' => 'oat\\taoTaskQueue\\controller',
     ],
