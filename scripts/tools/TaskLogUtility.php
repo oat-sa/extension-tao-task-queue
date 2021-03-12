@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -19,16 +18,19 @@
  *
  */
 
+declare(strict_types = 1);
+
 namespace oat\taoTaskQueue\scripts\tools;
 
 use oat\oatbox\action\Action;
 use oat\oatbox\filesystem\FileSystemService;
+use oat\oatbox\reporting\Report;
 use oat\tao\model\taskQueue\TaskLogInterface;
 use oat\taoTaskQueue\model\Entity\Decorator\CategoryEntityDecorator;
 use oat\taoTaskQueue\model\Entity\Decorator\HasFileEntityDecorator;
 use oat\taoTaskQueue\model\TaskLog\Decorator\SimpleManagementCollectionDecorator;
-use Zend\ServiceManager\ServiceLocatorAwareInterface;
-use Zend\ServiceManager\ServiceLocatorAwareTrait;
+use Laminas\ServiceManager\ServiceLocatorAwareTrait;
+use Laminas\ServiceManager\ServiceLocatorAwareInterface;
 
 /**
  * Task Log Utility.
@@ -37,7 +39,6 @@ use Zend\ServiceManager\ServiceLocatorAwareTrait;
  * $ sudo -u www-data php index.php 'oat\taoTaskQueue\scripts\tools\TaskLogUtility'
  * ```
  */
-
 class TaskLogUtility implements Action, ServiceLocatorAwareInterface
 {
     use ServiceLocatorAwareTrait;
@@ -80,7 +81,7 @@ class TaskLogUtility implements Action, ServiceLocatorAwareInterface
         ]
     ];
 
-    public function __invoke($params)
+    public function __invoke($params): Report
     {
         try {
             $this->assertValidParams($params);
@@ -93,13 +94,13 @@ class TaskLogUtility implements Action, ServiceLocatorAwareInterface
 
             if ($this->argStats) {
                 $stats = $taskLog->getStats(TaskLogInterface::SUPER_USER);
-                return \common_report_Report::createSuccess($this->jsonPretty($stats->jsonSerialize()));
+                return Report::createSuccess($this->jsonPretty($stats->jsonSerialize()));
             }
 
             if ($this->argAvailable) {
                 $tasks = $taskLog->findAvailableByUser(TaskLogInterface::SUPER_USER, $this->argLimit, $this->argOffset);
 
-                return \common_report_Report::createSuccess($this->jsonPretty(
+                return Report::createSuccess($this->jsonPretty(
                     (new SimpleManagementCollectionDecorator(
                         $tasks,
                         $taskLog,
@@ -113,26 +114,26 @@ class TaskLogUtility implements Action, ServiceLocatorAwareInterface
             if ($this->argGetTask) {
                 $task = $taskLog->getByIdAndUser($this->argGetTask, TaskLogInterface::SUPER_USER);
 
-                return \common_report_Report::createSuccess($this->jsonPretty(
+                return Report::createSuccess($this->jsonPretty(
                     (new HasFileEntityDecorator(new CategoryEntityDecorator($task, $taskLog), $fs))->jsonSerialize()
                 ));
             }
 
             if ($this->argArchive) {
                 $task = $taskLog->getByIdAndUser($this->argArchive, TaskLogInterface::SUPER_USER);
-                return \common_report_Report::createSuccess('Archived: ' .  $taskLog->archive($task, $this->argForce));
+                return Report::createSuccess('Archived: ' .  $taskLog->archive($task, $this->argForce));
             }
 
             if ($this->argCancel) {
                 $task = $taskLog->getByIdAndUser($this->argCancel, TaskLogInterface::SUPER_USER);
-                return \common_report_Report::createSuccess('Cancelled: ' .  $taskLog->cancel($task, $this->argForce));
+                return Report::createSuccess('Cancelled: ' .  $taskLog->cancel($task, $this->argForce));
             }
 
             if ($this->argHelp) {
-                return \common_report_Report::createSuccess($this->commandOutput($this->examples));
+                return Report::createSuccess($this->commandOutput($this->examples));
             }
 
-            return \common_report_Report::createSuccess($this->commandOutput($this->examples));
+            return Report::createSuccess($this->commandOutput($this->examples));
         } catch (\Exception $exception) {
             $message = $exception->getMessage();
 
@@ -146,20 +147,17 @@ class TaskLogUtility implements Action, ServiceLocatorAwareInterface
                 }
             }
 
-            return \common_report_Report::createFailure($message);
+            return Report::createError($message);
         }
     }
 
-    /**
-     * @param array $params
-     * @throws \Exception
-     */
-    private function assertValidParams(array $params)
+    private function assertValidParams(array $params): void
     {
         foreach ($params as $param) {
             $args = explode('=', $param);
+
             $option = $args[0];
-            $value = isset($args[1]) ? $args[1] : null;
+            $value = $args[1] ?? null;
 
             switch ($option) {
                 case '--stats':
@@ -172,14 +170,14 @@ class TaskLogUtility implements Action, ServiceLocatorAwareInterface
 
                 case '--limit':
                     if (!isset($this->argAvailable)) {
-                        throw new \Exception('Arg --available argument must be use');
+                        throw new \RuntimeException('Arg --available argument must be use');
                     }
                     $this->argLimit = (int)$value;
                     break;
 
                 case '--offset':
                     if (!isset($this->argAvailable)) {
-                        throw new \Exception('Arg --available argument must be use');
+                        throw new \RuntimeException('Arg --available argument must be use');
                     }
                     $this->argOffset = (int)$value;
                     break;
@@ -187,27 +185,27 @@ class TaskLogUtility implements Action, ServiceLocatorAwareInterface
                 case '--get-task':
                     $this->argGetTask = $value;
                     if (!isset($this->argGetTask)) {
-                        throw new \Exception('--get-task=[taskId] argument must be set');
+                        throw new \RuntimeException('--get-task=[taskId] argument must be set');
                     }
                     break;
 
                 case '--archive':
                     $this->argArchive = $value;
                     if (!isset($this->argArchive)) {
-                        throw new \Exception('--archive=[taskId] argument must be set');
+                        throw new \RuntimeException('--archive=[taskId] argument must be set');
                     }
                     break;
 
                 case '--cancel':
                     $this->argCancel = $value;
                     if (!isset($this->argCancel)) {
-                        throw new \Exception('--cancel=[taskId] argument must be set');
+                        throw new \RuntimeException('--cancel=[taskId] argument must be set');
                     }
                     break;
 
                 case '--force':
                     if (!isset($this->argArchive) && !isset($this->argCancel)) {
-                        throw new \Exception('--archive=[taskId] or --cancel=[taskId] argument must be set');
+                        throw new \RuntimeException('--archive=[taskId] or --cancel=[taskId] argument must be set');
                     }
                     $this->argForce = true;
 
@@ -220,12 +218,12 @@ class TaskLogUtility implements Action, ServiceLocatorAwareInterface
         }
     }
 
-    private function jsonPretty(array $data)
+    private function jsonPretty(array $data): string
     {
         return json_encode($data, JSON_PRETTY_PRINT);
     }
 
-    private function commandOutput(array $data)
+    private function commandOutput(array $data): string
     {
         $string = 'Examples';
         foreach ($data as $key => $example) {

@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -16,8 +15,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  * Copyright (c) 2017 (original work) Open Assessment Technologies SA;
- *
- *
  */
 
 namespace oat\taoTaskQueue\scripts\update;
@@ -39,7 +36,7 @@ use oat\taoTaskQueue\model\Worker\WorkerProcessManager;
 /**
  * Class Updater
  *
- * @author Gyula Szucs <gyula@taotesting.com>
+ * @author     Gyula Szucs <gyula@taotesting.com>
  * @deprecated use migrations instead. See https://github.com/oat-sa/generis/wiki/Tao-Update-Process
  */
 class Updater extends common_ext_ExtensionUpdater
@@ -49,13 +46,15 @@ class Updater extends common_ext_ExtensionUpdater
         $this->skip('0.1.0', '0.1.2');
 
         if ($this->isVersion('0.1.2')) {
-            $queueService = new QueueDispatcher([
-                QueueDispatcherInterface::OPTION_QUEUES       => [
-                    new Queue('queue', new InMemoryQueueBroker())
-                ],
-                QueueDispatcherInterface::OPTION_TASK_TO_QUEUE_ASSOCIATIONS => [],
-                QueueDispatcherInterface::OPTION_TASK_LOG     => TaskLogInterface::SERVICE_ID
-            ]);
+            $queueService = new QueueDispatcher(
+                [
+                    QueueDispatcherInterface::OPTION_QUEUES => [
+                        new Queue('queue', new InMemoryQueueBroker()),
+                    ],
+                    QueueDispatcherInterface::OPTION_TASK_TO_QUEUE_ASSOCIATIONS => [],
+                    QueueDispatcherInterface::OPTION_TASK_LOG => TaskLogInterface::SERVICE_ID,
+                ]
+            );
 
             $this->getServiceManager()->propagate($queueService);
 
@@ -67,7 +66,6 @@ class Updater extends common_ext_ExtensionUpdater
         $this->skip('0.2.0', '0.4.2');
 
         if ($this->isVersion('0.4.2')) {
-
             /** @var $taskLogService TaskLogInterface */
             $taskLogService = $this->getServiceManager()->get(TaskLogInterface::SERVICE_ID);
 
@@ -80,7 +78,11 @@ class Updater extends common_ext_ExtensionUpdater
 
                 $table = $toSchema->getTable($taskLogService->getBroker()->getTableName());
                 if (!$table->hasColumn(TaskLogBrokerInterface::COLUMN_PARAMETERS)) {
-                    $table->addColumn(TaskLogBrokerInterface::COLUMN_PARAMETERS, 'text', ["notnull" => false, "default" => null]);
+                    $table->addColumn(
+                        TaskLogBrokerInterface::COLUMN_PARAMETERS,
+                        'text',
+                        ["notnull" => false, "default" => null]
+                    );
                 }
 
                 $queries = $persistence->getPlatform()->getMigrateSchemaSql($fromSchema, $toSchema);
@@ -110,7 +112,7 @@ class Updater extends common_ext_ExtensionUpdater
             ClientLibConfigRegistry::getRegistry()->register(
                 'controller/main',
                 [
-                    'extraRoutes' => ['taoTaskQueue/Main/index']
+                    'extraRoutes' => ['taoTaskQueue/Main/index'],
                 ]
             );
 
@@ -120,7 +122,6 @@ class Updater extends common_ext_ExtensionUpdater
         $this->skip('0.10.0', '0.12.0');
 
         if ($this->isVersion('0.12.0')) {
-
             /** @var $taskLogService TaskLogInterface */
             $taskLogService = $this->getServiceManager()->get(TaskLogInterface::SERVICE_ID);
 
@@ -133,7 +134,11 @@ class Updater extends common_ext_ExtensionUpdater
 
                 $table = $toSchema->getTable($taskLogService->getBroker()->getTableName());
                 if (!$table->hasColumn(TaskLogBrokerInterface::COLUMN_PARENT_ID)) {
-                    $table->addColumn(TaskLogBrokerInterface::COLUMN_PARENT_ID, 'string', ["notnull" => false, "length" => 255, "default" => null]);
+                    $table->addColumn(
+                        TaskLogBrokerInterface::COLUMN_PARENT_ID,
+                        'string',
+                        ["notnull" => false, "length" => 255, "default" => null]
+                    );
                 }
 
                 $queries = $persistence->getPlatform()->getMigrateSchemaSql($fromSchema, $toSchema);
@@ -149,7 +154,6 @@ class Updater extends common_ext_ExtensionUpdater
         $this->skip('0.13.0', '0.13.2');
 
         if ($this->isVersion('0.13.2')) {
-
             /** @var $taskLogService TaskLogInterface */
             $taskLogService = $this->getServiceManager()->get(TaskLogInterface::SERVICE_ID);
 
@@ -190,7 +194,9 @@ class Updater extends common_ext_ExtensionUpdater
                     ? new \oat\tao\model\taskQueue\Queue\Broker\InMemoryQueueBroker(1)
                     : $oldQueue->getBroker();
 
-                $newQueues[] = new \oat\tao\model\taskQueue\Queue($oldQueue->getName(), $broker, $oldQueue->getWeight());
+                $newQueues[] = new \oat\tao\model\taskQueue\Queue(
+                    $oldQueue->getName(), $broker, $oldQueue->getWeight()
+                );
             }
 
             $newQueueDispatcher->setQueues($newQueues);
@@ -210,10 +216,13 @@ class Updater extends common_ext_ExtensionUpdater
                 $newQueueDispatcher->setTaskSelector($taskSelector);
             }
 
-            $this->getServiceManager()->register(\oat\tao\model\taskQueue\QueueDispatcher::SERVICE_ID, $newQueueDispatcher);
+            $this->getServiceManager()->register(
+                \oat\tao\model\taskQueue\QueueDispatcher::SERVICE_ID,
+                $newQueueDispatcher
+            );
 
             // saving the current old task log conf into the new one
-            /** @var $oldTaskLog|ConfigurableService TaskLogInterface */
+            /** @var $oldTaskLog |ConfigurableService TaskLogInterface */
             $oldTaskLog = $this->getServiceManager()->get(TaskLog::SERVICE_ID);
             $newTaskLog = $this->getServiceManager()->get(\oat\tao\model\taskQueue\TaskLog::SERVICE_ID);
 
@@ -243,9 +252,11 @@ class Updater extends common_ext_ExtensionUpdater
         $this->skip('0.17.1', '1.0.0');
 
         if ($this->isVersion('1.0.0')) {
-            $workerProcessManager = new WorkerProcessManager([
-                WorkerProcessManager::OPTION_TASK_COMMAND => 'php index.php "\oat\taoTaskQueue\scripts\tools\RunTask"'
-            ]);
+            $workerProcessManager = new WorkerProcessManager(
+                [
+                    WorkerProcessManager::OPTION_TASK_COMMAND => 'php index.php "\oat\taoTaskQueue\scripts\tools\RunTask"',
+                ]
+            );
 
             $this->getServiceManager()->register(WorkerProcessManager::SERVICE_ID, $workerProcessManager);
 
@@ -253,7 +264,7 @@ class Updater extends common_ext_ExtensionUpdater
         }
 
         $this->skip('1.1.0', '5.3.1');
-        
+
         //Updater files are deprecated. Please use migrations.
         //See: https://github.com/oat-sa/generis/wiki/Tao-Update-Process
 

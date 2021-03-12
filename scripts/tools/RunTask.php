@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -19,14 +18,16 @@
  *
  */
 
+declare(strict_types = 1);
+
 namespace oat\taoTaskQueue\scripts\tools;
 
 use oat\oatbox\extension\script\ScriptAction;
+use oat\oatbox\reporting\Report;
 use oat\tao\model\taskQueue\QueueDispatcherInterface;
 use oat\tao\model\taskQueue\Task\TaskSerializerService;
 use oat\tao\model\taskQueue\TaskLogInterface;
 use oat\tao\model\taskQueue\Worker\OneTimeTask;
-use common_report_Report as Report;
 
 /**
  * $ sudo -u www-data php index.php 'oat\taoTaskQueue\scripts\tools\RunTask' -t <some_task_serialized_and_base64encoded>
@@ -38,13 +39,14 @@ class RunTask extends ScriptAction
      * @return Report
      * @throws \Exception
      */
-    protected function run()
+    protected function run(): Report
     {
         /** @var QueueDispatcherInterface $queueService */
         $queueService = $this->getServiceLocator()->get(QueueDispatcherInterface::SERVICE_ID);
 
         /** @var TaskLogInterface $taskLog */
         $taskLog = $this->getServiceLocator()->get(TaskLogInterface::SERVICE_ID);
+
         /** @var TaskSerializerService $taskSerializer */
         $taskSerializer =  $this->getServiceLocator()->get(TaskSerializerService::SERVICE_ID);
 
@@ -59,7 +61,7 @@ class RunTask extends ScriptAction
         return Report::createInfo($status);
     }
 
-    protected function provideOptions()
+    protected function provideOptions(): array
     {
         return [
             'task' => [
@@ -72,7 +74,7 @@ class RunTask extends ScriptAction
         ];
     }
 
-    protected function provideDescription()
+    protected function provideDescription(): string
     {
         return 'Run a task';
     }
