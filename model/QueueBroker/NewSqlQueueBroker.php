@@ -43,6 +43,8 @@ use Throwable;
  */
 class NewSqlQueueBroker extends AbstractQueueBroker
 {
+    public const ID ='newsql';
+
     use UuidPrimaryKeyTrait;
 
     /** @var string */
