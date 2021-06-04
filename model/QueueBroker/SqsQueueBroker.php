@@ -34,7 +34,8 @@ use oat\tao\model\taskQueue\Task\TaskInterface;
  */
 class SqsQueueBroker extends AbstractQueueBroker
 {
-    const DEFAULT_AWS_CLIENT_KEY = 'generis/awsClient';
+    public const DEFAULT_AWS_CLIENT_KEY = 'generis/awsClient';
+    public const ID ='sqs';
 
     private $cacheId;
 
