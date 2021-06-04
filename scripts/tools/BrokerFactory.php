@@ -33,10 +33,10 @@ use oat\taoTaskQueue\model\QueueBroker\SqsQueueBroker;
 
 class BrokerFactory extends ConfigurableService
 {
-    public const BROKER_MEMORY = 'memory';
-    public const BROKER_RDS = 'rds';
-    public const BROKER_NEW_SQL = 'newsql';
-    public const BROKER_SQS = 'sqs';
+    public const BROKER_MEMORY = InMemoryQueueBroker::ID;
+    public const BROKER_RDS = RdsQueueBroker::ID;
+    public const BROKER_NEW_SQL = NewSqlQueueBroker::ID;
+    public const BROKER_SQS = SqsQueueBroker::ID;
 
     public function create(string $brokerId, string $persistenceId = null, int $capacity = 1): QueueBrokerInterface
     {

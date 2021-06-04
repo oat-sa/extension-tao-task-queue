@@ -35,6 +35,8 @@ use oat\tao\model\taskQueue\Task\TaskInterface;
  */
 class RdsQueueBroker extends AbstractQueueBroker
 {
+    public const ID ='rds';
+
     private $persistenceId;
 
     /**
