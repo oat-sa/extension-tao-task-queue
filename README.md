@@ -79,7 +79,7 @@ If the queue has not been initialized, meaning the required queue container has 
 try {
     $queueService->initialize();
 } catch (\Exception $e) {
-    return \common_report_Report::createFailure('Initializing queues failed');
+    return \oat\oatbox\reporting\Report::createError('Initializing queues failed');
 }
 ```
 
@@ -154,7 +154,7 @@ In order to use it please check the swagger file in (doc/taskApi.yml).
 
 ## Command Line Utility
 Besides using the API to check reports of tasks, another way it's using the command line. 
-```php
+```bash
 sudo -u www-data php index.php 'oat\taoTaskQueue\scripts\tools\TaskLogUtility' --help
 ```
 This command will show you all the possibilities action the the utility can have.

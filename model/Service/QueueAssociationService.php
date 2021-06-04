@@ -22,13 +22,19 @@ declare(strict_types=1);
 
 namespace oat\taoTaskQueue\model\Service;
 
+use Exception;
 use InvalidArgumentException;
 use oat\oatbox\action\Action;
 use oat\oatbox\service\ConfigurableService;
 use oat\tao\model\taskQueue\Queue;
+use oat\tao\model\taskQueue\Queue\Broker\InMemoryQueueBroker;
+use oat\tao\model\taskQueue\Queue\Broker\QueueBrokerInterface;
 use oat\tao\model\taskQueue\QueueDispatcher;
 use oat\tao\model\taskQueue\QueueDispatcherInterface;
+use oat\taoTaskQueue\model\QueueBroker\NewSqlQueueBroker;
 use oat\taoTaskQueue\model\QueueBroker\RdsQueueBroker;
+use oat\taoTaskQueue\model\QueueBroker\SqsQueueBroker;
+use oat\taoTaskQueue\scripts\tools\BrokerFactory;
 use oat\taoTaskQueue\scripts\tools\InitializeQueue;
 
 class QueueAssociationService extends ConfigurableService
@@ -71,4 +77,99 @@ class QueueAssociationService extends ConfigurableService
     {
         return $this->getServiceLocator()->get(QueueDispatcher::SERVICE_ID);
     }
+
+    /**
+     * @throws common_exception_Error
+     */
+    public function createAndAssociate(
+        string $newQueueName,
+        array $newAssociations
+    ): QueueBrokerInterface {
+
+        $factory = $this->getBrokerFactory();
+        $queueService = $this->getQueueDispatcher();
+
+        $existingQueues = $queueService->getOption(QueueDispatcherInterface::OPTION_QUEUES);
+        if (in_array($newQueueName, $queueService->getQueueNames())){
+            throw new Exception(sprintf('`%s` already exists', $newQueueName));
+        }
+        $broker   = $factory->create($this->detectNeededBrokerType(), 'default', 2);
+        $newQueue = new Queue($newQueueName, $broker, 30);
+        $this->propagate($broker);
+
+        $existingOptions = $queueService->getOptions();
+        $existingOptions[QueueDispatcherInterface::OPTION_QUEUES] = array_merge($existingQueues, [$newQueue]);
+
+        $existingAssociations = $existingOptions[QueueDispatcherInterface::OPTION_TASK_TO_QUEUE_ASSOCIATIONS];
+
+        $existingOptions[QueueDispatcherInterface::OPTION_TASK_TO_QUEUE_ASSOCIATIONS] = array_merge(
+            $existingAssociations,
+            $newAssociations
+        );
+
+        $queueService->setOptions($existingOptions);
+        $this->getServiceManager()->register(QueueDispatcherInterface::SERVICE_ID, $queueService);
+
+        return $broker;
+    }
+
+    public function detectNeededBrokerType(): ?string
+    {
+        $queueService = $this->getQueueDispatcher();
+
+        $existingQueues = $queueService->getOption(QueueDispatcherInterface::OPTION_QUEUES);
+        /** @var Queue $queue */
+        $queue = $existingQueues[0];
+
+        $this->propagate($queue);
+
+        switch (get_class($queue->getBroker())) {
+            case InMemoryQueueBroker::class:
+                return BrokerFactory::BROKER_MEMORY;
+            case RdsQueueBroker::class:
+                return BrokerFactory::BROKER_RDS;
+            case NewSqlQueueBroker::class:
+                return BrokerFactory::BROKER_NEW_SQL;
+            case SqsQueueBroker::class:
+                return BrokerFactory::BROKER_SQS;
+        }
+
+        return null;
+    }
+
+    private function getBrokerFactory(): BrokerFactory
+    {
+        return $this->getServiceManager()->get(BrokerFactory::class);
+    }
+
+    public function deleteAndRemoveAssociations(string $queueNameForRemoval): void
+    {
+        /** @var QueueDispatcher $queueService */
+        $queueService   = $this->getServiceManager()->get(QueueDispatcher::SERVICE_ID);
+        $existingQueues = $queueService->getOption(QueueDispatcherInterface::OPTION_QUEUES);
+
+        $newQueue = [];
+        /** @var Queue $queue */
+        foreach ($existingQueues as $queue) {
+            if ($queue->getName() !== $queueNameForRemoval) {
+                $newQueue[] = $queue;
+            }
+        }
+
+        $existingOptions = $queueService->getOptions();
+        $existingOptions[QueueDispatcherInterface::OPTION_QUEUES] = $newQueue;
+
+        $existingAssociations = $existingOptions[QueueDispatcherInterface::OPTION_TASK_TO_QUEUE_ASSOCIATIONS];
+        $newAssociations = array_filter(
+            $existingAssociations,
+            function ($queueName) use ($queueNameForRemoval) {
+                return $queueNameForRemoval !== $queueName;
+            }
+        );
+        $existingOptions[QueueDispatcherInterface::OPTION_TASK_TO_QUEUE_ASSOCIATIONS] = $newAssociations;
+
+        $queueService->setOptions($existingOptions);
+        $this->getServiceManager()->register(QueueDispatcherInterface::SERVICE_ID, $queueService);
+    }
+
 }
