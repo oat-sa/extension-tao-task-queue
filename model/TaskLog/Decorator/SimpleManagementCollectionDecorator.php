@@ -80,7 +80,7 @@ class SimpleManagementCollectionDecorator extends TaskLogCollectionDecorator
         $translator = ServiceManager::getServiceManager()->get(TaskLogTranslator::class);
 
         foreach ($this->getIterator() as $entity) {
-            $entity = $translator->translate($entity);
+            $translator->translate($entity);
 
             $entityData = (new HasFileEntityDecorator(new CategoryEntityDecorator($entity, $this->taskLogService), $this->fileSystemService))->toArray();
 
