@@ -26,6 +26,7 @@ use oat\oatbox\filesystem\FileSystemService;
 use oat\tao\model\routing\AnnotationReader\security;
 use oat\tao\model\taskQueue\QueueDispatcherInterface;
 use oat\tao\model\taskQueue\Report\TaskLogTranslator;
+use oat\tao\model\taskQueue\Report\TaskLogTranslatorInterface;
 use oat\tao\model\taskQueue\TaskLog\Broker\TaskLogBrokerInterface;
 use oat\tao\model\taskQueue\TaskLog\TaskLogFilter;
 use oat\tao\model\taskQueue\TaskLogInterface;
@@ -121,9 +122,7 @@ class TaskQueueWebApi extends \tao_actions_CommonModule
                 $this->userId
             );
 
-            /** @var TaskLogTranslator $translator */
-            $translator = $this->getServiceLocator()->get(TaskLogTranslator::class);
-            $entity = $translator->translate($entity);
+            $this->getTaskLogTranslator()->translate($entity);
 
             return $this->returnJson([
                 'success' => true,
@@ -266,5 +265,10 @@ class TaskQueueWebApi extends \tao_actions_CommonModule
         } else {
             return [$taskIdsParams];
         }
+    }
+
+    private function getTaskLogTranslator(): TaskLogTranslatorInterface
+    {
+        return $this->getServiceLocator()->get(TaskLogTranslator::class);
     }
 }
