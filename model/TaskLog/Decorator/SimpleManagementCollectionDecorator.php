@@ -22,8 +22,6 @@
 namespace oat\taoTaskQueue\model\TaskLog\Decorator;
 
 use oat\oatbox\filesystem\FileSystemService;
-use oat\oatbox\service\ServiceManager;
-use oat\tao\model\taskQueue\Report\TaskLogTranslator;
 use oat\tao\model\taskQueue\TaskLog\CollectionInterface;
 use oat\tao\model\taskQueue\TaskLogInterface;
 use oat\taoTaskQueue\model\Entity\Decorator\CategoryEntityDecorator;
@@ -75,13 +73,7 @@ class SimpleManagementCollectionDecorator extends TaskLogCollectionDecorator
     {
         $data = [];
 
-        //@FIXME @TODO Remove after tests
-        /** @var TaskLogTranslator $translator */
-        $translator = ServiceManager::getServiceManager()->get(TaskLogTranslator::class);
-
         foreach ($this->getIterator() as $entity) {
-            $translator->translate($entity);
-
             $entityData = (new HasFileEntityDecorator(new CategoryEntityDecorator($entity, $this->taskLogService), $this->fileSystemService))->toArray();
 
             if (!$this->reportIncluded && array_key_exists('report', $entityData)) {
