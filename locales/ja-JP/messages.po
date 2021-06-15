@@ -1,0 +1,95 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: TAO 3.4.0-sprint134\n"
+"PO-Revision-Date: 2020-08-14T11:38:02\n"
+"Last-Translator: TAO Translation Team <translation@tao.lu>\n"
+"MIME-Version: 1.0\n"
+"Language: en-US\n"
+"sourceLanguage: en-US\n"
+"targetLanguage: en-US\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Basepath: ../../\n"
+"X-Poedit-KeywordsList: __\n"
+"X-Poedit-SearchPath-0: .\n"
+
+msgid "Background tasks"
+msgstr "バックグラウンドタスク"
+
+msgid "Clear all finished"
+msgstr "終了したすべてを消去"
+
+msgid "Clear all finished tasks"
+msgstr "終了したタスクをすべて消去"
+
+msgid "close report"
+msgstr "レポートを閉じる"
+
+msgid "Completed"
+msgstr "完了"
+
+msgid "Completed %s"
+msgstr "完了： %s
+
+msgid "download"
+msgstr "ダウンロード"
+
+msgid "Executing task %s failed"
+msgstr "タスク%sの実行に失敗しました"
+
+msgid "Failed"
+msgstr "エラー"
+
+msgid "Failed %s"
+msgstr "エラー： %s"
+
+msgid "go to resource"
+msgstr "リソースへ移動"
+
+msgid "In Progress"
+msgstr "実施中"
+
+msgid "No report available"
+msgstr "利用できるレポートがありません"
+
+msgid "notify me when done"
+msgstr "完了したらお知らせください"
+
+msgid "Queued"
+msgstr "待機中"
+
+msgid "remove"
+msgstr "移動"
+
+msgid "Resource is not the task placeholder"
+msgstr "リソースがタスクのプレースホルダーではありません"
+
+msgid "Running task %s"
+msgstr "実行中： %s"
+
+msgid "see report"
+msgstr "レポートを見る"
+
+msgid "Started %s"
+msgstr "開始： %s"
+
+msgid "Task is in \'%s\' state"
+msgstr "タスクが \'%s\' の状態です"
+
+msgid "Task not returned any report."
+msgstr "タスクからの報告はありません"
+
+#, tao-public
+msgid "Task Queue"
+msgstr "タスク待機中"
+
+#, tao-public
+msgid "taskqueue"
+msgstr "タスク待機中"
+
+msgid "The list is currently empty."
+msgstr "現在、リストは空です"
+
+msgid "There is currently no background task"
+msgstr "現在、バックグラウンドタスクはありません。"
+
