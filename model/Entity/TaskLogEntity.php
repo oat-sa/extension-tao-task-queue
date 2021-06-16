@@ -15,7 +15,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2017 (original work) Open Assessment Technologies SA (under the project TAO-PRODUCT);
+ * Copyright (c) 2017-2021 (original work) Open Assessment Technologies SA (under the project TAO-PRODUCT);
  *
  */
 
@@ -24,7 +24,7 @@ namespace oat\taoTaskQueue\model\Entity;
 use common_exception_Error;
 use common_report_Report as Report;
 use DateTime;
-use Exception;
+use oat\oatbox\reporting\Report as NewReport;
 use oat\tao\model\taskQueue\TaskLog\Entity\TaskLogEntity as BaseTaskLogEntity;
 use oat\taoTaskQueue\model\TaskLogBroker\TaskLogBrokerInterface;
 use oat\taoTaskQueue\model\ValueObjects\TaskLogCategorizedStatus;
@@ -126,7 +126,7 @@ class TaskLogEntity extends BaseTaskLogEntity implements TaskLogEntityInterface
             isset($row[TaskLogBrokerInterface::COLUMN_OWNER]) ? $row[TaskLogBrokerInterface::COLUMN_OWNER] : '',
             isset($row[TaskLogBrokerInterface::COLUMN_CREATED_AT]) ? DateTime::createFromFormat($dateFormat, $row[TaskLogBrokerInterface::COLUMN_CREATED_AT], new \DateTimeZone('UTC')) : null,
             isset($row[TaskLogBrokerInterface::COLUMN_UPDATED_AT]) ? DateTime::createFromFormat($dateFormat, $row[TaskLogBrokerInterface::COLUMN_UPDATED_AT], new \DateTimeZone('UTC')) : null,
-            Report::jsonUnserialize($row[TaskLogBrokerInterface::COLUMN_REPORT]),
+            NewReport::jsonUnserialize($row[TaskLogBrokerInterface::COLUMN_REPORT]),
             isset($row[TaskLogBrokerInterface::COLUMN_MASTER_STATUS]) ? $row[TaskLogBrokerInterface::COLUMN_MASTER_STATUS] : false
         );
     }
