@@ -80,20 +80,20 @@ class QueueAssociationService extends ConfigurableService
     public function associateBulk(
         string $newQueueName,
         array $newAssociations
-    ): Queue {
-
+    ): ?Queue {
         $factory = $this->getBrokerFactory();
         $queueService = $this->getQueueDispatcher();
-
+        $existingOptions = $queueService->getOptions();
         $existingQueues = $queueService->getOption(QueueDispatcherInterface::OPTION_QUEUES);
+        $newQueue = null;
+
         if (!in_array($newQueueName, $queueService->getQueueNames())){
             $broker = $factory->create($this->guessDefaultBrokerType(), 'default', 2);
             $newQueue = new Queue($newQueueName, $broker, 30);
             $this->propagate($broker);
-        }
 
-        $existingOptions = $queueService->getOptions();
-        $existingOptions[QueueDispatcherInterface::OPTION_QUEUES] = array_merge($existingQueues, [$newQueue]);
+            $existingOptions[QueueDispatcherInterface::OPTION_QUEUES] = array_merge($existingQueues, [$newQueue]);
+        }
 
         $existingAssociations = $existingOptions[QueueDispatcherInterface::OPTION_TASK_TO_QUEUE_ASSOCIATIONS];
 
