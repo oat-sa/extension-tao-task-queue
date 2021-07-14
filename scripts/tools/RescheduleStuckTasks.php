@@ -25,12 +25,14 @@ namespace oat\taoTaskQueue\scripts\tools;
 use DateTimeImmutable;
 use oat\oatbox\extension\script\ScriptAction;
 use oat\oatbox\reporting\Report;
+use oat\tao\model\taskQueue\QueueDispatcherInterface;
 use oat\tao\model\taskQueue\TaskLog;
 use oat\tao\model\taskQueue\TaskLog\Broker\TaskLogBrokerInterface;
 use oat\tao\model\taskQueue\TaskLog\CollectionInterface;
 use oat\tao\model\taskQueue\TaskLog\Entity\EntityInterface;
 use oat\tao\model\taskQueue\TaskLog\TaskLogFilter;
 use oat\tao\model\taskQueue\TaskLogInterface;
+use oat\taoTaskQueue\model\QueueBroker\RdsQueueBroker;
 
 class RescheduleStuckTasks extends ScriptAction
 {
@@ -44,11 +46,18 @@ class RescheduleStuckTasks extends ScriptAction
                 'required' => true,
                 'description' => 'The whitelist of task_name that can be reschedule.'
             ],
+            'queue' => [
+                'prefix' => 'q',
+                'longPrefix' => 'queue',
+                'cast' => 'string',
+                'required' => true,
+                'description' => 'The queue to consider in the scope.'
+            ],
             'age' => [
                 'prefix' => 'w',
                 'longPrefix' => 'age',
                 'cast' => 'int',
-                'required' => true,
+                'required' => false,
                 'default' => 300,
                 'description' => 'Age in seconds of a task log.'
             ]
@@ -62,57 +71,101 @@ class RescheduleStuckTasks extends ScriptAction
 
     protected function run(): Report
     {
+        /**
+         * 1 - Collect stuck tasks.
+         * 2 - Check number of retries (added as extra parameters in the task).
+         * 3 - If retries < maximum allowed:
+         * - GET the task based on task.report and task_log_id
+         * - CANCEL the task_log, so it will not be reexecuted
+         * - Set the task to visible = t
+         * - Update the updated_at field with current date.
+         * - Remove lock Queue::createLock for reference
+         *
+         * tq_indexation_queue.id == tq_task_log.id
+         * 'oat\\tao\\model\\taskQueue\\Queue' <======== Is the queue task
+         *
+         * 4 - If retries >= maximum allowed:
+         * - Mark task as failed
+         * - Add extra information in the report.
+         */
+
         $whitelist = $this->getWhitelist();
         $age = $this->getAge();
 
         /** @var EntityInterface[] $taskLogs */
         $taskLogs = $this->getStuckTaskLogs($whitelist, $age);
 
-        //FIXME Testing...
-        foreach ($taskLogs as $taskLog) {
-            echo PHP_EOL;
-            echo $taskLog->getId();
-            echo PHP_EOL;
-            echo $taskLog->getLabel();
-            echo PHP_EOL;
-            echo $taskLog->getTaskName();
-            echo PHP_EOL;
-            echo '-------------------------------------';
-            echo PHP_EOL;
+        $taskLog = $this->getTaskLog();
+
+        //FIXME How to get the queue based on the task log?
+        /** @var QueueDispatcherInterface $queueService */
+        $queueService = $this->getServiceLocator()->get(QueueDispatcherInterface::SERVICE_ID);
+        $queueName = $this->getOption('queue');
+        $queue = $queueService->getQueue($queueName);
+        $broker = $queue->getBroker();
+
+        if (!$broker instanceof RdsQueueBroker) {
+            return Report::createError(
+                sprintf(
+                    'Broker %s is not supported',
+                    $broker->getBrokerId()
+                )
+            );
         }
 
-        /* @TODO
-         *
-         * 1 - Collect stuck tasks.
-         * 2 - Check number of retries (added as extra parameters in the task).
-         * 3 - If retries < maximum allowed:
-         * - Reschedule the task
-         * - Remove worker owner of the task
-         * 4 - If retries >= maximum allowed:
-         * - Mark task as failed
-         * - Add extra information in the report.
-         */
-
-        return Report::createInfo(
+        $report = Report::createInfo(
             sprintf(
-                'Reschedule tasks for: age <= %s, tasks names IN %s',
+                'Rescheduling tasks for: age <= %s, tasks names IN %s',
                 $age->format(DATE_ATOM),
                 implode(',', $whitelist)
             )
         );
+
+        foreach ($taskLogs as $taskLogEntity) {
+            $task = $broker->getTaskByTaskLogId($taskLogEntity->getId());
+
+            if (!$task) {
+                $report->add(
+                    Report::createError(
+                        sprintf(
+                            'Task not found for taskLog %s and queue %s',
+                            $taskLogEntity->getId(),
+                            $queueName
+                        )
+                    )
+                );
+
+                continue;
+            }
+
+            $broker->changeTaskVisibility($task->getId(), true);
+            $taskLog->setStatus($task->getId(), TaskLogInterface::STATUS_ENQUEUED); // Necessary to change updated_at field
+
+            $report->add(
+                Report::createSuccess(
+                    sprintf(
+                        'Rescheduling taskLog id %s, label %s, taskName %s,',
+                        $taskLogEntity->getId(),
+                        $taskLogEntity->getLabel(),
+                        $taskLogEntity->getTaskName()
+                    )
+                )
+            );
+        }
+
+        return $report;
     }
 
     private function getStuckTaskLogs(array $whitelist, DateTimeImmutable $age): CollectionInterface
     {
         //@TODO move this to a service:
 
-        /** @var TaskLogInterface $taskLog */
-        $taskLog = $this->getServiceLocator()->get(TaskLogInterface::SERVICE_ID);
+        $taskLog = $this->getTaskLog();
 
         $filter = (new TaskLogFilter())
             ->addFilter(TaskLogBrokerInterface::COLUMN_TASK_NAME, 'IN', $whitelist)
             ->addFilter(TaskLogBrokerInterface::COLUMN_STATUS, 'IN', [TaskLog::STATUS_ENQUEUED])
-            ->addFilter(TaskLogBrokerInterface::COLUMN_CREATED_AT, '<=', $age->format(DATE_ATOM));
+            ->addFilter(TaskLogBrokerInterface::COLUMN_UPDATED_AT, '<=', $age->format(DATE_ATOM));
 
         return $taskLog->search($filter);
     }
@@ -132,10 +185,15 @@ class RescheduleStuckTasks extends ScriptAction
 
     private function getAge(): DateTimeImmutable
     {
-        $age = (int)$this->getOption('age');
+        $age = max((int)$this->getOption('age'), 300); // Min 300 sec old... Older than that is too soon
         $date = new DateTimeImmutable();
         $date->modify(sprintf('-%s seconds', $age));
 
         return $date;
+    }
+
+    private function getTaskLog(): TaskLogInterface
+    {
+        return $this->getServiceLocator()->get(TaskLogInterface::SERVICE_ID);
     }
 }
