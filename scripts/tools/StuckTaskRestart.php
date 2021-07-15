@@ -87,22 +87,6 @@ class StuckTaskRestart extends ScriptAction
         $totalErrors = 0;
 
         foreach ($stuckTasks as $stuckTask) {
-            if ($stuckTask->isOrphan()) {
-                $totalErrors++;
-
-                $errorMessage = sprintf(
-                    'TaskLog %s for queue %s is orphan',
-                    $stuckTask->getTaskLog()->getId(),
-                    $stuckTask->getQueueName()
-                );
-
-                $report->add(Report::createError($errorMessage));
-
-                $this->logWarning($errorMessage);
-
-                continue;
-            }
-
             try {
                 $restartService->restart($stuckTask);
 

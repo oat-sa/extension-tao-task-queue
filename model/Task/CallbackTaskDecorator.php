@@ -20,55 +20,31 @@
 
 declare(strict_types=1);
 
-namespace oat\taoTaskQueue\model;
+namespace oat\taoTaskQueue\model\Task;
 
-use oat\tao\model\taskQueue\Task\TaskInterface;
-use oat\tao\model\taskQueue\TaskLog\Entity\EntityInterface;
+use \oat\tao\model\taskQueue\Task\TaskInterface;
 
-class StuckTask
+final class CallbackTaskDecorator
 {
-    /** @var EntityInterface */
-    private $taskLog;
-
-    /** @var string */
-    private $queueName;
-
-    /** @var TaskInterface|null */
+    /** @var TaskInterface */
     private $task;
 
-    /** @var string|null */
+    /** @var string */
     private $taskId;
 
-    public function __construct(EntityInterface $taskLog, string $queueName, TaskInterface $task = null, string $taskId = null)
+    public function __construct(TaskInterface $task, string $taskId)
     {
-        $this->taskLog = $taskLog;
-        $this->queueName = $queueName;
         $this->task = $task;
         $this->taskId = $taskId;
     }
 
-    public function getTaskLog(): EntityInterface
-    {
-        return $this->taskLog;
-    }
-
-    public function getTask(): ?TaskInterface
+    public function getTask(): TaskInterface
     {
         return $this->task;
     }
 
-    public function getTaskId(): ?string
+    public function getTaskId(): string
     {
         return $this->taskId;
-    }
-
-    public function isOrphan(): bool
-    {
-        return !$this->task;
-    }
-
-    public function getQueueName(): string
-    {
-        return $this->queueName;
     }
 }

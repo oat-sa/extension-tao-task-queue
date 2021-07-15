@@ -29,6 +29,7 @@ use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use oat\tao\model\taskQueue\Queue\Broker\AbstractQueueBroker;
 use oat\tao\model\taskQueue\Task\TaskInterface;
 use oat\tao\model\taskQueue\TaskLogInterface;
+use oat\taoTaskQueue\model\Task\CallbackTaskDecorator;
 
 /**
  * Storing messages/tasks in DB.
@@ -235,32 +236,21 @@ class RdsQueueBroker extends AbstractQueueBroker
         }
     }
 
-    //FIXME
-    //FIXME
-    //FIXME PoC
-    //FIXME
-    //FIXME
-    public function getTaskByTaskLogId(string $taskLogId): ?TaskInterface
+    public function getTaskByTaskLogId(string $taskLogId): ?CallbackTaskDecorator
     {
-        $logId = str_replace('/', '\/', $taskLogId);
+        $logId = substr($taskLogId, strpos($taskLogId, '#'));
 
-        $row = $this->getQueryBuilder()
+        $statement = $this->getQueryBuilder()
             ->select('id, message, visible, created_at')
             ->from($this->getTableName())
             ->andWhere('message LIKE :taskLogId')
-            ->setParameter('taskLogId', $logId)
-            ->setMaxResults(1)
-            ->execute()
+            ->setParameter('taskLogId', "%$logId%")
+            ->setMaxResults(1);
+
+        $row = $statement->execute()
             ->fetch(FetchMode::ASSOCIATIVE);
 
         if (!$row) {
-            $this->logAlert(
-                sprintf(
-                    'Could not find task for task_log %s',
-                    $taskLogId
-                )
-            );
-
             return null;
         }
 
@@ -281,25 +271,19 @@ class RdsQueueBroker extends AbstractQueueBroker
             );
         }
 
-        return $task;
+        return new CallbackTaskDecorator($task, $row['id']);
     }
 
     public function changeTaskVisibility(string $taskId, bool $visible): void
     {
-        $qb = $this->getQueryBuilder()
+        $this->getQueryBuilder()
             ->update($this->getTableName())
             ->set('visible', ':visible')
             ->where('id = :id')
             ->setParameter('visible', (int)$visible)
-            ->setParameter('id', $taskId);
-
-        $qb->execute();
+            ->setParameter('id', $taskId)
+            ->execute();
     }
-    //FIXME
-    //FIXME
-    //FIXME PoC
-    //FIXME
-    //FIXME
 
     /**
      * @return int

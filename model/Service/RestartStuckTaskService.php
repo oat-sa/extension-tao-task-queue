@@ -22,7 +22,7 @@ declare(strict_types=1);
 
 namespace oat\taoTaskQueue\model\Service;
 
-use http\Exception\InvalidArgumentException;
+use InvalidArgumentException;
 use oat\oatbox\service\ConfigurableService;
 use oat\tao\model\taskQueue\QueueDispatcherInterface;
 use oat\tao\model\taskQueue\TaskLogInterface;
@@ -33,14 +33,12 @@ class RestartStuckTaskService extends ConfigurableService
 {
     public function restart(StuckTask $stuckTask): void
     {
-        $task = $stuckTask->getTask();
-
-        /** @var RdsQueueBroker $broker */
+        $taskLogEntity = $stuckTask->getTaskLog();
         $broker = $this->getQueueDispatcher()
             ->getQueue($stuckTask->getQueueName())
             ->getBroker();
 
-        if ($broker instanceof RdsQueueBroker) {
+        if (!$broker instanceof RdsQueueBroker) {
             throw new InvalidArgumentException(
                 sprintf(
                     'Broker %s for queue %s is not supported. Supported only %s',
@@ -52,19 +50,25 @@ class RestartStuckTaskService extends ConfigurableService
         }
 
         if ($stuckTask->isOrphan()) {
-            throw new InvalidArgumentException(
-                sprintf(
-                    'Cannot restart orphan taskLog %s',
-                    $stuckTask->getTaskLog()->getId()
-                )
+            $callback = $taskLogEntity->getTaskName();
+
+            $this->getTaskLog()->getBroker()->updateStatus(
+                $taskLogEntity->getId(),
+                TaskLogInterface::STATUS_CANCELLED
             );
+
+            $this->getQueueDispatcher()->createTask(
+                new $callback(),
+                $taskLogEntity->getParameters(),
+                $taskLogEntity->getLabel()
+            );
+
+            return;
         }
 
-        //@TODO Check locking release Queue::createLock()
-        $broker->changeTaskVisibility($task->getId(), true);
+        $broker->changeTaskVisibility($stuckTask->getTaskId(), true);
 
-        // Necessary to change updated_at field
-        $this->getTaskLog()->setStatus($task->getId(), TaskLogInterface::STATUS_ENQUEUED);
+        $this->getTaskLog()->setStatus($stuckTask->getTaskId(), TaskLogInterface::STATUS_ENQUEUED);
     }
 
     private function getTaskLog(): TaskLogInterface

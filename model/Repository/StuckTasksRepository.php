@@ -37,13 +37,11 @@ class StuckTasksRepository extends ConfigurableService
     public function findAll(StuckTasksQuery $query): StuckTasksCollection
     {
         $taskLog = $this->getTaskLog();
-
-        /** @var RdsQueueBroker $broker */
         $broker = $this->getQueueDispatcher()
             ->getQueue($query->getQueryName())
             ->getBroker();
 
-        if ($broker instanceof RdsQueueBroker) {
+        if (!$broker instanceof RdsQueueBroker) {
             throw new InvalidArgumentException(
                 sprintf(
                     'Broker %s for queue %s is not supported. Supported only %s',
@@ -70,7 +68,8 @@ class StuckTasksRepository extends ConfigurableService
                 new StuckTask(
                     $taskLogEntity,
                     $query->getQueryName(),
-                    $task
+                    $task ? $task->getTask() : null,
+                    $task ? $task->getTaskId() : null
                 )
             );
         }

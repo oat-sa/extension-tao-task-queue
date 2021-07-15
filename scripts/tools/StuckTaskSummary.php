@@ -95,8 +95,8 @@ class StuckTaskSummary extends ScriptAction
                         $taskLog->getLabel(),
                         $taskLog->getTaskName(),
                         $stuckTask->isOrphan() ? 'Yes' : 'No',
-                        $task ? $task->getId() : '',
-                        $task ? $task->getCreatedAt()->format(DATE_ATOM) : ''
+                        $task ? $task->getId() : 'None',
+                        $task ? $task->getCreatedAt()->format(DATE_ATOM) : 'None'
                     )
                 )
             );
