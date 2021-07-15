@@ -22,43 +22,12 @@ declare(strict_types=1);
 
 namespace oat\taoTaskQueue\scripts\tools;
 
-use oat\oatbox\extension\script\ScriptAction;
 use oat\oatbox\reporting\Report;
-use oat\taoTaskQueue\model\Repository\StuckTaskQuery;
-use oat\taoTaskQueue\model\Repository\StuckTaskRepository;
 use oat\taoTaskQueue\model\Service\RestartStuckTaskService;
 use Throwable;
 
-class StuckTaskRestart extends ScriptAction
+class StuckTaskRestart extends AbstractStuckTask
 {
-    protected function provideOptions(): array
-    {
-        return [
-            'whitelist' => [
-                'prefix' => 'w',
-                'longPrefix' => 'whitelist',
-                'cast' => 'string',
-                'required' => true,
-                'description' => 'The whitelist of task_name that can be restarted.'
-            ],
-            'queue' => [
-                'prefix' => 'q',
-                'longPrefix' => 'queue',
-                'cast' => 'string',
-                'required' => true,
-                'description' => 'The queue to consider in the scope.'
-            ],
-            'age' => [
-                'prefix' => 'w',
-                'longPrefix' => 'age',
-                'cast' => 'int',
-                'required' => false,
-                'default' => 300,
-                'description' => 'Age in seconds of a task log.'
-            ]
-        ];
-    }
-
     protected function provideDescription(): string
     {
         return 'Reschedule stuck tasks in the queue';
@@ -66,13 +35,8 @@ class StuckTaskRestart extends ScriptAction
 
     protected function run(): Report
     {
-        $query = new StuckTaskQuery(
-            $this->getOption('queue'),
-            explode(',', (string)$this->getOption('whitelist')),
-            $this->getOption('age')
-        );
-
-        $stuckTasks = $this->getStuckTasksRepository()->findAll($query);
+        $query = $this->getQuery();
+        $stuckTasks = $this->findStuckTasks();
 
         $report = Report::createSuccess(
             sprintf(
@@ -131,11 +95,6 @@ class StuckTaskRestart extends ScriptAction
         );
 
         return $report;
-    }
-
-    private function getStuckTasksRepository(): StuckTaskRepository
-    {
-        return $this->getServiceLocator()->get(StuckTaskRepository::class);
     }
 
     private function getRestartStuckTaskService(): RestartStuckTaskService
