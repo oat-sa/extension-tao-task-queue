@@ -53,14 +53,14 @@ abstract class AbstractStuckTask extends ScriptAction
                 'cast' => 'string',
                 'required' => false,
                 'description' => 'The task log statuses to consider stuck',
-                'default' => TaskLog::STATUS_ENQUEUED
+                'defaultValue' => TaskLog::STATUS_ENQUEUED
             ],
             'age' => [
                 'prefix' => 'w',
                 'longPrefix' => 'age',
                 'cast' => 'int',
                 'required' => false,
-                'default' => 300,
+                'defaultValue' => 300,
                 'description' => 'Age in seconds of a task log.'
             ]
         ];
