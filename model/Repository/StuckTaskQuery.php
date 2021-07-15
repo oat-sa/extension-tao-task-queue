@@ -23,10 +23,15 @@ declare(strict_types=1);
 namespace oat\taoTaskQueue\model\Repository;
 
 use DateTimeImmutable;
+use Doctrine\Common\Cache\Psr6\InvalidArgument;
+use oat\tao\model\taskQueue\TaskLog;
 
 class StuckTaskQuery
 {
     private const MIN_AGE = 300;
+    private const ALLOWED_STATUSES = [
+        TaskLog::STATUS_ENQUEUED,
+    ];
 
     /** @var string */
     private $queryName;
@@ -37,7 +42,10 @@ class StuckTaskQuery
     /** @var int */
     private $age;
 
-    public function __construct(string $queryName, array $whitelist, int $age)
+    /** @var array */
+    private $statuses;
+
+    public function __construct(string $queryName, array $whitelist, array $statuses, int $age)
     {
         array_walk(
             $whitelist,
@@ -46,9 +54,26 @@ class StuckTaskQuery
             }
         );
 
+        $whitelist = array_filter($whitelist);
+
+        if (empty($whitelist)) {
+            throw new InvalidArgument('Stuck tasks names white list cannot be empty');
+        }
+
+        if (count(array_intersect($statuses, self::ALLOWED_STATUSES)) !== count($statuses)) {
+            throw new InvalidArgument(
+                sprintf(
+                    'Only allowed statuses "%s" for stuck tasks. Provided: "%s"',
+                    implode(',', self::ALLOWED_STATUSES),
+                    implode(',', $statuses)
+                )
+            );
+        }
+
         $this->queryName = $queryName;
         $this->whitelist = $whitelist;
         $this->age = max($age, self::MIN_AGE);
+        $this->statuses = $statuses;
     }
 
     public function getQueryName(): string
@@ -59,6 +84,11 @@ class StuckTaskQuery
     public function getWhitelist(): array
     {
         return $this->whitelist;
+    }
+
+    public function getStatuses(): array
+    {
+        return $this->statuses;
     }
 
     public function getAge()

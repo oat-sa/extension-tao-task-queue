@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace oat\taoTaskQueue\scripts\tools;
 
 use oat\oatbox\extension\script\ScriptAction;
+use oat\tao\model\taskQueue\TaskLog;
 use oat\taoTaskQueue\model\Repository\StuckTaskCollection;
 use oat\taoTaskQueue\model\Repository\StuckTaskQuery;
 use oat\taoTaskQueue\model\Repository\StuckTaskRepository;
@@ -46,6 +47,14 @@ abstract class AbstractStuckTask extends ScriptAction
                 'required' => true,
                 'description' => 'The queue to consider in the scope.'
             ],
+            'statuses' => [
+                'prefix' => 's',
+                'longPrefix' => 'statuses',
+                'cast' => 'string',
+                'required' => false,
+                'description' => 'The task log statuses to consider stuck',
+                'default' => TaskLog::STATUS_ENQUEUED
+            ],
             'age' => [
                 'prefix' => 'w',
                 'longPrefix' => 'age',
@@ -62,6 +71,7 @@ abstract class AbstractStuckTask extends ScriptAction
         return new StuckTaskQuery(
             $this->getOption('queue'),
             explode(',', (string)$this->getOption('whitelist')),
+            explode(',', (string)$this->getOption('statuses')),
             $this->getOption('age')
         );
     }

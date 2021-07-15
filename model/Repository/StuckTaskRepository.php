@@ -54,7 +54,7 @@ class StuckTaskRepository extends ConfigurableService
 
         $filter = (new TaskLogFilter())
             ->addFilter(TaskLogBrokerInterface::COLUMN_TASK_NAME, 'IN', $query->getWhitelist())
-            ->addFilter(TaskLogBrokerInterface::COLUMN_STATUS, 'IN', [TaskLog::STATUS_ENQUEUED])
+            ->addFilter(TaskLogBrokerInterface::COLUMN_STATUS, 'IN', $query->getStatuses())
             ->addFilter(TaskLogBrokerInterface::COLUMN_UPDATED_AT, '<=', $query->getAgeDateTime()->format(DATE_ATOM));
 
         $taskLogs = $taskLog->search($filter);
