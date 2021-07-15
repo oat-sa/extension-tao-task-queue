@@ -15,7 +15,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2020 (original work) Open Assessment Technologies SA;
+ * Copyright (c) 2021 (original work) Open Assessment Technologies SA;
  */
 
 declare(strict_types=1);
@@ -25,7 +25,7 @@ namespace oat\taoTaskQueue\model\Repository;
 use ArrayIterator;
 use oat\taoTaskQueue\model\StuckTask;
 
-class StuckTasksCollection extends ArrayIterator
+class StuckTaskCollection extends ArrayIterator
 {
     public function __construct(StuckTask ...$stuckTasks)
     {

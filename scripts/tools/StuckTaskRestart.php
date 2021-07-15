@@ -24,8 +24,8 @@ namespace oat\taoTaskQueue\scripts\tools;
 
 use oat\oatbox\extension\script\ScriptAction;
 use oat\oatbox\reporting\Report;
-use oat\taoTaskQueue\model\Repository\StuckTasksQuery;
-use oat\taoTaskQueue\model\Repository\StuckTasksRepository;
+use oat\taoTaskQueue\model\Repository\StuckTaskQuery;
+use oat\taoTaskQueue\model\Repository\StuckTaskRepository;
 use oat\taoTaskQueue\model\Service\RestartStuckTaskService;
 use Throwable;
 
@@ -66,7 +66,7 @@ class StuckTaskRestart extends ScriptAction
 
     protected function run(): Report
     {
-        $query = new StuckTasksQuery(
+        $query = new StuckTaskQuery(
             $this->getOption('queue'),
             explode(',', (string)$this->getOption('whitelist')),
             $this->getOption('age')
@@ -133,9 +133,9 @@ class StuckTaskRestart extends ScriptAction
         return $report;
     }
 
-    private function getStuckTasksRepository(): StuckTasksRepository
+    private function getStuckTasksRepository(): StuckTaskRepository
     {
-        return $this->getServiceLocator()->get(StuckTasksRepository::class);
+        return $this->getServiceLocator()->get(StuckTaskRepository::class);
     }
 
     private function getRestartStuckTaskService(): RestartStuckTaskService

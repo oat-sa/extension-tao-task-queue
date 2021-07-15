@@ -15,7 +15,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2017 (original work) Open Assessment Technologies SA (under the project TAO-PRODUCT);
+ * Copyright (c) 2017-2021 (original work) Open Assessment Technologies SA (under the project TAO-PRODUCT);
  *
  */
 
@@ -28,7 +28,6 @@ use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use oat\tao\model\taskQueue\Queue\Broker\AbstractQueueBroker;
 use oat\tao\model\taskQueue\Task\TaskInterface;
-use oat\tao\model\taskQueue\TaskLogInterface;
 use oat\taoTaskQueue\model\Task\CallbackTaskDecorator;
 
 /**
@@ -240,14 +239,13 @@ class RdsQueueBroker extends AbstractQueueBroker
     {
         $logId = substr($taskLogId, strpos($taskLogId, '#'));
 
-        $statement = $this->getQueryBuilder()
+        $row = $this->getQueryBuilder()
             ->select('id, message, visible, created_at')
             ->from($this->getTableName())
             ->andWhere('message LIKE :taskLogId')
             ->setParameter('taskLogId', "%$logId%")
-            ->setMaxResults(1);
-
-        $row = $statement->execute()
+            ->setMaxResults(1)
+            ->execute()
             ->fetch(FetchMode::ASSOCIATIVE);
 
         if (!$row) {
@@ -263,12 +261,7 @@ class RdsQueueBroker extends AbstractQueueBroker
         );
 
         if (!$task) {
-            $this->logAlert(
-                sprintf(
-                    'Could not unserialize task for task_log %s',
-                    $taskLogId
-                )
-            );
+            return null;
         }
 
         return new CallbackTaskDecorator($task, $row['id']);

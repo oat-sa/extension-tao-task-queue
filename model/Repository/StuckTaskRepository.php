@@ -15,7 +15,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2020 (original work) Open Assessment Technologies SA;
+ * Copyright (c) 2021 (original work) Open Assessment Technologies SA;
  */
 
 declare(strict_types=1);
@@ -32,9 +32,9 @@ use oat\tao\model\taskQueue\TaskLogInterface;
 use oat\taoTaskQueue\model\QueueBroker\RdsQueueBroker;
 use oat\taoTaskQueue\model\StuckTask;
 
-class StuckTasksRepository extends ConfigurableService
+class StuckTaskRepository extends ConfigurableService
 {
-    public function findAll(StuckTasksQuery $query): StuckTasksCollection
+    public function findAll(StuckTaskQuery $query): StuckTaskCollection
     {
         $taskLog = $this->getTaskLog();
         $broker = $this->getQueueDispatcher()
@@ -59,7 +59,7 @@ class StuckTasksRepository extends ConfigurableService
 
         $taskLogs = $taskLog->search($filter);
 
-        $tasks = new StuckTasksCollection(...[]);
+        $tasks = new StuckTaskCollection(...[]);
 
         foreach ($taskLogs as $taskLogEntity) {
             $task = $broker->getTaskByTaskLogId($taskLogEntity->getId());

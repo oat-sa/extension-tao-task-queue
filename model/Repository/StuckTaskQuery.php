@@ -15,7 +15,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2020 (original work) Open Assessment Technologies SA;
+ * Copyright (c) 2021 (original work) Open Assessment Technologies SA;
  */
 
 declare(strict_types=1);
@@ -24,7 +24,7 @@ namespace oat\taoTaskQueue\model\Repository;
 
 use DateTimeImmutable;
 
-class StuckTasksQuery
+class StuckTaskQuery
 {
     private const MIN_AGE = 300;
 
