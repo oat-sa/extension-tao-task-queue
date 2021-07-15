@@ -23,9 +23,7 @@ declare(strict_types=1);
 namespace oat\taoTaskQueue\model\Repository;
 
 use InvalidArgumentException;
-use oat\oatbox\reporting\Report;
 use oat\oatbox\service\ConfigurableService;
-use oat\tao\model\taskQueue\Queue\Broker\QueueBrokerInterface;
 use oat\tao\model\taskQueue\QueueDispatcherInterface;
 use oat\tao\model\taskQueue\TaskLog;
 use oat\tao\model\taskQueue\TaskLog\Broker\TaskLogBrokerInterface;
@@ -36,10 +34,7 @@ use oat\taoTaskQueue\model\StuckTask;
 
 class StuckTasksRepository extends ConfigurableService
 {
-    /**
-     * @return StuckTask[]
-     */
-    public function findAll(StuckTasksQuery $query): array
+    public function findAll(StuckTasksQuery $query): StuckTasksCollection
     {
         $taskLog = $this->getTaskLog();
 
@@ -66,15 +61,17 @@ class StuckTasksRepository extends ConfigurableService
 
         $taskLogs = $taskLog->search($filter);
 
-        $tasks = [];
+        $tasks = new StuckTasksCollection(...[]);
 
         foreach ($taskLogs as $taskLogEntity) {
             $task = $broker->getTaskByTaskLogId($taskLogEntity->getId());
 
-            $tasks[] = new StuckTask(
-                $taskLogEntity,
-                $query->getQueryName(),
-                $task
+            $tasks->add(
+                new StuckTask(
+                    $taskLogEntity,
+                    $query->getQueryName(),
+                    $task
+                )
             );
         }
 

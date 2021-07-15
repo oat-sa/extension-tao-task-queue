@@ -107,7 +107,7 @@ class StuckTaskRestart extends ScriptAction
                 $restartService->restart($stuckTask);
 
                 $successMessage = sprintf(
-                    'Rescheduling taskLog id %s, label %s, taskName %s,',
+                    'Restarting: TaskLogId = %s, Label = %s, TaskName = %s',
                     $stuckTask->getTaskLog()->getId(),
                     $stuckTask->getTaskLog()->getLabel(),
                     $stuckTask->getTaskLog()->getTaskName()
@@ -122,7 +122,7 @@ class StuckTaskRestart extends ScriptAction
                 $totalErrors++;
 
                 $errorMessage = sprintf(
-                    'Error rescheduling taskLog id %s, label %s, taskName %s. Error: %s',
+                    'Error restarting: TaskLogId %s, Label %s, TaskName = %s, Error: %s',
                     $stuckTask->getTaskLog()->getId(),
                     $stuckTask->getTaskLog()->getLabel(),
                     $stuckTask->getTaskLog()->getTaskName(),
@@ -138,7 +138,8 @@ class StuckTaskRestart extends ScriptAction
         $report->add(
             Report::createInfo(
                 sprintf(
-                    'Total restarted: %s, Total errors: %s',
+                    'Total: %s, Restarted: %s, Errors: %s',
+                    $stuckTasks->count(),
                     $totalRestarted,
                     $totalErrors
                 )

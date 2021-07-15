@@ -75,7 +75,7 @@ class StuckTaskSummary extends ScriptAction
         $report = Report::createSuccess(
             sprintf(
                 'Total = %s, Age <= %s, TasksName = %s',
-                count($stuckTasks),
+                $stuckTasks->count(),
                 $query->getAgeDateTime()->format(DATE_ATOM),
                 implode(',', $query->getWhitelist())
             )
