@@ -22,7 +22,8 @@ declare(strict_types=1);
 
 namespace oat\taoTaskQueue\model\Repository;
 
-use DateTimeImmutable;
+use DateTime;
+use DateTimeZone;
 use Doctrine\Common\Cache\Psr6\InvalidArgument;
 use oat\tao\model\taskQueue\TaskLog;
 
@@ -41,6 +42,9 @@ class StuckTaskQuery
 
     /** @var int */
     private $age;
+
+    /** @var DateTime */
+    private $ageDateTime;
 
     /** @var array */
     private $statuses;
@@ -74,6 +78,15 @@ class StuckTaskQuery
         $this->whitelist = $whitelist;
         $this->age = max($age, self::MIN_AGE);
         $this->statuses = $statuses;
+
+        /**
+         * Simulating approach provided at common_persistence_sql_Platform::getNowExpression()
+         * This is how we create new taskLogs in the system.
+         *
+         * @TODO Refactor this when we will have support for other Queue and TaskLog broker
+         */
+        $this->ageDateTime = new DateTime('now', new DateTimeZone('UTC'));
+        $this->ageDateTime->modify(sprintf('-%s seconds', $this->age));
     }
 
     public function getQueryName(): string
@@ -96,11 +109,8 @@ class StuckTaskQuery
         return $this->age;
     }
 
-    public function getAgeDateTime(): DateTimeImmutable
+    public function getAgeDateTime(): DateTime
     {
-        $date = new DateTimeImmutable();
-        $date->modify(sprintf('-%s seconds', $this->age));
-
-        return $date;
+        return $this->ageDateTime;
     }
 }

@@ -25,8 +25,8 @@ namespace oat\taoTaskQueue\model\Repository;
 use InvalidArgumentException;
 use oat\oatbox\service\ConfigurableService;
 use oat\tao\model\taskQueue\QueueDispatcherInterface;
-use oat\tao\model\taskQueue\TaskLog;
 use oat\tao\model\taskQueue\TaskLog\Broker\TaskLogBrokerInterface;
+use oat\tao\model\taskQueue\TaskLog\Entity\EntityInterface;
 use oat\tao\model\taskQueue\TaskLog\TaskLogFilter;
 use oat\tao\model\taskQueue\TaskLogInterface;
 use oat\taoTaskQueue\model\QueueBroker\RdsQueueBroker;
@@ -55,13 +55,17 @@ class StuckTaskRepository extends ConfigurableService
         $filter = (new TaskLogFilter())
             ->addFilter(TaskLogBrokerInterface::COLUMN_TASK_NAME, 'IN', $query->getWhitelist())
             ->addFilter(TaskLogBrokerInterface::COLUMN_STATUS, 'IN', $query->getStatuses())
-            ->addFilter(TaskLogBrokerInterface::COLUMN_UPDATED_AT, '<=', $query->getAgeDateTime()->format(DATE_ATOM));
+            ->addFilter(TaskLogBrokerInterface::COLUMN_UPDATED_AT, '<=', $query->getAgeDateTime()->format('Y-m-d H:i:s'));
 
         $taskLogs = $taskLog->search($filter);
 
         $tasks = new StuckTaskCollection(...[]);
 
         foreach ($taskLogs as $taskLogEntity) {
+            if (!$this->isAgeConsistent($taskLogEntity, $query)) {
+                continue;
+            }
+
             $task = $broker->getTaskByTaskLogId($taskLogEntity->getId());
 
             $tasks->add(
@@ -75,6 +79,11 @@ class StuckTaskRepository extends ConfigurableService
         }
 
         return $tasks;
+    }
+
+    private function isAgeConsistent(EntityInterface $taskLogEntity, StuckTaskQuery $query): bool
+    {
+        return ($query->getAgeDateTime()->getTimestamp() - $taskLogEntity->getCreatedAt()->getTimestamp()) >= 0;
     }
 
     private function getTaskLog(): TaskLogInterface
