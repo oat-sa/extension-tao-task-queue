@@ -23,15 +23,19 @@ declare(strict_types=1);
 namespace oat\taoTaskQueue\test\unit\model\Repository;
 
 use oat\generis\test\TestCase;
+use oat\taoTaskQueue\model\Repository\StuckTaskCollection;
+use oat\taoTaskQueue\model\StuckTask;
 
 class StuckTaskCollectionTest extends TestCase
 {
-    public function setUp(): void
-    {
-    }
-
     public function testAdd(): void
     {
-        $this->markTestSkipped('TODO');
+        $task = $this->createMock(StuckTask::class);
+
+        $collection = new StuckTaskCollection(...[]);
+        $collection->add($task);
+
+        $this->assertSame($task, $collection->offsetGet(0));
+        $this->assertSame(1, $collection->count());
     }
 }

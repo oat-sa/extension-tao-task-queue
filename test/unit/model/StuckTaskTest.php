@@ -23,15 +23,26 @@ declare(strict_types=1);
 namespace oat\taoTaskQueue\test\unit\model;
 
 use oat\generis\test\TestCase;
+use oat\tao\model\taskQueue\Task\TaskInterface;
+use oat\tao\model\taskQueue\TaskLog\Entity\EntityInterface;
+use oat\taoTaskQueue\model\StuckTask;
 
 class StuckTaskTest extends TestCase
 {
-    public function setUp(): void
-    {
-    }
-
     public function testGetters(): void
     {
-        $this->markTestSkipped('TODO');
+        $taskLog = $this->createMock(EntityInterface::class);
+        $task = $this->createMock(TaskInterface::class);
+        $stuckTask = new StuckTask(
+            $taskLog,
+            'queue',
+            $task,
+            'taskId'
+        );
+
+        $this->assertSame($task, $stuckTask->getTask());
+        $this->assertSame($taskLog, $stuckTask->getTaskLog());
+        $this->assertSame('taskId', $stuckTask->getTaskId());
+        $this->assertSame('queue', $stuckTask->getQueueName());
     }
 }
