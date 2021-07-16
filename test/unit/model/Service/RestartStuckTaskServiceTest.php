@@ -20,18 +20,77 @@
 
 declare(strict_types=1);
 
-namespace oat\taoTaskQueue\test\unit\model\Repository;
+namespace oat\taoTaskQueue\test\unit\model\Service;
 
 use oat\generis\test\TestCase;
+use oat\tao\model\taskQueue\QueueDispatcherInterface;
+use oat\tao\model\taskQueue\QueueInterface;
+use oat\tao\model\taskQueue\Task\TaskInterface;
+use oat\tao\model\taskQueue\TaskLog\Entity\EntityInterface;
+use oat\tao\model\taskQueue\TaskLogInterface;
+use oat\taoTaskQueue\model\QueueBroker\RdsQueueBroker;
+use oat\taoTaskQueue\model\Service\RestartStuckTaskService;
+use oat\taoTaskQueue\model\StuckTask;
+use PHPUnit\Framework\MockObject\MockObject;
 
 class RestartStuckTaskServiceTest extends TestCase
 {
+    /** @var RestartStuckTaskService */
+    private $subject;
+
+    /** @var TaskLogInterface|MockObject */
+    private $taskLog;
+
+    /** @var QueueDispatcherInterface|MockObject */
+    private $queueDispatcher;
+
     public function setUp(): void
     {
+        $this->taskLog = $this->createMock(TaskLogInterface::class);
+        $this->queueDispatcher = $this->createMock(QueueDispatcherInterface::class);
+        $this->subject = new RestartStuckTaskService();
+        $this->subject->setServiceLocator(
+            $this->getServiceLocatorMock(
+                [
+                    TaskLogInterface::SERVICE_ID => $this->taskLog,
+                    QueueDispatcherInterface::SERVICE_ID => $this->queueDispatcher,
+                ]
+            )
+        );
     }
 
     public function testRestart(): void
     {
-        $this->markTestSkipped('TODO');
+        $queue = $this->createMock(QueueInterface::class);
+        $broker = $this->createMock(RdsQueueBroker::class);
+        $taskLogEntity = $this->createMock(EntityInterface::class);
+        $task = $this->createMock(TaskInterface::class);
+        $taskLogs = [$taskLogEntity];
+
+        $stuckTask = new StuckTask(
+            $taskLogEntity,
+            'queue',
+            $task,
+            '123'
+        );
+
+        $this->queueDispatcher
+            ->expects($this->once())
+            ->method('getQueue')
+            ->willReturn($queue);
+
+        $this->taskLog
+            ->expects($this->once())
+            ->method('setStatus')
+            ->willReturn($taskLogs);
+
+        $queue->expects($this->once())
+            ->method('getBroker')
+            ->willReturn($broker);
+
+        $broker->expects($this->once())
+            ->method('changeTaskVisibility');
+
+        $this->subject->restart($stuckTask);
     }
 }

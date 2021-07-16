@@ -25,7 +25,6 @@ namespace oat\taoTaskQueue\test\unit\model\Repository;
 use oat\generis\test\TestCase;
 use oat\tao\model\taskQueue\QueueDispatcherInterface;
 use oat\tao\model\taskQueue\QueueInterface;
-use oat\tao\model\taskQueue\Task\TaskInterface;
 use oat\tao\model\taskQueue\TaskLog;
 use oat\tao\model\taskQueue\TaskLog\Entity\EntityInterface;
 use oat\tao\model\taskQueue\TaskLogInterface;
