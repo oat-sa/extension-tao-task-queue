@@ -34,6 +34,8 @@ use oat\taoTaskQueue\model\StuckTask;
 
 class StuckTaskRepository extends ConfigurableService
 {
+    public const MIN_AGE = 180;
+
     public function findAll(StuckTaskQuery $query): StuckTaskCollection
     {
         $taskLog = $this->getTaskLog();

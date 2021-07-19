@@ -29,7 +29,6 @@ use oat\tao\model\taskQueue\TaskLog;
 
 class StuckTaskQuery
 {
-    private const MIN_AGE = 300;
     private const ALLOWED_STATUSES = [
         TaskLog::STATUS_ENQUEUED,
     ];
@@ -76,7 +75,7 @@ class StuckTaskQuery
 
         $this->queryName = $queryName;
         $this->whitelist = $whitelist;
-        $this->age = max($age, self::MIN_AGE);
+        $this->age = max($age, StuckTaskRepository::MIN_AGE);
         $this->statuses = $statuses;
 
         /**
@@ -84,6 +83,8 @@ class StuckTaskQuery
          * This is how we create new taskLogs in the system.
          *
          * @TODO Refactor this when we will have support for other Queue and TaskLog broker
+         *
+         * Task: https://oat-sa.atlassian.net/browse/ADF-556
          */
         $this->ageDateTime = new DateTimeImmutable(
             sprintf('now -%s seconds', $this->age),

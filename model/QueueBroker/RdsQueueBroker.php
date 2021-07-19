@@ -235,6 +235,9 @@ class RdsQueueBroker extends AbstractQueueBroker
         }
     }
 
+    /**
+     * @TODO Make queue broker open/closed: https://oat-sa.atlassian.net/browse/ADF-556
+     */
     public function getTaskByTaskLogId(string $taskLogId): ?CallbackTaskDecorator
     {
         $logId = substr($taskLogId, strpos($taskLogId, '#'));
@@ -267,6 +270,9 @@ class RdsQueueBroker extends AbstractQueueBroker
         return new CallbackTaskDecorator($task, $row['id']);
     }
 
+    /**
+     * @TODO Make queue broker open/closed: https://oat-sa.atlassian.net/browse/ADF-556
+     */
     public function changeTaskVisibility(string $taskId, bool $visible): void
     {
         $this->getQueryBuilder()

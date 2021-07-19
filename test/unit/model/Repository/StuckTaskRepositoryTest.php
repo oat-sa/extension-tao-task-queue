@@ -69,7 +69,7 @@ class StuckTaskRepositoryTest extends TestCase
             [
                 TaskLog::STATUS_ENQUEUED,
             ],
-            300
+            StuckTaskRepository::MIN_AGE
         );
 
         $queue = $this->createMock(QueueInterface::class);

@@ -60,7 +60,7 @@ abstract class AbstractStuckTask extends ScriptAction
                 'longPrefix' => 'age',
                 'cast' => 'int',
                 'required' => false,
-                'defaultValue' => 300,
+                'defaultValue' => StuckTaskRepository::MIN_AGE,
                 'description' => 'Age in seconds of a task log.'
             ]
         ];

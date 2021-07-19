@@ -26,6 +26,7 @@ use InvalidArgumentException;
 use oat\generis\test\TestCase;
 use oat\tao\model\taskQueue\TaskLog;
 use oat\taoTaskQueue\model\Repository\StuckTaskQuery;
+use oat\taoTaskQueue\model\Repository\StuckTaskRepository;
 
 class StuckTaskQueryTest extends TestCase
 {
@@ -43,10 +44,10 @@ class StuckTaskQueryTest extends TestCase
             'query',
             $whiteList,
             $statuses,
-            300
+            StuckTaskRepository::MIN_AGE
         );
 
-        $this->assertSame(300, $query->getAge());
+        $this->assertSame(StuckTaskRepository::MIN_AGE, $query->getAge());
         $this->assertSame($statuses, $query->getStatuses());
         $this->assertSame($whiteList, $query->getWhitelist());
         $this->assertSame('query', $query->getQueryName());
@@ -63,7 +64,7 @@ class StuckTaskQueryTest extends TestCase
             [
                 TaskLog::STATUS_ENQUEUED,
             ],
-            300
+            StuckTaskRepository::MIN_AGE
         );
     }
 
@@ -80,7 +81,7 @@ class StuckTaskQueryTest extends TestCase
             [
                 TaskLog::STATUS_FAILED,
             ],
-            300
+            StuckTaskRepository::MIN_AGE
         );
     }
 }
