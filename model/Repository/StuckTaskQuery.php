@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace oat\taoTaskQueue\model\Repository;
 
 use DateTime;
+use DateTimeImmutable;
 use DateTimeZone;
 use Doctrine\Common\Cache\Psr6\InvalidArgument;
 use oat\tao\model\taskQueue\TaskLog;
@@ -85,7 +86,7 @@ class StuckTaskQuery
          *
          * @TODO Refactor this when we will have support for other Queue and TaskLog broker
          */
-        $this->ageDateTime = new DateTime('now', new DateTimeZone('UTC'));
+        $this->ageDateTime = new DateTimeImmutable('now', new DateTimeZone('UTC'));
         $this->ageDateTime->modify(sprintf('-%s seconds', $this->age));
     }
 
@@ -109,7 +110,7 @@ class StuckTaskQuery
         return $this->age;
     }
 
-    public function getAgeDateTime(): DateTime
+    public function getAgeDateTime(): DateTimeImmutable
     {
         return $this->ageDateTime;
     }
