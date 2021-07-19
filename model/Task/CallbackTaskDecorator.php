@@ -22,7 +22,7 @@ declare(strict_types=1);
 
 namespace oat\taoTaskQueue\model\Task;
 
-use \oat\tao\model\taskQueue\Task\TaskInterface;
+use oat\tao\model\taskQueue\Task\TaskInterface;
 
 final class CallbackTaskDecorator
 {

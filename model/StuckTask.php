@@ -39,8 +39,12 @@ class StuckTask
     /** @var string|null */
     private $taskId;
 
-    public function __construct(EntityInterface $taskLog, string $queueName, TaskInterface $task = null, string $taskId = null)
-    {
+    public function __construct(
+        EntityInterface $taskLog,
+        string $queueName,
+        TaskInterface $task = null,
+        string $taskId = null
+    ) {
         $this->taskLog = $taskLog;
         $this->queueName = $queueName;
         $this->task = $task;
