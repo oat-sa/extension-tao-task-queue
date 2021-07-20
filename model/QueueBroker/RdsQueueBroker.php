@@ -15,18 +15,20 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2017 (original work) Open Assessment Technologies SA (under the project TAO-PRODUCT);
+ * Copyright (c) 2017-2021 (original work) Open Assessment Technologies SA (under the project TAO-PRODUCT);
  *
  */
 
 namespace oat\taoTaskQueue\model\QueueBroker;
 
+use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Schema\SchemaException;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use oat\tao\model\taskQueue\Queue\Broker\AbstractQueueBroker;
 use oat\tao\model\taskQueue\Task\TaskInterface;
+use oat\taoTaskQueue\model\Task\CallbackTaskDecorator;
 
 /**
  * Storing messages/tasks in DB.
@@ -231,6 +233,55 @@ class RdsQueueBroker extends AbstractQueueBroker
         } catch (\Exception $e) {
             $this->logError('Deleting task failed with MSG: ' . $e->getMessage(), $logContext);
         }
+    }
+
+    /**
+     * @TODO Make queue broker open/closed: https://oat-sa.atlassian.net/browse/ADF-556
+     */
+    public function getTaskByTaskLogId(string $taskLogId): ?CallbackTaskDecorator
+    {
+        $logId = substr($taskLogId, strpos($taskLogId, '#'));
+
+        $row = $this->getQueryBuilder()
+            ->select('id, message, visible, created_at')
+            ->from($this->getTableName())
+            ->andWhere('message LIKE :taskLogId')
+            ->setParameter('taskLogId', "%$logId%")
+            ->setMaxResults(1)
+            ->execute()
+            ->fetch(FetchMode::ASSOCIATIVE);
+
+        if (!$row) {
+            return null;
+        }
+
+        $task = $this->unserializeTask(
+            $row['message'],
+            $row['id'],
+            [
+                'Queue' => $this->getQueueNameWithPrefix()
+            ]
+        );
+
+        if (!$task) {
+            return null;
+        }
+
+        return new CallbackTaskDecorator($task, $row['id']);
+    }
+
+    /**
+     * @TODO Make queue broker open/closed: https://oat-sa.atlassian.net/browse/ADF-556
+     */
+    public function changeTaskVisibility(string $taskId, bool $visible): void
+    {
+        $this->getQueryBuilder()
+            ->update($this->getTableName())
+            ->set('visible', ':visible')
+            ->where('id = :id')
+            ->setParameter('visible', (int)$visible)
+            ->setParameter('id', $taskId)
+            ->execute();
     }
 
     /**

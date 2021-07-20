@@ -148,6 +148,28 @@ If you want to associate specyfic task to new queue you can use this command:
 ```
 Next time when defined task will be created, it will be assign to specified queue. 
 
+### Summarize stuck tasks
+
+Execute this command if you want to summarize stuck tasks. Example: 
+
+```shell
+sudo -u www-data php index.php 'oat\taoTaskQueue\scripts\tools\StuckTaskSummary' \
+--queue indexation_queue \
+--age 300 \
+--whitelist "oat\tao\model\search\tasks\UpdateResourceInIndex,oat\tao\model\search\tasks\UpdateClassInIndex"
+```
+
+### Restart stuck tasks
+
+Execute this command if you want to restart stuck tasks. Example: 
+
+```shell
+sudo -u www-data php index.php 'oat\taoTaskQueue\scripts\tools\StuckTaskRestart' \
+--queue indexation_queue \
+--age 300 \
+--whitelist "oat\tao\model\search\tasks\UpdateResourceInIndex,oat\tao\model\search\tasks\UpdateClassInIndex"
+```
+
 ## Rest API
 The task log reports can be viewed/consume using the Application Programming Interface (API).
 In order to use it please check the swagger file in (doc/taskApi.yml).
