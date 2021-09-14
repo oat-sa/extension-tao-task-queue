@@ -29,7 +29,7 @@ msgid "Completed"
 msgstr "完了"
 
 msgid "Completed %s"
-msgstr "完了： %s
+msgstr "完了： %s"
 
 msgid "download"
 msgstr "ダウンロード"
