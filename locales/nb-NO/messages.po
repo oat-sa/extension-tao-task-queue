@@ -1,0 +1,95 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: TAO 2021.10\n"
+"PO-Revision-Date: 2021-10-22T10:12:04\n"
+"Last-Translator: TAO Translation Team <translation@tao.lu>\n"
+"MIME-Version: 1.0\n"
+"Language: nb-NO\n"
+"sourceLanguage: en-US\n"
+"targetLanguage: nb-NO\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Basepath: ../../\n"
+"X-Poedit-KeywordsList: __\n"
+"X-Poedit-SearchPath-0: .\n"
+
+msgid "Background tasks"
+msgstr "Bakgrunnsoppgaver"
+
+msgid "Clear all finished"
+msgstr "Fjern alle fullførte"
+
+msgid "Clear all finished tasks"
+msgstr "Fjern alle fullførte aktiviteter"
+
+msgid "close report"
+msgstr "lukk rapport"
+
+msgid "Completed"
+msgstr "Fullført"
+
+msgid "Completed %s"
+msgstr "Fullført %s"
+
+msgid "download"
+msgstr "last ned"
+
+msgid "Executing task %s failed"
+msgstr "Utførelse av oppgave %s mislyktes"
+
+msgid "Failed"
+msgstr "Mislyktes"
+
+msgid "Failed %s"
+msgstr "Mislyktes %s"
+
+msgid "go to resource"
+msgstr "gå til ressurs"
+
+msgid "In Progress"
+msgstr "Under arbeid"
+
+msgid "No report available"
+msgstr "Ingen rapport tilgjengelig"
+
+msgid "notify me when done"
+msgstr "varsle meg når handling er utført"
+
+msgid "Queued"
+msgstr "I kø"
+
+msgid "remove"
+msgstr "fjern"
+
+msgid "Resource is not the task placeholder"
+msgstr ""
+
+msgid "Running task %s"
+msgstr "Kjører oppgave %s"
+
+msgid "see report"
+msgstr "se rapport"
+
+msgid "Started %s"
+msgstr "Startet %s"
+
+msgid "Task is in \'%s\' state"
+msgstr ""
+
+msgid "Task not returned any report."
+msgstr "Oppgaven returnerte ingen rapport."
+
+#, tao-public
+msgid "Task Queue"
+msgstr "Oppgavekø"
+
+#, tao-public
+msgid "taskqueue"
+msgstr "oppgavekø"
+
+msgid "The list is currently empty."
+msgstr "Listen er for øyeblikket tom."
+
+msgid "There is currently no background task"
+msgstr "Det er foreløpig ingen bakgrunnsoppgave"
+
