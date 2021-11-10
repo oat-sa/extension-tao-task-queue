@@ -29,7 +29,7 @@ msgid "Completed"
 msgstr "完了"
 
 msgid "Completed %s"
-msgstr "完了： %s"
+msgstr "完了： %"
 
 msgid "download"
 msgstr "ダウンロード"
@@ -73,8 +73,8 @@ msgstr "レポートを見る"
 msgid "Started %s"
 msgstr "開始： %s"
 
-msgid "Task is in \'%s\' state"
-msgstr "タスクが \'%s\' の状態です"
+msgid "Task is in '%s' state"
+msgstr "タスクが '%s' の状態です"
 
 msgid "Task not returned any report."
 msgstr "タスクからの報告はありません"
