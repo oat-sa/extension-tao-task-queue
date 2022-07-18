@@ -1,5 +1,7 @@
 # Distributed Task Queue
 
+[![codecov](https://codecov.io/gh/oat-sa/extension-tao-task-queue/branch/master/graph/badge.svg)](https://codecov.io/gh/oat-sa/extension-tao-task-queue)
+
 > This article describes the functioning of an ASYNC Task Queue.
 
 ## Install
