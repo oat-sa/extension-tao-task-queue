@@ -26,13 +26,12 @@
     },
     "minimum-stability": "dev",
     "require": {
-        "php" : ">=5.5",
         "oat-sa/oatbox-extension-installer": "~1.1||dev-master",
         "react/child-process": "^0.5.2",
         "evenement/evenement": "^2.0",
         "ext-pdo": "*",
-        "oat-sa/generis" : ">=14.4.0",
-        "oat-sa/tao-core" : ">=48.13.0"
+        "oat-sa/generis" : ">=15.22",
+        "oat-sa/tao-core" : ">=50.24.6"
     },
     "autoload": {
         "psr-4": {
