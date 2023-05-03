@@ -30,5 +30,4 @@ namespace oat\taoTaskQueue\model\QueueBroker;
  */
 interface SyncQueueBrokerInterface
 {
-
 }

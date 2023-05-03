@@ -129,7 +129,8 @@ class InitializeQueue extends InstallAction
                 case '--broker':
                     if (!in_array($value, self::AVAILABLE_BROKERS)) {
                         throw new InvalidArgumentException(
-                            sprintf('Broker "%s" is not a valid broker option. Valid options: %s',
+                            sprintf(
+                                'Broker "%s" is not a valid broker option. Valid options: %s',
                                 $value,
                                 implode(', ', self::AVAILABLE_BROKERS)
                             )

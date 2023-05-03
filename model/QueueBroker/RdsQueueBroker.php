@@ -37,7 +37,7 @@ use oat\taoTaskQueue\model\Task\CallbackTaskDecorator;
  */
 class RdsQueueBroker extends AbstractQueueBroker
 {
-    public const ID ='rds';
+    public const ID = 'rds';
 
     private $persistenceId;
 

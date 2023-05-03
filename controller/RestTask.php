@@ -31,9 +31,9 @@ use oat\taoTaskQueue\model\TaskLogInterface;
  */
 class RestTask extends \tao_actions_CommonModule
 {
-    const PARAMETER_TASK_ID = 'taskId';
-    const PARAMETER_LIMIT = 'limit';
-    const PARAMETER_OFFSET = 'offset';
+    public const PARAMETER_TASK_ID = 'taskId';
+    public const PARAMETER_LIMIT = 'limit';
+    public const PARAMETER_OFFSET = 'offset';
 
     /** @var string */
     private $userId;

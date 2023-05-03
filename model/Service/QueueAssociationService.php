@@ -87,7 +87,7 @@ class QueueAssociationService extends ConfigurableService
         $existingQueues = $queueService->getOption(QueueDispatcherInterface::OPTION_QUEUES);
         $newQueue = null;
 
-        if (!in_array($newQueueName, $queueService->getQueueNames())){
+        if (!in_array($newQueueName, $queueService->getQueueNames())) {
             $broker = $factory->create($this->guessDefaultBrokerType(), 'default', 2);
             $newQueue = new Queue($newQueueName, $broker, 30);
             $this->propagate($broker);

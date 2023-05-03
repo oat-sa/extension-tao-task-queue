@@ -43,9 +43,9 @@ use Throwable;
  */
 class NewSqlQueueBroker extends AbstractQueueBroker
 {
-    public const ID ='newsql';
-
     use UuidPrimaryKeyTrait;
+
+    public const ID = 'newsql';
 
     /** @var string */
     private $persistenceId;

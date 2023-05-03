@@ -41,10 +41,10 @@ use oat\taoTaskQueue\model\TaskLog\Decorator\SimpleManagementCollectionDecorator
  */
 class TaskQueueWebApi extends \tao_actions_CommonModule
 {
-    const PARAMETER_TASK_ID = 'taskId';
-    const PARAMETER_LIMIT = 'limit';
-    const PARAMETER_OFFSET = 'offset';
-    const ARCHIVE_ALL = 'all';
+    public const PARAMETER_TASK_ID = 'taskId';
+    public const PARAMETER_LIMIT = 'limit';
+    public const PARAMETER_OFFSET = 'offset';
+    public const ARCHIVE_ALL = 'all';
 
     /** @var string */
     private $userId;

@@ -28,9 +28,9 @@ use JsonSerializable;
  */
 class TasksLogsStats implements JsonSerializable
 {
-    const COMPLETED_TASKS = 'completedtasks';
-    const FAILED_TASKS = 'failedtasks';
-    const IN_PROGRESS_TASKS = 'inprogresstasks';
+    public const COMPLETED_TASKS = 'completedtasks';
+    public const FAILED_TASKS = 'failedtasks';
+    public const IN_PROGRESS_TASKS = 'inprogresstasks';
 
     /** @var  int */
     private $numberOfTasksCompleted;

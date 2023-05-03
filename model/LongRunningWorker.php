@@ -35,8 +35,8 @@ use oat\tao\model\taskQueue\Worker\AbstractWorker;
  */
 final class LongRunningWorker extends AbstractWorker
 {
-    const WAIT_INTERVAL = 1; // sec
-    const MAX_SLEEPING_TIME_FOR_DEDICATED_QUEUE = 30; //max sleeping time if working on only one queue
+    public const WAIT_INTERVAL = 1; // sec
+    public const MAX_SLEEPING_TIME_FOR_DEDICATED_QUEUE = 30; //max sleeping time if working on only one queue
 
     private $maxIterations = 0; //0 means infinite iteration
     private $iterations = 0;

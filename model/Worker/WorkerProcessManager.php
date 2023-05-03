@@ -30,9 +30,9 @@ class WorkerProcessManager extends ConfigurableService
 {
     use LoggerAwareTrait;
 
-    const SERVICE_ID = 'taoTaskQueue/WorkerProcessManager';
+    public const SERVICE_ID = 'taoTaskQueue/WorkerProcessManager';
 
-    const OPTION_TASK_COMMAND = 'task_command';
+    public const OPTION_TASK_COMMAND = 'task_command';
 
     /** @var Process[] */
     private $processes = [];
