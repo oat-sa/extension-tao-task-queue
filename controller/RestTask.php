@@ -103,7 +103,9 @@ class RestTask extends \tao_actions_CommonModule
         } catch (\Exception $e) {
             return $this->returnJson([
                 'success' => false,
-                'errorMsg' => $e instanceof \common_exception_UserReadableException ? $e->getUserMessage() : $e->getMessage(),
+                'errorMsg' => $e instanceof \common_exception_UserReadableException
+                    ? $e->getUserMessage()
+                    : $e->getMessage(),
                 'errorCode' => $e->getCode(),
             ]);
         }
@@ -142,7 +144,10 @@ class RestTask extends \tao_actions_CommonModule
             /** @var TaskLogInterface $taskLogService */
             $taskLogService = $this->getServiceManager()->get(TaskLogInterface::SERVICE_ID);
 
-            $taskLogEntity = $taskLogService->getByIdAndUser($this->getRequestParameter(self::PARAMETER_TASK_ID), $this->userId);
+            $taskLogEntity = $taskLogService->getByIdAndUser(
+                $this->getRequestParameter(self::PARAMETER_TASK_ID),
+                $this->userId
+            );
 
             return $this->returnJson([
                 'success' => (bool) $taskLogService->archive($taskLogEntity)
@@ -150,7 +155,9 @@ class RestTask extends \tao_actions_CommonModule
         } catch (\Exception $e) {
             return $this->returnJson([
                 'success' => false,
-                'errorMsg' => $e instanceof \common_exception_UserReadableException ? $e->getUserMessage() : $e->getMessage(),
+                'errorMsg' => $e instanceof \common_exception_UserReadableException
+                    ? $e->getUserMessage()
+                    : $e->getMessage(),
                 'errorCode' => $e instanceof \common_exception_NotFound ? 404 : $e->getCode(),
             ]);
         }
@@ -167,7 +174,10 @@ class RestTask extends \tao_actions_CommonModule
             /** @var TaskLogInterface $taskLogService */
             $taskLogService = $this->getServiceManager()->get(TaskLogInterface::SERVICE_ID);
 
-            $taskLogEntity = $taskLogService->getByIdAndUser($this->getRequestParameter(self::PARAMETER_TASK_ID), $this->userId);
+            $taskLogEntity = $taskLogService->getByIdAndUser(
+                $this->getRequestParameter(self::PARAMETER_TASK_ID),
+                $this->userId
+            );
 
             if (!$taskLogEntity->getStatus()->isCompleted()) {
                 throw new \RuntimeException('Task "' . $taskLogEntity->getId() . '" is not downloadable.');
@@ -194,7 +204,9 @@ class RestTask extends \tao_actions_CommonModule
         } catch (\Exception $e) {
             return $this->returnJson([
                 'success' => false,
-                'errorMsg' => $e instanceof \common_exception_UserReadableException ? $e->getUserMessage() : $e->getMessage(),
+                'errorMsg' => $e instanceof \common_exception_UserReadableException
+                    ? $e->getUserMessage()
+                    : $e->getMessage(),
                 'errorCode' => $e->getCode(),
             ]);
         }

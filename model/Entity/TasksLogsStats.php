@@ -60,7 +60,11 @@ class TasksLogsStats implements JsonSerializable
      */
     public static function buildFromArray(array $rawData)
     {
-        return new self($rawData[static::COMPLETED_TASKS], $rawData[static::FAILED_TASKS], $rawData[static::IN_PROGRESS_TASKS]);
+        return new self(
+            $rawData[static::COMPLETED_TASKS],
+            $rawData[static::FAILED_TASKS],
+            $rawData[static::IN_PROGRESS_TASKS]
+        );
     }
 
     /**

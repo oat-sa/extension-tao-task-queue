@@ -102,7 +102,11 @@ final class LongRunningWorker extends AbstractWorker
                 $this->iterationsWithOutTask = 0;
 
                 if (!$task instanceof TaskInterface) {
-                    $this->logWarning('The received queue item (' . $task . ') not processable.', $this->getLogContext());
+                    $this->logWarning(
+                        'The received queue item (' . $task . ') not processable.',
+                        $this->getLogContext()
+                    );
+
                     continue;
                 }
 
@@ -110,7 +114,11 @@ final class LongRunningWorker extends AbstractWorker
 
                 unset($task);
             } catch (\Exception $e) {
-                $this->logError('Fetching data from queue failed with MSG: ' . $e->getMessage(), $this->getLogContext());
+                $this->logError(
+                    'Fetching data from queue failed with MSG: ' . $e->getMessage(),
+                    $this->getLogContext()
+                );
+
                 continue;
             }
         }

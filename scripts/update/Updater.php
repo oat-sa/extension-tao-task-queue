@@ -255,11 +255,9 @@ class Updater extends common_ext_ExtensionUpdater
         $this->skip('0.17.1', '1.0.0');
 
         if ($this->isVersion('1.0.0')) {
-            $workerProcessManager = new WorkerProcessManager(
-                [
-                    WorkerProcessManager::OPTION_TASK_COMMAND => 'php index.php "\oat\taoTaskQueue\scripts\tools\RunTask"',
-                ]
-            );
+            $workerProcessManager = new WorkerProcessManager([
+                WorkerProcessManager::OPTION_TASK_COMMAND => 'php index.php "\oat\taoTaskQueue\scripts\tools\RunTask"',
+            ]);
 
             $this->getServiceManager()->register(WorkerProcessManager::SERVICE_ID, $workerProcessManager);
 

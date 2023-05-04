@@ -71,8 +71,11 @@ final class Worker implements WorkerInterface
      * @param TaskLogInterface         $taskLog
      * @param bool                     $handleSignals
      */
-    public function __construct(QueueDispatcherInterface $queueService, TaskLogInterface $taskLog, $handleSignals = true)
-    {
+    public function __construct(
+        QueueDispatcherInterface $queueService,
+        TaskLogInterface $taskLog,
+        $handleSignals = true
+    ) {
         $this->queueService = $queueService;
         $this->taskLog = $taskLog;
         $this->handleSignals = $handleSignals;
@@ -158,11 +161,19 @@ final class Worker implements WorkerInterface
         try {
             $this->logDebug('Processing task ' . $task->getId(), $this->logContext);
 
-            $rowsTouched = $this->taskLog->setStatus($task->getId(), TaskLogInterface::STATUS_RUNNING, TaskLogInterface::STATUS_DEQUEUED);
+            $rowsTouched = $this->taskLog->setStatus(
+                $task->getId(),
+                TaskLogInterface::STATUS_RUNNING,
+                TaskLogInterface::STATUS_DEQUEUED
+            );
 
             // if the task is being executed by another worker, just return, no report needs to be saved
             if (!$rowsTouched) {
-                $this->logDebug('Task ' . $task->getId() . ' seems to be processed by another worker.', $this->logContext);
+                $this->logDebug(
+                    'Task ' . $task->getId() . ' seems to be processed by another worker.',
+                    $this->logContext
+                );
+
                 return TaskLogInterface::STATUS_UNKNOWN;
             }
 
@@ -180,7 +191,10 @@ final class Worker implements WorkerInterface
             $report->add($taskReport);
             unset($taskReport, $rowsTouched);
         } catch (\Exception $e) {
-            $this->logError('Executing task ' . $task->getId() . ' failed with MSG: ' . $e->getMessage(), $this->logContext);
+            $this->logError(
+                'Executing task ' . $task->getId() . ' failed with MSG: ' . $e->getMessage(),
+                $this->logContext
+            );
             $report = Report::createFailure(__('Executing task %s failed', $task->getId()));
         }
 
@@ -200,9 +214,18 @@ final class Worker implements WorkerInterface
         if ($this->isRemoteTaskSynchroniser($task) && $status == TaskLogInterface::STATUS_COMPLETED) {
             // if the remote task is still in progress, we have to reschedule this task
             // the RESTApi returns TaskLogCategorizedStatus values
-            if (in_array($this->getRemoteStatus($task), [TaskLogCategorizedStatus::STATUS_CREATED, TaskLogCategorizedStatus::STATUS_IN_PROGRESS])) {
+            if (
+                in_array(
+                    $this->getRemoteStatus($task),
+                    [
+                        TaskLogCategorizedStatus::STATUS_CREATED,
+                        TaskLogCategorizedStatus::STATUS_IN_PROGRESS,
+                    ]
+                )
+            ) {
                 if ($this->queueService->count() <= 1) {
-                    //if there is less than or exactly one task in the queue, let's sleep a bit, in order not to regenerate the same task too much
+                    // If there is less than or exactly one task in the queue, let's sleep a bit, in order not to
+                    // regenerate the same task too much
                     sleep(3);
                 }
 
@@ -244,7 +267,11 @@ final class Worker implements WorkerInterface
      */
     private function isRemoteTaskSynchroniser(TaskInterface $task)
     {
-        return $task instanceof RemoteTaskSynchroniserInterface || ($task instanceof CallbackTaskInterface && $task->getCallable() instanceof RemoteTaskSynchroniserInterface);
+        return $task instanceof RemoteTaskSynchroniserInterface
+            || (
+                $task instanceof CallbackTaskInterface
+                && $task->getCallable() instanceof RemoteTaskSynchroniserInterface
+            );
     }
 
     /**
@@ -253,7 +280,9 @@ final class Worker implements WorkerInterface
      */
     private function getRemoteStatus(TaskInterface $task)
     {
-        return $task instanceof CallbackTaskInterface ? $task->getCallable()->getRemoteStatus() : $task->getRemoteStatus();
+        return $task instanceof CallbackTaskInterface
+            ? $task->getCallable()->getRemoteStatus()
+            : $task->getRemoteStatus();
     }
 
     /**

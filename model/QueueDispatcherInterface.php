@@ -149,7 +149,13 @@ interface QueueDispatcherInterface extends \Countable, LoggerAwareInterface
      * @param boolean $masterStatus
      * @return CallbackTaskInterface
      */
-    public function createTask(callable $callable, array $parameters = [], $label = null, TaskInterface $parent = null, $masterStatus = false);
+    public function createTask(
+        callable $callable,
+        array $parameters = [],
+        $label = null,
+        TaskInterface $parent = null,
+        $masterStatus = false
+    );
 
     /**
      * Publish a task to a queue.

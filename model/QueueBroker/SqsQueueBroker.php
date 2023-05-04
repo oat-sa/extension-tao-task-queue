@@ -83,7 +83,10 @@ class SqsQueueBroker extends AbstractQueueBroker
     {
         if (is_null($this->client)) {
             if (!$this->getServiceLocator()->has(self::DEFAULT_AWS_CLIENT_KEY)) {
-                throw new \RuntimeException('Unable to load driver for ' . __CLASS__ . ', most likely generis/awsClient.conf.php does not exist.');
+                throw new \RuntimeException(
+                    'Unable to load driver for ' . __CLASS__
+                        . ', most likely generis/awsClient.conf.php does not exist.'
+                );
             }
 
             /** @var AwsClient $awsClient */
@@ -114,7 +117,8 @@ class SqsQueueBroker extends AbstractQueueBroker
     {
         try {
             // Note: we are creating a Standard Queue for the time being.
-            // More development needed to be able to customize it, for example creating FIFO Queue or setting attributes from outside.
+            // More development needed to be able to customize it, for example creating FIFO Queue or setting attributes
+            // from outside.
             /** @see http://docs.aws.amazon.com/aws-sdk-php/v3/api/api-sqs-2012-11-05.html#createqueue */
             $result = $this->getClient()->createQueue([
                 'QueueName' => $this->getQueueNameWithPrefix(),
@@ -134,7 +138,9 @@ class SqsQueueBroker extends AbstractQueueBroker
                 $this->logError('Queue ' . $this->getQueueNameWithPrefix() . ' not created');
             }
         } catch (AwsException $e) {
-            $this->logError('Creating queue ' . $this->getQueueNameWithPrefix() . ' failed with MSG: ' . $e->getMessage());
+            $this->logError(
+                'Creating queue ' . $this->getQueueNameWithPrefix() . ' failed with MSG: ' . $e->getMessage()
+            );
 
             if (PHP_SAPI == 'cli') {
                 throw $e;
@@ -328,7 +334,10 @@ class SqsQueueBroker extends AbstractQueueBroker
                 return true;
             }
         } catch (AwsException $e) {
-            $this->logWarning('Fetching queue url for ' . $this->getQueueNameWithPrefix() . ' failed. MSG: ' . $e->getAwsErrorMessage());
+            $this->logWarning(
+                'Fetching queue url for ' . $this->getQueueNameWithPrefix() . ' failed. MSG: '
+                    . $e->getAwsErrorMessage()
+            );
         }
 
         return false;

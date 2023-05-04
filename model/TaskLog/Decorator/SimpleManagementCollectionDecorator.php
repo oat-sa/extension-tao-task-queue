@@ -56,8 +56,12 @@ class SimpleManagementCollectionDecorator extends TaskLogCollectionDecorator
      */
     private $reportIncluded;
 
-    public function __construct(CollectionInterface $collection, TaskLogInterface $taskLogService, FileSystemService $fileSystemService, $reportIncluded)
-    {
+    public function __construct(
+        CollectionInterface $collection,
+        TaskLogInterface $taskLogService,
+        FileSystemService $fileSystemService,
+        $reportIncluded
+    ) {
         parent::__construct($collection);
 
         $this->fileSystemService = $fileSystemService;
@@ -74,7 +78,10 @@ class SimpleManagementCollectionDecorator extends TaskLogCollectionDecorator
         $data = [];
 
         foreach ($this->getIterator() as $entity) {
-            $entityData = (new HasFileEntityDecorator(new CategoryEntityDecorator($entity, $this->taskLogService), $this->fileSystemService))->toArray();
+            $entityData = (new HasFileEntityDecorator(
+                new CategoryEntityDecorator($entity, $this->taskLogService),
+                $this->fileSystemService
+            ))->toArray();
 
             if (!$this->reportIncluded && array_key_exists('report', $entityData)) {
                 unset($entityData['report']);

@@ -62,23 +62,27 @@ class TaskLogUtility implements Action, ServiceLocatorAwareInterface
         [
             'title' => 'List Task Logs',
             'description' => 'List All the tasks that are not archived will be retrived, default limit is 20',
-            'example' => 'sudo -u www-data php index.php \'oat\taoTaskQueue\scripts\tools\TaskLogUtility\' --available --limit[optional]=20 --offset[optional]=10',
+            'example' => 'sudo -u www-data php index.php \'oat\taoTaskQueue\scripts\tools\TaskLogUtility\' '
+                . '--available --limit[optional]=20 --offset[optional]=10',,
 
         ],
         [
             'title' => 'Get Task Log',
             'description' => 'Get an specific task log by id',
-            'example' => 'sudo -u www-data php index.php \'oat\taoTaskQueue\scripts\tools\TaskLogUtility\' --get-task=[taskdId]'
+            'example' => 'sudo -u www-data php index.php \'oat\taoTaskQueue\scripts\tools\TaskLogUtility\' '
+                . '--get-task=[taskdId]',
         ],
         [
             'title' => 'Archive a Task Log',
             'description' => 'Archive a task log',
-            'example' => 'sudo -u www-data php index.php \'oat\taoTaskQueue\scripts\tools\TaskLogUtility\' --archive=[taskdId] --force[optional]'
+            'example' => 'sudo -u www-data php index.php \'oat\taoTaskQueue\scripts\tools\TaskLogUtility\' '
+                . '--archive=[taskdId] --force[optional]',
         ],
         [
             'title' => 'Cancel a Task Log',
             'description' => 'Cancel a task log',
-            'example' => 'sudo -u www-data php index.php \'oat\taoTaskQueue\scripts\tools\TaskLogUtility\' --cancel=[taskdId] --force[optional]'
+            'example' => 'sudo -u www-data php index.php \'oat\taoTaskQueue\scripts\tools\TaskLogUtility\' '
+                . '--cancel=[taskdId] --force[optional]',
         ]
     ];
 

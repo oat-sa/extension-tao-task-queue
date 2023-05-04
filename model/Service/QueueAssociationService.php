@@ -45,7 +45,9 @@ class QueueAssociationService extends ConfigurableService
         $existingOptions[QueueDispatcherInterface::OPTION_QUEUES] = array_unique(
             array_merge($existingQueues, [$newQueue])
         );
-        $existingAssociations = $this->getQueueDispatcher()->getOption(QueueDispatcherInterface::OPTION_TASK_TO_QUEUE_ASSOCIATIONS);
+        $existingAssociations = $this->getQueueDispatcher()->getOption(
+            QueueDispatcherInterface::OPTION_TASK_TO_QUEUE_ASSOCIATIONS
+        );
         $existingOptions[QueueDispatcherInterface::OPTION_TASK_TO_QUEUE_ASSOCIATIONS] = array_merge(
             $existingAssociations,
             [$targetClass => $queue]

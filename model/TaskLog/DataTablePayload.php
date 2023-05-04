@@ -59,7 +59,8 @@ class DataTablePayload implements DataTablePayloadInterface, \Countable
     }
 
     /**
-     * You can pass an anonymous function to customise the final payload: either to change the value of a field or to add extra field(s);
+     * You can pass an anonymous function to customise the final payload: either to change the value of a field or to
+     * add extra field(s);
      *
      * The function will be bind to the task log entity (TaskLogEntity) so $this can be used inside of the closure.
      * The return value needs to be an array.
