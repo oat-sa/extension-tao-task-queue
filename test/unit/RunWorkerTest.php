@@ -52,7 +52,7 @@ class RunWorkerTest extends TestCase
             QueueDispatcherInterface::SERVICE_ID => $dispatch->reveal(),
             TaskLogInterface::SERVICE_ID => $tasklog->reveal(),
             LoggerService::SERVICE_ID => $log->reveal(),
-            SessionService::class=>$sessionService
+            SessionService::class => $sessionService
         ]);
 
         $worker = new RunWorker();

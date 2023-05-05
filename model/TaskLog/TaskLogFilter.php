@@ -31,16 +31,16 @@ use oat\taoTaskQueue\model\TaskLogInterface;
  */
 class TaskLogFilter
 {
-    const OP_EQ  = '=';
-    const OP_NEQ = '!=';
-    const OP_LT  = '<';
-    const OP_LTE = '<=';
-    const OP_GT  = '>';
-    const OP_GTE = '>=';
-    const OP_LIKE = 'LIKE';
-    const OP_NOT_LIKE = 'NOT LIKE';
-    const OP_IN = 'IN';
-    const OP_NOT_IN = 'NOT IN';
+    public const OP_EQ  = '=';
+    public const OP_NEQ = '!=';
+    public const OP_LT  = '<';
+    public const OP_LTE = '<=';
+    public const OP_GT  = '>';
+    public const OP_GTE = '>=';
+    public const OP_LIKE = 'LIKE';
+    public const OP_NOT_LIKE = 'NOT LIKE';
+    public const OP_IN = 'IN';
+    public const OP_NOT_IN = 'NOT IN';
 
     private $filters = [];
     private $limit;
@@ -217,7 +217,10 @@ class TaskLogFilter
      */
     public function availableForArchived($userId)
     {
-        $this->in(TaskLogBrokerInterface::COLUMN_STATUS, [TaskLogInterface::STATUS_FAILED, TaskLogInterface::STATUS_COMPLETED]);
+        $this->in(
+            TaskLogBrokerInterface::COLUMN_STATUS,
+            [TaskLogInterface::STATUS_FAILED, TaskLogInterface::STATUS_COMPLETED]
+        );
 
         if ($userId !== TaskLogInterface::SUPER_USER) {
             $this->eq(TaskLogBrokerInterface::COLUMN_OWNER, $userId);
@@ -236,7 +239,11 @@ class TaskLogFilter
             $withParentheses = is_array($filter['value']) ? true : false;
             $type = is_array($filter['value']) ? Connection::PARAM_STR_ARRAY : null;
 
-            $qb->andWhere($filter['column'] . ' ' . $filter['operator'] . ' ' . ($withParentheses ? '(' : '') . $filter['columnSqlTranslate'] . ($withParentheses ? ')' : ''))
+            $qb
+                ->andWhere(
+                    $filter['column'] . ' ' . $filter['operator'] . ' '
+                        . ($withParentheses ? '(' : '') . $filter['columnSqlTranslate'] . ($withParentheses ? ')' : '')
+                )
                 ->setParameter($filter['columnSqlTranslate'], $filter['value'], $type);
         }
 

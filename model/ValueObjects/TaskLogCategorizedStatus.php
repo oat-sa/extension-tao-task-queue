@@ -29,11 +29,11 @@ use oat\taoTaskQueue\model\TaskLogInterface;
  */
 class TaskLogCategorizedStatus
 {
-    const STATUS_CREATED = 'created';
-    const STATUS_IN_PROGRESS = 'in_progress';
-    const STATUS_COMPLETED = 'completed';
-    const STATUS_FAILED = 'failed';
-    const STATUS_ARCHIVED = 'archived';
+    public const STATUS_CREATED = 'created';
+    public const STATUS_IN_PROGRESS = 'in_progress';
+    public const STATUS_COMPLETED = 'completed';
+    public const STATUS_FAILED = 'failed';
+    public const STATUS_ARCHIVED = 'archived';
 
     /** @var  string */
     private $status;

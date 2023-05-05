@@ -71,7 +71,10 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
 
         $this->assertTasks();
 
-        if (!$this->hasOption(self::OPTION_TASK_SELECTOR_STRATEGY) || empty($this->getOption(self::OPTION_TASK_SELECTOR_STRATEGY))) {
+        if (
+            !$this->hasOption(self::OPTION_TASK_SELECTOR_STRATEGY)
+            || empty($this->getOption(self::OPTION_TASK_SELECTOR_STRATEGY))
+        ) {
             // setting default strategy
             $this->selectorStrategy = new WeightStrategy();
         } else {
@@ -105,10 +108,15 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
      */
     protected function getQueueForTask(TaskInterface $task)
     {
-        $action = $task instanceof CallbackTaskInterface && is_object($task->getCallable()) ? $task->getCallable() : $task;
+        $action = $task instanceof CallbackTaskInterface && is_object($task->getCallable())
+            ? $task->getCallable()
+            : $task;
 
         // getting queue name using the implemented getter function
-        if ($action instanceof QueueAssociableInterface && ($queueName = $action->getQueueName($task->getParameters()))) {
+        if (
+            $action instanceof QueueAssociableInterface
+            && ($queueName = $action->getQueueName($task->getParameters()))
+        ) {
             return $this->getQueue($queueName);
         }
 
@@ -219,7 +227,9 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
         }
 
         if (!$this->hasQueue($queueName)) {
-            throw new \LogicException('Task "' . $taskName . '" cannot be added to "' . $queueName . '". Queue is not registered.');
+            throw new \LogicException(
+                'Task "' . $taskName . '" cannot be added to "' . $queueName . '". Queue is not registered.'
+            );
         }
 
         $tasks = $this->getLinkedTasks();
@@ -267,7 +277,8 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
     /**
      * Gets random queue based on weight.
      *
-     * For example, an array like ['A'=>5, 'B'=>45, 'C'=>50] means that "A" has a 5% chance of being selected, "B" 45%, and "C" 50%.
+     * For example, an array like ['A'=>5, 'B'=>45, 'C'=>50] means that "A" has a 5% chance of being selected,
+     * "B" 45%, and "C" 50%.
      * The values are simply relative to each other. If one value weight was 2, and the other weight of 1,
      * the value with the weight of 2 has about a 66% chance of being selected.
      *
@@ -317,8 +328,13 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
     /**
      * @inheritdoc
      */
-    public function createTask(callable $callable, array $parameters = [], $label = null, TaskInterface $parent = null, $masterStatus = false)
-    {
+    public function createTask(
+        callable $callable,
+        array $parameters = [],
+        $label = null,
+        TaskInterface $parent = null,
+        $masterStatus = false
+    ) {
         $id = \common_Utils::getNewUri();
         $owner = $parent ? $parent->getOwner() : $this->getOwner();
 
@@ -489,8 +505,13 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
             return;
         }
 
-        if (count($this->getOption(self::OPTION_QUEUES)) != count(array_unique($this->getOption(self::OPTION_QUEUES)))) {
-            throw new \InvalidArgumentException('There are duplicated Queue names. Please check the values of "' . self::OPTION_QUEUES . '" in your queue dispatcher settings.');
+        if (
+            count($this->getOption(self::OPTION_QUEUES)) != count(array_unique($this->getOption(self::OPTION_QUEUES)))
+        ) {
+            throw new \InvalidArgumentException(
+                'There are duplicated Queue names. Please check the values of "'
+                    . self::OPTION_QUEUES . '" in your queue dispatcher settings.'
+            );
         }
     }
 
@@ -507,7 +528,11 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
         $notRegisteredQueues = array_diff(array_values($this->getLinkedTasks()), $this->getQueueNames());
 
         if (count($notRegisteredQueues)) {
-            throw new \LogicException('Found not registered queue(s) linked to task(s): "' . implode('", "', $notRegisteredQueues) . '". Please check the values of "' . self::OPTION_TASK_TO_QUEUE_ASSOCIATIONS . '" in your queue dispatcher settings.');
+            throw new \LogicException(
+                'Found not registered queue(s) linked to task(s): "'
+                    . implode('", "', $notRegisteredQueues) . '". Please check the values of "'
+                    . self::OPTION_TASK_TO_QUEUE_ASSOCIATIONS . '" in your queue dispatcher settings.'
+            );
         }
     }
 
@@ -590,15 +615,23 @@ class QueueDispatcher extends ConfigurableService implements QueueDispatcherInte
             $report = $this->getTaskLog()->getReport($task->getId());
 
             if (!empty($report)) {
-                //serialize only two first report levels because sometimes serialized report is huge and it does not fit into `k_po` index of statements table.
+                // Serialize only two first report levels because sometimes serialized report is huge and it does not
+                // fit into `k_po` index of statements table.
                 $serializableReport = new Report($report->getType(), $report->getMessage(), $report->getData());
 
                 foreach ($report as $subReport) {
-                    $serializableSubReport = new Report($subReport->getType(), $subReport->getMessage(), $subReport->getData());
+                    $serializableSubReport = new Report(
+                        $subReport->getType(),
+                        $subReport->getMessage(),
+                        $subReport->getData()
+                    );
                     $serializableReport->add($serializableSubReport);
                 }
 
-                $taskResource->setPropertyValue($this->getProperty(Task::PROPERTY_REPORT), json_encode($serializableReport));
+                $taskResource->setPropertyValue(
+                    $this->getProperty(Task::PROPERTY_REPORT),
+                    json_encode($serializableReport)
+                );
             }
         }
 

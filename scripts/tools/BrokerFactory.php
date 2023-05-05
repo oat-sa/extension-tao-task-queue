@@ -30,7 +30,6 @@ use oat\taoTaskQueue\model\QueueBroker\NewSqlQueueBroker;
 use oat\taoTaskQueue\model\QueueBroker\RdsQueueBroker;
 use oat\taoTaskQueue\model\QueueBroker\SqsQueueBroker;
 
-
 class BrokerFactory extends ConfigurableService
 {
     public const BROKER_MEMORY = InMemoryQueueBroker::ID;
@@ -58,8 +57,10 @@ class BrokerFactory extends ConfigurableService
 
     private function validateBrokersWithPersistence(string $brokerId, string $persistenceId = null): void
     {
-        if (in_array($brokerId, [self::BROKER_RDS, self::BROKER_NEW_SQL], true)
-            && empty($persistenceId)) {
+        if (
+            in_array($brokerId, [self::BROKER_RDS, self::BROKER_NEW_SQL], true)
+            && empty($persistenceId)
+        ) {
             throw new InvalidArgumentException('Persistence id (--persistence=...) needs to be set for SQL.');
         }
     }

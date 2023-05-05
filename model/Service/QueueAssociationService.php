@@ -45,7 +45,9 @@ class QueueAssociationService extends ConfigurableService
         $existingOptions[QueueDispatcherInterface::OPTION_QUEUES] = array_unique(
             array_merge($existingQueues, [$newQueue])
         );
-        $existingAssociations = $this->getQueueDispatcher()->getOption(QueueDispatcherInterface::OPTION_TASK_TO_QUEUE_ASSOCIATIONS);
+        $existingAssociations = $this->getQueueDispatcher()->getOption(
+            QueueDispatcherInterface::OPTION_TASK_TO_QUEUE_ASSOCIATIONS
+        );
         $existingOptions[QueueDispatcherInterface::OPTION_TASK_TO_QUEUE_ASSOCIATIONS] = array_merge(
             $existingAssociations,
             [$targetClass => $queue]
@@ -87,7 +89,7 @@ class QueueAssociationService extends ConfigurableService
         $existingQueues = $queueService->getOption(QueueDispatcherInterface::OPTION_QUEUES);
         $newQueue = null;
 
-        if (!in_array($newQueueName, $queueService->getQueueNames())){
+        if (!in_array($newQueueName, $queueService->getQueueNames())) {
             $broker = $factory->create($this->guessDefaultBrokerType(), 'default', 2);
             $newQueue = new Queue($newQueueName, $broker, 30);
             $this->propagate($broker);

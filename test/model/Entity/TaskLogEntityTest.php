@@ -74,9 +74,11 @@ class TaskLogEntityTest extends TestCase
             'status' => 'completed',
             'statusLabel' => 'Completed',
             'createdAt' => $createdAt->getTimestamp(),
-            'createdAtElapsed' => (new \DateTime('now', new \DateTimeZone('UTC')))->getTimestamp() - $createdAt->getTimestamp(),
+            'createdAtElapsed' => (new \DateTime('now', new \DateTimeZone('UTC')))
+                    ->getTimestamp() - $createdAt->getTimestamp(),
             'updatedAt' => $updatedAt->getTimestamp(),
-            'updatedAtElapsed' => (new \DateTime('now', new \DateTimeZone('UTC')))->getTimestamp() - $updatedAt->getTimestamp(),
+            'updatedAtElapsed' => (new \DateTime('now', new \DateTimeZone('UTC')))
+                    ->getTimestamp() - $updatedAt->getTimestamp(),
             'report' => [
                 'type' => 'info',
                 'message' => 'Running task http://www.taoinstance.dev/ontologies/tao.rdf#i1508337970199318643',
