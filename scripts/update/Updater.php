@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -195,7 +196,9 @@ class Updater extends common_ext_ExtensionUpdater
                     : $oldQueue->getBroker();
 
                 $newQueues[] = new \oat\tao\model\taskQueue\Queue(
-                    $oldQueue->getName(), $broker, $oldQueue->getWeight()
+                    $oldQueue->getName(),
+                    $broker,
+                    $oldQueue->getWeight()
                 );
             }
 
@@ -252,11 +255,9 @@ class Updater extends common_ext_ExtensionUpdater
         $this->skip('0.17.1', '1.0.0');
 
         if ($this->isVersion('1.0.0')) {
-            $workerProcessManager = new WorkerProcessManager(
-                [
-                    WorkerProcessManager::OPTION_TASK_COMMAND => 'php index.php "\oat\taoTaskQueue\scripts\tools\RunTask"',
-                ]
-            );
+            $workerProcessManager = new WorkerProcessManager([
+                WorkerProcessManager::OPTION_TASK_COMMAND => 'php index.php "\oat\taoTaskQueue\scripts\tools\RunTask"',
+            ]);
 
             $this->getServiceManager()->register(WorkerProcessManager::SERVICE_ID, $workerProcessManager);
 

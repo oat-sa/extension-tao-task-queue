@@ -62,7 +62,9 @@ class RunWorker implements Action, ServiceLocatorAwareInterface
         $queueService = $this->getServiceLocator()->get(QueueDispatcherInterface::SERVICE_ID);
 
         if ($queueService->isSync()) {
-            return \common_report_Report::createInfo('No worker is needed because all registered queue is a Sync Queue.');
+            return \common_report_Report::createInfo(
+                'No worker is needed because all registered queue is a Sync Queue.'
+            );
         }
 
         foreach ($params as $param) {
@@ -97,6 +99,8 @@ class RunWorker implements Action, ServiceLocatorAwareInterface
         } catch (\Exception $e) {
             return \common_report_Report::createFailure($e->getMessage());
         }
-        return \common_report_Report::createSuccess('Worker finished at ' . (new DateTime('now'))->format(DateTime::ATOM));
+        return \common_report_Report::createSuccess(
+            'Worker finished at ' . (new DateTime('now'))->format(DateTime::ATOM)
+        );
     }
 }

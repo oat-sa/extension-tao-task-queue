@@ -41,10 +41,10 @@ use oat\taoTaskQueue\model\TaskLog\Decorator\SimpleManagementCollectionDecorator
  */
 class TaskQueueWebApi extends \tao_actions_CommonModule
 {
-    const PARAMETER_TASK_ID = 'taskId';
-    const PARAMETER_LIMIT = 'limit';
-    const PARAMETER_OFFSET = 'offset';
-    const ARCHIVE_ALL = 'all';
+    public const PARAMETER_TASK_ID = 'taskId';
+    public const PARAMETER_LIMIT = 'limit';
+    public const PARAMETER_OFFSET = 'offset';
+    public const ARCHIVE_ALL = 'all';
 
     /** @var string */
     private $userId;
@@ -122,12 +122,17 @@ class TaskQueueWebApi extends \tao_actions_CommonModule
 
             return $this->returnJson([
                 'success' => true,
-                'data' => (new HasFileEntityDecorator(new CategoryEntityDecorator($entity, $taskLogService), $fs))->toArray()
+                'data' => (new HasFileEntityDecorator(
+                    new CategoryEntityDecorator($entity, $taskLogService),
+                    $fs
+                ))->toArray()
             ]);
         } catch (\Exception $e) {
             return $this->returnJson([
                 'success' => false,
-                'errorMsg' => $e instanceof \common_exception_UserReadableException ? $e->getUserMessage() : $e->getMessage(),
+                'errorMsg' => $e instanceof \common_exception_UserReadableException
+                    ? $e->getUserMessage()
+                    : $e->getMessage(),
                 'errorCode' => $e->getCode(),
             ]);
         }
@@ -172,7 +177,9 @@ class TaskQueueWebApi extends \tao_actions_CommonModule
                 $filter = (new TaskLogFilter())->availableForArchived($this->userId);
                 $taskLogCollection = $taskLogService->search($filter);
             } else {
-                $filter = (new TaskLogFilter())->addAvailableFilters($this->userId)->in(TaskLogBrokerInterface::COLUMN_ID, $taskIds);
+                $filter = (new TaskLogFilter())
+                    ->addAvailableFilters($this->userId)
+                    ->in(TaskLogBrokerInterface::COLUMN_ID, $taskIds);
                 $taskLogCollection = $taskLogService->search($filter);
             }
 
@@ -183,7 +190,9 @@ class TaskQueueWebApi extends \tao_actions_CommonModule
         } catch (\Exception $e) {
             return $this->returnJson([
                 'success' => false,
-                'errorMsg' => $e instanceof \common_exception_UserReadableException ? $e->getUserMessage() : $e->getMessage(),
+                'errorMsg' => $e instanceof \common_exception_UserReadableException
+                    ? $e->getUserMessage()
+                    : $e->getMessage(),
                 'errorCode' => $e instanceof \common_exception_NotFound ? 404 : $e->getCode(),
             ]);
         }
@@ -200,7 +209,10 @@ class TaskQueueWebApi extends \tao_actions_CommonModule
             /** @var TaskLogInterface $taskLogService */
             $taskLogService = $this->getServiceLocator()->get(TaskLogInterface::SERVICE_ID);
 
-            $taskLogEntity = $taskLogService->getByIdAndUser($this->getRequestParameter(self::PARAMETER_TASK_ID), $this->userId);
+            $taskLogEntity = $taskLogService->getByIdAndUser(
+                $this->getRequestParameter(self::PARAMETER_TASK_ID),
+                $this->userId
+            );
 
             if (!$taskLogEntity->getStatus()->isCompleted()) {
                 throw new \common_Exception('Task "' . $taskLogEntity->getId() . '" is not downloadable.');
@@ -231,7 +243,9 @@ class TaskQueueWebApi extends \tao_actions_CommonModule
         } catch (\Exception $e) {
             return $this->returnJson([
                 'success' => false,
-                'errorMsg' => $e instanceof \common_exception_UserReadableException ? $e->getUserMessage() : $e->getMessage(),
+                'errorMsg' => $e instanceof \common_exception_UserReadableException
+                    ? $e->getUserMessage()
+                    : $e->getMessage(),
                 'errorCode' => $e->getCode(),
             ]);
         }

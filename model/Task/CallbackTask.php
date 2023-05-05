@@ -106,7 +106,7 @@ final class CallbackTask extends AbstractTask implements CallbackTaskInterface
     /**
      * @return array
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         $callableClassOrArray = $this->getCallable();
 

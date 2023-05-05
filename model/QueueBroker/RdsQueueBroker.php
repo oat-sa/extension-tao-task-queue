@@ -37,7 +37,7 @@ use oat\taoTaskQueue\model\Task\CallbackTaskDecorator;
  */
 class RdsQueueBroker extends AbstractQueueBroker
 {
-    public const ID ='rds';
+    public const ID = 'rds';
 
     private $persistenceId;
 
@@ -95,7 +95,8 @@ class RdsQueueBroker extends AbstractQueueBroker
     }
 
     /**
-     * Note: this method can be run multiple times because only the migrate queries (result of getMigrateSchemaSql) will be run.
+     * Note: this method can be run multiple times because only the migrate queries (result of getMigrateSchemaSql)
+     * will be run.
      *
      * @inheritdoc
      */

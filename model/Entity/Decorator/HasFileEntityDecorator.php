@@ -46,10 +46,7 @@ class HasFileEntityDecorator extends TaskLogEntityDecorator
         $this->fileSystemService = $fileSystemService;
     }
 
-    /**
-     * @return array
-     */
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return $this->toArray();
     }

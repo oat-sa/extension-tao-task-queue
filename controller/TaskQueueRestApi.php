@@ -33,7 +33,7 @@ use oat\tao\model\taskQueue\TaskLogInterface;
  */
 class TaskQueueRestApi extends \tao_actions_RestController
 {
-    const PARAMETER_TASK_ID = 'id';
+    public const PARAMETER_TASK_ID = 'id';
 
     /**
      * Returns the details of a task, independently from the owner.

@@ -166,6 +166,7 @@ class TaskLogActionTraitTest extends TestCase
         return $taskLogEntityMock;
     }
 
+    // phpcs:disable PSR1.Methods.CamelCapsMethodName,Generic.Files.LineLength
     public function testGetTaskLogReturnDataWhenTaskTypeIsProvidedButTheTaskIdBelongsToDifferentTypeOfTaskThenThrowException()
     {
         $this->expectException(common_exception_BadRequest::class);
@@ -190,6 +191,7 @@ class TaskLogActionTraitTest extends TestCase
 
         $bound();
     }
+    // phpcs:enable PSR1.Methods.CamelCapsMethodName,Generic.Files.LineLength
 
     public function testGetTaskLogForProperResult()
     {

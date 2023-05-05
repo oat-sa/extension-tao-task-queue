@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,7 +18,7 @@
  * Copyright (c) 2021 (original work) Open Assessment Technologies SA (under the project TAO-PRODUCT);
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace oat\taoTaskQueue\scripts\tools;
 
@@ -59,7 +60,7 @@ final class ReRunTask extends ScriptAction
 
         /** @var QueueDispatcherInterface $queueService */
         $queueService = $this->getServiceLocator()->get(QueueDispatcherInterface::SERVICE_ID);
-        $created = $queueService->createTask(new $callback, $entity->getParameters(), $entity->getLabel());
+        $created = $queueService->createTask(new $callback(), $entity->getParameters(), $entity->getLabel());
 
         return Report::createSuccess(
             sprintf('Original task `%s` was added to the queue under new id %s', $entity->getId(), $created->getId())

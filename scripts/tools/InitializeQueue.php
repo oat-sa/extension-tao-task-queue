@@ -43,22 +43,27 @@ use Zend\ServiceManager\ServiceLocatorAwareTrait;
  * $ sudo -u www-data php index.php 'oat\taoTaskQueue\scripts\tools\InitializeQueue' --broker=memory [--queue=myQueue]
  * ```
  *
- * - Using RDS Queues. Every existing queue will be changed to use RdsQueueBroker if there is no queue specified. You can set the following parameters:
+ * - Using RDS Queues. Every existing queue will be changed to use RdsQueueBroker if there is no queue specified.
+ *   You can set the following parameters:
  *  - persistence: Required
  *  - receive: Optional (Maximum amount of tasks that can be received when polling the queue)
  * ```
- * $ sudo -u www-data php index.php 'oat\taoTaskQueue\scripts\tools\InitializeQueue' --broker=rds --persistence=default --receive=10 [--queue=myQueue]
+ * $ sudo -u www-data php index.php 'oat\taoTaskQueue\scripts\tools\InitializeQueue' --broker=rds --persistence=default
+ *   --receive=10 [--queue=myQueue]
  * ```
  *
- * - Using SQS Queues. Every existing queue will be changed to use SqsQueueBroker if there is no queue specified. You can set the following parameters:
+ * - Using SQS Queues. Every existing queue will be changed to use SqsQueueBroker if there is no queue specified.
+ *   You can set the following parameters:
  *  - receive: Optional (Maximum amount of tasks that can be received when polling the queue)
  * ```
- * $ sudo -u www-data php index.php 'oat\taoTaskQueue\scripts\tools\InitializeQueue' --broker=sqs --receive=10 [--queue=myQueue]
+ * $ sudo -u www-data php index.php 'oat\taoTaskQueue\scripts\tools\InitializeQueue' --broker=sqs
+ *   --receive=10 [--queue=myQueue]
  * ```
  *
  * - To set a task selector strategy, please provide the FQCN of the wanted strategy
  * ```
- * $ sudo -u www-data php index.php 'oat\taoTaskQueue\scripts\tools\InitializeQueue' --strategy="\oat\taoTaskQueue\model\TaskSelector\StrictPriorityStrategy"
+ * $ sudo -u www-data php index.php 'oat\taoTaskQueue\scripts\tools\InitializeQueue'
+ *   --strategy="\oat\taoTaskQueue\model\TaskSelector\StrictPriorityStrategy"
  */
 class InitializeQueue extends InstallAction
 {
@@ -129,7 +134,8 @@ class InitializeQueue extends InstallAction
                 case '--broker':
                     if (!in_array($value, self::AVAILABLE_BROKERS)) {
                         throw new InvalidArgumentException(
-                            sprintf('Broker "%s" is not a valid broker option. Valid options: %s',
+                            sprintf(
+                                'Broker "%s" is not a valid broker option. Valid options: %s',
                                 $value,
                                 implode(', ', self::AVAILABLE_BROKERS)
                             )

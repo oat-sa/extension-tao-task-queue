@@ -59,6 +59,7 @@ class TaskLogUtilityTest extends TestCase
         $output = $this->subject->__invoke(['--help']);
 
         $this->assertInstanceOf(common_report_Report::class, $output);
+        // phpcs:disable Generic.Files.LineLength
         $this->assertEquals(
             "Examples
  1. Stats
@@ -78,6 +79,7 @@ class TaskLogUtilityTest extends TestCase
 	 Example: 	 sudo -u www-data php index.php 'oat\\taoTaskQueue\scripts\\tools\TaskLogUtility' --cancel=[taskdId] --force[optional]",
             $output->getMessage()
         );
+        // phpcs:enable Generic.Files.LineLength
     }
 
     public function testGetStats()
