@@ -1,0 +1,102 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: tao-3x\n"
+"PO-Revision-Date: 2023-04-21 15:46\n"
+"Last-Translator: TAO Translation Team <translation@tao.lu>\n"
+"MIME-Version: 1.0\n"
+"Language: pt\n"
+"sourceLanguage: en-US\n"
+"targetLanguage: en-US\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Basepath: ../../\n"
+"X-Poedit-KeywordsList: __\n"
+"X-Poedit-SearchPath-0: .\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Crowdin-Project: tao-3x\n"
+"X-Crowdin-Project-ID: 582145\n"
+"X-Crowdin-Language: pt-BR\n"
+"X-Crowdin-File: /taoTaskQueue/locales/en-US/messages.po\n"
+"X-Crowdin-File-ID: 1691\n"
+"Language-Team: Portuguese, Brazilian\n"
+
+msgid "Background tasks"
+msgstr "Tarefas em segundo plano"
+
+msgid "Clear all finished"
+msgstr "Limpeza terminada"
+
+msgid "Clear all finished tasks"
+msgstr "Limpar todas as tarefas concluídas"
+
+msgid "close report"
+msgstr "fechar informe"
+
+msgid "Completed"
+msgstr "Concluído"
+
+msgid "Completed %s"
+msgstr "%s completado"
+
+msgid "download"
+msgstr "baixar"
+
+msgid "Executing task %s failed"
+msgstr "Execução da tarefa %s falhou"
+
+msgid "Failed"
+msgstr "Falhou"
+
+msgid "Failed %s"
+msgstr "%s falhou"
+
+msgid "go to resource"
+msgstr "ir para o recurso"
+
+msgid "In Progress"
+msgstr "Em Progresso"
+
+msgid "No report available"
+msgstr "Nenhum informe disponível"
+
+msgid "notify me when done"
+msgstr "me notificar quando terminado"
+
+msgid "Queued"
+msgstr "Aguardando"
+
+msgid "remove"
+msgstr "remover"
+
+msgid "Resource is not the task placeholder"
+msgstr "O recurso não é o espaço reservado da tarefa"
+
+msgid "Running task %s"
+msgstr "Executando a tarefa %s"
+
+msgid "see report"
+msgstr "ver informe"
+
+msgid "Started %s"
+msgstr "Iniciado em %s"
+
+msgid "Task is in \\'%s\\' state"
+msgstr "A tarefa está em estado \\'%s\\'"
+
+msgid "Task not returned any report."
+msgstr "A tarefa não retornou nenhum informe."
+
+#, tao-public
+msgid "Task Queue"
+msgstr "Lista de tarefas"
+
+#, tao-public
+msgid "taskqueue"
+msgstr "taskqueue"
+
+msgid "The list is currently empty."
+msgstr "Esta lista está atualmente vazia."
+
+msgid "There is currently no background task"
+msgstr "Atualmente não há nenhuma tarefa em segundo plano"
+
