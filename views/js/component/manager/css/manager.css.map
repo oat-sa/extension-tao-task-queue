@@ -1,14 +1,1 @@
-{
-	"version": 3,
-	"file": "manager.css",
-	"sources": [
-		"../scss/manager.scss",
-		"../../../../../../tao/views/node_modules/@oat-sa/tao-core-ui/scss/inc/_bootstrap.scss",
-		"../../../../../../tao/views/node_modules/@oat-sa/tao-core-ui/scss/inc/_variables.scss",
-		"../../../../../../tao/views/node_modules/@oat-sa/tao-core-ui/scss/inc/_functions.scss",
-		"../../../../../../tao/views/node_modules/@oat-sa/tao-core-ui/scss/inc/_colors.scss",
-		"../../../../../../tao/views/scss/inc/fonts/_tao-icon-vars.scss"
-	],
-	"names": [],
-	"mappings": "AAEA,AAAA,uBAAuB,AAAC,CACpB,MAAM,CAAE,OAAO,CACf,QAAQ,CAAE,QAAQ,CAClB,KAAK,CAAE,IAAI,CACX,MAAM,CAAE,IAAI,CACZ,gBAAgB,CAAE,WAAW,CAC7B,OAAO,CAAE,YAAY,CAMxB,AAZD,AAOI,uBAPmB,AAOlB,MAAM,AAAA,CGgDC,kBAAsB,CAAC,0BAAC,CAAxB,eAAsB,CAAC,0BAAC,CAAxB,cAAsB,CAAC,0BAAC,CAAxB,aAAsB,CAAC,0BAAC,CAAxB,UAAsB,CAAC,0BAAC,CH9C5B,gBAAgB,CITjB,mBAAgB,CJUf,eAAe,CAAE,IAAI,CACxB,AAIL,AAAA,SAAS,CAAC,GAAG,CAAC,cAAc,AAAA,MAAM,GAAG,gBAAgB,CAAC,aAAa,CAAC,IAAI,AAAA,CACpE,UAAU,CAAE,IAAI,CAChB,YAAY,CGwKJ,IAAsC,CHpKjD,AAND,AAGI,SAHK,CAAC,GAAG,CAAC,cAAc,AAAA,MAAM,GAAG,gBAAgB,CAAC,aAAa,CAAC,IAAI,CAGpE,MAAM,AAAA,CACF,OAAO,CAAE,IAAI,CAChB"
-}
+{"version":3,"sourceRoot":"","sources":["../scss/manager.scss","../../../../../../tao/views/node_modules/@oat-sa/tao-core-ui/scss/inc/_functions.scss"],"names":[],"mappings":"AAEA,wBACI,eACA,kBACA,WACA,YACA,+BACA,qBACA,8BCgDQ,kND9CJ,oCACA,qBAKR,uEACI,gBACA,kBACA,8EACI","file":"manager.css"}
