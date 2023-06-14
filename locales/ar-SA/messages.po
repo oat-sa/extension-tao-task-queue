@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: tao-open-source\n"
-"PO-Revision-Date: 2023-06-07 10:44\n"
+"PO-Revision-Date: 2023-06-14 12:43\n"
 "Last-Translator: TAO Translation Team <translation@tao.lu>\n"
 "MIME-Version: 1.0\n"
 "Language: ar\n"
@@ -54,7 +54,7 @@ msgid "go to resource"
 msgstr ""
 
 msgid "In Progress"
-msgstr ""
+msgstr "في تقدم"
 
 msgid "No report available"
 msgstr ""
@@ -66,7 +66,7 @@ msgid "Queued"
 msgstr ""
 
 msgid "remove"
-msgstr ""
+msgstr "إزالة"
 
 msgid "Resource is not the task placeholder"
 msgstr ""
