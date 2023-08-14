@@ -72,7 +72,7 @@ final class LongRunningWorker extends AbstractWorker
     public function run()
     {
         $this->registerSigHandlers();
-        $this->logInfo('Starting LongRunningWorker.', $this->getLogContext());
+//        $this->logInfo('Starting LongRunningWorker.', $this->getLogContext());
 
         while ($this->isRunning()) {
             if ($this->paused) {
@@ -123,7 +123,7 @@ final class LongRunningWorker extends AbstractWorker
             }
         }
 
-        $this->logInfo('LongRunningWorker finished.', $this->getLogContext());
+//        $this->logInfo('LongRunningWorker finished.', $this->getLogContext());
     }
 
     /**
@@ -185,7 +185,7 @@ final class LongRunningWorker extends AbstractWorker
 
             $this->sigHandlersRegistered = true;
 
-            $this->logInfo('Finished setting up signal handlers', $this->getLogContext());
+//            $this->logInfo('Finished setting up signal handlers', $this->getLogContext());
         }
     }
 
