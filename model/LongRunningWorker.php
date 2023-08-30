@@ -81,8 +81,6 @@ final class LongRunningWorker extends AbstractWorker
                 continue;
             }
 
-            ++$this->iterations;
-
             try {
                 $this->logDebug('Fetching tasks from queue ', $this->getLogContext());
 
@@ -110,6 +108,7 @@ final class LongRunningWorker extends AbstractWorker
                     continue;
                 }
 
+                ++$this->iterations;
                 $this->processTask($task);
 
                 unset($task);
@@ -154,7 +153,7 @@ final class LongRunningWorker extends AbstractWorker
         }
 
         if ($this->maxIterations > 0) {
-            return $this->iterations < $this->maxIterations;
+            return $this->iterations < $this->maxIterations && $this->hasEnoughSpace();
         }
 
         return true;
@@ -223,5 +222,16 @@ final class LongRunningWorker extends AbstractWorker
         } else {
             return self::WAIT_INTERVAL;
         }
+    }
+
+    private function hasEnoughSpace(): bool
+    {
+        if (!$this->queuer instanceof QueueInterface || $this->queuer->hasPreFetchedMessages()) {
+            return true;
+        }
+
+        $freeSpace = $this->maxIterations - $this->iterations;
+
+        return $freeSpace >= $this->queuer->getNumberOfTasksToReceive();
     }
 }
