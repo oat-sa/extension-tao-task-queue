@@ -31,7 +31,7 @@
         "evenement/evenement": "^2.0",
         "ext-pdo": "*",
         "oat-sa/generis" : ">=15.22",
-        "oat-sa/tao-core" : ">=50.24.6"
+        "oat-sa/tao-core" : "dev-fix/adf-1571/process-tasks-based-on-worker-free-space as 53.6.0"
     },
     "autoload": {
         "psr-4": {
