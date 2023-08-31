@@ -81,6 +81,8 @@ final class LongRunningWorker extends AbstractWorker
                 continue;
             }
 
+            ++$this->iterations;
+
             try {
                 $this->logDebug('Fetching tasks from queue ', $this->getLogContext());
 
@@ -108,7 +110,6 @@ final class LongRunningWorker extends AbstractWorker
                     continue;
                 }
 
-                ++$this->iterations;
                 $this->processTask($task);
 
                 unset($task);
@@ -226,7 +227,7 @@ final class LongRunningWorker extends AbstractWorker
 
     private function hasEnoughSpace(): bool
     {
-        if (!$this->queuer instanceof QueueInterface || $this->queuer->hasPreFetchedMessages()) {
+        if ($this->queuer->hasPreFetchedMessages()) {
             return true;
         }
 
