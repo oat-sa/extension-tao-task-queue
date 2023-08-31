@@ -227,7 +227,7 @@ final class LongRunningWorker extends AbstractWorker
 
     private function hasEnoughSpace(): bool
     {
-        if ($this->queuer->hasPreFetchedMessages()) {
+        if ($this->iterationsWithOutTask || $this->queuer->hasPreFetchedMessages()) {
             return true;
         }
 
