@@ -154,7 +154,7 @@ final class LongRunningWorker extends AbstractWorker
         }
 
         if ($this->maxIterations > 0) {
-            return $this->iterations < $this->maxIterations;
+            return $this->iterations < $this->maxIterations && $this->hasEnoughSpace();
         }
 
         return true;
@@ -223,5 +223,16 @@ final class LongRunningWorker extends AbstractWorker
         } else {
             return self::WAIT_INTERVAL;
         }
+    }
+
+    private function hasEnoughSpace(): bool
+    {
+        if ($this->iterationsWithOutTask || $this->queuer->hasPreFetchedMessages()) {
+            return true;
+        }
+
+        $freeSpace = $this->maxIterations - $this->iterations;
+
+        return $freeSpace >= $this->queuer->getNumberOfTasksToReceive();
     }
 }
