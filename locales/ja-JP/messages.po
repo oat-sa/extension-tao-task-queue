@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: tao-open-source\n"
-"PO-Revision-Date: 2023-06-07 10:44\n"
+"PO-Revision-Date: 2023-09-12 09:08\n"
 "Last-Translator: TAO Translation Team <translation@tao.lu>\n"
 "MIME-Version: 1.0\n"
 "Language: ja\n"
@@ -81,7 +81,7 @@ msgid "Started %s"
 msgstr "開始： %s"
 
 msgid "Task is in \\'%s\\' state"
-msgstr ""
+msgstr "タスクは \\'%s\\' の状態です"
 
 msgid "Task not returned any report."
 msgstr "タスクからの報告はありません"
