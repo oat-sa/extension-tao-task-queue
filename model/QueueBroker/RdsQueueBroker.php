@@ -285,10 +285,7 @@ class RdsQueueBroker extends AbstractQueueBroker
             ->execute();
     }
 
-    /**
-     * @return int
-     */
-    public function count()
+    public function count(): int
     {
         try {
             $qb = $this->getQueryBuilder()
