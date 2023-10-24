@@ -273,10 +273,7 @@ class SqsQueueBroker extends AbstractQueueBroker
         }
     }
 
-    /**
-     * @return int
-     */
-    public function count()
+    public function count(): int
     {
         // ensures that the SQS Queue exist
         if (!$this->queueExists()) {
