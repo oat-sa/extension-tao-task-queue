@@ -211,7 +211,7 @@ class SqsQueueBroker extends AbstractQueueBroker
                 'WaitTimeSeconds' => 20 //retrieving messages with Long Polling
             ]);
 
-            if (count($result->get('Messages')) > 0) {
+            if (is_array($result->get('Messages')) && count($result->get('Messages')) > 0) {
                 $this->logDebug('Received ' . count($result->get('Messages')) . ' messages.', $logContext);
 
                 foreach ($result->get('Messages') as $message) {
