@@ -154,7 +154,10 @@ define([
             //bonus: check if there is any report and display the report button only when needed
 
             hider.toggle($container.find('.action-bottom [data-role="download"]'), this.data.hasFile);
-            hider.toggle($container.find('.action-bottom [data-role="redirect"]'), !!this.data.redirectUrl);
+            hider.toggle(
+                $container.find('.action-bottom [data-role="redirect"]'),
+                !!this.data.redirectUrl && !this.data.hasExternalUriLink
+            );
 
             this.trigger('update');
             return this;
