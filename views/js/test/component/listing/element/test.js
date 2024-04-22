@@ -283,6 +283,7 @@ define([
             createdAtElapsed: 601,
             updatedAtElapsed: 26,
             hasFile: true,
+            hasExternalUriLink: false,
             category: 'import',
             report: {
                 type: 'success',
