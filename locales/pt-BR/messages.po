@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: tao-open-source\n"
-"PO-Revision-Date: 2023-06-07 10:45\n"
+"PO-Revision-Date: 2024-04-30 09:55\n"
 "Last-Translator: TAO Translation Team <translation@tao.lu>\n"
 "MIME-Version: 1.0\n"
 "Language: pt\n"
@@ -92,7 +92,7 @@ msgstr "Lista de tarefas"
 
 #, tao-public
 msgid "taskqueue"
-msgstr ""
+msgstr "fila de tarefa"
 
 msgid "The list is currently empty."
 msgstr "Esta lista está atualmente vazia."
