@@ -1,10 +1,10 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: tao-open-source\n"
-"PO-Revision-Date: 2023-12-04 16:27\n"
+"PO-Revision-Date: 2025-12-05 08:45\n"
 "Last-Translator: TAO Translation Team <translation@tao.lu>\n"
 "MIME-Version: 1.0\n"
-"Language: ar\n"
+"Language: hu\n"
 "sourceLanguage: en-US\n"
 "targetLanguage: en-US\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -12,91 +12,91 @@ msgstr ""
 "X-Poedit-Basepath: ../../\n"
 "X-Poedit-KeywordsList: __\n"
 "X-Poedit-SearchPath-0: .\n"
-"Plural-Forms: nplurals=6; plural=(n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5);\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Crowdin-Project: tao-open-source\n"
 "X-Crowdin-Project-ID: 590867\n"
-"X-Crowdin-Language: ar\n"
+"X-Crowdin-Language: hu\n"
 "X-Crowdin-File: /[oat-sa.extension-tao-task-queue] develop/locales/en-US/messages.po\n"
 "X-Crowdin-File-ID: 679\n"
-"Language-Team: Arabic\n"
+"Language-Team: Hungarian\n"
 
 msgid "Background tasks"
-msgstr "مهام الخلفية"
+msgstr "Háttérfeladatok"
 
 msgid "Clear all finished"
-msgstr "مسح كل شيء انتهى"
+msgstr "Minden kész törlése"
 
 msgid "Clear all finished tasks"
-msgstr "مسح جميع المهام المنتهية"
+msgstr "Törölje az összes befejezett feladatot"
 
 msgid "close report"
-msgstr "اغلق التقرير"
+msgstr "jelentés lezárása"
 
 msgid "Completed"
-msgstr "مكتمل"
+msgstr "Befejezve"
 
 msgid "Completed %s"
-msgstr "مكتمل %s"
+msgstr "Befejezve %s"
 
 msgid "download"
-msgstr "تَنْزيل"
+msgstr "letöltés"
 
 msgid "Executing task %s failed"
-msgstr "فشل تنفيذ المهمة %s"
+msgstr "A %s feladat végrehajtása sikertelen"
 
 msgid "Failed"
-msgstr "فشل"
+msgstr "Sikertelen"
 
 msgid "Failed %s"
-msgstr "فشل %s"
+msgstr "Sikertelen %s"
 
 msgid "go to resource"
-msgstr "اذهب إلى المورد"
+msgstr "menj az erőforráshoz"
 
 msgid "In Progress"
-msgstr "في تقدم"
+msgstr "Folyamatban van"
 
 msgid "No report available"
-msgstr "لا يتوفر أي تقرير"
+msgstr "Nincs elérhető jelentés"
 
 msgid "notify me when done"
-msgstr "أخبرني عند الانتهاء"
+msgstr "értesíts, ha kész"
 
 msgid "Queued"
-msgstr "في قائمة الانتظار"
+msgstr "Sorban álló"
 
 msgid "remove"
-msgstr "إزالة"
+msgstr "eltávolít"
 
 msgid "Resource is not the task placeholder"
-msgstr "المورد ليس العنصر النائب للمهمة"
+msgstr "Az erőforrás nem a feladat helyőrzője"
 
 msgid "Running task %s"
-msgstr "تشغيل المهمة %s"
+msgstr "Futó feladat %s"
 
 msgid "see report"
-msgstr "انظر التقرير"
+msgstr "lásd a jelentést"
 
 msgid "Started %s"
-msgstr "بدأ %s"
+msgstr "Elkezdve %s"
 
 msgid "Task is in \\'%s\\' state"
-msgstr "المهمة في حالة \\'%s\\'"
+msgstr "A feladat \\'%s\\' állapotban van"
 
 msgid "Task not returned any report."
-msgstr "لم تُرجع المهمة أي تقرير."
+msgstr "A feladat nem adott vissza jelentést."
 
 #, tao-public
 msgid "Task Queue"
-msgstr "قائمة انتظار المهام"
+msgstr "Feladatsor"
 
 #, tao-public
 msgid "taskqueue"
-msgstr "قائمة انتظار المهام"
+msgstr "feladatsor"
 
 msgid "The list is currently empty."
-msgstr "القائمة فارغة حاليا."
+msgstr "A lista jelenleg üres."
 
 msgid "There is currently no background task"
-msgstr "لا توجد مهمة خلفية حاليا"
+msgstr "Jelenleg nincs háttérfeladat"
 
