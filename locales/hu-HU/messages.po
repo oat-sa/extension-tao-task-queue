@@ -1,0 +1,102 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: tao-open-source\n"
+"PO-Revision-Date: 2025-12-05 08:45\n"
+"Last-Translator: TAO Translation Team <translation@tao.lu>\n"
+"MIME-Version: 1.0\n"
+"Language: hu\n"
+"sourceLanguage: en-US\n"
+"targetLanguage: en-US\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Basepath: ../../\n"
+"X-Poedit-KeywordsList: __\n"
+"X-Poedit-SearchPath-0: .\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Crowdin-Project: tao-open-source\n"
+"X-Crowdin-Project-ID: 590867\n"
+"X-Crowdin-Language: hu\n"
+"X-Crowdin-File: /[oat-sa.extension-tao-task-queue] develop/locales/en-US/messages.po\n"
+"X-Crowdin-File-ID: 679\n"
+"Language-Team: Hungarian\n"
+
+msgid "Background tasks"
+msgstr "Háttérfeladatok"
+
+msgid "Clear all finished"
+msgstr "Minden kész törlése"
+
+msgid "Clear all finished tasks"
+msgstr "Törölje az összes befejezett feladatot"
+
+msgid "close report"
+msgstr "jelentés lezárása"
+
+msgid "Completed"
+msgstr "Befejezve"
+
+msgid "Completed %s"
+msgstr "Befejezve %s"
+
+msgid "download"
+msgstr "letöltés"
+
+msgid "Executing task %s failed"
+msgstr "A %s feladat végrehajtása sikertelen"
+
+msgid "Failed"
+msgstr "Sikertelen"
+
+msgid "Failed %s"
+msgstr "Sikertelen %s"
+
+msgid "go to resource"
+msgstr "menj az erőforráshoz"
+
+msgid "In Progress"
+msgstr "Folyamatban van"
+
+msgid "No report available"
+msgstr "Nincs elérhető jelentés"
+
+msgid "notify me when done"
+msgstr "értesíts, ha kész"
+
+msgid "Queued"
+msgstr "Sorban álló"
+
+msgid "remove"
+msgstr "eltávolít"
+
+msgid "Resource is not the task placeholder"
+msgstr "Az erőforrás nem a feladat helyőrzője"
+
+msgid "Running task %s"
+msgstr "Futó feladat %s"
+
+msgid "see report"
+msgstr "lásd a jelentést"
+
+msgid "Started %s"
+msgstr "Elkezdve %s"
+
+msgid "Task is in \\'%s\\' state"
+msgstr "A feladat \\'%s\\' állapotban van"
+
+msgid "Task not returned any report."
+msgstr "A feladat nem adott vissza jelentést."
+
+#, tao-public
+msgid "Task Queue"
+msgstr "Feladatsor"
+
+#, tao-public
+msgid "taskqueue"
+msgstr "feladatsor"
+
+msgid "The list is currently empty."
+msgstr "A lista jelenleg üres."
+
+msgid "There is currently no background task"
+msgstr "Jelenleg nincs háttérfeladat"
+
