@@ -1,0 +1,102 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: tao-open-source\n"
+"PO-Revision-Date: 2025-12-05 08:45\n"
+"Last-Translator: TAO Translation Team <translation@tao.lu>\n"
+"MIME-Version: 1.0\n"
+"Language: sk\n"
+"sourceLanguage: en-US\n"
+"targetLanguage: en-US\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Basepath: ../../\n"
+"X-Poedit-KeywordsList: __\n"
+"X-Poedit-SearchPath-0: .\n"
+"Plural-Forms: nplurals=4; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 3;\n"
+"X-Crowdin-Project: tao-open-source\n"
+"X-Crowdin-Project-ID: 590867\n"
+"X-Crowdin-Language: sk\n"
+"X-Crowdin-File: /[oat-sa.extension-tao-task-queue] develop/locales/en-US/messages.po\n"
+"X-Crowdin-File-ID: 679\n"
+"Language-Team: Slovak\n"
+
+msgid "Background tasks"
+msgstr "Úlohy na pozadí"
+
+msgid "Clear all finished"
+msgstr "Vymazať všetky dokončené"
+
+msgid "Clear all finished tasks"
+msgstr "Vymazať všetky dokončené úlohy"
+
+msgid "close report"
+msgstr "zatvoriť správu"
+
+msgid "Completed"
+msgstr "Dokončené"
+
+msgid "Completed %s"
+msgstr "Dokončené %s"
+
+msgid "download"
+msgstr "stiahnuť"
+
+msgid "Executing task %s failed"
+msgstr "Vykonanie úlohy %s zlyhalo"
+
+msgid "Failed"
+msgstr "Neúspešné"
+
+msgid "Failed %s"
+msgstr "Zlyhalo %s"
+
+msgid "go to resource"
+msgstr "prejsť na zdroj"
+
+msgid "In Progress"
+msgstr "Prebieha"
+
+msgid "No report available"
+msgstr "Žiadna správa nie je k dispozícii"
+
+msgid "notify me when done"
+msgstr "upozorni ma, keď bude hotovo"
+
+msgid "Queued"
+msgstr "Zaradené do frontu"
+
+msgid "remove"
+msgstr "odstrániť"
+
+msgid "Resource is not the task placeholder"
+msgstr "Zdroj nie je dočasným zástupným symbolom úlohy"
+
+msgid "Running task %s"
+msgstr "Spúšťanie úlohy %s"
+
+msgid "see report"
+msgstr "pozri správu"
+
+msgid "Started %s"
+msgstr "Začaté %s"
+
+msgid "Task is in \\'%s\\' state"
+msgstr "Úloha je v stave \\'%s\\'"
+
+msgid "Task not returned any report."
+msgstr "Úloha nevrátila žiadnu správu."
+
+#, tao-public
+msgid "Task Queue"
+msgstr "Front úloh"
+
+#, tao-public
+msgid "taskqueue"
+msgstr "front úloh"
+
+msgid "The list is currently empty."
+msgstr "Zoznam je momentálne prázdny."
+
+msgid "There is currently no background task"
+msgstr "Momentálne nie je spustená žiadna úloha na pozadí"
+
