@@ -46,6 +46,7 @@ class TaskQueueMaintenance implements Action, ServiceLocatorAwareInterface
     private bool $doArchive = false;
     private bool $doUnblock = false;
     private bool $doVacuum  = false;
+    private bool $doDelete = false;
     private bool $showHelp  = false;
 
     /**
@@ -69,6 +70,14 @@ class TaskQueueMaintenance implements Action, ServiceLocatorAwareInterface
                 );
             }
 
+            if ($this->doDelete) {
+                $deleted = $this->deleteOldArchived();
+                $messages[] = sprintf(
+                    '[TaskQueueMaintenance] Delete archived flow finished. Tasks deleted: %d',
+                    $deleted
+                );
+            }
+
             if ($this->doUnblock) {
                 // TODO: implement unblock flow
                 $messages[] = '[TaskQueueMaintenance] Unblock flow not implemented yet.';
@@ -81,7 +90,7 @@ class TaskQueueMaintenance implements Action, ServiceLocatorAwareInterface
             }
 
             // If no specific action requested, or --help given
-            if ($this->showHelp || (!$this->doArchive && !$this->doUnblock && !$this->doVacuum)) {
+            if ($this->showHelp || (!$this->doArchive && !$this->doDelete && !$this->doUnblock && !$this->doVacuum)) {
                 $messages[] = $this->printHelp();
             }
 
@@ -114,6 +123,10 @@ class TaskQueueMaintenance implements Action, ServiceLocatorAwareInterface
                     $this->doVacuum = true;
                     break;
 
+                case '--delete':
+                    $this->doDelete = true;
+                    break;
+
                 case '--help':
                     $this->showHelp = true;
                     break;
@@ -123,14 +136,11 @@ class TaskQueueMaintenance implements Action, ServiceLocatorAwareInterface
 
     /**
      * Main entry point for the --archive option.
-     * Returns number of affected tasks.
+     * Returns number of archived tasks.
      */
     private function runArchive(): int
     {
-        $archivedCount = $this->archiveCompletedAndFailed();
-        $deletedCount = $this->deleteOldArchived();
-
-        return $archivedCount + $deletedCount;
+        return $this->archiveCompletedAndFailed();
     }
 
     /**
@@ -248,13 +258,16 @@ Usage examples:
  1) Show help
     php index.php 'oat\\taoTaskQueue\\scripts\\tools\\TaskQueueMaintenance' --help
 
- 2) Archive old tasks (completed/failed -> archived, old archived -> deleted)
+ 2) Archive old tasks (completed/failed -> archived)
     php index.php 'oat\\taoTaskQueue\\scripts\\tools\\TaskQueueMaintenance' --archive
+    
+ 3) Delete old archived tasks (archived -> deleted)
+    php index.php 'oat\\taoTaskQueue\\scripts\\tools\\TaskQueueMaintenance' --delete
 
- 3) Unblock stuck tasks (running/enqueued for too long)
+ 4) Unblock stuck tasks (running/enqueued for too long)
     php index.php 'oat\\taoTaskQueue\\scripts\\tools\\TaskQueueMaintenance' --unblock
 
- 4) Vacuum task log table
+ 5) Vacuum task log table
     php index.php 'oat\\taoTaskQueue\\scripts\\tools\\TaskQueueMaintenance' --vacuum
 
 Current internal retention settings (can be changed in this script later):
