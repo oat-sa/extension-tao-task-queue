@@ -1,5 +1,23 @@
 <?php
 
+/**
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; under version 2
+ * of the License (non-upgradable).
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ *
+ * Copyright (c) 2025 (original work) Open Assessment Technologies SA (under the project TAO-PRODUCT);
+ */
+
 declare(strict_types=1);
 
 namespace oat\taoTaskQueue\scripts\tools;
@@ -12,7 +30,7 @@ use oat\oatbox\reporting\Report;
 use oat\tao\model\taskQueue\TaskLogInterface;
 use oat\tao\model\taskQueue\TaskLog\TaskLogFilter;
 use oat\tao\model\taskQueue\TaskLog\Broker\TaskLogBrokerInterface;
-
+use Throwable;
 
 class TaskQueueMaintenance implements Action, ServiceLocatorAwareInterface
 {
@@ -64,11 +82,11 @@ class TaskQueueMaintenance implements Action, ServiceLocatorAwareInterface
 
             // If no specific action requested, or --help given
             if ($this->showHelp || (!$this->doArchive && !$this->doUnblock && !$this->doVacuum)) {
-                $messages[] = $this->commandOutput();
+                $messages[] = $this->printHelp();
             }
 
             return Report::createSuccess(implode(PHP_EOL . PHP_EOL, $messages));
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             return Report::createError('[TaskQueueMaintenance] ' . $e->getMessage());
         }
     }
@@ -219,7 +237,7 @@ class TaskQueueMaintenance implements Action, ServiceLocatorAwareInterface
     /**
      * Help text printed when no options or --help are used.
      */
-    private function commandOutput(): string
+    private function printHelp(): string
     {
         return <<<TXT
 TaskQueueMaintenance
