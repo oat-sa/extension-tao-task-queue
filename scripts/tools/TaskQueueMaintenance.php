@@ -25,14 +25,16 @@ namespace oat\taoTaskQueue\scripts\tools;
 use common_persistence_Manager;
 use Laminas\ServiceManager\ServiceLocatorAwareInterface;
 use Laminas\ServiceManager\ServiceLocatorAwareTrait;
-use oat\oatbox\action\Action;
+use DateTimeImmutable;
+use oat\oatbox\extension\script\ScriptAction;
 use oat\oatbox\reporting\Report;
 use oat\tao\model\taskQueue\TaskLogInterface;
 use oat\tao\model\taskQueue\TaskLog\TaskLogFilter;
 use oat\tao\model\taskQueue\TaskLog\Broker\TaskLogBrokerInterface;
+use RuntimeException;
 use Throwable;
 
-class TaskQueueMaintenance implements Action, ServiceLocatorAwareInterface
+class TaskQueueMaintenance extends ScriptAction implements ServiceLocatorAwareInterface
 {
     use ServiceLocatorAwareTrait;
 
@@ -40,107 +42,93 @@ class TaskQueueMaintenance implements Action, ServiceLocatorAwareInterface
     private int $archivedRetentionDays  = 180;  // Archived -> Deleted
     private int $stuckRetentionDays     = 14;   // In Progress / Enqueued -> “stuck”
 
-    /**
-     * Flags set from CLI arguments.
-     */
-    private bool $doArchive = false;
-    private bool $doUnblock = false;
-    private bool $doVacuum  = false;
-    private bool $doDelete = false;
-    private bool $showHelp  = false;
+    protected function provideDescription(): string
+    {
+        return 'Cron-oriented maintenance script for task queue.';
+    }
+
+    protected function provideUsage(): array
+    {
+        return [
+            'prefix' => 'h',
+            'longPrefix' => 'help',
+            'description' => 'Display this help message.'
+        ];
+    }
+
+    protected function provideOptions(): array
+    {
+        return [
+            'archive' => [
+                'prefix' => 'a',
+                'longPrefix' => 'archive',
+                'flag' => true,
+                'required' => false,
+                'description' => 'Archive completed/failed tasks older than retention.'
+            ],
+            'delete' => [
+                'prefix' => 'd',
+                'longPrefix' => 'delete',
+                'flag' => true,
+                'required' => false,
+                'description' => 'Delete archived tasks older than retention.'
+            ],
+            'vacuum' => [
+                'prefix' => 'v',
+                'longPrefix' => 'vacuum',
+                'flag' => true,
+                'required' => false,
+                'description' => 'Run VACUUM FULL on tq_task_log.'
+            ],
+            'unblock' => [
+                'prefix' => 'u',
+                'longPrefix' => 'unblock',
+                'flag' => true,
+                'required' => false,
+                'description' => 'Unblock stuck tasks (not implemented yet).'
+            ],
+        ];
+    }
 
     /**
      * Entry point when called via:
      *   sudo -u www-data php index.php 'oat\taoTaskQueue\scripts\tools\TaskQueueMaintenance'
-     *
-     * @param array $params CLI parameters passed by TAO
      */
-    public function __invoke($params): Report
+    protected function run()
     {
-        try {
-            $this->parseParams((array) $params);
+        $messages = [];
 
-            $messages = [];
-
-            if ($this->doArchive) {
-                $count = $this->runArchive();
-                $messages[] = sprintf(
-                    '[TaskQueueMaintenance] Archive flow finished. Affected tasks: %d',
-                    $count
-                );
-            }
-
-            if ($this->doDelete) {
-                $deleted = $this->deleteOldArchived();
-                $messages[] = sprintf(
-                    '[TaskQueueMaintenance] Delete archived flow finished. Tasks deleted: %d',
-                    $deleted
-                );
-            }
-
-            if ($this->doUnblock) {
-                // TODO: implement unblock flow
-                $messages[] = '[TaskQueueMaintenance] Unblock flow not implemented yet.';
-            }
-
-
-            if ($this->doVacuum) {
-                $this->runVacuum();
-                $messages[] = '[TaskQueueMaintenance] Vacuum flow finished (VACUUM FULL tq_task_log).';
-            }
-
-            // If no specific action requested, or --help given
-            if ($this->showHelp || (!$this->doArchive && !$this->doDelete && !$this->doUnblock && !$this->doVacuum)) {
-                $messages[] = $this->printHelp();
-            }
-
-            return Report::createSuccess(implode(PHP_EOL . PHP_EOL, $messages));
-        } catch (Throwable $e) {
-            return Report::createError('[TaskQueueMaintenance] ' . $e->getMessage());
+        if ($this->hasOption('archive')) {
+            $count = $this->archiveCompletedAndFailed();
+            $messages[] = sprintf(
+                '[TaskQueueMaintenance] Archive flow finished. Affected tasks: %d',
+                $count
+            );
         }
-    }
 
-    /**
-     * Argument parsing:
-     *  --archive
-     *  --unblock
-     *  --vacuum
-     *  --help
-     */
-    private function parseParams(array $params): void
-    {
-        foreach ($params as $param) {
-            switch ($param) {
-                case '--archive':
-                    $this->doArchive = true;
-                    break;
-
-                case '--unblock':
-                    $this->doUnblock = true;
-                    break;
-
-                case '--vacuum':
-                    $this->doVacuum = true;
-                    break;
-
-                case '--delete':
-                    $this->doDelete = true;
-                    break;
-
-                case '--help':
-                    $this->showHelp = true;
-                    break;
-            }
+        if ($this->hasOption('delete')) {
+            $deleted = $this->deleteOldArchived();
+            $messages[] = sprintf(
+                '[TaskQueueMaintenance] Delete archived flow finished. Tasks deleted: %d',
+                $deleted
+            );
         }
-    }
 
-    /**
-     * Main entry point for the --archive option.
-     * Returns number of archived tasks.
-     */
-    private function runArchive(): int
-    {
-        return $this->archiveCompletedAndFailed();
+        if ($this->hasOption('unblock')) {
+            // TODO: implement unblock flow
+            $messages[] = '[TaskQueueMaintenance] Unblock flow not implemented yet.';
+        }
+
+        if ($this->hasOption('vacuum')) {
+            $this->runVacuum();
+            $messages[] = '[TaskQueueMaintenance] Vacuum flow finished (VACUUM FULL tq_task_log).';
+        }
+
+        if (empty($messages)) {
+            return Report::createInfo('No option provided. Use --help to see usage.');
+        }
+
+        return Report::createSuccess(implode(PHP_EOL . PHP_EOL, $messages));
     }
 
     /**
@@ -151,7 +139,7 @@ class TaskQueueMaintenance implements Action, ServiceLocatorAwareInterface
         /** @var TaskLogInterface $taskLog */
         $taskLog = $this->getServiceLocator()->get(TaskLogInterface::SERVICE_ID);
 
-        $cutoffDate = (new \DateTimeImmutable())
+        $cutoffDate = (new DateTimeImmutable())
             ->modify(sprintf('-%d days', $this->completedRetentionDays));
 
         $cutoffDateString = $cutoffDate->format('Y-m-d H:i:s');
@@ -190,7 +178,7 @@ class TaskQueueMaintenance implements Action, ServiceLocatorAwareInterface
         /** @var TaskLogInterface $taskLog */
         $taskLog = $this->getServiceLocator()->get(TaskLogInterface::SERVICE_ID);
 
-        $cutoffDate = (new \DateTimeImmutable())
+        $cutoffDate = (new DateTimeImmutable())
             ->modify(sprintf('-%d days', $this->archivedRetentionDays));
 
         $cutoffDateString = $cutoffDate->format('Y-m-d H:i:s');
@@ -239,41 +227,8 @@ class TaskQueueMaintenance implements Action, ServiceLocatorAwareInterface
             $persistence = $pm->getPersistenceById('default');
 
             $persistence->exec('VACUUM FULL tq_task_log;');
-        } catch (\Throwable $e) {
-            throw new \RuntimeException('VACUUM failed: ' . $e->getMessage(), 0, $e);
+        } catch (Throwable $e) {
+            throw new RuntimeException('VACUUM failed: ' . $e->getMessage(), 0, $e);
         }
-    }
-
-    /**
-     * Help text printed when no options or --help are used.
-     */
-    private function printHelp(): string
-    {
-        return <<<TXT
-TaskQueueMaintenance
-
-Cron-oriented maintenance for task queue logs.
-
-Usage examples:
- 1) Show help
-    php index.php 'oat\\taoTaskQueue\\scripts\\tools\\TaskQueueMaintenance' --help
-
- 2) Archive old tasks (completed/failed -> archived)
-    php index.php 'oat\\taoTaskQueue\\scripts\\tools\\TaskQueueMaintenance' --archive
-    
- 3) Delete old archived tasks (archived -> deleted)
-    php index.php 'oat\\taoTaskQueue\\scripts\\tools\\TaskQueueMaintenance' --delete
-
- 4) Unblock stuck tasks (running/enqueued for too long)
-    php index.php 'oat\\taoTaskQueue\\scripts\\tools\\TaskQueueMaintenance' --unblock
-
- 5) Vacuum task log table
-    php index.php 'oat\\taoTaskQueue\\scripts\\tools\\TaskQueueMaintenance' --vacuum
-
-Current internal retention settings (can be changed in this script later):
-  completedRetentionDays = {$this->completedRetentionDays}
-  archivedRetentionDays  = {$this->archivedRetentionDays}
-  stuckRetentionDays     = {$this->stuckRetentionDays}
-TXT;
     }
 }
