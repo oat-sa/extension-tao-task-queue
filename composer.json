@@ -1,41 +1,41 @@
 {
-    "name": "oat-sa/extension-tao-task-queue",
-    "description": "TAO specific Task Queue with custom GUI",
-    "authors": [
-        {
-            "name": "Open Assessment Technologies S.A.",
-            "homepage": "http://www.taotesting.com"
-        },
-        {
-            "name": "Gyula Szucs",
-            "role": "Developer"
-        }
-    ],
-    "homepage" : "http://www.taotesting.com",
-    "license" : "GPL-2.0-only",
-    "keywords": [
-        "tao",
-        "computer-based-assessment",
-        "oat",
-        "task",
-        "queue"
-    ],
-    "type": "tao-extension",
-    "extra": {
-        "tao-extension-name": "taoTaskQueue"
+  "name": "oat-sa/extension-tao-task-queue",
+  "description": "TAO specific Task Queue with custom GUI",
+  "authors": [
+    {
+      "name": "Open Assessment Technologies S.A.",
+      "homepage": "http://www.taotesting.com"
     },
-    "minimum-stability": "dev",
-    "require": {
-        "oat-sa/oatbox-extension-installer": "~1.1||dev-master",
-        "react/child-process": "^0.5.2",
-        "evenement/evenement": "^2.0",
-        "ext-pdo": "*",
-        "oat-sa/generis" : ">=15.22",
-        "oat-sa/tao-core" : ">=53.6.0||53.3.3"
-    },
-    "autoload": {
-        "psr-4": {
-            "oat\\taoTaskQueue\\": ""
-        }
+    {
+      "name": "Gyula Szucs",
+      "role": "Developer"
     }
+  ],
+  "homepage": "http://www.taotesting.com",
+  "license": "GPL-2.0-only",
+  "keywords": [
+    "tao",
+    "computer-based-assessment",
+    "oat",
+    "task",
+    "queue"
+  ],
+  "type": "tao-extension",
+  "extra": {
+    "tao-extension-name": "taoTaskQueue"
+  },
+  "minimum-stability": "dev",
+  "require": {
+    "oat-sa/oatbox-extension-installer": "~1.1||dev-master",
+    "react/child-process": "^0.5.2",
+    "evenement/evenement": "^2.0",
+    "ext-pdo": "*",
+    "oat-sa/generis": ">=16.2.2",
+    "oat-sa/tao-core": ">=54.49.5||53.3.3"
+  },
+  "autoload": {
+    "psr-4": {
+      "oat\\taoTaskQueue\\": ""
+    }
+  }
 }
