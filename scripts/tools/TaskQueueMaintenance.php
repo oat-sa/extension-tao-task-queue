@@ -31,8 +31,11 @@ use oat\oatbox\reporting\Report;
 use oat\tao\model\taskQueue\TaskLogInterface;
 use oat\tao\model\taskQueue\TaskLog\TaskLogFilter;
 use oat\tao\model\taskQueue\TaskLog\Broker\TaskLogBrokerInterface;
+use PDO;
 use RuntimeException;
 use Throwable;
+use oat\tao\model\taskQueue\QueueDispatcherInterface;
+use oat\taoTaskQueue\model\QueueBroker\RdsQueueBroker;
 
 class TaskQueueMaintenance extends ScriptAction implements ServiceLocatorAwareInterface
 {
@@ -115,8 +118,14 @@ class TaskQueueMaintenance extends ScriptAction implements ServiceLocatorAwareIn
         }
 
         if ($this->hasOption('unblock')) {
-            // TODO: implement unblock flow
-            $messages[] = '[TaskQueueMaintenance] Unblock flow not implemented yet.';
+            $stats = $this->unblockStuckTasks();
+            $messages[] = sprintf(
+                '[TaskQueueMaintenance] Unblock finished. found=%d already_visible=%d unblocked=%d orphan=%d',
+                $stats['stuckFound'],
+                $stats['alreadyVisible'],
+                $stats['unblocked'],
+                $stats['orphan']
+            );
         }
 
         if ($this->hasOption('vacuum')) {
@@ -213,6 +222,100 @@ class TaskQueueMaintenance extends ScriptAction implements ServiceLocatorAwareIn
         }
 
         return $deleted;
+    }
+
+    /**
+     * Unblock stuck tasks in Running/Enqueued status older than $stuckRetentionDays.
+     */
+    private function unblockStuckTasks(): array
+    {
+        /** @var TaskLogInterface $taskLog */
+        $taskLog = $this->getServiceLocator()->get(TaskLogInterface::SERVICE_ID);
+
+        /** @var QueueDispatcherInterface $dispatcher */
+        $dispatcher = $this->getServiceLocator()->get(QueueDispatcherInterface::SERVICE_ID);
+
+        /** @var \common_persistence_SqlPersistence $persistence */
+        $persistence = $this->getServiceLocator()
+            ->get(common_persistence_Manager::SERVICE_ID)
+            ->getPersistenceById('default');
+
+        $cutoff = (new DateTimeImmutable())
+            ->modify(sprintf('-%d days', $this->stuckRetentionDays))
+            ->format('Y-m-d H:i:s');
+
+        $filter = (new TaskLogFilter())
+            ->in(
+                TaskLogBrokerInterface::COLUMN_STATUS,
+                [
+                    TaskLogInterface::STATUS_RUNNING,
+                    TaskLogInterface::STATUS_ENQUEUED,
+                ]
+            )
+            ->lte(
+                TaskLogBrokerInterface::COLUMN_UPDATED_AT,
+                $cutoff
+            );
+
+        $collection = $taskLog->search($filter);
+
+        $stats = [
+            'stuckFound'     => $collection->count(),
+            'unblocked'      => 0,
+            'alreadyVisible' => 0,
+            'orphan'         => 0,
+        ];
+
+        if ($collection->isEmpty()) {
+            return $stats;
+        }
+
+        /** @var \oat\tao\model\taskQueue\Queue[] $queues */
+        $queues = $dispatcher->getQueues();
+
+        foreach ($collection as $taskLogEntity) {
+            $taskLogId = $taskLogEntity->getId();
+            $foundInQueue = false;
+
+            foreach ($queues as $queue) {
+                $broker = $queue->getBroker();
+
+                /** @var RdsQueueBroker $broker */
+                $decorator = $broker->getTaskByTaskLogId($taskLogId);
+                if ($decorator === null) {
+                    continue;
+                }
+
+                $foundInQueue = true;
+
+                $queueRowId = (int) $decorator->getTaskId();
+                $tableName = 'tq_' . $queue->getName();
+
+                $row = $persistence->query(
+                    'SELECT visible FROM ' . $tableName . ' WHERE id = ?',
+                    [$queueRowId]
+                )->fetch(PDO::FETCH_ASSOC);
+
+                if (!$row) {
+                    break;
+                }
+
+                if ((bool) $row['visible'] === false) {
+                    $broker->changeTaskVisibility((string) $queueRowId, true);
+                    $stats['unblocked']++;
+                } else {
+                    $stats['alreadyVisible']++;
+                }
+
+                break;
+            }
+
+            if (!$foundInQueue) {
+                $stats['orphan']++;
+            }
+        }
+
+        return $stats;
     }
 
     /**
