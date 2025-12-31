@@ -41,10 +41,6 @@ class TaskQueueMaintenance extends ScriptAction implements ServiceLocatorAwareIn
 {
     use ServiceLocatorAwareTrait;
 
-    private int $completedRetentionDays = 30;   // Completed/Failed -> Archived
-    private int $archivedRetentionDays  = 180;  // Archived -> Deleted
-    private int $stuckRetentionDays     = 14;   // In Progress / Enqueued -> “stuck”
-
     protected function provideDescription(): string
     {
         return 'Cron-oriented maintenance script for task queue.';
@@ -90,6 +86,30 @@ class TaskQueueMaintenance extends ScriptAction implements ServiceLocatorAwareIn
                 'required' => false,
                 'description' => 'Unblock stuck tasks (not implemented yet).'
             ],
+            'completedRetention' => [
+                'prefix' => 'c',
+                'longPrefix' => 'completed-retention',
+                'cast' => 'int',
+                'required' => false,
+                'defaultValue' => 30,
+                'description' => 'Retention in days for completed/failed tasks before archiving.',
+            ],
+            'archivedRetention' => [
+                'prefix' => 'r',
+                'longPrefix' => 'archived-retention',
+                'cast' => 'int',
+                'required' => false,
+                'defaultValue' => 180,
+                'description' => 'Retention in days for archived tasks before deletion.',
+            ],
+            'stuckRetention' => [
+                'prefix' => 's',
+                'longPrefix' => 'stuck-retention',
+                'cast' => 'int',
+                'required' => false,
+                'defaultValue' => 14,
+                'description' => 'Age in days for running/enqueued tasks to be considered stuck.',
+            ],
         ];
     }
 
@@ -101,8 +121,12 @@ class TaskQueueMaintenance extends ScriptAction implements ServiceLocatorAwareIn
     {
         $messages = [];
 
+        $completedRetention = (int) $this->getOption('completedRetention');
+        $archivedRetention  = (int) $this->getOption('archivedRetention');
+        $stuckRetention     = (int) $this->getOption('stuckRetention');
+
         if ($this->hasOption('archive')) {
-            $count = $this->archiveCompletedAndFailed();
+            $count = $this->archiveCompletedAndFailed($completedRetention);
             $messages[] = sprintf(
                 '[TaskQueueMaintenance] Archive flow finished. Affected tasks: %d',
                 $count
@@ -110,7 +134,7 @@ class TaskQueueMaintenance extends ScriptAction implements ServiceLocatorAwareIn
         }
 
         if ($this->hasOption('delete')) {
-            $deleted = $this->deleteOldArchived();
+            $deleted = $this->deleteOldArchived($archivedRetention);
             $messages[] = sprintf(
                 '[TaskQueueMaintenance] Delete archived flow finished. Tasks deleted: %d',
                 $deleted
@@ -118,7 +142,7 @@ class TaskQueueMaintenance extends ScriptAction implements ServiceLocatorAwareIn
         }
 
         if ($this->hasOption('unblock')) {
-            $stats = $this->unblockStuckTasks();
+            $stats = $this->unblockStuckTasks($stuckRetention);
             $messages[] = sprintf(
                 '[TaskQueueMaintenance] Unblock finished. found=%d already_visible=%d unblocked=%d orphan=%d',
                 $stats['stuckFound'],
@@ -143,13 +167,13 @@ class TaskQueueMaintenance extends ScriptAction implements ServiceLocatorAwareIn
     /**
      * Move Completed and Failed tasks older than N days to Archived status in the tq_task_log table.
      */
-    private function archiveCompletedAndFailed(): int
+    private function archiveCompletedAndFailed(int $completedRetention): int
     {
         /** @var TaskLogInterface $taskLog */
         $taskLog = $this->getServiceLocator()->get(TaskLogInterface::SERVICE_ID);
 
         $cutoffDate = (new DateTimeImmutable())
-            ->modify(sprintf('-%d days', $this->completedRetentionDays));
+            ->modify(sprintf('-%d days', $completedRetention));
 
         $cutoffDateString = $cutoffDate->format('Y-m-d H:i:s');
 
@@ -182,13 +206,13 @@ class TaskQueueMaintenance extends ScriptAction implements ServiceLocatorAwareIn
     /**
      * Delete archived tasks older than N days.
      */
-    private function deleteOldArchived(): int
+    private function deleteOldArchived(int $archivedRetention): int
     {
         /** @var TaskLogInterface $taskLog */
         $taskLog = $this->getServiceLocator()->get(TaskLogInterface::SERVICE_ID);
 
         $cutoffDate = (new DateTimeImmutable())
-            ->modify(sprintf('-%d days', $this->archivedRetentionDays));
+            ->modify(sprintf('-%d days', $archivedRetention));
 
         $cutoffDateString = $cutoffDate->format('Y-m-d H:i:s');
 
@@ -225,9 +249,9 @@ class TaskQueueMaintenance extends ScriptAction implements ServiceLocatorAwareIn
     }
 
     /**
-     * Unblock stuck tasks in Running/Enqueued status older than $stuckRetentionDays.
+     * Unblock stuck tasks in Running/Enqueued status older than $stuckRetention.
      */
-    private function unblockStuckTasks(): array
+    private function unblockStuckTasks(int $stuckRetention): array
     {
         /** @var TaskLogInterface $taskLog */
         $taskLog = $this->getServiceLocator()->get(TaskLogInterface::SERVICE_ID);
@@ -241,7 +265,7 @@ class TaskQueueMaintenance extends ScriptAction implements ServiceLocatorAwareIn
             ->getPersistenceById('default');
 
         $cutoff = (new DateTimeImmutable())
-            ->modify(sprintf('-%d days', $this->stuckRetentionDays))
+            ->modify(sprintf('-%d days', $stuckRetention))
             ->format('Y-m-d H:i:s');
 
         $filter = (new TaskLogFilter())
