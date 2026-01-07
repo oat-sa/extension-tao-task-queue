@@ -84,7 +84,7 @@ class TaskQueueMaintenance extends ScriptAction implements ServiceLocatorAwareIn
                 'longPrefix' => 'unblock',
                 'flag' => true,
                 'required' => false,
-                'description' => 'Unblock stuck tasks (not implemented yet).'
+                'description' => 'Unblock stuck tasks older than retention.'
             ],
             'completedRetention' => [
                 'prefix' => 'c',
@@ -321,7 +321,7 @@ class TaskQueueMaintenance extends ScriptAction implements ServiceLocatorAwareIn
                 )->fetch(PDO::FETCH_ASSOC);
 
                 if (!$row) {
-                    break;
+                    continue;
                 }
 
                 if ((bool) $row['visible'] === false) {
