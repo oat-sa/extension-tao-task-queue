@@ -107,7 +107,7 @@ class TaskQueueMaintenance extends ScriptAction implements ServiceLocatorAwareIn
                 'longPrefix' => 'stuck-retention',
                 'cast' => 'int',
                 'required' => false,
-                'defaultValue' => 14,
+                'defaultValue' => 2,
                 'description' => 'Age in days for running/enqueued tasks to be considered stuck.',
             ],
         ];
