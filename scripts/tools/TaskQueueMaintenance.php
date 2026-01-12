@@ -36,6 +36,7 @@ use RuntimeException;
 use Throwable;
 use oat\tao\model\taskQueue\QueueDispatcherInterface;
 use oat\taoTaskQueue\model\QueueBroker\RdsQueueBroker;
+use function Webmozart\Assert\Tests\StaticAnalysis\validArrayKey;
 
 class TaskQueueMaintenance extends ScriptAction implements ServiceLocatorAwareInterface
 {
@@ -350,8 +351,19 @@ class TaskQueueMaintenance extends ScriptAction implements ServiceLocatorAwareIn
         try {
             /** @var common_persistence_Manager $pm */
             $pm = $this->getServiceLocator()->get(common_persistence_Manager::SERVICE_ID);
-
             $persistence = $pm->getPersistenceById('default');
+
+            $conn = $persistence->getDriver()->getDbalConnection()->getParams();
+            $driver = $conn['driver'] ?? null;
+
+            if ($driver !== 'pdo_pgsql') {
+                throw new RuntimeException(
+                    sprintf(
+                        'VACUUM FULL is only supported on PostgreSQL (pdo_pgsql). Current driver: %s',
+                        $driver ?? 'unknown'
+                    )
+                );
+            }
 
             $persistence->exec('VACUUM FULL tq_task_log;');
         } catch (Throwable $e) {
