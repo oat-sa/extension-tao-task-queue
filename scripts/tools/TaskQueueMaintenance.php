@@ -36,7 +36,6 @@ use RuntimeException;
 use Throwable;
 use oat\tao\model\taskQueue\QueueDispatcherInterface;
 use oat\taoTaskQueue\model\QueueBroker\RdsQueueBroker;
-use function Webmozart\Assert\Tests\StaticAnalysis\validArrayKey;
 
 class TaskQueueMaintenance extends ScriptAction implements ServiceLocatorAwareInterface
 {
