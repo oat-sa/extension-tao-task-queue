@@ -22,7 +22,9 @@ declare(strict_types=1);
 
 namespace oat\taoTaskQueue\scripts\tools;
 
+use common_persistence_Driver;
 use common_persistence_Manager;
+use common_persistence_sql_Driver;
 use Laminas\ServiceManager\ServiceLocatorAwareInterface;
 use Laminas\ServiceManager\ServiceLocatorAwareTrait;
 use DateTimeImmutable;
@@ -32,8 +34,6 @@ use oat\tao\model\taskQueue\TaskLogInterface;
 use oat\tao\model\taskQueue\TaskLog\TaskLogFilter;
 use oat\tao\model\taskQueue\TaskLog\Broker\TaskLogBrokerInterface;
 use PDO;
-use RuntimeException;
-use Throwable;
 use oat\tao\model\taskQueue\QueueDispatcherInterface;
 use oat\taoTaskQueue\model\QueueBroker\RdsQueueBroker;
 
@@ -87,7 +87,7 @@ class TaskQueueMaintenance extends ScriptAction implements ServiceLocatorAwareIn
                 'description' => 'Unblock stuck tasks older than retention.'
             ],
             'completedRetention' => [
-                'prefix' => 'c',
+                'prefix' => 'cr',
                 'longPrefix' => 'completed-retention',
                 'cast' => 'int',
                 'required' => false,
@@ -95,7 +95,7 @@ class TaskQueueMaintenance extends ScriptAction implements ServiceLocatorAwareIn
                 'description' => 'Retention in days for completed/failed tasks before archiving.',
             ],
             'archivedRetention' => [
-                'prefix' => 'r',
+                'prefix' => 'ar',
                 'longPrefix' => 'archived-retention',
                 'cast' => 'int',
                 'required' => false,
@@ -103,7 +103,7 @@ class TaskQueueMaintenance extends ScriptAction implements ServiceLocatorAwareIn
                 'description' => 'Retention in days for archived tasks before deletion.',
             ],
             'stuckRetention' => [
-                'prefix' => 's',
+                'prefix' => 'sr',
                 'longPrefix' => 'stuck-retention',
                 'cast' => 'int',
                 'required' => false,
@@ -119,55 +119,44 @@ class TaskQueueMaintenance extends ScriptAction implements ServiceLocatorAwareIn
      */
     protected function run()
     {
-        $messages = [];
+        $report = Report::createInfo('[TaskQueueMaintenance] Maintenance run summary.');
+        $hasAction = false;
 
         $completedRetention = (int) $this->getOption('completedRetention');
         $archivedRetention  = (int) $this->getOption('archivedRetention');
         $stuckRetention     = (int) $this->getOption('stuckRetention');
 
-        if ($this->hasOption('archive')) {
-            $count = $this->archiveCompletedAndFailed($completedRetention);
-            $messages[] = sprintf(
-                '[TaskQueueMaintenance] Archive flow finished. Affected tasks: %d',
-                $count
-            );
+        if ($this->getOption('archive')) {
+            $hasAction = true;
+            $report->add($this->archiveCompletedAndFailed($completedRetention));
         }
 
-        if ($this->hasOption('delete')) {
-            $deleted = $this->deleteOldArchived($archivedRetention);
-            $messages[] = sprintf(
-                '[TaskQueueMaintenance] Delete archived flow finished. Tasks deleted: %d',
-                $deleted
-            );
+        if ($this->getOption('delete')) {
+            $hasAction = true;
+            $report->add($this->deleteOldArchived($archivedRetention));
         }
 
-        if ($this->hasOption('unblock')) {
-            $stats = $this->unblockStuckTasks($stuckRetention);
-            $messages[] = sprintf(
-                '[TaskQueueMaintenance] Unblock finished. found=%d already_visible=%d unblocked=%d orphan=%d',
-                $stats['stuckFound'],
-                $stats['alreadyVisible'],
-                $stats['unblocked'],
-                $stats['orphan']
-            );
+        if ($this->getOption('unblock')) {
+            $hasAction = true;
+            $report->add($this->unblockStuckTasks($stuckRetention));
         }
 
-        if ($this->hasOption('vacuum')) {
-            $this->runVacuum();
-            $messages[] = '[TaskQueueMaintenance] Vacuum flow finished (VACUUM FULL tq_task_log).';
+        if ($this->getOption('vacuum')) {
+            $hasAction = true;
+            $report->add($this->runVacuum());
         }
 
-        if (empty($messages)) {
+        if (!$hasAction) {
             return Report::createInfo('No option provided. Use --help to see usage.');
         }
 
-        return Report::createSuccess(implode(PHP_EOL . PHP_EOL, $messages));
+        return $report;
     }
 
     /**
      * Move Completed and Failed tasks older than N days to Archived status in the tq_task_log table.
      */
-    private function archiveCompletedAndFailed(int $completedRetention): int
+    private function archiveCompletedAndFailed(int $completedRetention): Report
     {
         /** @var TaskLogInterface $taskLog */
         $taskLog = $this->getServiceLocator()->get(TaskLogInterface::SERVICE_ID);
@@ -195,18 +184,21 @@ class TaskQueueMaintenance extends ScriptAction implements ServiceLocatorAwareIn
         $collection = $taskLog->search($filter);
 
         if ($collection->isEmpty()) {
-            return 0;
+            return Report::createSuccess('[TaskQueueMaintenance] Archive: nothing to archive.');
         }
 
         $taskLog->archiveCollection($collection);
 
-        return $collection->count();
+        return Report::createSuccess(sprintf(
+            '[TaskQueueMaintenance] Archive flow finished. Affected tasks: %d',
+            $collection->count()
+        ));
     }
 
     /**
      * Delete archived tasks older than N days.
      */
-    private function deleteOldArchived(int $archivedRetention): int
+    private function deleteOldArchived(int $archivedRetention): Report
     {
         /** @var TaskLogInterface $taskLog */
         $taskLog = $this->getServiceLocator()->get(TaskLogInterface::SERVICE_ID);
@@ -231,7 +223,7 @@ class TaskQueueMaintenance extends ScriptAction implements ServiceLocatorAwareIn
         $collection = $taskLog->search($filter);
 
         if ($collection->isEmpty()) {
-            return 0;
+            return Report::createSuccess('[TaskQueueMaintenance] Delete: nothing to delete.');
         }
 
         $deleted = 0;
@@ -245,13 +237,16 @@ class TaskQueueMaintenance extends ScriptAction implements ServiceLocatorAwareIn
             }
         }
 
-        return $deleted;
+        return Report::createSuccess(sprintf(
+            '[TaskQueueMaintenance] Delete archived flow finished. Tasks deleted: %d',
+            $deleted
+        ));
     }
 
     /**
      * Unblock stuck tasks in Running/Enqueued status older than $stuckRetention.
      */
-    private function unblockStuckTasks(int $stuckRetention): array
+    private function unblockStuckTasks(int $stuckRetention): Report
     {
         /** @var TaskLogInterface $taskLog */
         $taskLog = $this->getServiceLocator()->get(TaskLogInterface::SERVICE_ID);
@@ -291,7 +286,7 @@ class TaskQueueMaintenance extends ScriptAction implements ServiceLocatorAwareIn
         ];
 
         if ($collection->isEmpty()) {
-            return $stats;
+            return Report::createSuccess('[TaskQueueMaintenance] Unblock: nothing to unblock.');
         }
 
         /** @var \oat\tao\model\taskQueue\Queue[] $queues */
@@ -339,34 +334,40 @@ class TaskQueueMaintenance extends ScriptAction implements ServiceLocatorAwareIn
             }
         }
 
-        return $stats;
+        return Report::createSuccess(sprintf(
+            '[TaskQueueMaintenance] Unblock finished. found=%d already_visible=%d unblocked=%d orphan=%d',
+            $stats['stuckFound'],
+            $stats['alreadyVisible'],
+            $stats['unblocked'],
+            $stats['orphan']
+        ));
     }
 
     /**
      * Run VACUUM FULL on the tq_task_log table.
      */
-    private function runVacuum(): void
+    private function runVacuum(): Report
     {
-        try {
-            /** @var common_persistence_Manager $pm */
-            $pm = $this->getServiceLocator()->get(common_persistence_Manager::SERVICE_ID);
-            $persistence = $pm->getPersistenceById('default');
+        /** @var common_persistence_Manager $pm */
+        $pm = $this->getServiceLocator()->get(common_persistence_Manager::SERVICE_ID);
+        $persistence = $pm->getPersistenceById('default');
 
-            $conn = $persistence->getDriver()->getDbalConnection()->getParams();
-            $driver = $conn['driver'] ?? null;
+        /** @var common_persistence_Driver $driver */
+        $driver = $persistence->getDriver();
 
-            if ($driver !== 'pdo_pgsql') {
-                throw new RuntimeException(
-                    sprintf(
-                        'VACUUM FULL is only supported on PostgreSQL (pdo_pgsql). Current driver: %s',
-                        $driver ?? 'unknown'
-                    )
-                );
-            }
-
-            $persistence->exec('VACUUM FULL tq_task_log;');
-        } catch (Throwable $e) {
-            throw new RuntimeException('VACUUM failed: ' . $e->getMessage(), 0, $e);
+        if (!($driver instanceof common_persistence_sql_Driver)) {
+            return Report::createError('VACUUM FULL is only supported on PostgreSQL (pdo_pgsql)');
         }
+
+        $conn = $driver->getDbalConnection()->getParams();
+        $driverType = $conn['driver'] ?? null;
+
+        if ($driverType !== 'pdo_pgsql') {
+            return Report::createError('VACUUM FULL is only supported on PostgreSQL (pdo_pgsql)');
+        }
+
+        $persistence->exec('VACUUM FULL tq_task_log;');
+
+        return Report::createSuccess('[TaskQueueMaintenance] Vacuum flow finished (VACUUM FULL tq_task_log).');
     }
 }
