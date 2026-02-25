@@ -324,7 +324,7 @@ class RdsTaskLogBroker implements TaskLogBrokerInterface, PhpSerializable, Logge
 
         $filter->applyFilters($qb);
 
-        $row = $qb->executeQuery()->fetchAssociative();
+        $row = $qb->executeQuery()->fetchAssociative() ?: [];
 
         return TasksLogsStats::buildFromArray($row);
     }
