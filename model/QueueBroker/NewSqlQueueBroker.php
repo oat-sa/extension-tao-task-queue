@@ -130,8 +130,8 @@ class NewSqlQueueBroker extends AbstractQueueBroker
                 ->from($this->getTableName())
                 ->andWhere('visible = :visible')
                 ->setParameter('visible', true, ParameterType::BOOLEAN)
-                ->execute()
-                ->fetchColumn();
+                ->executeQuery()
+                ->fetchOne();
         } catch (Exception $e) {
             $this->logError('Counting tasks failed with MSG: ' . $e->getMessage());
         }
@@ -177,7 +177,7 @@ class NewSqlQueueBroker extends AbstractQueueBroker
                 ->andWhere('visible = :visible')
                 ->setParameter('id', $id)
                 ->setParameter('visible', false, ParameterType::BOOLEAN)
-                ->execute();
+                ->executeStatement();
         } catch (Exception $e) {
             $this->logError('Deleting task failed with MSG: ' . $e->getMessage(), $logContext);
         }
@@ -218,7 +218,7 @@ class NewSqlQueueBroker extends AbstractQueueBroker
             ->setParameter('visible', false, ParameterType::BOOLEAN)
             ->setParameter('ids', array_column($dbResult, 'id'), Connection::PARAM_STR_ARRAY);
 
-        $qb->execute();
+        $qb->executeStatement();
     }
 
     private function processMessages(array $dbResult, array $logContext): void
@@ -245,7 +245,7 @@ class NewSqlQueueBroker extends AbstractQueueBroker
          */
         $sql = $qb->getSQL() . ' ' . $this->getPersistence()->getPlatForm()->getWriteLockSQL();
 
-        return $this->getPersistence()->query($sql, ['visible' => true])->fetchAll(PDO::FETCH_ASSOC);
+        return $this->getPersistence()->query($sql, ['visible' => true])->fetchAllAssociative();
     }
 
     private function getLogContext(): array
