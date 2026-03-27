@@ -24,7 +24,7 @@ namespace oat\taoTaskQueue\model\Repository;
 
 use DateTimeImmutable;
 use DateTimeZone;
-use Doctrine\Common\Cache\Psr6\InvalidArgument;
+use InvalidArgumentException;
 use oat\tao\model\taskQueue\TaskLog;
 
 class StuckTaskQuery
@@ -60,11 +60,11 @@ class StuckTaskQuery
         $whitelist = array_filter($whitelist);
 
         if (empty($whitelist)) {
-            throw new InvalidArgument('Stuck tasks names white list cannot be empty');
+            throw new InvalidArgumentException('Stuck tasks names white list cannot be empty');
         }
 
         if (count(array_intersect($statuses, self::ALLOWED_STATUSES)) !== count($statuses)) {
-            throw new InvalidArgument(
+            throw new InvalidArgumentException(
                 sprintf(
                     'Only allowed statuses "%s" for stuck tasks. Provided: "%s"',
                     implode(',', self::ALLOWED_STATUSES),

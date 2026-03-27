@@ -22,7 +22,8 @@ declare(strict_types=1);
 
 namespace oat\taoTaskQueue\test\unit\model\Repository;
 
-use oat\generis\test\TestCase;
+use oat\generis\test\ServiceManagerMockTrait;
+use PHPUnit\Framework\TestCase;
 use oat\tao\model\taskQueue\QueueDispatcherInterface;
 use oat\tao\model\taskQueue\QueueInterface;
 use oat\tao\model\taskQueue\TaskLog;
@@ -35,6 +36,8 @@ use PHPUnit\Framework\MockObject\MockObject;
 
 class StuckTaskRepositoryTest extends TestCase
 {
+    use ServiceManagerMockTrait;
+
     /** @var StuckTaskRepository */
     private $subject;
 
@@ -50,7 +53,7 @@ class StuckTaskRepositoryTest extends TestCase
         $this->queueDispatcher = $this->createMock(QueueDispatcherInterface::class);
         $this->subject = new StuckTaskRepository();
         $this->subject->setServiceLocator(
-            $this->getServiceLocatorMock(
+            $this->getServiceManagerMock(
                 [
                     TaskLogInterface::SERVICE_ID => $this->taskLog,
                     QueueDispatcherInterface::SERVICE_ID => $this->queueDispatcher,
