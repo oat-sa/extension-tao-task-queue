@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: tao-open-source\n"
-"PO-Revision-Date: 2023-06-07 10:44\n"
+"PO-Revision-Date: 2026-07-03 12:09\n"
 "Last-Translator: TAO Translation Team <translation@tao.lu>\n"
 "MIME-Version: 1.0\n"
 "Language: nl\n"
@@ -21,82 +21,82 @@ msgstr ""
 "Language-Team: Dutch\n"
 
 msgid "Background tasks"
-msgstr ""
+msgstr "Achtergrond taken"
 
 msgid "Clear all finished"
-msgstr ""
+msgstr "Wis alles klaar"
 
 msgid "Clear all finished tasks"
-msgstr ""
+msgstr "Verwijder alle voltooide taken"
 
 msgid "close report"
-msgstr ""
+msgstr "sluit rapport"
 
 msgid "Completed"
-msgstr ""
+msgstr "Voltooid"
 
 msgid "Completed %s"
-msgstr ""
+msgstr "Voltooid %s"
 
 msgid "download"
-msgstr ""
+msgstr "Downloaden"
 
 msgid "Executing task %s failed"
-msgstr ""
+msgstr "Uitvoeringstaak %s is mislukt"
 
 msgid "Failed"
-msgstr ""
+msgstr "Mislukt"
 
 msgid "Failed %s"
-msgstr ""
+msgstr "Mislukt %s"
 
 msgid "go to resource"
-msgstr ""
+msgstr "ga naar resource"
 
 msgid "In Progress"
 msgstr "In uitvoering"
 
 msgid "No report available"
-msgstr ""
+msgstr "Geen rapport beschikbaar"
 
 msgid "notify me when done"
-msgstr ""
+msgstr "Waarschuw mij wanneer u klaar bent"
 
 msgid "Queued"
-msgstr ""
+msgstr "Wachtrij"
 
 msgid "remove"
 msgstr "verwijder"
 
 msgid "Resource is not the task placeholder"
-msgstr ""
+msgstr "Resource is niet de taak placeholder"
 
 msgid "Running task %s"
-msgstr ""
+msgstr "Taak uitvoeren %s"
 
 msgid "see report"
-msgstr ""
+msgstr "zie rapport"
 
 msgid "Started %s"
-msgstr ""
+msgstr "Begonnen %s"
 
 msgid "Task is in \\'%s\\' state"
-msgstr ""
+msgstr "Taak is in \\'%s\\' status"
 
 msgid "Task not returned any report."
-msgstr ""
+msgstr "Taak heeft geen rapport teruggestuurd."
 
 #, tao-public
 msgid "Task Queue"
-msgstr ""
+msgstr "Taak wachtrij"
 
 #, tao-public
 msgid "taskqueue"
-msgstr ""
+msgstr "taskqueue"
 
 msgid "The list is currently empty."
-msgstr ""
+msgstr "De lijst is momenteel leeg."
 
 msgid "There is currently no background task"
-msgstr ""
+msgstr "Er is momenteel geen achtergrondtaak"
 
