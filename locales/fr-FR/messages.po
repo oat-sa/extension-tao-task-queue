@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: tao-open-source\n"
-"PO-Revision-Date: 2023-06-07 10:44\n"
+"PO-Revision-Date: 2026-07-03 12:09\n"
 "Last-Translator: TAO Translation Team <translation@tao.lu>\n"
 "MIME-Version: 1.0\n"
 "Language: fr\n"
@@ -24,79 +24,79 @@ msgid "Background tasks"
 msgstr "Tâches en arrière-plan"
 
 msgid "Clear all finished"
-msgstr ""
+msgstr "Nettoyage terminé"
 
 msgid "Clear all finished tasks"
-msgstr ""
+msgstr "Effacer toutes les tâches terminées"
 
 msgid "close report"
-msgstr ""
+msgstr "fermer le rapport"
 
 msgid "Completed"
-msgstr ""
+msgstr "Terminé"
 
 msgid "Completed %s"
-msgstr ""
+msgstr "%s terminé"
 
 msgid "download"
-msgstr ""
+msgstr "Télécharger"
 
 msgid "Executing task %s failed"
-msgstr ""
+msgstr "L'exécution de la tâche %s a échoué"
 
 msgid "Failed"
-msgstr ""
+msgstr "Echoué"
 
 msgid "Failed %s"
-msgstr ""
+msgstr "Échec %s"
 
 msgid "go to resource"
-msgstr ""
+msgstr "aller à la ressource"
 
 msgid "In Progress"
 msgstr "En cours"
 
 msgid "No report available"
-msgstr ""
+msgstr "Aucun rapport disponible"
 
 msgid "notify me when done"
-msgstr ""
+msgstr "me notifier une fois terminé"
 
 msgid "Queued"
-msgstr ""
+msgstr "En file d'attente"
 
 msgid "remove"
 msgstr "supprimer"
 
 msgid "Resource is not the task placeholder"
-msgstr ""
+msgstr "La ressource n'est pas l'espace réservé à la tâche"
 
 msgid "Running task %s"
-msgstr ""
+msgstr "Tâche en cours d'exécution %s"
 
 msgid "see report"
-msgstr ""
+msgstr "voir le rapport"
 
 msgid "Started %s"
-msgstr ""
+msgstr "A démarré %s"
 
 msgid "Task is in \\'%s\\' state"
-msgstr ""
+msgstr "La tâche est dans l'état \\'%s\\'"
 
 msgid "Task not returned any report."
-msgstr ""
+msgstr "La tâche n'a renvoyé aucun rapport."
 
 #, tao-public
 msgid "Task Queue"
-msgstr ""
+msgstr "File d'attente des tâches"
 
 #, tao-public
 msgid "taskqueue"
-msgstr ""
+msgstr "taskqueue"
 
 msgid "The list is currently empty."
-msgstr ""
+msgstr "La liste est actuellement vide."
 
 msgid "There is currently no background task"
-msgstr ""
+msgstr "Il n'y a actuellement aucune tâche en arrière-plan"
 

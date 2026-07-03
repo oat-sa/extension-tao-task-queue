@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: tao-open-source\n"
-"PO-Revision-Date: 2025-12-05 08:41\n"
+"PO-Revision-Date: 2026-07-03 12:09\n"
 "Last-Translator: TAO Translation Team <translation@tao.lu>\n"
 "MIME-Version: 1.0\n"
 "Language: ro\n"
@@ -21,82 +21,82 @@ msgstr ""
 "Language-Team: Romanian\n"
 
 msgid "Background tasks"
-msgstr ""
+msgstr "Sarcini de fundal"
 
 msgid "Clear all finished"
-msgstr ""
+msgstr "Curăță toate terminate"
 
 msgid "Clear all finished tasks"
-msgstr ""
+msgstr "Șterge toate sarcinile finalizate"
 
 msgid "close report"
-msgstr ""
+msgstr "închidere raport"
 
 msgid "Completed"
-msgstr ""
+msgstr "Completat"
 
 msgid "Completed %s"
-msgstr ""
+msgstr "Completat %s"
 
 msgid "download"
-msgstr ""
+msgstr "descarcă"
 
 msgid "Executing task %s failed"
-msgstr ""
+msgstr "Executarea sarcinii %s a eșuat"
 
 msgid "Failed"
-msgstr ""
+msgstr "Eșuat"
 
 msgid "Failed %s"
-msgstr ""
+msgstr "A eșuat %s"
 
 msgid "go to resource"
-msgstr ""
+msgstr "mergi la resursă"
 
 msgid "In Progress"
-msgstr ""
+msgstr "În curs"
 
 msgid "No report available"
-msgstr ""
+msgstr "Niciun raport disponibil"
 
 msgid "notify me when done"
-msgstr ""
+msgstr "notifică-mă când am terminat"
 
 msgid "Queued"
-msgstr ""
+msgstr "În aşteptare"
 
 msgid "remove"
-msgstr ""
+msgstr "elimină"
 
 msgid "Resource is not the task placeholder"
-msgstr ""
+msgstr "Resursa nu este un substituent de sarcini"
 
 msgid "Running task %s"
-msgstr ""
+msgstr "Se execută sarcina %s"
 
 msgid "see report"
-msgstr ""
+msgstr "a se vedea raportul"
 
 msgid "Started %s"
-msgstr ""
+msgstr "A început %s"
 
 msgid "Task is in \\'%s\\' state"
-msgstr ""
+msgstr "Sarcina este în starea%s\\'"
 
 msgid "Task not returned any report."
-msgstr ""
+msgstr "Sarcina nu a returnat niciun raport."
 
 #, tao-public
 msgid "Task Queue"
-msgstr ""
+msgstr "Coada de sarcini"
 
 #, tao-public
 msgid "taskqueue"
-msgstr ""
+msgstr "taskqueue"
 
 msgid "The list is currently empty."
-msgstr ""
+msgstr "Lista este în prezent goală."
 
 msgid "There is currently no background task"
-msgstr ""
+msgstr "În acest moment nu există nicio sarcină de fundal"
 

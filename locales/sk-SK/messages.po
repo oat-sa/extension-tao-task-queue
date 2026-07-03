@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: tao-open-source\n"
-"PO-Revision-Date: 2025-12-05 08:45\n"
+"PO-Revision-Date: 2026-07-03 12:09\n"
 "Last-Translator: TAO Translation Team <translation@tao.lu>\n"
 "MIME-Version: 1.0\n"
 "Language: sk\n"
@@ -63,13 +63,13 @@ msgid "notify me when done"
 msgstr "upozorni ma, keď bude hotovo"
 
 msgid "Queued"
-msgstr "Zaradené do frontu"
+msgstr "V poradí"
 
 msgid "remove"
 msgstr "odstrániť"
 
 msgid "Resource is not the task placeholder"
-msgstr "Zdroj nie je dočasným zástupným symbolom úlohy"
+msgstr "Zdroj nie je zástupcom úlohy"
 
 msgid "Running task %s"
 msgstr "Spúšťanie úlohy %s"
@@ -88,11 +88,11 @@ msgstr "Úloha nevrátila žiadnu správu."
 
 #, tao-public
 msgid "Task Queue"
-msgstr "Front úloh"
+msgstr "Zoznam úloh"
 
 #, tao-public
 msgid "taskqueue"
-msgstr "front úloh"
+msgstr "zoznam úloh"
 
 msgid "The list is currently empty."
 msgstr "Zoznam je momentálne prázdny."
