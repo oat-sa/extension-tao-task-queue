@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: tao-open-source\n"
-"PO-Revision-Date: 2023-06-07 10:44\n"
+"PO-Revision-Date: 2026-07-03 12:09\n"
 "Last-Translator: TAO Translation Team <translation@tao.lu>\n"
 "MIME-Version: 1.0\n"
 "Language: es\n"
@@ -21,82 +21,82 @@ msgstr ""
 "Language-Team: Spanish\n"
 
 msgid "Background tasks"
-msgstr ""
+msgstr "Tareas de fondo"
 
 msgid "Clear all finished"
-msgstr ""
+msgstr "Borrar todo terminado"
 
 msgid "Clear all finished tasks"
-msgstr ""
+msgstr "Borrar todas las tareas terminadas"
 
 msgid "close report"
-msgstr ""
+msgstr "cerrar informe"
 
 msgid "Completed"
-msgstr ""
+msgstr "Completado"
 
 msgid "Completed %s"
-msgstr ""
+msgstr "Completado %s"
 
 msgid "download"
-msgstr ""
+msgstr "descargar"
 
 msgid "Executing task %s failed"
-msgstr ""
+msgstr "La ejecución de la tarea %s falló"
 
 msgid "Failed"
-msgstr ""
+msgstr "Fallo"
 
 msgid "Failed %s"
-msgstr ""
+msgstr "%s fallida"
 
 msgid "go to resource"
-msgstr ""
+msgstr "ir al recurso"
 
 msgid "In Progress"
-msgstr ""
+msgstr "En curso"
 
 msgid "No report available"
-msgstr ""
+msgstr "No hay reporte disponible"
 
 msgid "notify me when done"
-msgstr ""
+msgstr "notificarme cuando haya terminado"
 
 msgid "Queued"
-msgstr ""
+msgstr "En cola"
 
 msgid "remove"
 msgstr "eliminar"
 
 msgid "Resource is not the task placeholder"
-msgstr ""
+msgstr "El recurso no es el marcador de la tarea"
 
 msgid "Running task %s"
-msgstr ""
+msgstr "Tarea en ejecución %s"
 
 msgid "see report"
-msgstr ""
+msgstr "ver informe"
 
 msgid "Started %s"
-msgstr ""
+msgstr "Comenzó %s"
 
 msgid "Task is in \\'%s\\' state"
-msgstr ""
+msgstr "La tarea está en estado \\'%s\\'"
 
 msgid "Task not returned any report."
-msgstr ""
+msgstr "La tarea no devolvió ningún informe."
 
 #, tao-public
 msgid "Task Queue"
-msgstr ""
+msgstr "Cola de tareas"
 
 #, tao-public
 msgid "taskqueue"
-msgstr ""
+msgstr "taskqueue"
 
 msgid "The list is currently empty."
-msgstr ""
+msgstr "La lista está vacía."
 
 msgid "There is currently no background task"
-msgstr ""
+msgstr "No hay ninguna tarea en segundo plano"
 

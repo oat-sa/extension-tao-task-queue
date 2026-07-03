@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: tao-open-source\n"
-"PO-Revision-Date: 2023-06-07 10:45\n"
+"PO-Revision-Date: 2026-07-03 12:09\n"
 "Last-Translator: TAO Translation Team <translation@tao.lu>\n"
 "MIME-Version: 1.0\n"
 "Language: pt\n"
@@ -21,82 +21,82 @@ msgstr ""
 "Language-Team: Portuguese\n"
 
 msgid "Background tasks"
-msgstr ""
+msgstr "Tarefas de fundo"
 
 msgid "Clear all finished"
-msgstr ""
+msgstr "Limpar tudo terminado"
 
 msgid "Clear all finished tasks"
-msgstr ""
+msgstr "Limpar todas as tarefas concluídas"
 
 msgid "close report"
-msgstr ""
+msgstr "relatório fechado"
 
 msgid "Completed"
-msgstr ""
+msgstr "Concluído"
 
 msgid "Completed %s"
-msgstr ""
+msgstr "Concluída %s"
 
 msgid "download"
-msgstr ""
+msgstr "Baixar"
 
 msgid "Executing task %s failed"
-msgstr ""
+msgstr "A execução da tarefa %s falhou"
 
 msgid "Failed"
-msgstr ""
+msgstr "Falhou"
 
 msgid "Failed %s"
-msgstr ""
+msgstr "Falhou %s"
 
 msgid "go to resource"
-msgstr ""
+msgstr "ir para o recurso"
 
 msgid "In Progress"
-msgstr ""
+msgstr "Em Execução"
 
 msgid "No report available"
-msgstr ""
+msgstr "Nenhum relatório disponível"
 
 msgid "notify me when done"
-msgstr ""
+msgstr "notificar-me quando terminar"
 
 msgid "Queued"
-msgstr ""
+msgstr "Enfileirado"
 
 msgid "remove"
-msgstr ""
+msgstr "Remover"
 
 msgid "Resource is not the task placeholder"
-msgstr ""
+msgstr "O recurso não é o espaço reservado da tarefa"
 
 msgid "Running task %s"
-msgstr ""
+msgstr "Executando tarefa %s"
 
 msgid "see report"
-msgstr ""
+msgstr "ver relatório"
 
 msgid "Started %s"
-msgstr ""
+msgstr "Iniciado em %s"
 
 msgid "Task is in \\'%s\\' state"
-msgstr ""
+msgstr "A tarefa está em estado \\'%s\\'"
 
 msgid "Task not returned any report."
-msgstr ""
+msgstr "Tarefa não retornou nenhum relatório."
 
 #, tao-public
 msgid "Task Queue"
-msgstr ""
+msgstr "Fila de tarefas"
 
 #, tao-public
 msgid "taskqueue"
-msgstr ""
+msgstr "taskqueue"
 
 msgid "The list is currently empty."
-msgstr ""
+msgstr "A lista está atualmente vazia."
 
 msgid "There is currently no background task"
-msgstr ""
+msgstr "Atualmente não há nenhuma tarefa em segundo plano"
 
