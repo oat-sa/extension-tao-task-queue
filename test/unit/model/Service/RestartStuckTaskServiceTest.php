@@ -22,7 +22,8 @@ declare(strict_types=1);
 
 namespace oat\taoTaskQueue\test\unit\model\Service;
 
-use oat\generis\test\TestCase;
+use oat\generis\test\ServiceManagerMockTrait;
+use PHPUnit\Framework\TestCase;
 use oat\tao\model\taskQueue\QueueDispatcherInterface;
 use oat\tao\model\taskQueue\QueueInterface;
 use oat\tao\model\taskQueue\Task\TaskInterface;
@@ -35,6 +36,8 @@ use PHPUnit\Framework\MockObject\MockObject;
 
 class RestartStuckTaskServiceTest extends TestCase
 {
+    use ServiceManagerMockTrait;
+
     /** @var RestartStuckTaskService */
     private $subject;
 
@@ -50,7 +53,7 @@ class RestartStuckTaskServiceTest extends TestCase
         $this->queueDispatcher = $this->createMock(QueueDispatcherInterface::class);
         $this->subject = new RestartStuckTaskService();
         $this->subject->setServiceLocator(
-            $this->getServiceLocatorMock(
+            $this->getServiceManagerMock(
                 [
                     TaskLogInterface::SERVICE_ID => $this->taskLog,
                     QueueDispatcherInterface::SERVICE_ID => $this->queueDispatcher,

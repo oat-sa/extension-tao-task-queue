@@ -21,7 +21,6 @@
 
 namespace oat\taoTaskQueue\model\QueueBroker;
 
-use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Schema\SchemaException;
 use Doctrine\DBAL\Schema\Schema;
@@ -176,7 +175,7 @@ class RdsQueueBroker extends AbstractQueueBroker
              */
             $sql = $qb->getSQL() . ' ' . $this->getPersistence()->getPlatForm()->getWriteLockSQL();
 
-            if ($dbResult = $this->getPersistence()->query($sql, ['visible' => 1])->fetchAll(\PDO::FETCH_ASSOC)) {
+            if ($dbResult = $this->getPersistence()->query($sql, ['visible' => 1])->fetchAllAssociative()) {
                 // set the received messages to invisible for other workers
                 $qb = $this->getQueryBuilder()
                     ->update($this->getTableName())
@@ -184,7 +183,7 @@ class RdsQueueBroker extends AbstractQueueBroker
                     ->where('id IN (' . implode(',', array_column($dbResult, 'id')) . ')')
                     ->setParameter('visible', 0);
 
-                $qb->execute();
+                $qb->executeStatement();
 
                 foreach ($dbResult as $row) {
                     if ($task = $this->unserializeTask($row['message'], $row['id'], $logContext)) {
@@ -230,7 +229,7 @@ class RdsQueueBroker extends AbstractQueueBroker
                 ->andWhere('visible = :visible')
                 ->setParameter('id', (int) $id)
                 ->setParameter('visible', 0)
-                ->execute();
+                ->executeStatement();
         } catch (\Exception $e) {
             $this->logError('Deleting task failed with MSG: ' . $e->getMessage(), $logContext);
         }
@@ -249,8 +248,8 @@ class RdsQueueBroker extends AbstractQueueBroker
             ->andWhere('message LIKE :taskLogId')
             ->setParameter('taskLogId', "%$logId%")
             ->setMaxResults(1)
-            ->execute()
-            ->fetch(FetchMode::ASSOCIATIVE);
+            ->executeQuery()
+            ->fetchAssociative();
 
         if (!$row) {
             return null;
@@ -282,7 +281,7 @@ class RdsQueueBroker extends AbstractQueueBroker
             ->where('id = :id')
             ->setParameter('visible', (int)$visible)
             ->setParameter('id', $taskId)
-            ->execute();
+            ->executeStatement();
     }
 
     public function count(): int
@@ -294,7 +293,7 @@ class RdsQueueBroker extends AbstractQueueBroker
                 ->andWhere('visible = :visible')
                 ->setParameter('visible', 1);
 
-            return (int) $qb->execute()->fetchColumn();
+            return (int) $qb->executeQuery()->fetchOne();
         } catch (\Exception $e) {
             $this->logError('Counting tasks failed with MSG: ' . $e->getMessage());
         }

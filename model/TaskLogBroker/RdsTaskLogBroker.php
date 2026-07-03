@@ -183,7 +183,7 @@ class RdsTaskLogBroker implements TaskLogBrokerInterface, PhpSerializable, Logge
             ->andWhere(self::COLUMN_ID . ' = :id')
             ->setParameter('id', $taskId);
 
-        return $qb->execute()->fetchColumn();
+        return $qb->executeQuery()->fetchOne();
     }
 
     /**
@@ -205,7 +205,7 @@ class RdsTaskLogBroker implements TaskLogBrokerInterface, PhpSerializable, Logge
                 ->setParameter('status_prev', (string) $prevStatus);
         }
 
-        return $qb->execute();
+        return $qb->executeStatement();
     }
 
     /**
@@ -224,7 +224,7 @@ class RdsTaskLogBroker implements TaskLogBrokerInterface, PhpSerializable, Logge
             ->setParameter('status_new', (string) $newStatus)
             ->setParameter('updated_at', $this->getPersistence()->getPlatForm()->getNowExpression());
 
-        return $qb->execute();
+        return $qb->executeStatement();
     }
 
     /**
@@ -239,7 +239,7 @@ class RdsTaskLogBroker implements TaskLogBrokerInterface, PhpSerializable, Logge
             ->setParameter('id', (string) $taskId);
 
         if (
-            ($reportJson = $qb->execute()->fetchColumn())
+            ($reportJson = $qb->executeQuery()->fetchOne())
             && ($reportData = json_decode($reportJson, true)) !== null
             && json_last_error() === JSON_ERROR_NONE
         ) {
@@ -269,7 +269,7 @@ class RdsTaskLogBroker implements TaskLogBrokerInterface, PhpSerializable, Logge
 
             $filter->applyFilters($qb);
 
-            $collection = TaskLogCollection::createFromArray($qb->execute()->fetchAll());
+            $collection = TaskLogCollection::createFromArray($qb->executeQuery()->fetchAllAssociative());
         } catch (\Exception $exception) {
             $this->logError('Searching for task logs failed with MSG: ' . $exception->getMessage());
 
@@ -291,7 +291,7 @@ class RdsTaskLogBroker implements TaskLogBrokerInterface, PhpSerializable, Logge
 
             $filter->applyFilters($qb);
 
-            return (int) $qb->execute()->fetchColumn();
+            return (int) $qb->executeQuery()->fetchOne();
         } catch (\Exception $e) {
             $this->logError('Counting task logs failed with MSG: ' . $e->getMessage());
         }
@@ -324,7 +324,7 @@ class RdsTaskLogBroker implements TaskLogBrokerInterface, PhpSerializable, Logge
 
         $filter->applyFilters($qb);
 
-        $row = $qb->execute()->fetch();
+        $row = $qb->executeQuery()->fetchAssociative() ?: [];
 
         return TasksLogsStats::buildFromArray($row);
     }
@@ -346,7 +346,7 @@ class RdsTaskLogBroker implements TaskLogBrokerInterface, PhpSerializable, Logge
                 ->setParameter('status_new', (string) TaskLogInterface::STATUS_ARCHIVED)
                 ->setParameter('updated_at', $this->getPersistence()->getPlatForm()->getNowExpression());
 
-            $qb->execute();
+            $qb->executeStatement();
             $this->getPersistence()->getPlatform()->commit();
         } catch (\Exception $e) {
             $this->getPersistence()->getPlatform()->rollBack();
@@ -374,7 +374,7 @@ class RdsTaskLogBroker implements TaskLogBrokerInterface, PhpSerializable, Logge
                 ->setParameter('status_new', (string) TaskLogInterface::STATUS_ARCHIVED)
                 ->setParameter('updated_at', $this->getPersistence()->getPlatForm()->getNowExpression());
 
-            $exec = $qb->execute();
+            $exec = $qb->executeStatement();
             $this->getPersistence()->getPlatform()->commit();
         } catch (\Exception $e) {
             $this->getPersistence()->getPlatform()->rollBack();
@@ -399,7 +399,7 @@ class RdsTaskLogBroker implements TaskLogBrokerInterface, PhpSerializable, Logge
                 ->where(self::COLUMN_ID . ' = :id')
                 ->setParameter('id', (string) $taskId);
 
-            $qb->execute();
+            $qb->executeStatement();
             $this->getPersistence()->getPlatform()->commit();
         } catch (\Exception $e) {
             $this->getPersistence()->getPlatform()->rollBack();
